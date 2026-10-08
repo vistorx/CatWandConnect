@@ -11,6 +11,3 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
-
-# Exclude the paid V2 assets from the public Git repository
-cat_playing_platform_V2/
