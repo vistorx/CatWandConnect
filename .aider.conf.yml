@@ -1,0 +1,2 @@
+# Load the shared agent instructions into every aider session.
+read: AGENTS.md

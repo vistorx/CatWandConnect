@@ -111,6 +111,20 @@ Check it with `gh auth status` in the workspace terminal, which should show `vis
 
 These commands arrive with [#2](https://github.com/vistorx/CatWandConnect/issues/2). This section will be filled in then.
 
+## Working with an AI agent
+
+You can use any coding agent. The project's instructions live in [`AGENTS.md`](../AGENTS.md), the cross-tool convention, and everything it points to is plain Markdown.
+
+| Tool | How it picks up `AGENTS.md` |
+|------|-----------------------------|
+| Claude Code | Automatically. It also loads the `mattpocock-skills` plugin (`/tdd`, `/triage`, …). |
+| OpenAI Codex, Cursor, GitHub Copilot (VS Code), Zed, Jules | Automatically. |
+| Aider | Through the committed `.aider.conf.yml`. |
+| Gemini CLI | Set `"contextFileName": "AGENTS.md"` in `.gemini/settings.json` (local, or in your user settings). |
+| Anything else | Tell it to read `AGENTS.md` first. |
+
+The slash-command skills are specific to Claude Code. Agents without them follow the same conventions by reading `docs/agents/`, `CONTEXT.md` and the ADRs.
+
 ## How work flows
 
 1. Pick an open ticket under #1 that has no open blocker. Tickets labelled `ready-for-agent` are fully specified.
