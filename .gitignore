@@ -1,0 +1,16 @@
+# ESPHome secrets
+secrets.yaml
+.esphome/
+
+# macOS / Windows / Linux noise
+.DS_Store
+Thumbs.db
+
+# VS Code workspace files
+.vscode/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Exclude the paid V2 assets from the public Git repository
+cat_playing_platform_V2/
