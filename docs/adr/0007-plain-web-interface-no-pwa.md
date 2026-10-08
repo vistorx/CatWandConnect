@@ -1,0 +1,3 @@
+# Plain HTML/CSS/JS Device interface, home-screen shortcut instead of a PWA
+
+The Device interface is written in plain HTML, CSS and JavaScript with no framework and no build step, like WLED, so it stays tiny in flash and easy for contributors to edit. All user-facing text lives in language files from day one; English is the default and French ships alongside it. We wanted an installable PWA, but browsers only allow installation over HTTPS, which an ESP32 on `.local` cannot provide with a trusted certificate. The interface therefore ships a web manifest and icons only (no service worker), giving a full-screen home-screen icon on iOS and a shortcut on Android. A native wrapper app may come later.

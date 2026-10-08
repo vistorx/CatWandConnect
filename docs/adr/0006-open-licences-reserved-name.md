@@ -1,0 +1,3 @@
+# Open licences, reserved name
+
+The creator wants to be able to sell kits without closing the project to the community. All files use open licences that allow anyone to build, modify and sell: firmware GPL-3.0, hardware CERN-OHL-S-2.0, documentation CC BY-SA 4.0. Kit exclusivity comes from the name instead: "CatWandConnect" and its logo are reserved by a trademark policy, so only the creator's kits can be sold as official CatWandConnect; others must use another name or say "compatible with CatWandConnect". A non-commercial licence (CC BY-NC-SA) was rejected because it is not open hardware and puts off contributors. A trademark registration (INPI/EUIPO) can follow if sales justify it.
