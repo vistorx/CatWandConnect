@@ -1,0 +1,121 @@
+# Getting started
+
+How to pick up CatWandConnect on a new machine, whether you are the maintainer or a new contributor.
+
+## Where things stand
+
+The project is being reframed. The old ESPHome proof of concept has been removed. A dedicated firmware is planned but **no firmware code exists yet**. The first code ticket is [#2 Project skeleton and CI](https://github.com/vistorx/CatWandConnect/issues/2).
+
+Some docs are out of date: `README.md`, `docs/assembly.md`, `docs/electronics.md` and `docs/troubleshooting.md` still describe ESPHome and a paid V2. [#3](https://github.com/vistorx/CatWandConnect/issues/3) rewrites them. Until then, trust the sources below.
+
+## What to read first
+
+| Read | For |
+|------|-----|
+| [`CONTEXT.md`](../CONTEXT.md) | The glossary. Use these words in code, issues and docs. |
+| [`docs/adr/`](adr/) | Why the big decisions were made: open everything, standalone first, Arduino + PlatformIO, MQTT for Home Assistant, licences, plain web interface. |
+| [Issue #1](https://github.com/vistorx/CatWandConnect/issues/1) | The V1 spec. Its sub-issues are the tickets, with native "blocked by" links. |
+| [`AGENTS.md`](../AGENTS.md) and [`docs/agents/`](agents/) | How AI agents work with the issue tracker, labels and domain docs. |
+
+## What is in the repo and what is not
+
+In the repo:
+
+- Domain docs, ADRs and agent config.
+- Printable parts: Mk2 in `stls/mk2/` (reference), Mk1 in `archive/stls/mk1/` (retired).
+- The Claude Code project settings that enable the `mattpocock-skills` plugin (`.claude/settings.json`).
+
+Not in the repo:
+
+- **CAD sources.** Only STL/3MF exports are committed, and `cads/` is empty. To change a part, you need the original CAD project.
+- **The ESPHome PoC.** It was removed in `fa58005`. Recover it with `git show 3cda6f7:sources/cat-playing-platform.yaml`. It is the reference for the PoC motion logic.
+- **Secrets.** None are committed, and the new firmware does not need any at build time. Wi-Fi credentials are entered on the device.
+- **Per-machine setup.** Your SSH key, GitHub login, git identity and `.claude/settings.local.json` must be recreated on each machine. See below.
+
+## Set up a machine
+
+### 1. Tools
+
+- Git and the [GitHub CLI](https://cli.github.com/) (`gh`).
+- VS Code with the **PlatformIO IDE** extension. It provides the toolchain for ESP32, ESP32-S3 and ESP32-C3, plus the native test environment.
+- Optional: [Claude Code](https://claude.com/claude-code). The `mattpocock-skills` plugin is enabled for this workspace by the committed settings. Accept the install prompt the first time.
+
+### 2. Clone
+
+Contributors can clone normally:
+
+```sh
+git clone git@github.com:vistorx/CatWandConnect.git
+```
+
+Do not clone into a folder synced by Nextcloud, Dropbox or iCloud. Syncing a `.git` folder between machines corrupts it. Each machine gets its own clone, and git is the sync.
+
+### 3. Maintainer only: use the `vistorx` account on a machine that has another GitHub account
+
+On a work machine, the default GitHub account is someone else's. These steps keep `vistorx` scoped to this repo only.
+
+**SSH key, with an alias host so the default `github.com` is untouched:**
+
+```sh
+ssh-keygen -t ed25519 -C "vistorx" -f ~/.ssh/github_vistorx
+# Add ~/.ssh/github_vistorx.pub at https://github.com/settings/keys (logged in as vistorx)
+```
+
+Append this to `~/.ssh/config`. Port 443 gets through networks that block port 22.
+
+```
+Host github-vistorx
+  HostName ssh.github.com
+  Port 443
+  User git
+  IdentityFile ~/.ssh/github_vistorx
+  IdentitiesOnly yes
+  AddKeysToAgent yes
+  UseKeychain yes
+```
+
+Check it with `ssh -T github-vistorx`, which should greet `vistorx`.
+
+**Clone through the alias and set a repo-local identity:**
+
+```sh
+git clone git@github-vistorx:vistorx/CatWandConnect.git
+cd CatWandConnect
+git config user.name "vistorx"
+git config user.email "vistorx@users.noreply.github.com"
+```
+
+**A separate `gh` login, stored in its own config folder:**
+
+```sh
+GH_CONFIG_DIR=~/.config/gh-vistorx gh auth login --web
+```
+
+Then point this workspace at that folder:
+
+- For Claude Code, create `.claude/settings.local.json`. It is git-ignored.
+
+  ```json
+  { "env": { "GH_CONFIG_DIR": "/Users/<you>/.config/gh-vistorx" } }
+  ```
+
+- For the VS Code terminal, add the following to the `settings` of `CatWandConnect.code-workspace`, and keep that change uncommitted:
+
+  ```json
+  "terminal.integrated.env.osx": { "GH_CONFIG_DIR": "${env:HOME}/.config/gh-vistorx" }
+  ```
+
+Check it with `gh auth status` in the workspace terminal, which should show `vistorx`.
+
+### 4. Build and test
+
+These commands arrive with [#2](https://github.com/vistorx/CatWandConnect/issues/2). This section will be filled in then.
+
+## How work flows
+
+1. Pick an open ticket under #1 that has no open blocker. Tickets labelled `ready-for-agent` are fully specified.
+2. Branch from `main`, implement test-first where the Robot core is involved, and open a PR that references the ticket.
+3. CI must pass. Behaviour that tests cannot cover goes in the physical acceptance checklist (from #3).
+4. If you settle a new term or decision, update `CONTEXT.md` or add an ADR in the same PR.
+
+Hardware you need from #4 onwards: an ESP32 board, two MG996R servos, a 5 V supply that can deliver several amps, and a printed Mk2 Mechanism.
