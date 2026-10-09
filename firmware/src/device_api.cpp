@@ -1,6 +1,6 @@
 #include "device_api.h"
 
-#include <ArduinoJson.h>
+#include <AsyncJson.h>
 
 namespace {
 
@@ -17,15 +17,103 @@ const char* activityName(cwc::Activity activity) {
   return "idle";
 }
 
+const char* axisName(cwc::Axis axis) { return axis == cwc::Axis::Horizontal ? "horizontal" : "vertical"; }
+
+// Rounds for display so the JSON stays short and stable.
+float tenths(float value) { return roundf(value * 10) / 10; }
+
+void writeSettings(JsonObject out, const cwc::RobotSettings& settings) {
+  out["playSpeed"] = tenths(settings.playSpeed * 100) / 100;
+  out["calibrated"] = settings.calibrated;
+  JsonObject axes = out["axes"].to<JsonObject>();
+  for (cwc::Axis axis : cwc::kAxes) {
+    const cwc::AxisSettings& a = settings.axis(axis);
+    JsonObject o = axes[axisName(axis)].to<JsonObject>();
+    o["min"] = tenths(a.travel.min);
+    o["max"] = tenths(a.travel.max);
+    o["stow"] = tenths(a.stow);
+    o["maxSpeed"] = tenths(a.maxSpeed);
+    o["maxAccel"] = tenths(a.maxAccel);
+  }
+}
+
+// Overlays the fields present in `in` onto `settings`. `calibrated` is owned
+// by Calibration and is not writable here.
+void readSettings(JsonObjectConst in, cwc::RobotSettings& settings) {
+  if (in["playSpeed"].is<float>()) settings.playSpeed = in["playSpeed"];
+  JsonObjectConst axes = in["axes"];
+  for (cwc::Axis axis : cwc::kAxes) {
+    JsonObjectConst o = axes[axisName(axis)];
+    if (o.isNull()) continue;
+    cwc::AxisSettings& a = settings.axis(axis);
+    if (o["min"].is<float>()) a.travel.min = o["min"];
+    if (o["max"].is<float>()) a.travel.max = o["max"];
+    if (o["stow"].is<float>()) a.stow = o["stow"];
+    if (o["maxSpeed"].is<float>()) a.maxSpeed = o["maxSpeed"];
+    if (o["maxAccel"].is<float>()) a.maxAccel = o["maxAccel"];
+  }
+}
+
+void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc) {
+  String body;
+  serializeJson(doc, body);
+  request->send(code, "application/json", body);
+}
+
 }  // namespace
 
 void DeviceApi::begin(AsyncWebServer& server) {
   socket_.onEvent([this](AsyncWebSocket*, AsyncWebSocketClient* client, AwsEventType type, void* arg,
                          uint8_t* data, size_t len) { onEvent(client, type, arg, data, len); });
   server.addHandler(&socket_);
+
+  server.on("/api/settings", HTTP_GET, [this](AsyncWebServerRequest* request) { getSettings(request); });
+  auto* put = new AsyncCallbackJsonWebHandler(
+      "/api/settings", [this](AsyncWebServerRequest* request, JsonVariant& body) { putSettings(request, body); });
+  put->setMethod(HTTP_PUT);
+  server.addHandler(put);
 }
 
-void DeviceApi::onEvent(AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
+// --- REST -------------------------------------------------------------------
+
+void DeviceApi::getSettings(AsyncWebServerRequest* request) {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writeSettings(doc.to<JsonObject>(), robot_.settings());
+  }
+  sendJson(request, 200, doc);
+}
+
+void DeviceApi::putSettings(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!body.is<JsonObject>()) {
+    request->send(400, "application/json", "{\"error\":\"invalid_json\"}");
+    return;
+  }
+
+  JsonDocument doc;
+  cwc::SettingsCheck check;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    cwc::RobotSettings settings = robot_.settings();
+    readSettings(body.as<JsonObjectConst>(), settings);
+    check = robot_.applySettings(settings);
+    if (check.ok()) writeSettings(doc.to<JsonObject>(), robot_.settings());
+  }
+
+  if (!check.ok()) {
+    doc["error"] = cwc::settingsErrorName(check.error);
+    if (check.error != cwc::SettingsError::PlaySpeedOutOfRange) doc["axis"] = axisName(check.axis);
+    sendJson(request, 400, doc);
+    return;
+  }
+  sendJson(request, 200, doc);
+  newClient_ = true;  // push the new speed to every open interface
+}
+
+// --- WebSocket --------------------------------------------------------------
+
+void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uint8_t* data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
       newClient_ = true;  // make loop() send the state to the newcomer
@@ -33,7 +121,7 @@ void DeviceApi::onEvent(AsyncWebSocketClient* client, AwsEventType type, void* a
 
     case WS_EVT_DISCONNECT: {
       // Dead-man rule: a vanished controller must not leave the wand moving.
-      std::lock_guard<std::mutex> guard(lock_);
+      std::lock_guard<std::mutex> guard(inboxLock_);
       inbox_.stop = true;
       inbox_.move = false;
       break;
@@ -58,7 +146,7 @@ void DeviceApi::onMessage(const char* text, size_t len) {
   if (deserializeJson(doc, text, len)) return;
   const char* type = doc["t"] | "";
 
-  std::lock_guard<std::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard(inboxLock_);
   if (strcmp(type, "move") == 0) {
     inbox_.move = true;
     inbox_.horizontal = doc["h"] | 0.0f;
@@ -72,12 +160,16 @@ void DeviceApi::onMessage(const char* text, size_t len) {
 void DeviceApi::loop() {
   Inbox inbox;
   {
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(inboxLock_);
     inbox = inbox_;
     inbox_ = Inbox{};
   }
-  if (inbox.stop) robot_.manualStop();
-  if (inbox.move) robot_.manualMove(inbox.horizontal, inbox.vertical);
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    if (inbox.stop) robot_.manualStop();
+    if (inbox.move) robot_.manualMove(inbox.horizontal, inbox.vertical);
+    robot_.tick();
+  }
 
   uint32_t now = millis();
   if (now - lastCheckMs_ >= kBroadcastIntervalMs) {
@@ -95,9 +187,13 @@ void DeviceApi::broadcastState(bool force) {
 
   JsonDocument doc;
   doc["t"] = "state";
-  doc["h"] = serialized(String(robot_.position(cwc::Axis::Horizontal), 1));
-  doc["v"] = serialized(String(robot_.position(cwc::Axis::Vertical), 1));
-  doc["activity"] = activityName(robot_.activity());
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    doc["h"] = tenths(robot_.position(cwc::Axis::Horizontal));
+    doc["v"] = tenths(robot_.position(cwc::Axis::Vertical));
+    doc["activity"] = activityName(robot_.activity());
+    doc["playSpeed"] = tenths(robot_.settings().playSpeed * 100) / 100;
+  }
   String state;
   serializeJson(doc, state);
 

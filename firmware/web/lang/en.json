@@ -12,5 +12,22 @@
   "setup.connect": "Connect",
   "setup.connecting": "Connecting…",
   "setup.failed": "Could not connect. Check the network name and password.",
-  "setup.connected": "Connected to {ssid}. Rejoin your home Wi-Fi, then open http://{host}/ or http://{ip}/"
+  "setup.connected": "Connected to {ssid}. Rejoin your home Wi-Fi, then open http://{host}/ or http://{ip}/",
+  "nav.settings": "Settings",
+  "nav.back": "Back",
+  "speed.label": "Speed",
+  "settings.title": "Settings",
+  "settings.motion": "Speed and acceleration",
+  "settings.motion.hint": "The speed slider on the main screen scales these maximums.",
+  "settings.maxSpeed": "Maximum speed",
+  "settings.maxAccel": "Acceleration",
+  "settings.save": "Save",
+  "settings.saved": "Saved.",
+  "error.invalid_json": "The robot did not understand the request.",
+  "error.travel_order": "{axis}: the minimum must be below the maximum.",
+  "error.travel_out_of_range": "{axis}: limits must stay between 0° and 180°.",
+  "error.stow_out_of_travel": "{axis}: the Stow position must be within the Travel limits.",
+  "error.speed_out_of_range": "{axis}: the maximum speed must be between 10 and 360 °/s.",
+  "error.accel_out_of_range": "{axis}: the acceleration must be between 20 and 2000 °/s².",
+  "error.play_speed_out_of_range": "The speed must be between 10 % and 100 %."
 }

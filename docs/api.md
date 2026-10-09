@@ -24,15 +24,47 @@ JSON text messages, one per frame, each with a type in `t`.
 `state` is sent when a client connects, whenever something changes (at most every 100 ms), and every 2 s otherwise:
 
 ```json
-{"t":"state","h":92.5,"v":88.0,"activity":"manual"}
+{"t":"state","h":92.5,"v":88.0,"activity":"manual","playSpeed":0.6}
 ```
 
 | Field | Meaning |
 |-------|---------|
 | `h`, `v` | Current position of each Axis. |
 | `activity` | `idle` or `manual`. |
+| `playSpeed` | The speed slider's value, so every open interface stays in sync. |
 
 ## HTTP
+
+### Settings
+
+`GET /api/settings` returns the Robot core's settings:
+
+```json
+{
+  "playSpeed": 0.6,
+  "calibrated": false,
+  "axes": {
+    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "maxAccel": 360},
+    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "maxAccel": 360}
+  }
+}
+```
+
+| Field | Meaning | Valid range |
+|-------|---------|-------------|
+| `playSpeed` | Fraction of `maxSpeed` used by Manual control: the main screen's speed slider. | 0.1–1 |
+| `calibrated` | Whether Calibration has been completed. Until then, movement stays within 60°–120° whatever `min` and `max` say. Read-only. | |
+| `min`, `max` | Travel limits, in degrees. | 0–180, `min` < `max` |
+| `stow` | Stow position, in degrees. | within `min`–`max` |
+| `maxSpeed` | Maximum speed, in °/s. | 10–360 |
+| `maxAccel` | Acceleration, in °/s². | 20–2000 |
+
+`PUT /api/settings` with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
+
+- **Valid:** `200` with the full new settings. They are saved and survive reboots and firmware updates.
+- **Invalid:** `400` with `{"error":"<code>","axis":"horizontal"|"vertical"}`, and nothing changes. The codes are `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `accel_out_of_range`, `play_speed_out_of_range` (no `axis`) and `invalid_json`.
+
+Each successful `PUT` writes to flash, so send it when a value is settled, not on every slider step.
 
 ### Wi-Fi
 
