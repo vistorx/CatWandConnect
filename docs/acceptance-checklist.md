@@ -45,3 +45,12 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] While moving, switching off the phone's Wi-Fi or closing the tab stops the wand within about a second.
 - [ ] A second phone on the main screen sees the positions move too.
 - [ ] The page is usable on a phone in portrait orientation, without zooming or scrolling the joystick off screen.
+
+## Speed and settings
+
+- [ ] The speed slider changes how fast the joystick moves the wand. At 10 % the wand crawls; at 100 % it reaches the maximum speed.
+- [ ] Moving the slider on one phone updates it on a second phone.
+- [ ] In Settings, lowering the Horizontal maximum speed slows only the horizontal motion.
+- [ ] Lowering the acceleration makes starts and stops visibly softer; raising it makes them snappier, without the Mechanism jerking or skipping.
+- [ ] Entering 5 °/s as the maximum speed shows an error and keeps the previous value.
+- [ ] After a power cycle, the slider and Settings values are kept.

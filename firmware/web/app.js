@@ -31,7 +31,32 @@ function send(message) {
 function render(state) {
   $('pos-h').textContent = `${Math.round(state.h)}°`;
   $('pos-v').textContent = `${Math.round(state.v)}°`;
+  if (!speedDragging) showSpeed(Math.round(state.playSpeed * 100));
 }
+
+// --- Speed slider -------------------------------------------------------------
+
+let speedDragging = false;
+
+function showSpeed(percent) {
+  $('speed').value = percent;
+  $('speed-value').textContent = `${percent} %`;
+}
+
+$('speed').addEventListener('input', () => {
+  speedDragging = true;
+  showSpeed(Number($('speed').value));
+});
+
+// Saved on release only: every save is a flash write.
+$('speed').addEventListener('change', async () => {
+  speedDragging = false;
+  await fetch('/api/settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playSpeed: Number($('speed').value) / 100 }),
+  });
+});
 
 // --- Joystick ---------------------------------------------------------------
 

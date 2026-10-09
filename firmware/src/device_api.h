@@ -1,11 +1,13 @@
 #pragma once
 
-// The Device API over WebSocket (/ws), documented in docs/api.md. Translates
-// messages into Robot core commands and broadcasts the robot's state.
+// The Device API (docs/api.md): WebSocket /ws for Manual control and live
+// state, REST /api/settings for the Robot core's settings.
 //
-// WebSocket events arrive on the network task while the Robot core runs on the
-// main loop, so commands go through a locked inbox drained by loop().
+// HTTP and WebSocket events arrive on the network task while the Robot core
+// ticks on the main loop, so every access to the robot holds robotLock_.
+// Manual control commands go through an inbox drained by loop().
 
+#include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 #include <robot_core/robot.h>
 
@@ -18,7 +20,7 @@ class DeviceApi {
 
   void begin(AsyncWebServer& server);
 
-  // Applies pending commands and broadcasts state. Call before Robot::tick().
+  // Applies pending commands, ticks the robot and broadcasts its state.
   void loop();
 
  private:
@@ -33,10 +35,14 @@ class DeviceApi {
   void onMessage(const char* text, size_t len);
   void broadcastState(bool force);
 
+  void getSettings(AsyncWebServerRequest* request);
+  void putSettings(AsyncWebServerRequest* request, JsonVariant& body);
+
   cwc::Robot& robot_;
+  std::mutex robotLock_;
   AsyncWebSocket socket_{"/ws"};
 
-  std::mutex lock_;
+  std::mutex inboxLock_;
   Inbox inbox_;
 
   std::atomic<bool> newClient_{false};

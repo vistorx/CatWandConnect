@@ -10,6 +10,7 @@
 <header>
   <h1>CatWandConnect</h1>
   <span id="link" class="link" data-state="offline" data-i18n="link.connecting"></span>
+  <a href="settings.html" class="nav" data-i18n="nav.settings"></a>
 </header>
 
 <main>
@@ -22,6 +23,12 @@
     <div class="knob"></div>
   </div>
   <p class="hint" data-i18n="joystick.hint"></p>
+
+  <label class="slider">
+    <span data-i18n="speed.label"></span>
+    <input id="speed" type="range" min="10" max="100" step="5">
+    <output id="speed-value"></output>
+  </label>
 </main>
 
 <script src="i18n.js"></script>

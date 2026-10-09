@@ -75,7 +75,6 @@ void setup() {
 
 void loop() {
   network.loop();
-  api.loop();
-  robot.tick();
+  api.loop();  // also ticks the robot
   delay(5);
 }

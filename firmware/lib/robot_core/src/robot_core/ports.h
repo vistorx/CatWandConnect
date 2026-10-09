@@ -11,6 +11,7 @@ namespace cwc {
 enum class Axis : uint8_t { Horizontal, Vertical };
 
 constexpr size_t kAxisCount = 2;
+constexpr Axis kAxes[kAxisCount] = {Axis::Horizontal, Axis::Vertical};
 
 class MotorDriver {
  public:

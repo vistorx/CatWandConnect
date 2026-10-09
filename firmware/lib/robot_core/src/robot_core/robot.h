@@ -2,6 +2,7 @@
 
 #include "robot_core/motion.h"
 #include "robot_core/ports.h"
+#include "robot_core/settings.h"
 
 namespace cwc {
 
@@ -15,14 +16,9 @@ class Robot {
   // Manual control stops when no command refreshes it for this long.
   static constexpr uint32_t kManualTimeoutMs = 500;
 
-  // Conservative envelope used until Calibration has been completed.
-  static constexpr TravelLimits kDefaultTravel{60, 120};
-  static constexpr float kDefaultStow = 90;
-  static constexpr MotionLimits kDefaultMotion{90, 360};
-
   Robot(MotorDriver& motors, Clock& clock, Storage& storage);
 
-  // Puts the wand at its Stow position and holds it.
+  // Loads the settings and puts the wand at its Stow position, holding it.
   void begin();
 
   // Advances the robot by one control step. Call it often from the main loop.
@@ -36,8 +32,16 @@ class Robot {
   // Brings Manual control to a stop, e.g. when the joystick is released.
   void manualStop();
 
+  // Validates, stores and applies new settings as a whole. Invalid settings
+  // are rejected and the current ones stay in effect.
+  SettingsCheck applySettings(const RobotSettings& settings);
+
+  const RobotSettings& settings() const { return settings_; }
   Activity activity() const { return activity_; }
   float position(Axis axis) const;
+
+  // The Travel limits in effect: the conservative defaults until Calibration
+  // has been completed.
   TravelLimits travelLimits(Axis axis) const;
 
  private:
@@ -50,11 +54,13 @@ class Robot {
   AxisState& state(Axis axis) { return axes_[static_cast<size_t>(axis)]; }
   const AxisState& state(Axis axis) const { return axes_[static_cast<size_t>(axis)]; }
   void drive(Axis axis);
+  MotionLimits motionLimits(Axis axis) const;
 
   MotorDriver& motors_;
   Clock& clock_;
   Storage& storage_;
 
+  RobotSettings settings_ = defaultSettings();
   AxisState axes_[kAxisCount];
   Activity activity_ = Activity::Idle;
   uint32_t lastTickMs_ = 0;

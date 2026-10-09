@@ -37,6 +37,8 @@ body {
 }
 
 header {
+  max-width: 28rem;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -44,7 +46,10 @@ header {
   padding: max(1rem, env(safe-area-inset-top)) 1rem 1rem;
 }
 
-h1 { font-size: 1.25rem; margin: 0; }
+h1 { font-size: 1.25rem; margin: 0; flex: 1; }
+
+a { color: var(--accent); }
+.nav { text-decoration: none; font-weight: 600; }
 
 .link { font-size: .85rem; color: var(--muted); }
 .link::before { content: "●"; margin-right: .35rem; color: var(--warn); }
@@ -128,3 +133,38 @@ button.primary {
 }
 
 button:disabled { opacity: .5; }
+
+.slider {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr 3.5rem;
+  align-items: center;
+  gap: .75rem;
+  margin: 0;
+  color: var(--muted);
+}
+
+.slider input { accent-color: var(--accent); padding: 0; border: 0; background: none; }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg); }
+
+fieldset {
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  background: var(--surface);
+  margin: 0 0 1rem;
+  padding: .5rem 1rem 1rem;
+}
+
+legend { font-weight: 600; padding: 0 .25rem; }
+
+.field { display: grid; grid-template-columns: 1fr 7rem; align-items: center; gap: .75rem; margin-top: .75rem; }
+.field label { margin: 0; }
+.field input { width: 100%; text-align: right; }
+.unit { color: var(--muted); font-size: .85rem; }
+
+.message { min-height: 1.5rem; margin: 1rem 0 0; }
+.message[data-kind="error"] { color: var(--danger); }
+.message[data-kind="ok"] { color: var(--ok); }
+
+h2 { font-size: 1.05rem; margin: 1rem 0 .25rem; }
+.form-page .hint { text-align: left; margin-bottom: 1rem; }

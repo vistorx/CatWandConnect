@@ -117,6 +117,8 @@ pio run                # build for ESP32, ESP32-S3 and ESP32-C3
 pio run -e esp32 -t upload -t monitor   # flash a board over USB and watch its logs
 ```
 
+To work on the Device interface without a robot, run `node tools/dev_server.mjs` (Node 18+, no install needed) and open <http://localhost:8080/>. It serves `firmware/web/` with a rough simulated robot behind the same API.
+
 The environments are `esp32`, `esp32s3`, `esp32c3` and `native`. CI (`.github/workflows/ci.yml`) runs the tests and the three builds on every push and pull request.
 
 Code layout:
