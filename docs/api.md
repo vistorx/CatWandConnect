@@ -16,6 +16,7 @@ JSON text messages, one per frame, each with a type in `t`.
 |---------|--------|
 | `{"t":"move","h":0.5,"v":-1}` | Manual control. `h` and `v` are joystick deflections in [-1, 1] for the Horizontal and Vertical Axis, as a fraction of the maximum speed. Values outside the range are capped. |
 | `{"t":"stop"}` | Ends Manual control. The wand decelerates and stops. |
+| `{"t":"stow"}` | Stow: stops everything else, moves the wand to the Stow position and releases the servos there. `move` is ignored until Stow completes. |
 
 **Dead-man rule:** while moving, resend `move` at least every 500 ms; the interface sends it every 100 ms. If no `move` arrives for 500 ms, or if any client disconnects, the robot stops.
 
@@ -24,16 +25,25 @@ JSON text messages, one per frame, each with a type in `t`.
 `state` is sent when a client connects, whenever something changes (at most every 100 ms), and every 2 s otherwise:
 
 ```json
-{"t":"state","h":92.5,"v":88.0,"activity":"manual","playSpeed":0.6}
+{"t":"state","h":92.5,"v":88.0,"activity":"manual","held":true,"playSpeed":0.6}
 ```
 
 | Field | Meaning |
 |-------|---------|
 | `h`, `v` | Current position of each Axis. |
-| `activity` | `idle` or `manual`. |
+| `activity` | `idle`, `manual` or `stowing`. |
+| `held` | Whether the servos are being driven. They are released only once the wand rests at the Stow position. |
 | `playSpeed` | The speed slider's value, so every open interface stays in sync. |
 
 ## HTTP
+
+### Stow
+
+`POST /api/stow` (no body) does the same as the `stow` WebSocket message and returns `202`.
+
+### Priorities
+
+Stow beats every other command and cannot be interrupted. Manual control, from any source, cancels any other activity. Nothing resumes on its own afterwards.
 
 ### Settings
 

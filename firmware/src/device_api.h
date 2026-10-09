@@ -29,6 +29,7 @@ class DeviceApi {
     float horizontal = 0;
     float vertical = 0;
     bool stop = false;
+    bool stow = false;
   };
 
   void onEvent(AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len);

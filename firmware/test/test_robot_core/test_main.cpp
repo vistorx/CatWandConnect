@@ -14,7 +14,11 @@ struct Rig {
   FakeStorage storage;
   Robot robot{motors, clock, storage};
 
-  Rig() { robot.begin(); }
+  // Powers up and lets the robot settle at Stow.
+  Rig() {
+    robot.begin();
+    run(10);
+  }
 
   // Runs the control loop for `ms` milliseconds in 10 ms ticks.
   void run(uint32_t ms) {
@@ -38,10 +42,12 @@ struct Rig {
 void setUp() {}
 void tearDown() {}
 
-void test_begin_holds_both_axes_at_stow() {
+void test_power_up_rests_at_stow_with_servos_released() {
   Rig rig;
 
   TEST_ASSERT_EQUAL(2, rig.motors.moves.size());
+  TEST_ASSERT_EQUAL(2, rig.motors.releases.size());
+  TEST_ASSERT_TRUE(rig.robot.activity() == Activity::Idle);
   TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Horizontal));
   TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Vertical));
 }
@@ -183,9 +189,95 @@ void test_default_travel_applies_until_calibrated() {
   TEST_ASSERT_EQUAL_FLOAT(170, rig.robot.travelLimits(Axis::Horizontal).max);
 }
 
+void test_stow_returns_and_releases_servos() {
+  Rig rig;
+  rig.hold(1, 1, 500);
+  rig.motors.releases.clear();
+  TEST_ASSERT_TRUE(rig.robot.held(Axis::Horizontal));
+
+  rig.robot.stow();
+  rig.run(3000);
+
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Vertical));
+  TEST_ASSERT_EQUAL(2, rig.motors.releases.size());
+  TEST_ASSERT_FALSE(rig.robot.held(Axis::Horizontal));
+  TEST_ASSERT_TRUE(rig.robot.activity() == Activity::Idle);
+}
+
+void test_servos_release_only_once_at_stow() {
+  Rig rig;
+  rig.hold(1, 0, 500);
+  rig.motors.releases.clear();
+
+  rig.robot.manualStop();
+  rig.run(2000);
+
+  TEST_ASSERT_EQUAL(0, rig.motors.releases.size());
+  TEST_ASSERT_TRUE(rig.robot.held(Axis::Horizontal));
+}
+
+void test_stow_cancels_manual_control_without_resume() {
+  Rig rig;
+  rig.hold(1, 0, 300);
+
+  rig.robot.stow();
+  rig.run(3000);
+
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_TRUE(rig.robot.activity() == Activity::Idle);
+}
+
+void test_manual_control_cannot_interrupt_stow() {
+  Rig rig;
+  rig.hold(1, 0, 500);
+
+  rig.robot.stow();
+  rig.hold(-1, -1, 300);  // someone keeps pushing the joystick
+  rig.run(3000);
+
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Vertical));
+}
+
+void test_manual_control_after_stow_holds_servos_again() {
+  Rig rig;
+  rig.motors.moves.clear();
+
+  rig.hold(0, 1, 200);
+
+  TEST_ASSERT_TRUE(rig.motors.moves.size() > 0);
+  TEST_ASSERT_TRUE(rig.robot.held(Axis::Vertical));
+}
+
+void test_stow_stays_within_travel_limits() {
+  Rig rig;
+  rig.hold(-1, 1, 3000);
+
+  rig.robot.stow();
+  rig.run(3000);
+
+  for (const auto& move : rig.motors.moves) {
+    TravelLimits limits = rig.robot.travelLimits(move.axis);
+    TEST_ASSERT_TRUE(move.degrees >= limits.min && move.degrees <= limits.max);
+  }
+}
+
+void test_stow_uses_the_configured_position() {
+  Rig rig;
+  RobotSettings s = rig.robot.settings();
+  s.axis(Axis::Vertical).stow = 70;
+  TEST_ASSERT_TRUE(rig.robot.applySettings(s).ok());
+
+  rig.robot.stow();
+  rig.run(3000);
+
+  TEST_ASSERT_EQUAL_FLOAT(70, rig.robot.position(Axis::Vertical));
+}
+
 int main() {
   UNITY_BEGIN();
-  RUN_TEST(test_begin_holds_both_axes_at_stow);
+  RUN_TEST(test_power_up_rests_at_stow_with_servos_released);
   RUN_TEST(test_idle_robot_does_not_move);
   RUN_TEST(test_joystick_moves_the_axes);
   RUN_TEST(test_manual_control_never_leaves_travel_limits);
@@ -197,5 +289,12 @@ int main() {
   RUN_TEST(test_invalid_settings_are_rejected_whole);
   RUN_TEST(test_settings_are_restored_at_power_up);
   RUN_TEST(test_default_travel_applies_until_calibrated);
+  RUN_TEST(test_stow_returns_and_releases_servos);
+  RUN_TEST(test_servos_release_only_once_at_stow);
+  RUN_TEST(test_stow_cancels_manual_control_without_resume);
+  RUN_TEST(test_manual_control_cannot_interrupt_stow);
+  RUN_TEST(test_manual_control_after_stow_holds_servos_again);
+  RUN_TEST(test_stow_stays_within_travel_limits);
+  RUN_TEST(test_stow_uses_the_configured_position);
   return UNITY_END();
 }

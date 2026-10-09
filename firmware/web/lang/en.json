@@ -29,5 +29,7 @@
   "error.stow_out_of_travel": "{axis}: the Stow position must be within the Travel limits.",
   "error.speed_out_of_range": "{axis}: the maximum speed must be between 10 and 360 °/s.",
   "error.accel_out_of_range": "{axis}: the acceleration must be between 20 and 2000 °/s².",
-  "error.play_speed_out_of_range": "The speed must be between 10 % and 100 %."
+  "error.play_speed_out_of_range": "The speed must be between 10 % and 100 %.",
+  "stow.button": "Stow",
+  "stow.busy": "Stowing…"
 }

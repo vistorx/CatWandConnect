@@ -8,6 +8,7 @@
   --ok: #2f855a;
   --warn: #c05621;
   --danger: #c53030;
+  --stow: #c53030;
   color-scheme: light;
 }
 
@@ -22,6 +23,7 @@
     --ok: #68d391;
     --warn: #f6ad55;
     --danger: #fc8181;
+    --stow: #d93636;
     color-scheme: dark;
   }
 }
@@ -58,7 +60,7 @@ a { color: var(--accent); }
 main {
   max-width: 28rem;
   margin: 0 auto;
-  padding: 0 1rem 2rem;
+  padding: 0 1rem 7rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -168,3 +170,31 @@ legend { font-weight: 600; padding: 0 .25rem; }
 
 h2 { font-size: 1.05rem; margin: 1rem 0 .25rem; }
 .form-page .hint { text-align: left; margin-bottom: 1rem; }
+
+.stow-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--bg) 35%);
+}
+
+.stow {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  border: 0;
+  border-radius: .9rem;
+  background: var(--stow);
+  color: #fff;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 25%);
+}
+
+.stow.busy { opacity: .75; }
+.joystick.locked { opacity: .4; }

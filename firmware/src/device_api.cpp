@@ -12,6 +12,7 @@ constexpr uint32_t kCleanupIntervalMs = 1000;
 const char* activityName(cwc::Activity activity) {
   switch (activity) {
     case cwc::Activity::Manual: return "manual";
+    case cwc::Activity::Stowing: return "stowing";
     case cwc::Activity::Idle: return "idle";
   }
   return "idle";
@@ -66,6 +67,15 @@ void DeviceApi::begin(AsyncWebServer& server) {
   socket_.onEvent([this](AsyncWebSocket*, AsyncWebSocketClient* client, AwsEventType type, void* arg,
                          uint8_t* data, size_t len) { onEvent(client, type, arg, data, len); });
   server.addHandler(&socket_);
+
+  server.on("/api/stow", HTTP_POST, [this](AsyncWebServerRequest* request) {
+    {
+      std::lock_guard<std::mutex> guard(inboxLock_);
+      inbox_.stow = true;
+      inbox_.move = false;
+    }
+    request->send(202, "application/json", "{}");
+  });
 
   server.on("/api/settings", HTTP_GET, [this](AsyncWebServerRequest* request) { getSettings(request); });
   auto* put = new AsyncCallbackJsonWebHandler(
@@ -154,6 +164,9 @@ void DeviceApi::onMessage(const char* text, size_t len) {
   } else if (strcmp(type, "stop") == 0) {
     inbox_.stop = true;
     inbox_.move = false;
+  } else if (strcmp(type, "stow") == 0) {
+    inbox_.stow = true;
+    inbox_.move = false;
   }
 }
 
@@ -167,6 +180,7 @@ void DeviceApi::loop() {
   {
     std::lock_guard<std::mutex> guard(robotLock_);
     if (inbox.stop) robot_.manualStop();
+    if (inbox.stow) robot_.stow();
     if (inbox.move) robot_.manualMove(inbox.horizontal, inbox.vertical);
     robot_.tick();
   }
@@ -192,6 +206,7 @@ void DeviceApi::broadcastState(bool force) {
     doc["h"] = tenths(robot_.position(cwc::Axis::Horizontal));
     doc["v"] = tenths(robot_.position(cwc::Axis::Vertical));
     doc["activity"] = activityName(robot_.activity());
+    doc["held"] = robot_.held(cwc::Axis::Horizontal) || robot_.held(cwc::Axis::Vertical);
     doc["playSpeed"] = tenths(robot_.settings().playSpeed * 100) / 100;
   }
   String state;
