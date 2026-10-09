@@ -7,6 +7,15 @@ namespace {
 // Longest step simulated in one tick, so a stalled loop never turns into a leap.
 constexpr float kMaxStepSeconds = 0.1f;
 
+constexpr const char* kRestKey = "rest";
+constexpr uint32_t kRestMagic = 0x52455354;  // "REST"
+
+// Where the wand last came to rest, so power-up starts there.
+struct RestRecord {
+  uint32_t magic;
+  float position[kAxisCount];
+};
+
 float unit(float value) { return value < -1 ? -1 : value > 1 ? 1 : value; }
 
 }  // namespace
@@ -17,11 +26,23 @@ Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage)
 void Robot::begin() {
   settings_ = loadSettings(storage_);
   lastTickMs_ = clock_.nowMs();
+
+  RestRecord rest{};
+  bool remembered = storage_.read(kRestKey, &rest, sizeof(rest)) && rest.magic == kRestMagic;
   for (Axis axis : kAxes) {
-    state(axis).motion.reset(stowTarget(axis));
+    float position = rest.position[static_cast<size_t>(axis)];
+    remembered = remembered && kServoRange.contains(position);  // also rejects NaN
+  }
+
+  for (Axis axis : kAxes) {
+    float start = remembered ? rest.position[static_cast<size_t>(axis)] : stowTarget(axis);
+    start = travelLimits(axis).clamp(start);
+    state(axis).motion.reset(start);
+    savedRest_[static_cast<size_t>(axis)] = remembered ? rest.position[static_cast<size_t>(axis)] : -1;
     drive(axis);
   }
   stow();
+  gentleStow_ = true;
 }
 
 void Robot::tick() {
@@ -44,6 +65,7 @@ void Robot::tick() {
         s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
         break;
       case Activity::Stowing:
+        if (gentleStow_) limits.maxSpeed = kMinSpeed;
         s.motion.stepToward(stowTarget(axis), dt, travelLimits(axis), limits);
         break;
       case Activity::Idle:
@@ -53,10 +75,15 @@ void Robot::tick() {
     moving = moving || s.command != 0 || !s.motion.atRest();
   }
 
-  if (activity_ == Activity::Manual && !moving) activity_ = Activity::Idle;
+  if (activity_ == Activity::Manual && !moving) {
+    activity_ = Activity::Idle;
+    rememberRestingPosition();
+  }
   if (activity_ == Activity::Stowing && atStow()) {
     for (Axis axis : kAxes) release(axis);
     activity_ = Activity::Idle;
+    gentleStow_ = false;
+    rememberRestingPosition();
   }
 }
 
@@ -75,6 +102,7 @@ void Robot::manualStop() {
 void Robot::stow() {
   manualStop();
   activity_ = Activity::Stowing;
+  gentleStow_ = false;
 }
 
 float Robot::position(Axis axis) const { return state(axis).motion.position(); }
@@ -104,6 +132,22 @@ bool Robot::atStow() const {
     if (!motion.atRest() || motion.position() != stowTarget(axis)) return false;
   }
   return true;
+}
+
+// Called only when the robot becomes idle, and writes only when the position
+// changed, to spare the flash.
+void Robot::rememberRestingPosition() {
+  RestRecord rest{kRestMagic, {}};
+  bool changed = false;
+  for (Axis axis : kAxes) {
+    size_t i = static_cast<size_t>(axis);
+    rest.position[i] = position(axis);
+    changed = changed || rest.position[i] != savedRest_[i];
+  }
+  if (!changed) return;
+  if (storage_.write(kRestKey, &rest, sizeof(rest))) {
+    for (size_t i = 0; i < kAxisCount; ++i) savedRest_[i] = rest.position[i];
+  }
 }
 
 void Robot::drive(Axis axis) {
