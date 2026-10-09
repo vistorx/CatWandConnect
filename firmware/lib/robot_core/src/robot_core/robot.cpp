@@ -4,8 +4,6 @@ namespace cwc {
 
 namespace {
 
-constexpr Axis kAxes[] = {Axis::Horizontal, Axis::Vertical};
-
 // Longest step simulated in one tick, so a stalled loop never turns into a leap.
 constexpr float kMaxStepSeconds = 0.1f;
 
@@ -17,9 +15,10 @@ Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage)
     : motors_(motors), clock_(clock), storage_(storage) {}
 
 void Robot::begin() {
+  settings_ = loadSettings(storage_);
   lastTickMs_ = clock_.nowMs();
   for (Axis axis : kAxes) {
-    state(axis).motion.reset(kDefaultStow);
+    state(axis).motion.reset(travelLimits(axis).clamp(settings_.axis(axis).stow));
     drive(axis);
   }
 }
@@ -39,7 +38,8 @@ void Robot::tick() {
   for (Axis axis : kAxes) {
     AxisState& s = state(axis);
     if (activity_ == Activity::Manual) {
-      s.motion.stepVelocity(s.command * kDefaultMotion.maxSpeed, dt, kDefaultTravel, kDefaultMotion);
+      MotionLimits limits = motionLimits(axis);
+      s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
     }
     drive(axis);
     moving = moving || s.command != 0 || !s.motion.atRest();
@@ -61,7 +61,22 @@ void Robot::manualStop() {
 
 float Robot::position(Axis axis) const { return state(axis).motion.position(); }
 
-TravelLimits Robot::travelLimits(Axis) const { return kDefaultTravel; }
+SettingsCheck Robot::applySettings(const RobotSettings& settings) {
+  SettingsCheck check = validate(settings);
+  if (!check.ok()) return check;
+  settings_ = settings;
+  saveSettings(storage_, settings_);
+  return check;
+}
+
+TravelLimits Robot::travelLimits(Axis axis) const {
+  return settings_.calibrated ? settings_.axis(axis).travel : kDefaultTravel;
+}
+
+MotionLimits Robot::motionLimits(Axis axis) const {
+  const AxisSettings& a = settings_.axis(axis);
+  return {a.maxSpeed, a.maxAccel};
+}
 
 void Robot::drive(Axis axis) {
   AxisState& s = state(axis);
