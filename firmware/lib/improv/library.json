@@ -1,0 +1,6 @@
+{
+  "name": "improv",
+  "version": "0.0.0",
+  "description": "Improv Wi-Fi serial protocol framing for CatWandConnect. Pure C++17, no I/O.",
+  "license": "GPL-3.0-or-later"
+}

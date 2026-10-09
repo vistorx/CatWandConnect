@@ -4,7 +4,13 @@
 #include <Preferences.h>
 #include <robot_core/robot.h>
 
+#include "network/network.h"
+
 namespace {
+
+// Defaults until device naming lands (#11).
+constexpr const char* kDeviceName = "CatWandConnect";
+constexpr const char* kHostname = "catwandconnect";
 
 class ArduinoClock : public cwc::Clock {
  public:
@@ -40,16 +46,19 @@ ArduinoClock clock;
 NvsStorage storage;
 NullMotorDriver motors;
 cwc::Robot robot(motors, clock, storage);
+Network network(kDeviceName, kHostname);
 
 }  // namespace
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("CatWandConnect %s starting\n", CWC_VERSION);
   storage.begin();
-  Serial.println("CatWandConnect starting");
+  network.begin();
 }
 
 void loop() {
+  network.loop();
   robot.tick();
   delay(10);
 }
