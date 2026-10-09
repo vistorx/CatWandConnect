@@ -31,3 +31,17 @@ Start each section from a board with no saved Wi-Fi: erase it with `pio run -e <
 - [ ] Switching the router off: within about a minute the hotspot reappears.
 - [ ] Switching the router back on: within about 2 minutes, with no phone on the hotspot, the robot rejoins the home network and the hotspot disappears.
 - [ ] Changing the router password: the hotspot appears, and the new password can be entered on the setup page.
+
+## Manual control
+
+Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on ESP32, GPIO 4 and 5 on ESP32-S3 and ESP32-C3. Power the servos from their own 5 V supply, sharing ground with the board.
+
+- [ ] At power-up, both servos move to the middle position (90°) and hold it.
+- [ ] `http://catwandconnect.local/` opens the main screen on a phone, showing "Connected" and both positions.
+- [ ] Dragging the joystick moves the wand smoothly in the dragged direction. A small drag moves it slowly; a full drag moves it at full speed.
+- [ ] The positions on screen follow the wand.
+- [ ] Letting go stops the wand within a fraction of a second.
+- [ ] Holding the joystick at full deflection in each direction: the wand stops at the default Travel limits (60°–120°) and never hits the Mechanism.
+- [ ] While moving, switching off the phone's Wi-Fi or closing the tab stops the wand within about a second.
+- [ ] A second phone on the main screen sees the positions move too.
+- [ ] The page is usable on a phone in portrait orientation, without zooming or scrolling the joystick off screen.

@@ -18,8 +18,12 @@ class Network {
   // `deviceName` is shown to Improv clients; `hostname` feeds DHCP and mDNS.
   Network(const char* deviceName, const char* hostname);
 
-  void begin();
+  // Registers the Wi-Fi API and captive-portal routes on `server`.
+  void begin(AsyncWebServer& server);
   void loop();
+
+  // True until the robot is on the owner's Wi-Fi: "/" should show the setup page.
+  bool inSetup() const { return mode_ != Mode::Connected; }
 
  private:
   enum class Mode { Connecting, Connected, Hotspot };
@@ -37,7 +41,7 @@ class Network {
   void sendImprov(const std::vector<uint8_t>& packet);
   void sendImprovConnected();
 
-  void setupRoutes();
+  void setupRoutes(AsyncWebServer& server);
   String statusJson() const;
   String networksJson();
   String deviceUrl() const;
@@ -70,6 +74,5 @@ class Network {
   bool mdnsStarted_ = false;
 
   DNSServer dns_;
-  AsyncWebServer server_{80};
   improv::Parser improv_;
 };

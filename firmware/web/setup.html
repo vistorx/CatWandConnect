@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CatWandConnect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>CatWandConnect</h1></header>
+
+<main class="form-page">
+  <p data-i18n="setup.intro"></p>
+  <form id="form">
+    <label for="ssid" data-i18n="setup.network"></label>
+    <input id="ssid" name="ssid" list="networks" autocomplete="off" required>
+    <datalist id="networks"></datalist>
+    <label for="password" data-i18n="setup.password"></label>
+    <input id="password" name="password" type="password" autocomplete="off">
+    <button id="connect" class="primary" data-i18n="setup.connect"></button>
+  </form>
+  <p id="status" class="hint" role="status"></p>
+</main>
+
+<script src="i18n.js"></script>
+<script src="setup.js"></script>
+</body>
+</html>

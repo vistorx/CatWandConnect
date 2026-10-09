@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CatWandConnect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>CatWandConnect</h1>
+  <span id="link" class="link" data-state="offline" data-i18n="link.connecting"></span>
+</header>
+
+<main>
+  <section class="readout">
+    <div><span data-i18n="axis.horizontal"></span><output id="pos-h">–</output></div>
+    <div><span data-i18n="axis.vertical"></span><output id="pos-v">–</output></div>
+  </section>
+
+  <div id="joystick" class="joystick" role="application" data-i18n-aria="joystick.label">
+    <div class="knob"></div>
+  </div>
+  <p class="hint" data-i18n="joystick.hint"></p>
+</main>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
