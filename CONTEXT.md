@@ -16,6 +16,10 @@ _Avoid_: Offline mode
 The user interface served by the robot itself, usable by people without Home Assistant.
 _Avoid_: Web UI, app
 
+**Axis**:
+One of the wand's two motions, each driven by its own servo: **Horizontal** (left–right) and **Vertical** (up–down).
+_Avoid_: Pan, tilt, X, Y
+
 **Manual control**:
 A person moving the wand directly, in real time, from the Device interface.
 _Avoid_: Shake, jog
