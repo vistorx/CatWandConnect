@@ -1,16 +1,30 @@
 // CatWandConnect firmware entry point: wires the Robot core to Arduino-ESP32.
 
 #include <Arduino.h>
+#include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <robot_core/robot.h>
 
+#include "device_api.h"
 #include "network/network.h"
+#include "servo_driver.h"
+#include "web/web_ui.h"
 
 namespace {
 
-// Defaults until device naming lands (#11).
+// Defaults until device naming (#11) and hardware configuration (#10) land.
 constexpr const char* kDeviceName = "CatWandConnect";
 constexpr const char* kHostname = "catwandconnect";
+
+// Pulse ranges from the ESPHome proof of concept (2-11 % and 3-12 % of 20 ms).
+#if CONFIG_IDF_TARGET_ESP32
+constexpr ServoConfig kHorizontalServo{18, 400, 2200};
+constexpr ServoConfig kVerticalServo{19, 600, 2400};
+#else
+// GPIO 18 and 19 are the USB pins on the S3 and C3.
+constexpr ServoConfig kHorizontalServo{4, 400, 2200};
+constexpr ServoConfig kVerticalServo{5, 600, 2400};
+#endif
 
 class ArduinoClock : public cwc::Clock {
  public:
@@ -35,18 +49,14 @@ class NvsStorage : public cwc::Storage {
   Preferences prefs_;
 };
 
-// Placeholder until the PWM servo driver lands with #5.
-class NullMotorDriver : public cwc::MotorDriver {
- public:
-  void moveTo(cwc::Axis, float) override {}
-  void release(cwc::Axis) override {}
-};
-
 ArduinoClock clock;
 NvsStorage storage;
-NullMotorDriver motors;
+PwmServoDriver motors(kHorizontalServo, kVerticalServo);
 cwc::Robot robot(motors, clock, storage);
+
+AsyncWebServer server(80);
 Network network(kDeviceName, kHostname);
+DeviceApi api(robot);
 
 }  // namespace
 
@@ -54,11 +64,18 @@ void setup() {
   Serial.begin(115200);
   Serial.printf("CatWandConnect %s starting\n", CWC_VERSION);
   storage.begin();
-  network.begin();
+  motors.begin();
+  robot.begin();
+
+  api.begin(server);
+  registerWebUi(server, [] { return network.inSetup(); });
+  network.begin(server);
+  server.begin();
 }
 
 void loop() {
   network.loop();
+  api.loop();
   robot.tick();
-  delay(10);
+  delay(5);
 }

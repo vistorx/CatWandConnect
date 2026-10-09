@@ -3,7 +3,6 @@
 #include <ESPmDNS.h>
 #include <WiFi.h>
 
-#include "network/pages.h"
 
 namespace {
 
@@ -46,7 +45,7 @@ String jsonString(const String& value) {
 Network::Network(const char* deviceName, const char* hostname)
     : deviceName_(deviceName), hostname_(hostname) {}
 
-void Network::begin() {
+void Network::begin(AsyncWebServer& server) {
   uint8_t mac[6];
   WiFi.macAddress(mac);
   char suffix[5];
@@ -61,8 +60,7 @@ void Network::begin() {
   WiFi.persistent(false);
   WiFi.setHostname(hostname_);
 
-  setupRoutes();
-  server_.begin();
+  setupRoutes(server);
 
   if (savedSsid_.isEmpty()) {
     Serial.println("[wifi] no saved network");
@@ -269,22 +267,18 @@ void Network::sendImprovConnected() {
 
 // --- Web server -------------------------------------------------------------
 
-void Network::setupRoutes() {
-  server_.on("/", HTTP_GET, [this](AsyncWebServerRequest* request) {
-    request->send(200, "text/html", mode_ == Mode::Connected ? kHomePage : kSetupPage);
-  });
-
-  server_.on("/api/wifi/status", HTTP_GET, [this](AsyncWebServerRequest* request) {
+void Network::setupRoutes(AsyncWebServer& server) {
+  server.on("/api/wifi/status", HTTP_GET, [this](AsyncWebServerRequest* request) {
     request->send(200, "application/json", statusJson());
   });
 
-  server_.on("/api/wifi/networks", HTTP_GET, [this](AsyncWebServerRequest* request) {
+  server.on("/api/wifi/networks", HTTP_GET, [this](AsyncWebServerRequest* request) {
     request->send(200, "application/json", networksJson());
   });
 
   // Only offered while the hotspot is up; changing Wi-Fi from the home network
   // comes with the settings PIN (#12).
-  server_.on("/api/wifi", HTTP_POST, [this](AsyncWebServerRequest* request) {
+  server.on("/api/wifi", HTTP_POST, [this](AsyncWebServerRequest* request) {
     if (!hotspotActive_) {
       request->send(409, "text/plain", "Wi-Fi can only be set from the hotspot");
       return;
@@ -300,7 +294,7 @@ void Network::setupRoutes() {
   });
 
   // Captive portal: phones probe random URLs; send them all to the setup page.
-  server_.onNotFound([this](AsyncWebServerRequest* request) {
+  server.onNotFound([this](AsyncWebServerRequest* request) {
     if (hotspotActive_) {
       request->redirect("http://" + WiFi.softAPIP().toString() + "/");
     } else {
