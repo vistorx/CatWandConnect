@@ -38,6 +38,18 @@ function travel(axis) {
 
 setInterval(() => {
   if (Date.now() - robot.lastCommand > 500) robot.command = { horizontal: 0, vertical: 0 };
+  if (robot.activity === 'stowing') {
+    let done = true;
+    for (const axis of ['horizontal', 'vertical']) {
+      const target = robot.settings.axes[axis].stow;
+      const step = robot.settings.axes[axis].maxSpeed * 0.05;
+      const delta = target - robot.position[axis];
+      robot.position[axis] += Math.max(-step, Math.min(step, delta));
+      if (robot.position[axis] !== target) done = false;
+    }
+    if (done) robot.activity = 'idle';
+    return broadcast(state());
+  }
   for (const axis of ['horizontal', 'vertical']) {
     const speed = robot.settings.axes[axis].maxSpeed * robot.settings.playSpeed;
     const { min, max } = travel(axis);
@@ -50,19 +62,26 @@ setInterval(() => {
 
 function state() {
   return { t: 'state', h: round(robot.position.horizontal), v: round(robot.position.vertical),
-    activity: robot.activity, playSpeed: robot.settings.playSpeed };
+    activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed };
 }
 
 const round = value => Math.round(value * 10) / 10;
 
 function onMessage(message) {
-  if (message.t === 'move') {
+  if (message.t === 'move' && robot.activity !== 'stowing') {
     robot.command = { horizontal: clampUnit(message.h), vertical: clampUnit(message.v) };
     robot.activity = 'manual';
     robot.lastCommand = Date.now();
   } else if (message.t === 'stop') {
     robot.command = { horizontal: 0, vertical: 0 };
+  } else if (message.t === 'stow') {
+    stow();
   }
+}
+
+function stow() {
+  robot.command = { horizontal: 0, vertical: 0 };
+  robot.activity = 'stowing';
 }
 
 const clampUnit = value => Math.max(-1, Math.min(1, Number(value) || 0));
@@ -87,6 +106,7 @@ function putSettings(body) {
 const API = {
   'GET /api/settings': () => [200, robot.settings],
   'PUT /api/settings': putSettings,
+  'POST /api/stow': () => { stow(); return [202, {}]; },
   'GET /api/wifi/status': () => [200, { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1',
     host: 'catwandconnect.local' }],
   'GET /api/wifi/networks': () => [200, { scanning: false, networks: [{ ssid: 'Simulated', rssi: -50, secure: true }] }],
