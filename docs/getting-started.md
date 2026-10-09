@@ -4,7 +4,7 @@ How to pick up CatWandConnect on a new machine, whether you are the maintainer o
 
 ## Where things stand
 
-The project is being reframed. The old ESPHome proof of concept has been removed. A dedicated firmware is planned but **no firmware code exists yet**. The first code ticket is [#2 Project skeleton and CI](https://github.com/vistorx/CatWandConnect/issues/2).
+The project is being reframed. The old ESPHome proof of concept has been removed. The dedicated firmware in `firmware/` is a skeleton: it builds for every chip and has a tested but still empty Robot core. Behaviour lands ticket by ticket, starting with [#4 Wi-Fi provisioning](https://github.com/vistorx/CatWandConnect/issues/4).
 
 Some docs are out of date: `README.md`, `docs/assembly.md`, `docs/electronics.md` and `docs/troubleshooting.md` still describe ESPHome and a paid V2. [#3](https://github.com/vistorx/CatWandConnect/issues/3) rewrites them. Until then, trust the sources below.
 
@@ -109,7 +109,23 @@ Check it with `gh auth status` in the workspace terminal, which should show `vis
 
 ### 4. Build and test
 
-These commands arrive with [#2](https://github.com/vistorx/CatWandConnect/issues/2). This section will be filled in then.
+The firmware is one PlatformIO project in `firmware/`. Run these from that folder, or use the PlatformIO sidebar in VS Code. The VS Code extension installs `pio` at `~/.platformio/penv/bin/pio`.
+
+```sh
+pio test -e native     # Robot core tests on your computer, no board needed
+pio run                # build for ESP32, ESP32-S3 and ESP32-C3
+pio run -e esp32 -t upload -t monitor   # flash a board over USB and watch its logs
+```
+
+The environments are `esp32`, `esp32s3`, `esp32c3` and `native`. CI (`.github/workflows/ci.yml`) runs the tests and the three builds on every push and pull request.
+
+Code layout:
+
+- `firmware/lib/robot_core/` is the Robot core. It is pure C++17 and never includes Arduino headers. It reaches hardware only through the `MotorDriver`, `Clock` and `Storage` interfaces in `ports.h`.
+- `firmware/src/` is the Arduino side. It implements those interfaces and wires them to the Robot core.
+- `firmware/test/` holds the native tests, with in-memory fakes of the interfaces.
+
+If your clone sits in a synced folder, set `PLATFORMIO_BUILD_DIR` to a folder outside it. Builds write hundreds of megabytes to `firmware/.pio/`.
 
 ## Working with an AI agent
 

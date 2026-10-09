@@ -1,0 +1,6 @@
+{
+  "name": "robot_core",
+  "version": "0.0.0",
+  "description": "Safety-critical CatWandConnect logic. Pure C++17 with no Arduino dependency; hardware is injected through MotorDriver, Clock and Storage.",
+  "license": "GPL-3.0-or-later"
+}
