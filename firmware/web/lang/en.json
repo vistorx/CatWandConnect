@@ -1,0 +1,16 @@
+{
+  "link.online": "Connected",
+  "link.offline": "Reconnecting…",
+  "link.connecting": "Connecting…",
+  "axis.horizontal": "Horizontal",
+  "axis.vertical": "Vertical",
+  "joystick.label": "Joystick: drag to move the wand",
+  "joystick.hint": "Drag to move the wand. Let go to stop.",
+  "setup.intro": "Connect the robot to your Wi-Fi.",
+  "setup.network": "Network",
+  "setup.password": "Password",
+  "setup.connect": "Connect",
+  "setup.connecting": "Connecting…",
+  "setup.failed": "Could not connect. Check the network name and password.",
+  "setup.connected": "Connected to {ssid}. Rejoin your home Wi-Fi, then open http://{host}/ or http://{ip}/"
+}

@@ -12,3 +12,4 @@ Thumbs.db
 # Claude Code local settings
 .claude/settings.local.json
 .pio/
+firmware/src/web/assets.h
