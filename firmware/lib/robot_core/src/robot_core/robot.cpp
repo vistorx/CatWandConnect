@@ -18,9 +18,10 @@ void Robot::begin() {
   settings_ = loadSettings(storage_);
   lastTickMs_ = clock_.nowMs();
   for (Axis axis : kAxes) {
-    state(axis).motion.reset(travelLimits(axis).clamp(settings_.axis(axis).stow));
+    state(axis).motion.reset(stowTarget(axis));
     drive(axis);
   }
+  stow();
 }
 
 void Robot::tick() {
@@ -37,18 +38,30 @@ void Robot::tick() {
   bool moving = false;
   for (Axis axis : kAxes) {
     AxisState& s = state(axis);
-    if (activity_ == Activity::Manual) {
-      MotionLimits limits = motionLimits(axis);
-      s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
+    MotionLimits limits = motionLimits(axis);
+    switch (activity_) {
+      case Activity::Manual:
+        s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
+        break;
+      case Activity::Stowing:
+        s.motion.stepToward(stowTarget(axis), dt, travelLimits(axis), limits);
+        break;
+      case Activity::Idle:
+        break;
     }
-    drive(axis);
+    if (activity_ != Activity::Idle) drive(axis);
     moving = moving || s.command != 0 || !s.motion.atRest();
   }
 
   if (activity_ == Activity::Manual && !moving) activity_ = Activity::Idle;
+  if (activity_ == Activity::Stowing && atStow()) {
+    for (Axis axis : kAxes) release(axis);
+    activity_ = Activity::Idle;
+  }
 }
 
 void Robot::manualMove(float horizontal, float vertical) {
+  if (activity_ == Activity::Stowing) return;
   state(Axis::Horizontal).command = unit(horizontal);
   state(Axis::Vertical).command = unit(vertical);
   activity_ = Activity::Manual;
@@ -57,6 +70,11 @@ void Robot::manualMove(float horizontal, float vertical) {
 
 void Robot::manualStop() {
   for (Axis axis : kAxes) state(axis).command = 0;
+}
+
+void Robot::stow() {
+  manualStop();
+  activity_ = Activity::Stowing;
 }
 
 float Robot::position(Axis axis) const { return state(axis).motion.position(); }
@@ -78,12 +96,30 @@ MotionLimits Robot::motionLimits(Axis axis) const {
   return {a.maxSpeed, a.maxAccel};
 }
 
+float Robot::stowTarget(Axis axis) const { return travelLimits(axis).clamp(settings_.axis(axis).stow); }
+
+bool Robot::atStow() const {
+  for (Axis axis : kAxes) {
+    const AxisMotion& motion = state(axis).motion;
+    if (!motion.atRest() || motion.position() != stowTarget(axis)) return false;
+  }
+  return true;
+}
+
 void Robot::drive(Axis axis) {
   AxisState& s = state(axis);
   float position = s.motion.position();
-  if (position == s.lastSent) return;
+  if (s.held && position == s.lastSent) return;
   motors_.moveTo(axis, position);
   s.lastSent = position;
+  s.held = true;
+}
+
+void Robot::release(Axis axis) {
+  AxisState& s = state(axis);
+  if (!s.held) return;
+  motors_.release(axis);
+  s.held = false;
 }
 
 }  // namespace cwc

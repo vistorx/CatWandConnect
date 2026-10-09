@@ -54,3 +54,12 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Lowering the acceleration makes starts and stops visibly softer; raising it makes them snappier, without the Mechanism jerking or skipping.
 - [ ] Entering 5 °/s as the maximum speed shows an error and keeps the previous value.
 - [ ] After a power cycle, the slider and Settings values are kept.
+
+## Stow, priority, hold and release
+
+- [ ] The Stow button stays visible at the bottom of the main screen, including on a small phone.
+- [ ] Pressing Stow while the wand is away moves it back to the Stow position. The button shows "Stowing…" until it arrives.
+- [ ] At the Stow position the servos go limp: the arm can be moved by hand with little resistance. Note whether the Mk2 stays in place without torque (see the spec's note on hold and release).
+- [ ] Pushing the joystick while stowing does nothing; the wand still reaches the Stow position.
+- [ ] After Stow, the joystick works again and the servos hold firmly while moving and after letting go away from Stow.
+- [ ] `curl -X POST http://catwandconnect.local/api/stow` stows the wand.

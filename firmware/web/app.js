@@ -32,7 +32,19 @@ function render(state) {
   $('pos-h').textContent = `${Math.round(state.h)}°`;
   $('pos-v').textContent = `${Math.round(state.v)}°`;
   if (!speedDragging) showSpeed(Math.round(state.playSpeed * 100));
+  const stowing = state.activity === 'stowing';
+  pad.classList.toggle('locked', stowing);
+  $('stow').classList.toggle('busy', stowing);
+  $('stow').textContent = I18n.t(stowing ? 'stow.busy' : 'stow.button');
 }
+
+// --- Stow ------------------------------------------------------------------------
+
+// Stow wins over everything: drop the joystick first so no move follows it.
+$('stow').addEventListener('click', () => {
+  release();
+  send({ t: 'stow' });
+});
 
 // --- Speed slider -------------------------------------------------------------
 
