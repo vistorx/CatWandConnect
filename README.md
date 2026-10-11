@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming and a French translation. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming, a French translation and an optional settings PIN. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
 ## What it does
 
@@ -18,7 +18,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 🎯 | **Calibration wizard.** Set the Travel limits and Stow position for your build, step by step, then watch a slow test sweep before saving. | ✅ |
 | 🔧 | **Your wiring.** Choose pins (only the safe ones for your chip), reverse axes and set servo pulse ranges from the interface. | ✅ |
 | 🇫🇷 | **English and French interface.** Name your robot (it becomes `http://<name>.local/`), check the Info page, and add the interface to your phone's home screen. | ✅ |
-| 🔒 | **Optional settings PIN**, so guests can play but not change the setup. | 🚧 |
+| 🔒 | **Optional settings PIN.** Guests can play and Stow, but not change the setup. | ✅ |
 | ⬆️ | **Firmware updates** from the browser, and a **web flasher** that installs the robot from Chrome or Edge in one click. | 🚧 |
 | 🏠 | **Home Assistant** through MQTT discovery. | 🚧 |
 

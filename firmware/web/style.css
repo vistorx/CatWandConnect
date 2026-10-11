@@ -250,3 +250,17 @@ button.secondary {
 .field.wide { grid-template-columns: auto minmax(0, 1fr); }
 .field.wide input, .field.wide select { text-align: left; }
 .field.wide output { text-align: right; overflow-wrap: anywhere; }
+
+.pin-dialog {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--bg);
+  color: var(--fg);
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+}
+.pin-dialog::backdrop { background: rgb(0 0 0 / 55%); }
+.pin-dialog h2 { margin-top: 0; }
+.pin-dialog input { width: 100%; font-size: 1.5rem; letter-spacing: .3em; text-align: center; }
+#security .secondary { width: 100%; margin-top: .75rem; }
+.pin-dialog .hint { text-align: left; }

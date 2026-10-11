@@ -6,6 +6,18 @@ Every command goes through the Robot core, so Travel limits, speed limits and pr
 
 Angles are in degrees, as sent to the servos (0–180).
 
+## Settings PIN
+
+The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control, Stow, the speed slider (`playSpeed`) and every `GET` never need it.
+
+| Request | Response |
+|---------|----------|
+| `GET /api/auth` | `{"enabled":true,"authorized":false,"lockedFor":0}`. `authorized` says whether the token sent, if any, is valid. |
+| `POST /api/auth/unlock` with `{"pin":"2468"}` | `200 {"token":"…"}`. A wrong PIN returns `401 {"error":"wrong_pin"}`. After 5 wrong PINs, unlocking is refused for 30 s, doubling with each further failure up to 15 min: `429 {"error":"locked_out","retryAfter":30}`. |
+| 🔒 `PUT /api/auth/pin` with `{"pin":"2468"}` | Sets or changes the PIN (4–8 digits) and returns `{"enabled":true,"token":"…"}`, a fresh token for the caller. `{"pin":""}` removes it. An invalid PIN returns `400 invalid_pin`. |
+
+Tokens live in the robot's memory. They end after 12 h without use, when the PIN changes, or when the robot restarts. A forgotten PIN can only be cleared by erasing and reflashing the robot. Over plain HTTP the PIN and tokens are not encrypted, so the PIN keeps guests from changing the setup but is no defence against someone sniffing your Wi-Fi.
+
 ## WebSocket: `/ws`
 
 JSON text messages, one per frame, each with a type in `t`.
@@ -58,7 +70,7 @@ Stow beats every other command and cannot be interrupted. Manual control, from a
 {"step":"horizontal_max","draft":{"horizontal":{"min":32,"max":120,"stow":90},"vertical":{"min":60,"max":120,"stow":90}}}
 ```
 
-`POST /api/calibration` with `{"action": …}` drives it and returns the same object:
+🔒 `POST /api/calibration` with `{"action": …}` drives it and returns the same object:
 
 | Action | Effect |
 |--------|--------|
@@ -82,7 +94,7 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 
 `uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
 
-`PUT /api/device` with `{"name":"CatWandConnect salon"}` renames the robot and returns `{"name":…,"hostname":"catwandconnect-salon.local","restart":true}`. The robot restarts about a second later.
+🔒 `PUT /api/device` with `{"name":"CatWandConnect salon"}` renames the robot and returns `{"name":…,"hostname":"catwandconnect-salon.local","restart":true}`. The robot restarts about a second later.
 
 - **Valid names:** 1 to 32 bytes, no control characters, at least one letter or digit. Otherwise the request returns `400` with `invalid_name`.
 - **Derived names:** the hostname is the name in lowercase ASCII, with accents removed and other characters turned into hyphens. The hotspot is called `<name>-XXXX`.
@@ -102,7 +114,7 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 }
 ```
 
-`PUT /api/hardware` with any subset of `axes` changes it.
+🔒 `PUT /api/hardware` with any subset of `axes` changes it.
 
 - **Allowed pins** are those the chip can safely use. Flash, PSRAM, USB, serial-console, strapping and input-only pins are excluded, and the two servos can't share a pin.
 - **Pulses** (`minPulse` at 0°, `maxPulse` at 180°) must be between 300 and 2700 µs, at least 500 µs apart.
@@ -133,7 +145,7 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 | `maxSpeed` | Maximum speed, in °/s. | 10–360 |
 | `maxAccel` | Acceleration, in °/s². | 20–2000 |
 
-`PUT /api/settings` with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
+🔒 `PUT /api/settings` (except a body containing only `playSpeed`) with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
 
 - **Valid:** `200` with the full new settings. They are saved and survive reboots and firmware updates.
 - **Invalid:** `400` with `{"error":"<code>","axis":"horizontal"|"vertical"}`, and nothing changes. The codes are `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `accel_out_of_range`, `play_speed_out_of_range` (no `axis`) and `invalid_json`.
@@ -146,7 +158,7 @@ Each successful `PUT` writes to flash, so send it when a value is settled, not o
 |---------|----------|
 | `GET /api/wifi/status` | `{"mode":"hotspot"\|"connecting"\|"connected","failed":bool,"ssid":"…","ip":"…","host":"catwandconnect.local"}`. `failed` is true when the last attempt failed. |
 | `GET /api/wifi/networks` | `{"scanning":true}` while a scan runs (poll again), then `{"scanning":false,"networks":[{"ssid":"…","rssi":-60,"secure":true}]}`. |
-| `POST /api/wifi` | Form fields `ssid` and `password`. Returns 202 and connects in the background; follow progress with `/api/wifi/status`. Only accepted while the hotspot is up (409 otherwise). |
+| 🔒 `POST /api/wifi` | Form fields `ssid` and `password`. Returns 202 and connects in the background; follow progress with `/api/wifi/status`. Only accepted while the hotspot is up (409 otherwise). |
 
 ### Interface files
 

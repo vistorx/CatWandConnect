@@ -46,6 +46,14 @@ Tick **Reverse direction** for that axis in Settings → Wiring, then run Calibr
 **I chose the wrong pins and the servos don't move.**
 Rewire to the pins shown in Settings → Wiring, or pick the pins you wired. If you can no longer open the interface, erase and reflash the board (`pio run -e <chip> -t erase`, then upload) to return to the defaults.
 
+## Settings PIN
+
+**I forgot the PIN.**
+It can't be recovered over the network. Erase and reflash the robot (`pio run -e <chip> -t erase`, then upload). Everything goes back to factory settings, including Wi-Fi and Calibration.
+
+**"Too many wrong PINs".**
+After 5 wrong PINs the robot refuses new tries for 30 s, then longer after each further failure, up to 15 minutes. Wait and try again. Playing and Stow still work meanwhile.
+
 ## Still stuck?
 
 Open an [issue](https://github.com/vistorx/CatWandConnect/issues). Include the details from the **Info** page (Settings → Info → Copy) and, if you can, the serial log.

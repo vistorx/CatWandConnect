@@ -34,6 +34,18 @@ const robot = {
 };
 
 let deviceName = 'CatWandConnect';
+let pin = '';
+const tokens = new Set();
+
+// Mirrors the robot's settings PIN: protected routes need a session token.
+function authorized(request) {
+  if (!pin) return true;
+  const header = request.headers.authorization || '';
+  return tokens.has(header.replace(/^Bearer /, ''));
+}
+
+const PROTECTED = new Set(['POST /api/calibration', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
+  'POST /api/wifi']);
 const startedAt = Date.now();
 
 function info() {
@@ -208,6 +220,23 @@ const API = {
   'GET /api/settings': () => [200, robot.settings],
   'PUT /api/settings': putSettings,
   'GET /api/info': () => [200, info()],
+  'GET /api/auth': (body, url, request) => [200, { enabled: !!pin, authorized: authorized(request), lockedFor: 0 }],
+  'POST /api/auth/unlock': body => {
+    if (!pin || body.pin !== pin) return [401, { error: 'wrong_pin' }];
+    const token = Math.random().toString(16).slice(2);
+    tokens.add(token);
+    return [200, { token }];
+  },
+  'PUT /api/auth/pin': body => {
+    const next = String(body.pin ?? '');
+    if (next && !/^[0-9]{4,8}$/.test(next)) return [400, { error: 'invalid_pin' }];
+    pin = next;
+    tokens.clear();
+    if (!pin) return [200, { enabled: false }];
+    const token = Math.random().toString(16).slice(2);
+    tokens.add(token);
+    return [200, { enabled: true, token }];
+  },
   'PUT /api/device': body => {
     const name = String(body.name ?? '').trim();
     if (!name || new TextEncoder().encode(name).length > 32 || !/[a-z0-9]/i.test(name.normalize('NFD'))) {
@@ -234,7 +263,10 @@ const server = createServer(async (request, response) => {
     for await (const chunk of request) body += chunk;
     let parsed = {};
     try { parsed = body ? JSON.parse(body) : {}; } catch { return send(response, 400, { error: 'invalid_json' }); }
-    const [code, result] = route(parsed, url);
+    const key = `${request.method} ${url.pathname}`;
+    const settingsChange = key === 'PUT /api/settings' && Object.keys(parsed).some(k => k !== 'playSpeed');
+    if ((PROTECTED.has(key) || settingsChange) && !authorized(request)) return send(response, 401, { error: 'pin_required' });
+    const [code, result] = route(parsed, url, request);
     return send(response, code, result);
   }
 
