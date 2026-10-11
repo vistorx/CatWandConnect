@@ -25,6 +25,12 @@ class DeviceApi {
   // robot's name.
   void begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name);
 
+  // Stops Manual control before a firmware update; safe from any task.
+  void stopForUpdate();
+
+  // Restarts the board shortly, after the current response has gone out.
+  void restartSoon();
+
   // Applies pending commands, ticks the robot and broadcasts its state.
   // Restarts the board when a hardware change asked for it.
   void loop();

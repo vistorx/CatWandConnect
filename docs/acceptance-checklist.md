@@ -117,3 +117,15 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] After a restart, the PIN is asked again.
 - [ ] Changing the PIN signs out other phones. Removing it makes everything open again.
 - [ ] A 3-digit or non-numeric PIN is refused.
+
+## Firmware update (OTA)
+
+Build two versions that differ visibly (for example change `CWC_VERSION` in `platformio.ini`) and use the `firmware.bin` of the second.
+
+- [ ] Settings → Firmware update shows the installed version.
+- [ ] Uploading the new file shows progress, then "Installed". The robot restarts, the page reloads and the Info page shows the new version.
+- [ ] Wi-Fi, name, Calibration, speed, wiring and PIN are unchanged after the update.
+- [ ] Uploading a file built for another chip is refused with "for another chip", and nothing changes.
+- [ ] Uploading a non-firmware file (a photo) is refused with "not an ESP32 firmware".
+- [ ] Unplugging the robot's Wi-Fi (or closing the tab) halfway through: the robot keeps running its old firmware, and a new upload then works.
+- [ ] With a PIN set, uploading from a phone that hasn't entered it asks for it.

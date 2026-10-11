@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming, a French translation and an optional settings PIN. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming, a French translation, an optional settings PIN and firmware updates from the browser. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
 ## What it does
 
@@ -19,7 +19,8 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 🔧 | **Your wiring.** Choose pins (only the safe ones for your chip), reverse axes and set servo pulse ranges from the interface. | ✅ |
 | 🇫🇷 | **English and French interface.** Name your robot (it becomes `http://<name>.local/`), check the Info page, and add the interface to your phone's home screen. | ✅ |
 | 🔒 | **Optional settings PIN.** Guests can play and Stow, but not change the setup. | ✅ |
-| ⬆️ | **Firmware updates** from the browser, and a **web flasher** that installs the robot from Chrome or Edge in one click. | 🚧 |
+| ⬆️ | **Firmware updates from the browser.** Upload the new file in Settings; settings and Calibration are kept, and a failed upload leaves the old firmware running. | ✅ |
+| ⚡ | **Web flasher.** Install the robot from Chrome or Edge in one click, no tools needed. | 🚧 |
 | 🏠 | **Home Assistant** through MQTT discovery. | 🚧 |
 
 Automatic play sessions are planned for V1.1.

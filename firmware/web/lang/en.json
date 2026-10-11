@@ -124,5 +124,15 @@
   "security.remove": "Remove PIN",
   "security.saved": "PIN set.",
   "security.removed": "PIN removed.",
-  "error.invalid_pin": "The PIN must be 4 to 8 digits."
+  "error.invalid_pin": "The PIN must be 4 to 8 digits.",
+  "firmware.title": "Firmware update",
+  "firmware.hint": "Choose the .bin file for your chip from the latest release (the file whose name ends in -ota.bin). Settings and Calibration are kept. If the upload fails, the robot keeps its current firmware.",
+  "firmware.current": "Installed version",
+  "firmware.upload": "Upload and install",
+  "firmware.uploading": "Uploading… keep this page open.",
+  "firmware.done": "Installed. The robot is restarting; this page will reload.",
+  "error.not_firmware": "This file is not an ESP32 firmware.",
+  "error.wrong_chip": "This firmware is for another chip. Pick the file for your board's chip (see the Info page).",
+  "error.update_failed": "The update failed. The robot keeps its current firmware.",
+  "error.upload_interrupted": "The upload was interrupted. The robot keeps its current firmware; try again."
 }

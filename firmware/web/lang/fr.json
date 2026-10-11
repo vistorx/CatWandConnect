@@ -124,5 +124,15 @@
   "security.remove": "Supprimer le code",
   "security.saved": "Code PIN défini.",
   "security.removed": "Code PIN supprimé.",
-  "error.invalid_pin": "Le code PIN doit comporter 4 à 8 chiffres."
+  "error.invalid_pin": "Le code PIN doit comporter 4 à 8 chiffres.",
+  "firmware.title": "Mise à jour du firmware",
+  "firmware.hint": "Choisissez le fichier .bin de votre puce dans la dernière version publiée (celui dont le nom finit par -ota.bin). Les réglages et la calibration sont conservés. Si l'envoi échoue, le robot garde son firmware actuel.",
+  "firmware.current": "Version installée",
+  "firmware.upload": "Envoyer et installer",
+  "firmware.uploading": "Envoi en cours… gardez cette page ouverte.",
+  "firmware.done": "Installé. Le robot redémarre ; cette page va se recharger.",
+  "error.not_firmware": "Ce fichier n'est pas un firmware ESP32.",
+  "error.wrong_chip": "Ce firmware est prévu pour une autre puce. Choisissez le fichier correspondant à votre carte (voir la page Infos).",
+  "error.update_failed": "La mise à jour a échoué. Le robot garde son firmware actuel.",
+  "error.upload_interrupted": "L'envoi a été interrompu. Le robot garde son firmware actuel ; réessayez."
 }
