@@ -12,18 +12,16 @@
 
 namespace {
 
-// Defaults until device naming (#11) and hardware configuration (#10) land.
+// Defaults until device naming lands (#11).
 constexpr const char* kDeviceName = "CatWandConnect";
 constexpr const char* kHostname = "catwandconnect";
 
-// Pulse ranges from the ESPHome proof of concept (2-11 % and 3-12 % of 20 ms).
-#if CONFIG_IDF_TARGET_ESP32
-constexpr ServoConfig kHorizontalServo{18, 400, 2200};
-constexpr ServoConfig kVerticalServo{19, 600, 2400};
+#if CONFIG_IDF_TARGET_ESP32S3
+constexpr cwc::Chip kChip = cwc::Chip::Esp32S3;
+#elif CONFIG_IDF_TARGET_ESP32C3
+constexpr cwc::Chip kChip = cwc::Chip::Esp32C3;
 #else
-// GPIO 18 and 19 are the USB pins on the S3 and C3.
-constexpr ServoConfig kHorizontalServo{4, 400, 2200};
-constexpr ServoConfig kVerticalServo{5, 600, 2400};
+constexpr cwc::Chip kChip = cwc::Chip::Esp32;
 #endif
 
 class ArduinoClock : public cwc::Clock {
@@ -51,12 +49,12 @@ class NvsStorage : public cwc::Storage {
 
 ArduinoClock clock;
 NvsStorage storage;
-PwmServoDriver motors(kHorizontalServo, kVerticalServo);
+PwmServoDriver motors;
 cwc::Robot robot(motors, clock, storage);
 
 AsyncWebServer server(80);
 Network network(kDeviceName, kHostname);
-DeviceApi api(robot);
+DeviceApi api(robot, storage, kChip);
 
 }  // namespace
 
@@ -64,10 +62,11 @@ void setup() {
   Serial.begin(115200);
   Serial.printf("CatWandConnect %s starting\n", CWC_VERSION);
   storage.begin();
-  motors.begin();
+  cwc::HardwareConfig hardware = cwc::loadHardware(storage, kChip);
+  motors.begin(hardware);
   robot.begin();
 
-  api.begin(server);
+  api.begin(server, hardware);
   registerWebUi(server, [] { return network.inSetup(); });
   network.begin(server);
   server.begin();
