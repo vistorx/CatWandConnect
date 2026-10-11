@@ -4,24 +4,17 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: V1 feature-complete, not yet released.** Every V1 feature below is implemented and tested automatically, but the firmware has not yet been validated on the real robot. The first release follows the hardware checks in the [acceptance checklist](docs/acceptance-checklist.md).
+> **Status: V1 feature-complete, not yet released.** Every V1 feature is implemented and tested automatically, but the firmware has not yet been validated on the real robot. The first release follows the hardware checks in the [acceptance checklist](docs/acceptance-checklist.md).
 
 ## What it does
 
-| | Feature | Status |
-|---|---|---|
-| 📱 | **Phone joystick.** Move the wand in real time from any browser on your Wi-Fi, at `http://catwandconnect.local/`. | ✅ |
-| 🛑 | **Stow button.** One tap puts the wand back to rest and stops everything; nothing can interrupt it. | ✅ |
-| 🐢 | **Smooth and safe motion.** Configurable speed and acceleration. The wand brakes before its Travel limits and stops if your phone disconnects. | ✅ |
-| 📶 | **Easy Wi-Fi setup.** Enter your Wi-Fi in the browser right after flashing, or through the robot's own `CatWandConnect-XXXX` hotspot. | ✅ |
-| 🔌 | **Gentle power-up.** The robot remembers where it rested and crawls back to its Stow position, so the servos don't jump. | ✅ |
-| 🎯 | **Calibration wizard.** Set the Travel limits and Stow position for your build, step by step, then watch a slow test sweep before saving. | ✅ |
-| 🔧 | **Your wiring.** Choose pins (only the safe ones for your chip), reverse axes and set servo pulse ranges from the interface. | ✅ |
-| 🇫🇷 | **English and French interface.** Name your robot (it becomes `http://<name>.local/`), check the Info page, and add the interface to your phone's home screen. | ✅ |
-| 🔒 | **Optional settings PIN.** Guests can play and Stow, but not change the setup. | ✅ |
-| ⬆️ | **Firmware updates from the browser.** Upload the new file in Settings; settings and Calibration are kept, and a failed upload leaves the old firmware running. | ✅ |
-| ⚡ | **Web flasher.** Install the robot from Chrome or Edge in one click, no tools needed, and enter your Wi-Fi right after. | ✅ |
-| 🏠 | **Home Assistant**, optional, through MQTT discovery: the robot appears by itself with Stow, positions and speeds, under the same safety rules. | ✅ |
+- **Play from your phone.** A joystick and a speed slider in any browser on your Wi-Fi, with no app to install.
+- **Safe by design.** Travel limits it never exceeds, a Stow button nothing can interrupt, smooth motion, and a stop as soon as your phone disconnects.
+- **Easy to set up.** Install from the browser, enter your Wi-Fi, and let the Calibration wizard fit the robot to your build.
+- **Yours to adapt.** Your pins and servos, your robot's name, English or French, an optional PIN, and updates over Wi-Fi.
+- **Home Assistant if you want it**, through MQTT, and an open API for everything else.
+
+**[See every feature in detail →](docs/features.md)**
 
 Automatic play sessions are planned for V1.1.
 
@@ -95,6 +88,7 @@ Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 | Doc | For |
 |-----|-----|
 | [Getting started](docs/getting-started.md) | Setting up a machine, building, testing, the simulator and the code layout |
+| [Features](docs/features.md) | Everything the robot does, in detail |
 | [Home Assistant](docs/home-assistant.md) | Connecting the robot to Home Assistant over MQTT |
 | [Device API](docs/api.md) | The robot's HTTP, WebSocket and MQTT API, for scripts and integrations |
 | [Acceptance checklist](docs/acceptance-checklist.md) | What to check on the real robot before each release |
