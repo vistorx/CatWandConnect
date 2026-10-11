@@ -4,7 +4,7 @@ How to pick up CatWandConnect on a new machine, whether you are the maintainer o
 
 ## Where things stand
 
-The project is being reframed. The old ESPHome proof of concept has been removed. The dedicated firmware in `firmware/` is a skeleton: it builds for every chip and has a tested but still empty Robot core. Behaviour lands ticket by ticket, starting with [#4 Wi-Fi provisioning](https://github.com/vistorx/CatWandConnect/issues/4).
+The dedicated firmware in `firmware/` replaces the old ESPHome proof of concept. It already provides Wi-Fi provisioning, Manual control, speed settings, Stow and a gentle power-up. The remaining V1 work is tracked under [issue #1](https://github.com/vistorx/CatWandConnect/issues/1). None of it has been run on real hardware yet; [`acceptance-checklist.md`](acceptance-checklist.md) lists what to verify.
 
 Some docs are out of date: `README.md`, `docs/assembly.md`, `docs/electronics.md` and `docs/troubleshooting.md` still describe ESPHome and a paid V2. [#3](https://github.com/vistorx/CatWandConnect/issues/3) rewrites them. Until then, trust the sources below.
 
@@ -153,4 +153,6 @@ The slash-command skills are specific to Claude Code. Agents without them follow
 3. CI must pass. Behaviour that tests cannot cover goes in the physical acceptance checklist (from #3).
 4. If you settle a new term or decision, update `CONTEXT.md` or add an ADR in the same PR.
 
-Hardware you need from #4 onwards: an ESP32 board, two MG996R servos, a 5 V supply that can deliver several amps, and a printed Mk2 Mechanism.
+Hardware you need to test on the robot: an ESP32, ESP32-S3 or ESP32-C3 board, two MG996R servos, a 5 V supply that can deliver several amps, and a printed Mk2 Mechanism.
+
+**ESP8266 boards are not supported, and almost certainly never will be.** See [ADR 0008](adr/0008-no-esp8266-support.md).
