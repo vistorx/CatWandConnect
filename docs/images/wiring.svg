@@ -1,11 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 600" width="1040" height="600" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
 <rect width="1040" height="600" rx="16" fill="#ffffff"/>
-<text x="30" y="28" font-size="17" font-weight="700" fill="#1d1d1f" text-anchor="start">Option B: USB-C power adapter</text>
+<text x="30" y="28" font-size="17" font-weight="700" fill="#1d1d1f" text-anchor="start">Wiring</text>
 <rect x="30" y="44" width="200" height="112" rx="12" fill="#fff4e5" stroke="#1d1d1f" stroke-width="2"/>
-<text x="130" y="74" font-size="15" font-weight="700" fill="#1d1d1f" text-anchor="middle">USB-C adapter</text>
-<text x="130" y="94" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">5 V, 3 A</text>
-<text x="130" y="114" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">→ USB-C breakout</text>
-<text x="130" y="134" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">(VBUS = +, GND = −)</text>
+<text x="130" y="74" font-size="15" font-weight="700" fill="#1d1d1f" text-anchor="middle">5 V power supply</text>
+<text x="130" y="94" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">3 A or more</text>
 <text x="214" y="85" font-size="16" font-weight="700" fill="#d62828" text-anchor="end">+</text>
 <text x="214" y="125" font-size="18" font-weight="700" fill="#222222" text-anchor="end">−</text>
 <path d="M230,80 L910,80" fill="none" stroke="#d62828" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
@@ -64,8 +62,8 @@
 <text x="950" y="358" font-size="12" font-weight="600" fill="#6b3e1e" text-anchor="middle">brown</text>
 <text x="910" y="400" font-size="16" font-weight="700" fill="#1d1d1f" text-anchor="middle">Vertical servo</text>
 <text x="910" y="421" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="middle">MG996R</text>
-<text x="30" y="505" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="start">A USB-C breakout board takes 5 V from the adapter and feeds the same wiring. Don't power the servos</text>
-<text x="30" y="525" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="start">through the ESP32 board's own USB port: its traces and fuse can't carry the servos' current.</text>
+<text x="30" y="505" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="start">One 5 V supply powers the two servos and the board. Never power the servos from the board itself.</text>
+<text x="30" y="525" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="start">Plug the board's USB into a computer only to flash or read logs.</text>
 <line x1="30" y1="578" x2="60" y2="578" stroke="#d62828" stroke-width="4"/>
 <text x="68" y="583" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="start">+5 V</text>
 <line x1="116.4" y1="578" x2="146.4" y2="578" stroke="#222222" stroke-width="4"/>
