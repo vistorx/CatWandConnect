@@ -27,7 +27,10 @@ class Robot {
 
   Robot(MotorDriver& motors, Clock& clock, Storage& storage);
 
-  // Loads the settings and puts the wand at its Stow position.
+  // Power-up: loads the settings, commands the remembered resting position
+  // (clamped into the Travel limits) so the servos don't jump, then Stows at
+  // the slowest speed. Without a valid remembered position, goes straight to
+  // Stow.
   void begin();
 
   // Advances the robot by one control step. Call it often from the main loop.
@@ -73,6 +76,7 @@ class Robot {
   MotionLimits motionLimits(Axis axis) const;
   float stowTarget(Axis axis) const;
   bool atStow() const;
+  void rememberRestingPosition();
 
   MotorDriver& motors_;
   Clock& clock_;
@@ -81,6 +85,8 @@ class Robot {
   RobotSettings settings_ = defaultSettings();
   AxisState axes_[kAxisCount];
   Activity activity_ = Activity::Idle;
+  bool gentleStow_ = false;  // power-up Stow, at kMinSpeed
+  float savedRest_[kAxisCount] = {-1, -1};
   uint32_t lastTickMs_ = 0;
   uint32_t lastManualMs_ = 0;
 };

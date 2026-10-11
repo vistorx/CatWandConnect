@@ -63,3 +63,10 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Pushing the joystick while stowing does nothing; the wand still reaches the Stow position.
 - [ ] After Stow, the joystick works again and the servos hold firmly while moving and after letting go away from Stow.
 - [ ] `curl -X POST http://catwandconnect.local/api/stow` stows the wand.
+
+## Power-up
+
+- [ ] Move the wand away from Stow with the joystick, let go and wait 2 s, then unplug the power. When you plug it back in, the servos don't jump: the wand starts where it was and crawls back to the Stow position, then the servos go limp.
+- [ ] Repeat, but cut the power while the wand is moving. At power-up, it starts from the last position where it rested, so expect a small jump at most, then crawls to Stow.
+- [ ] On a freshly erased board (`pio run -e <chip> -t erase`), power-up goes straight to the Stow position.
+- [ ] While the robot crawls to Stow after power-up, the main screen shows "Stowing…" and the joystick does nothing.
