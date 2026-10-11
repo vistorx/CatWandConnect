@@ -148,6 +148,51 @@ function deviceSection(info) {
   });
 }
 
+// --- Home Assistant over MQTT (/api/mqtt) ------------------------------------------
+
+function showMqtt(mqtt) {
+  $('mqtt-enabled').checked = mqtt.enabled;
+  $('mqtt-host').value = mqtt.host;
+  $('mqtt-port').value = mqtt.port;
+  $('mqtt-user').value = mqtt.user;
+  $('mqtt-password').value = '';
+  $('mqtt-password').placeholder = mqtt.passwordSet ? I18n.t('mqtt.password_kept') : '';
+  $('mqtt-status').textContent = mqttStatus(mqtt);
+}
+
+function mqttStatus(mqtt) {
+  if (!mqtt.enabled) return I18n.t('mqtt.off');
+  if (mqtt.connected) return I18n.t('mqtt.connected');
+  return mqtt.error ? I18n.t(`mqtt.error.${mqtt.error}`) : I18n.t('mqtt.connecting');
+}
+
+async function mqttSection() {
+  showMqtt((await Api.call('GET', '/api/mqtt')).data);
+  // Follow the connection for a while after a change.
+  setInterval(async () => {
+    if (document.activeElement?.closest('#mqtt')) return;  // don't overwrite what is being typed
+    const { data } = await Api.call('GET', '/api/mqtt');
+    $('mqtt-status').textContent = mqttStatus(data);
+  }, 3000);
+
+  $('mqtt').addEventListener('submit', async event => {
+    event.preventDefault();
+    const body = {
+      enabled: $('mqtt-enabled').checked,
+      host: $('mqtt-host').value.trim(),
+      port: Number($('mqtt-port').value) || 1883,
+      user: $('mqtt-user').value.trim(),
+    };
+    if ($('mqtt-password').value) body.password = $('mqtt-password').value;
+    if (!body.user) body.password = '';
+    const { ok, data } = await Api.call('PUT', '/api/mqtt', body);
+    if (data.error === 'pin_required') return;
+    if (!ok) return report($('mqtt'), 'error', I18n.t(`error.${data.error}`));
+    showMqtt(data);
+    report($('mqtt'), 'ok', I18n.t('settings.saved'));
+  });
+}
+
 // --- Settings PIN ---------------------------------------------------------------
 
 async function securitySection() {
@@ -230,6 +275,7 @@ async function start() {
   fill(settings, LIMITS);
   fill(settings, MOTION);
 
+  await mqttSection();
   await securitySection();
   $('security').addEventListener('submit', event => {
     event.preventDefault();

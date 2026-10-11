@@ -129,3 +129,18 @@ Build two versions that differ visibly (for example change `CWC_VERSION` in `pla
 - [ ] Uploading a non-firmware file (a photo) is refused with "not an ESP32 firmware".
 - [ ] Unplugging the robot's Wi-Fi (or closing the tab) halfway through: the robot keeps running its old firmware, and a new upload then works.
 - [ ] With a PIN set, uploading from a phone that hasn't entered it asks for it.
+
+## Home Assistant (MQTT)
+
+Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup](home-assistant.md)).
+
+- [ ] On a fresh robot, Settings → Home Assistant is off and the robot makes no MQTT connection.
+- [ ] Enabling it with the broker address, user and password shows "Connected" within a few seconds.
+- [ ] A wrong password shows "refused the user or password"; a wrong address shows "Can't reach the broker". The joystick stays smooth while the robot keeps retrying.
+- [ ] The device appears in Home Assistant under the robot's name, with Stow, Horizontal/Vertical position, Horizontal/Vertical maximum speed and Activity.
+- [ ] Moving the wand with the joystick updates the positions and Activity in Home Assistant.
+- [ ] Setting a position in Home Assistant moves the axis there smoothly. A value beyond the Travel limits stops at the limit.
+- [ ] Pressing Stow in Home Assistant stows, even while someone is using the joystick.
+- [ ] Changing a maximum speed in Home Assistant shows in the robot's Settings, and a value of 5 °/s is ignored.
+- [ ] Unplugging the robot makes its entities unavailable in Home Assistant within about a minute. Plugging it back makes them available again.
+- [ ] Renaming the robot: after its restart, Home Assistant shows the new name.

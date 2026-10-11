@@ -1,0 +1,7 @@
+{
+  "name": "home_assistant",
+  "version": "0.0.0",
+  "description": "Home Assistant MQTT discovery for CatWandConnect: topics, discovery payloads, state and command parsing. Pure C++17 on ArduinoJson.",
+  "license": "GPL-3.0-or-later",
+  "dependencies": { "bblanchon/ArduinoJson": "7.4.3" }
+}

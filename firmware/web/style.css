@@ -247,7 +247,7 @@ button.secondary {
 .info dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .header-links { display: flex; gap: 1rem; }
 
-.field.wide { grid-template-columns: auto minmax(0, 1fr); }
+.field.wide { grid-template-columns: minmax(6rem, 38%) minmax(0, 1fr); }
 .field.wide input, .field.wide select { text-align: left; }
 .field.wide output { text-align: right; overflow-wrap: anywhere; }
 
