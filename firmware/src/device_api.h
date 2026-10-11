@@ -25,6 +25,13 @@ class DeviceApi {
   // robot's name.
   void begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name);
 
+  // Runs `f(robot)` under the robot lock, for other tasks such as MQTT.
+  template <class F>
+  auto withRobot(F&& f) {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    return f(robot_);
+  }
+
   // Stops Manual control before a firmware update; safe from any task.
   void stopForUpdate();
 

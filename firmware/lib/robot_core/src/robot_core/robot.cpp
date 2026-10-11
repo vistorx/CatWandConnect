@@ -90,7 +90,13 @@ void Robot::tick() {
     MotionLimits limits = motionLimits(axis);
     switch (activity_) {
       case Activity::Manual:
-        s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
+        if (s.hasGoto) {
+          MotionLimits gotoLimits{limits.maxSpeed * settings_.playSpeed, limits.maxAccel};
+          s.motion.stepToward(s.gotoTarget, dt, travelLimits(axis), gotoLimits);
+          if (s.motion.atRest() && s.motion.position() == travelLimits(axis).clamp(s.gotoTarget)) s.hasGoto = false;
+        } else {
+          s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
+        }
         break;
       case Activity::Stowing:
         if (gentleStow_) limits.maxSpeed = kMinSpeed;
@@ -103,7 +109,7 @@ void Robot::tick() {
         break;
     }
     if (activity_ != Activity::Idle) drive(axis);
-    moving = moving || s.command != 0 || !s.motion.atRest();
+    moving = moving || s.command != 0 || s.hasGoto || !s.motion.atRest();
   }
 
   if (activity_ == Activity::Manual && !moving) {
@@ -129,14 +135,32 @@ void Robot::tick() {
 void Robot::manualMove(float horizontal, float vertical) {
   if (activity_ == Activity::Stowing) return;
   endCalibration();
+  for (Axis axis : kAxes) state(axis).hasGoto = false;
   state(Axis::Horizontal).command = unit(horizontal);
   state(Axis::Vertical).command = unit(vertical);
   activity_ = Activity::Manual;
   lastManualMs_ = clock_.nowMs();
 }
 
+void Robot::manualGoto(Axis axis, float degrees) {
+  if (activity_ == Activity::Stowing || !kServoRange.contains(degrees)) return;
+  if (activity_ != Activity::Manual) {
+    endCalibration();
+    for (Axis a : kAxes) state(a).command = 0;
+  }
+  AxisState& s = state(axis);
+  s.command = 0;
+  s.hasGoto = true;
+  s.gotoTarget = degrees;
+  activity_ = Activity::Manual;
+  lastManualMs_ = clock_.nowMs();
+}
+
 void Robot::manualStop() {
-  for (Axis axis : kAxes) state(axis).command = 0;
+  for (Axis axis : kAxes) {
+    state(axis).command = 0;
+    state(axis).hasGoto = false;
+  }
 }
 
 void Robot::stow() {

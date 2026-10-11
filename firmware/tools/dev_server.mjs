@@ -34,6 +34,8 @@ const robot = {
 };
 
 let deviceName = 'CatWandConnect';
+let mqtt = { enabled: false, host: '', port: 1883, user: '', passwordSet: false, connected: false, error: '',
+  baseTopic: 'catwandconnect/catwandconnect' };
 let pin = '';
 const tokens = new Set();
 
@@ -45,7 +47,7 @@ function authorized(request) {
 }
 
 const PROTECTED = new Set(['POST /api/calibration', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
-  'POST /api/wifi']);
+  'POST /api/wifi', 'PUT /api/mqtt']);
 const startedAt = Date.now();
 
 function info() {
@@ -244,6 +246,17 @@ const API = {
     }
     deviceName = name;
     return [200, { name, hostname: info().hostname, restart: true }];
+  },
+  'GET /api/mqtt': () => [200, mqtt],
+  'PUT /api/mqtt': body => {
+    const next = { ...mqtt, ...body };
+    if (next.enabled && !next.host) return [400, { error: 'mqtt_host_required' }];
+    if (next.port < 1 || next.port > 65535) return [400, { error: 'mqtt_port_invalid' }];
+    if ('password' in body) next.passwordSet = !!body.password;
+    delete next.password;
+    // No broker here: pretend it fails, which exercises the error display.
+    mqtt = { ...next, connected: false, error: next.enabled ? 'unreachable' : '' };
+    return [200, mqtt];
   },
   'GET /api/hardware': () => [200, hardware],
   'PUT /api/hardware': putHardware,

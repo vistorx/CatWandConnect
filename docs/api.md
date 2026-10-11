@@ -110,6 +110,15 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 
 Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. Example: `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
 
+### Home Assistant (MQTT) settings
+
+`GET /api/mqtt` returns `{"enabled":false,"host":"","port":1883,"user":"","passwordSet":false,"connected":false,"error":"","baseTopic":"catwandconnect/catwandconnect"}`. The password is never returned.
+
+🔒 `PUT /api/mqtt` with any of `enabled`, `host`, `port`, `user` and `password` saves them and reconnects; a missing `password` keeps the current one. Returns the same object as `GET`.
+
+- **Invalid:** `400` with `mqtt_host_required` (when enabling without a host) or `mqtt_port_invalid`.
+- **`error`** reports the last connection failure: `unreachable`, `bad_credentials` or `refused`.
+
 ### Hardware
 
 `GET /api/hardware` returns the wiring and the pins this chip allows:
@@ -174,3 +183,18 @@ Each successful `PUT` writes to flash, so send it when a value is settled, not o
 ### Interface files
 
 `/` serves the Wi-Fi setup page while the robot is not on a Wi-Fi network, and the main screen once it is. The interface's files (`/app.js`, `/lang/en.json`, `/manifest.webmanifest`, …) are served gzip-compressed.
+
+## Home Assistant (MQTT)
+
+When enabled in Settings, the robot connects to an MQTT broker and announces itself with Home Assistant MQTT discovery. Setup is described in [Home Assistant](home-assistant.md). Topics use the robot's hostname, for example `catwandconnect/catwandconnect-salon`, written `<base>` below.
+
+| Topic | Direction | Payload |
+|-------|-----------|---------|
+| `<base>/status` | robot → | `online` / `offline` (retained; `offline` is the last will) |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle"}` (retained): positions in degrees, maximum speeds in °/s |
+| `<base>/stow/set` | → robot | `PRESS` |
+| `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | A number of degrees. The axis moves there at the Manual control speed, clamped into the Travel limits. |
+| `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | A number of °/s. Validated like the Settings value. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the four numbers and the activity sensor. |
+
+Commands go through the Robot core like Manual control: Travel limits, speed limits and priorities apply, and Stow beats everything.

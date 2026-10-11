@@ -134,5 +134,22 @@
   "error.not_firmware": "This file is not an ESP32 firmware.",
   "error.wrong_chip": "This firmware is for another chip. Pick the file for your board's chip (see the Info page).",
   "error.update_failed": "The update failed. The robot keeps its current firmware.",
-  "error.upload_interrupted": "The upload was interrupted. The robot keeps its current firmware; try again."
+  "error.upload_interrupted": "The upload was interrupted. The robot keeps its current firmware; try again.",
+  "mqtt.title": "Home Assistant",
+  "mqtt.hint": "Connect the robot to the MQTT broker of your Home Assistant (for example the Mosquitto add-on). It then appears in Home Assistant by itself, with Stow, positions and maximum speeds. Leave it off if you don't use Home Assistant.",
+  "mqtt.enabled": "Enabled",
+  "mqtt.host": "Broker",
+  "mqtt.port": "Port",
+  "mqtt.user": "User",
+  "mqtt.password": "Password",
+  "mqtt.password_kept": "unchanged",
+  "mqtt.status": "Status",
+  "mqtt.off": "Off",
+  "mqtt.connecting": "Connecting…",
+  "mqtt.connected": "Connected",
+  "error.mqtt_host_required": "Enter the broker's address.",
+  "error.mqtt_port_invalid": "The port must be between 1 and 65535.",
+  "mqtt.error.unreachable": "Can't reach the broker. Check its address and port.",
+  "mqtt.error.bad_credentials": "The broker refused the user or password.",
+  "mqtt.error.refused": "The broker refused the connection."
 }

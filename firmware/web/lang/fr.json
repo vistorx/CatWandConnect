@@ -134,5 +134,22 @@
   "error.not_firmware": "Ce fichier n'est pas un firmware ESP32.",
   "error.wrong_chip": "Ce firmware est prévu pour une autre puce. Choisissez le fichier correspondant à votre carte (voir la page Infos).",
   "error.update_failed": "La mise à jour a échoué. Le robot garde son firmware actuel.",
-  "error.upload_interrupted": "L'envoi a été interrompu. Le robot garde son firmware actuel ; réessayez."
+  "error.upload_interrupted": "L'envoi a été interrompu. Le robot garde son firmware actuel ; réessayez.",
+  "mqtt.title": "Home Assistant",
+  "mqtt.hint": "Connectez le robot au broker MQTT de votre Home Assistant (par exemple le module complémentaire Mosquitto). Il apparaît alors tout seul dans Home Assistant, avec le rangement, les positions et les vitesses maximales. Laissez désactivé si vous n'utilisez pas Home Assistant.",
+  "mqtt.enabled": "Activé",
+  "mqtt.host": "Broker",
+  "mqtt.port": "Port",
+  "mqtt.user": "Utilisateur",
+  "mqtt.password": "Mot de passe",
+  "mqtt.password_kept": "inchangé",
+  "mqtt.status": "État",
+  "mqtt.off": "Désactivé",
+  "mqtt.connecting": "Connexion…",
+  "mqtt.connected": "Connecté",
+  "error.mqtt_host_required": "Indiquez l'adresse du broker.",
+  "error.mqtt_port_invalid": "Le port doit être compris entre 1 et 65535.",
+  "mqtt.error.unreachable": "Broker injoignable. Vérifiez son adresse et son port.",
+  "mqtt.error.bad_credentials": "Le broker a refusé l'utilisateur ou le mot de passe.",
+  "mqtt.error.refused": "Le broker a refusé la connexion."
 }
