@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 600" width="1040" height="600" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+<rect width="1040" height="600" rx="16" fill="#ffffff"/>
+<text x="30" y="28" font-size="17" font-weight="700" fill="#1d1d1f" text-anchor="start">Option A: 5 V power supply</text>
+<rect x="30" y="44" width="200" height="112" rx="12" fill="#fff4e5" stroke="#1d1d1f" stroke-width="2"/>
+<text x="130" y="74" font-size="15" font-weight="700" fill="#1d1d1f" text-anchor="middle">5 V power supply</text>
+<text x="130" y="94" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">3 A or more</text>
+<text x="130" y="114" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">e.g. adapter + DC-jack</text>
+<text x="130" y="134" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="middle">screw terminal</text>
+<text x="214" y="85" font-size="16" font-weight="700" fill="#d62828" text-anchor="end">+</text>
+<text x="214" y="125" font-size="18" font-weight="700" fill="#222222" text-anchor="end">−</text>
+<path d="M230,80 L910,80" fill="none" stroke="#d62828" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M250,80 L250,113 A7,7 0 0 1 250,127 L250,300" fill="none" stroke="#d62828" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M670,80 L670,113 A7,7 0 0 1 670,127 L670,243 A7,7 0 0 1 670,257 L670,330" fill="none" stroke="#d62828" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M900,80 L900,113 A7,7 0 0 1 900,127 L900,330" fill="none" stroke="#d62828" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M530,80 L530,95" fill="none" stroke="#d62828" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="250" cy="80" r="6" fill="#d62828"/>
+<circle cx="670" cy="80" r="6" fill="#d62828"/>
+<circle cx="900" cy="80" r="6" fill="#d62828"/>
+<circle cx="530" cy="80" r="6" fill="#d62828"/>
+<path d="M230,120 L960,120" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M310,120 L310,300" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M720,120 L720,243 A7,7 0 0 1 720,257 L720,330" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M950,120 L950,330" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M530,107 L530,120" fill="none" stroke="#222222" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="310" cy="120" r="6" fill="#222222"/>
+<circle cx="720" cy="120" r="6" fill="#222222"/>
+<circle cx="950" cy="120" r="6" fill="#222222"/>
+<circle cx="530" cy="120" r="6" fill="#222222"/>
+<path d="M390,300 L390,220 L620,220 L620,243 A7,7 0 0 1 620,257 L620,330" fill="none" stroke="#f08c00" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M450,300 L450,250 L850,250 L850,330" fill="none" stroke="#f08c00" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="920" y="85" font-size="14" font-weight="700" fill="#d62828" text-anchor="start">+5 V</text>
+<text x="970" y="125" font-size="14" font-weight="700" fill="#222222" text-anchor="start">GND</text>
+<line x1="516" y1="95" x2="544" y2="95" stroke="#1d1d1f" stroke-width="3"/>
+<path d="M516,107 Q530,100 544,107" fill="none" stroke="#1d1d1f" stroke-width="3"/>
+<text x="510" y="100" font-size="12" font-weight="700" fill="#d62828" text-anchor="end">+</text>
+<text x="550" y="62" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="start">Capacitor 470–1000 µF, 10 V or more (stripe/− side to GND)</text>
+<rect x="200" y="300" width="300" height="170" rx="12" fill="#f5f5f7" stroke="#1d1d1f" stroke-width="2"/>
+<rect x="243" y="293" width="14" height="14" rx="3" fill="#1d1d1f"/>
+<text x="250" y="328" font-size="12" font-weight="600" fill="#1d1d1f" text-anchor="middle">5V / VIN</text>
+<rect x="303" y="293" width="14" height="14" rx="3" fill="#1d1d1f"/>
+<text x="310" y="328" font-size="12" font-weight="600" fill="#1d1d1f" text-anchor="middle">GND</text>
+<rect x="383" y="293" width="14" height="14" rx="3" fill="#1d1d1f"/>
+<text x="390" y="328" font-size="12" font-weight="600" fill="#1d1d1f" text-anchor="middle">GPIO 18</text>
+<rect x="443" y="293" width="14" height="14" rx="3" fill="#1d1d1f"/>
+<text x="450" y="328" font-size="12" font-weight="600" fill="#1d1d1f" text-anchor="middle">GPIO 19</text>
+<text x="350" y="395" font-size="19" font-weight="700" fill="#1d1d1f" text-anchor="middle">ESP32 board</text>
+<text x="350" y="418" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="middle">S3 / C3: GPIO 4 and GPIO 5</text>
+<text x="350" y="436" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="middle">(or the pins set in Settings → Wiring)</text>
+<rect x="590" y="330" width="180" height="120" rx="12" fill="#f5f5f7" stroke="#1d1d1f" stroke-width="2"/>
+<rect x="613" y="323" width="14" height="14" rx="3" fill="#f08c00"/>
+<text x="620" y="358" font-size="12" font-weight="600" fill="#f08c00" text-anchor="middle">orange</text>
+<rect x="663" y="323" width="14" height="14" rx="3" fill="#d62828"/>
+<text x="670" y="358" font-size="12" font-weight="600" fill="#d62828" text-anchor="middle">red</text>
+<rect x="713" y="323" width="14" height="14" rx="3" fill="#6b3e1e"/>
+<text x="720" y="358" font-size="12" font-weight="600" fill="#6b3e1e" text-anchor="middle">brown</text>
+<text x="680" y="400" font-size="16" font-weight="700" fill="#1d1d1f" text-anchor="middle">Horizontal servo</text>
+<text x="680" y="421" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="middle">MG996R</text>
+<rect x="820" y="330" width="180" height="120" rx="12" fill="#f5f5f7" stroke="#1d1d1f" stroke-width="2"/>
+<rect x="843" y="323" width="14" height="14" rx="3" fill="#f08c00"/>
+<text x="850" y="358" font-size="12" font-weight="600" fill="#f08c00" text-anchor="middle">orange</text>
+<rect x="893" y="323" width="14" height="14" rx="3" fill="#d62828"/>
+<text x="900" y="358" font-size="12" font-weight="600" fill="#d62828" text-anchor="middle">red</text>
+<rect x="943" y="323" width="14" height="14" rx="3" fill="#6b3e1e"/>
+<text x="950" y="358" font-size="12" font-weight="600" fill="#6b3e1e" text-anchor="middle">brown</text>
+<text x="910" y="400" font-size="16" font-weight="700" fill="#1d1d1f" text-anchor="middle">Vertical servo</text>
+<text x="910" y="421" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="middle">MG996R</text>
+<text x="30" y="505" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="start">One supply powers everything. The board's USB can stay unplugged; plug it in only to flash or read logs</text>
+<text x="30" y="525" font-size="14" font-weight="normal" fill="#1d1d1f" text-anchor="start">(most boards block 5 V from flowing back into the computer, but check yours or unplug the supply first).</text>
+<line x1="30" y1="578" x2="60" y2="578" stroke="#d62828" stroke-width="4"/>
+<text x="68" y="583" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="start">+5 V</text>
+<line x1="116.4" y1="578" x2="146.4" y2="578" stroke="#222222" stroke-width="4"/>
+<text x="154.4" y="583" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="start">GND (servo brown wire)</text>
+<line x1="321.6" y1="578" x2="351.6" y2="578" stroke="#f08c00" stroke-width="4"/>
+<text x="359.6" y="583" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="start">signal (servo orange wire)</text>
+<circle cx="559.2" cy="578" r="6" fill="#6e6e73"/>
+<text x="571.2" y="583" font-size="13" font-weight="normal" fill="#6e6e73" text-anchor="start">connected  ·  a hop means the wires cross without touching</text>
+</svg>
