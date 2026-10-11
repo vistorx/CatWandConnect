@@ -106,3 +106,14 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] A phone set to French shows the interface in French. Choosing English in Settings switches it at once and the choice is remembered after a reload. "Automatic" goes back to the phone's language.
 - [ ] iPhone (Safari) → Share → Add to Home Screen: the icon appears, and opening it shows the interface full screen without the Safari bars.
 - [ ] Android (Chrome) → menu → Add to Home screen: the icon appears and opens the interface.
+
+## Settings PIN
+
+- [ ] On a fresh robot, Settings → Settings PIN says "Off", and every setting can be changed without a PIN.
+- [ ] Set a PIN of 4 digits. You stay signed in on that phone.
+- [ ] On a second phone (or a private window), the joystick, the speed slider and Stow work without a PIN.
+- [ ] On that second phone, saving any setting (limits, speed and acceleration, wiring, name), starting Calibration or changing Wi-Fi from the hotspot asks for the PIN. With the right PIN the change goes through.
+- [ ] Five wrong PINs in a row show "Too many wrong PINs" with a countdown; the right PIN is refused until it ends.
+- [ ] After a restart, the PIN is asked again.
+- [ ] Changing the PIN signs out other phones. Removing it makes everything open again.
+- [ ] A 3-digit or non-numeric PIN is refused.

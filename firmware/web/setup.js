@@ -29,7 +29,21 @@ $('form').addEventListener('submit', async event => {
   event.preventDefault();
   $('connect').disabled = true;
   say('setup.connecting');
-  const response = await fetch('/api/wifi', { method: 'POST', body: new URLSearchParams(new FormData($('form'))) });
+  // The Wi-Fi form is form-encoded, so it handles the PIN itself.
+  const post = () => fetch('/api/wifi', {
+    method: 'POST',
+    headers: Api.token() ? { Authorization: `Bearer ${Api.token()}` } : {},
+    body: new URLSearchParams(new FormData($('form'))),
+  });
+  let response = await post();
+  if (response.status === 401) {
+    if (!(await Api.askPin())) {
+      $('connect').disabled = false;
+      $('status').textContent = '';
+      return;
+    }
+    response = await post();
+  }
   if (!response.ok) {
     $('status').textContent = await response.text();
     $('connect').disabled = false;

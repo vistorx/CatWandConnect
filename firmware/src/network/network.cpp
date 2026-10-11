@@ -2,6 +2,8 @@
 
 #include <identity/identity.h>
 
+#include "pin_http.h"
+
 #include <ESPmDNS.h>
 #include <WiFi.h>
 
@@ -44,7 +46,9 @@ String jsonString(const String& value) {
 
 }  // namespace
 
-void Network::begin(AsyncWebServer& server, const String& deviceName, const String& hostname) {
+void Network::begin(AsyncWebServer& server, const String& deviceName, const String& hostname,
+                    auth::PinGuard& pin) {
+  pin_ = &pin;
   deviceName_ = deviceName;
   hostname_ = hostname;
   uint8_t mac[6];
@@ -277,13 +281,13 @@ void Network::setupRoutes(AsyncWebServer& server) {
     request->send(200, "application/json", networksJson());
   });
 
-  // Only offered while the hotspot is up; changing Wi-Fi from the home network
-  // comes with the settings PIN (#12).
+  // Only offered while the hotspot is up, and behind the settings PIN if set.
   server.on("/api/wifi", HTTP_POST, [this](AsyncWebServerRequest* request) {
     if (!hotspotActive_) {
       request->send(409, "text/plain", "Wi-Fi can only be set from the hotspot");
       return;
     }
+    if (!requirePin(*pin_, request)) return;
     if (!request->hasParam("ssid", true) || request->getParam("ssid", true)->value().isEmpty()) {
       request->send(400, "text/plain", "Missing network name");
       return;

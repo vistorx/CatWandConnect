@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
+#include <auth/pin_guard.h>
+#include <esp_random.h>
 #include <identity/identity.h>
 #include <robot_core/robot.h>
 
@@ -49,9 +51,10 @@ NvsStorage storage;
 PwmServoDriver motors;
 cwc::Robot robot(motors, clock, storage);
 
+auth::PinGuard pin([] { return esp_random(); });
 AsyncWebServer server(80);
 Network network;
-DeviceApi api(robot, storage, kChip);
+DeviceApi api(robot, storage, kChip, pin);
 
 // The owner's name for the robot, set from the Device interface.
 String loadDeviceName() {
@@ -62,6 +65,14 @@ String loadDeviceName() {
   return identity::validName(name.c_str()) ? name : String(identity::kDefaultName);
 }
 
+String loadPin() {
+  Preferences prefs;
+  prefs.begin("auth", true);
+  String stored = prefs.getString("pin", "");
+  prefs.end();
+  return stored;
+}
+
 }  // namespace
 
 void setup() {
@@ -70,13 +81,14 @@ void setup() {
   storage.begin();
   cwc::HardwareConfig hardware = cwc::loadHardware(storage, kChip);
   String name = loadDeviceName();
+  pin.setPin(loadPin().c_str());
   String hostname = identity::hostnameFor(name.c_str()).c_str();
   motors.begin(hardware);
   robot.begin();
 
   api.begin(server, hardware, name);
   registerWebUi(server, [] { return network.inSetup(); });
-  network.begin(server, name, hostname);
+  network.begin(server, name, hostname, pin);
   server.begin();
 }
 

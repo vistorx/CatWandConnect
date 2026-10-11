@@ -5,6 +5,8 @@
 #include <WiFi.h>
 #include <identity/identity.h>
 
+#include "pin_http.h"
+
 namespace {
 
 constexpr uint32_t kBroadcastIntervalMs = 100;
@@ -104,6 +106,16 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
   hardware_ = hardware;
   name_ = name;
 
+  server.on("/api/auth", HTTP_GET, [this](AsyncWebServerRequest* request) { getAuth(request); });
+  auto* unlockHandler = new AsyncCallbackJsonWebHandler(
+      "/api/auth/unlock", [this](AsyncWebServerRequest* request, JsonVariant& body) { unlock(request, body); });
+  unlockHandler->setMethod(HTTP_POST);
+  server.addHandler(unlockHandler);
+  auto* pinHandler = new AsyncCallbackJsonWebHandler(
+      "/api/auth/pin", [this](AsyncWebServerRequest* request, JsonVariant& body) { putPin(request, body); });
+  pinHandler->setMethod(HTTP_PUT);
+  server.addHandler(pinHandler);
+
   server.on("/api/info", HTTP_GET, [this](AsyncWebServerRequest* request) { getInfo(request); });
   auto* device = new AsyncCallbackJsonWebHandler(
       "/api/device", [this](AsyncWebServerRequest* request, JsonVariant& body) { putDevice(request, body); });
@@ -159,6 +171,9 @@ void DeviceApi::putSettings(AsyncWebServerRequest* request, JsonVariant& body) {
     request->send(400, "application/json", "{\"error\":\"invalid_json\"}");
     return;
   }
+  // The speed slider is part of play; everything else needs the PIN.
+  bool onlyPlaySpeed = body.size() == 1 && body["playSpeed"].is<float>();
+  if (!onlyPlaySpeed && !requirePin(pin_, request)) return;
 
   JsonDocument doc;
   cwc::SettingsCheck check;
@@ -202,6 +217,7 @@ void DeviceApi::getCalibration(AsyncWebServerRequest* request) {
 }
 
 void DeviceApi::postCalibration(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!requirePin(pin_, request)) return;
   const char* action = body["action"] | "";
   JsonDocument doc;
   cwc::SettingsCheck check;
@@ -264,6 +280,7 @@ void DeviceApi::getHardware(AsyncWebServerRequest* request) {
 }
 
 void DeviceApi::putHardware(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!requirePin(pin_, request)) return;
   if (!body.is<JsonObject>()) {
     request->send(400, "application/json", "{\"error\":\"invalid_json\"}");
     return;
@@ -330,6 +347,7 @@ void DeviceApi::getInfo(AsyncWebServerRequest* request) {
 }
 
 void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!requirePin(pin_, request)) return;
   const char* name = body["name"] | "";
   if (!identity::validName(name)) {
     request->send(400, "application/json", "{\"error\":\"invalid_name\"}");
@@ -350,6 +368,65 @@ void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
   doc["restart"] = true;
   sendJson(request, 200, doc);
   restartAt_ = millis() + kRestartDelayMs;  // mDNS, DHCP and the hotspot pick up the name at boot
+}
+
+// --- Settings PIN -------------------------------------------------------------
+
+void DeviceApi::getAuth(AsyncWebServerRequest* request) {
+  std::string token;
+  if (request->hasHeader("Authorization")) {
+    String value = request->header("Authorization");
+    if (value.startsWith("Bearer ")) token = value.substring(7).c_str();
+  }
+  JsonDocument doc;
+  doc["enabled"] = pin_.enabled();
+  doc["authorized"] = pin_.authorized(token, millis());
+  doc["lockedFor"] = (pin_.lockedForMs(millis()) + 999) / 1000;
+  sendJson(request, 200, doc);
+}
+
+void DeviceApi::unlock(AsyncWebServerRequest* request, JsonVariant& body) {
+  std::string token;
+  JsonDocument doc;
+  switch (pin_.unlock(body["pin"] | "", millis(), token)) {
+    case auth::PinGuard::Unlock::Ok:
+      doc["token"] = token;
+      sendJson(request, 200, doc);
+      return;
+    case auth::PinGuard::Unlock::Wrong:
+      doc["error"] = "wrong_pin";
+      break;
+    case auth::PinGuard::Unlock::LockedOut:
+      doc["error"] = "locked_out";
+      break;
+  }
+  uint32_t locked = (pin_.lockedForMs(millis()) + 999) / 1000;
+  if (locked > 0) doc["retryAfter"] = locked;
+  sendJson(request, locked > 0 ? 429 : 401, doc);
+}
+
+void DeviceApi::putPin(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!requirePin(pin_, request)) return;
+  std::string pin = body["pin"] | "";
+  if (!pin_.setPin(pin)) {
+    request->send(400, "application/json", "{\"error\":\"invalid_pin\"}");
+    return;
+  }
+  // Stored as is: a 4-8 digit PIN would not resist offline guessing even if
+  // hashed, and reading the flash already takes the robot in hand.
+  Preferences prefs;
+  prefs.begin("auth", false);
+  prefs.putString("pin", pin.c_str());
+  prefs.end();
+
+  JsonDocument doc;
+  doc["enabled"] = pin_.enabled();
+  if (pin_.enabled()) {
+    std::string token;
+    pin_.unlock(pin, millis(), token);  // keep the person who set it signed in
+    doc["token"] = token;
+  }
+  sendJson(request, 200, doc);
 }
 
 // --- WebSocket --------------------------------------------------------------
