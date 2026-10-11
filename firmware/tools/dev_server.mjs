@@ -30,7 +30,58 @@ const robot = {
   command: { horizontal: 0, vertical: 0 },
   activity: 'idle',
   lastCommand: 0,
+  calibration: { step: 'none', draft: null, target: null, sweep: [] },
 };
+
+const STEP_ORDER = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max', 'stow', 'sweep', 'confirm'];
+
+function calibrationView() {
+  const c = robot.calibration;
+  const draft = c.draft ?? Object.fromEntries(['horizontal', 'vertical'].map(axis => {
+    const { min, max, stow } = robot.settings.axes[axis];
+    return [axis, { min, max, stow }];
+  }));
+  return { step: c.step, draft };
+}
+
+function calibrate(body) {
+  const c = robot.calibration;
+  const pos = robot.position;
+  if (body.action === 'start') {
+    c.draft = calibrationView().draft;
+    c.target = { ...pos };
+    c.step = 'horizontal_min';
+    robot.activity = 'calibrating';
+  } else if (body.action === 'nudge' && c.step !== 'none') {
+    c.target[body.axis] = Math.max(0, Math.min(180, c.target[body.axis] + Number(body.degrees)));
+  } else if (body.action === 'mark') {
+    const [axis, end] = c.step.split('_');
+    if (end === 'max' && pos[axis] <= c.draft[axis].min) return [400, { error: 'travel_order', axis }];
+    if (end) c.draft[axis][end] = round(pos[axis]);
+    if (c.step === 'stow') {
+      for (const a of ['horizontal', 'vertical']) {
+        if (pos[a] < c.draft[a].min || pos[a] > c.draft[a].max) return [400, { error: 'stow_out_of_travel', axis: a }];
+        c.draft[a].stow = round(pos[a]);
+      }
+      const d = c.draft;
+      c.sweep = [[d.horizontal.min, d.vertical.min], [d.horizontal.max, d.vertical.min], [d.horizontal.max, d.vertical.max],
+        [d.horizontal.min, d.vertical.max], [d.horizontal.min, d.vertical.min], [d.horizontal.stow, d.vertical.stow]];
+    }
+    c.step = STEP_ORDER[STEP_ORDER.indexOf(c.step) + 1];
+  } else if (body.action === 'confirm' && c.step === 'confirm') {
+    for (const a of ['horizontal', 'vertical']) Object.assign(robot.settings.axes[a], c.draft[a]);
+    robot.settings.calibrated = true;
+    c.step = 'none';
+    stow();
+  } else if (body.action === 'cancel') {
+    c.step = 'none';
+    stow();
+  }
+  return [200, calibrationView()];
+}
+
+// Moves `value` toward `target` by at most `step`.
+const approach = (value, target, step) => value + Math.max(-step, Math.min(step, target - value));
 
 function travel(axis) {
   return robot.settings.calibrated ? robot.settings.axes[axis] : { min: 60, max: 120 };
@@ -38,6 +89,19 @@ function travel(axis) {
 
 setInterval(() => {
   if (Date.now() - robot.lastCommand > 500) robot.command = { horizontal: 0, vertical: 0 };
+  const c = robot.calibration;
+  if (robot.activity === 'calibrating') {
+    if (c.step === 'sweep' || c.step === 'confirm') {
+      const [h, v] = c.sweep[0] ?? [robot.position.horizontal, robot.position.vertical];
+      robot.position.horizontal = approach(robot.position.horizontal, h, 1);
+      robot.position.vertical = approach(robot.position.vertical, v, 1);
+      if (c.sweep.length && robot.position.horizontal === h && robot.position.vertical === v) c.sweep.shift();
+      if (c.step === 'sweep' && !c.sweep.length) c.step = 'confirm';
+    } else {
+      for (const axis of ['horizontal', 'vertical']) robot.position[axis] = approach(robot.position[axis], c.target[axis], 1);
+    }
+    return broadcast(state());
+  }
   if (robot.activity === 'stowing') {
     let done = true;
     for (const axis of ['horizontal', 'vertical']) {
@@ -62,13 +126,15 @@ setInterval(() => {
 
 function state() {
   return { t: 'state', h: round(robot.position.horizontal), v: round(robot.position.vertical),
-    activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed };
+    activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed,
+    calibrated: robot.settings.calibrated, calibration: robot.calibration.step };
 }
 
 const round = value => Math.round(value * 10) / 10;
 
 function onMessage(message) {
   if (message.t === 'move' && robot.activity !== 'stowing') {
+    robot.calibration.step = 'none';
     robot.command = { horizontal: clampUnit(message.h), vertical: clampUnit(message.v) };
     robot.activity = 'manual';
     robot.lastCommand = Date.now();
@@ -80,6 +146,7 @@ function onMessage(message) {
 }
 
 function stow() {
+  robot.calibration.step = 'none';
   robot.command = { horizontal: 0, vertical: 0 };
   robot.activity = 'stowing';
 }
@@ -106,6 +173,8 @@ function putSettings(body) {
 const API = {
   'GET /api/settings': () => [200, robot.settings],
   'PUT /api/settings': putSettings,
+  'GET /api/calibration': () => [200, calibrationView()],
+  'POST /api/calibration': calibrate,
   'POST /api/stow': () => { stow(); return [202, {}]; },
   'GET /api/wifi/status': () => [200, { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1',
     host: 'catwandconnect.local' }],

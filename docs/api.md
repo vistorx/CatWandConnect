@@ -31,9 +31,11 @@ JSON text messages, one per frame, each with a type in `t`.
 | Field | Meaning |
 |-------|---------|
 | `h`, `v` | Current position of each Axis. |
-| `activity` | `idle`, `manual` or `stowing`. |
+| `activity` | `idle`, `manual`, `stowing` or `calibrating`. |
 | `held` | Whether the servos are being driven. They are released only once the wand rests at the Stow position. |
 | `playSpeed` | The speed slider's value, so every open interface stays in sync. |
+| `calibrated` | Whether Calibration has been completed. |
+| `calibration` | The current Calibration step, `none` when not calibrating (see below). |
 
 ## HTTP
 
@@ -46,6 +48,26 @@ JSON text messages, one per frame, each with a type in `t`.
 At power-up the robot commands the position where it last rested (clamped into the Travel limits) and then Stows at the slowest speed, 10 °/s; `activity` is `stowing` meanwhile.
 
 Stow beats every other command and cannot be interrupted. Manual control, from any source, cancels any other activity. Nothing resumes on its own afterwards.
+
+### Calibration
+
+`GET /api/calibration` returns the current step and the values recorded so far:
+
+```json
+{"step":"horizontal_max","draft":{"horizontal":{"min":32,"max":120,"stow":90},"vertical":{"min":60,"max":120,"stow":90}}}
+```
+
+`POST /api/calibration` with `{"action": …}` drives it and returns the same object:
+
+| Action | Effect |
+|--------|--------|
+| `{"action":"start"}` | Starts Calibration from the current Travel limits. |
+| `{"action":"nudge","axis":"horizontal","degrees":-5}` | Moves the step's axis (both axes in the `stow` step) by that many degrees, at 20 °/s, anywhere in 0–180°. |
+| `{"action":"mark"}` | Records the current position for the step and moves to the next. Returns `400` with `travel_order` or `stow_out_of_travel` (and `axis`) when the position is not acceptable. |
+| `{"action":"confirm"}` | In the `confirm` step, saves the new limits and Stow position, marks the robot calibrated and Stows. |
+| `{"action":"cancel"}` | Abandons Calibration, keeping the previous settings, and Stows. |
+
+The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `vertical_max`, `stow`, then `sweep` (the robot visits the four corners of the new envelope and returns to Stow by itself), then `confirm`. Stow and Manual control abandon Calibration too.
 
 ### Settings
 
@@ -65,7 +87,7 @@ Stow beats every other command and cannot be interrupted. Manual control, from a
 | Field | Meaning | Valid range |
 |-------|---------|-------------|
 | `playSpeed` | Fraction of `maxSpeed` used by Manual control: the main screen's speed slider. | 0.1–1 |
-| `calibrated` | Whether Calibration has been completed. Until then, movement stays within 60°–120° whatever `min` and `max` say. Read-only. | |
+| `calibrated` | Whether Calibration has been completed. Until then, movement stays within 60°–120° whatever `min` and `max` say. Read-only: only Calibration sets it. | |
 | `min`, `max` | Travel limits, in degrees. | 0–180, `min` < `max` |
 | `stow` | Stow position, in degrees. | within `min`–`max` |
 | `maxSpeed` | Maximum speed, in °/s. | 10–360 |

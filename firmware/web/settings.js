@@ -58,16 +58,26 @@ const MOTION = [
   { key: 'maxAccel', unit: '°/s²', step: 10, min: 20, max: 2000 },
 ];
 
+const LIMITS = [
+  { key: 'min', unit: '°', step: 0.5, min: 0, max: 180 },
+  { key: 'max', unit: '°', step: 0.5, min: 0, max: 180 },
+  { key: 'stow', unit: '°', step: 0.5, min: 0, max: 180 },
+];
+
 async function start() {
+  axisFields($('limits-axes'), LIMITS);
   axisFields($('motion-axes'), MOTION);
   await I18n.load();
   const settings = await (await fetch('/api/settings')).json();
+  fill(settings, LIMITS);
   fill(settings, MOTION);
 
-  $('motion').addEventListener('submit', event => {
-    event.preventDefault();
-    save($('motion'), collect(MOTION), MOTION);
-  });
+  for (const [form, fields] of [[$('limits'), LIMITS], [$('motion'), MOTION]]) {
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      save(form, collect(fields), fields);
+    });
+  }
 }
 
 start();

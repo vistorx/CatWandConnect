@@ -38,6 +38,9 @@ class DeviceApi {
 
   void getSettings(AsyncWebServerRequest* request);
   void putSettings(AsyncWebServerRequest* request, JsonVariant& body);
+  void getCalibration(AsyncWebServerRequest* request);
+  void postCalibration(AsyncWebServerRequest* request, JsonVariant& body);
+  void writeCalibration(JsonObject out);  // caller holds robotLock_
 
   cwc::Robot& robot_;
   std::mutex robotLock_;

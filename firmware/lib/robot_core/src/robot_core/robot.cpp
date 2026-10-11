@@ -18,6 +18,34 @@ struct RestRecord {
 
 float unit(float value) { return value < -1 ? -1 : value > 1 ? 1 : value; }
 
+constexpr size_t kSweepPoints = 6;
+
+// The sweep visits the four corners of the new envelope, then the Stow position.
+float sweepTarget(const RobotSettings& draft, Axis axis, size_t point) {
+  const AxisSettings& a = draft.axis(axis);
+  if (point >= kSweepPoints - 1) return a.stow;
+  // Corners in order: (min,min) (max,min) (max,max) (min,max) (min,min)
+  static constexpr bool kHorizontalMax[] = {false, true, true, false, false};
+  static constexpr bool kVerticalMax[] = {false, false, true, true, false};
+  bool max = axis == Axis::Horizontal ? kHorizontalMax[point] : kVerticalMax[point];
+  return max ? a.travel.max : a.travel.min;
+}
+
+bool nudgeable(CalibrationStep step, Axis axis) {
+  switch (step) {
+    case CalibrationStep::HorizontalMin:
+    case CalibrationStep::HorizontalMax:
+      return axis == Axis::Horizontal;
+    case CalibrationStep::VerticalMin:
+    case CalibrationStep::VerticalMax:
+      return axis == Axis::Vertical;
+    case CalibrationStep::Stow:
+      return true;
+    default:
+      return false;
+  }
+}
+
 }  // namespace
 
 Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage)
@@ -68,6 +96,9 @@ void Robot::tick() {
         if (gentleStow_) limits.maxSpeed = kMinSpeed;
         s.motion.stepToward(stowTarget(axis), dt, travelLimits(axis), limits);
         break;
+      case Activity::Calibrating:
+        stepCalibration(axis, dt);
+        break;
       case Activity::Idle:
         break;
     }
@@ -79,6 +110,14 @@ void Robot::tick() {
     activity_ = Activity::Idle;
     rememberRestingPosition();
   }
+  if (calibrationStep_ == CalibrationStep::Sweep) {
+    bool reached = true;
+    for (Axis axis : kAxes) {
+      const AxisMotion& motion = state(axis).motion;
+      reached = reached && motion.atRest() && motion.position() == sweepTarget(draft_, axis, sweepPoint_);
+    }
+    if (reached && ++sweepPoint_ == kSweepPoints) calibrationStep_ = CalibrationStep::Confirm;
+  }
   if (activity_ == Activity::Stowing && atStow()) {
     for (Axis axis : kAxes) release(axis);
     activity_ = Activity::Idle;
@@ -89,6 +128,7 @@ void Robot::tick() {
 
 void Robot::manualMove(float horizontal, float vertical) {
   if (activity_ == Activity::Stowing) return;
+  endCalibration();
   state(Axis::Horizontal).command = unit(horizontal);
   state(Axis::Vertical).command = unit(vertical);
   activity_ = Activity::Manual;
@@ -101,8 +141,91 @@ void Robot::manualStop() {
 
 void Robot::stow() {
   manualStop();
+  endCalibration();
   activity_ = Activity::Stowing;
   gentleStow_ = false;
+}
+
+void Robot::startCalibration() {
+  if (activity_ == Activity::Stowing) return;
+  manualStop();
+  draft_ = settings_;
+  for (Axis axis : kAxes) {
+    draft_.axis(axis).travel = travelLimits(axis);
+    nudgeTarget_[static_cast<size_t>(axis)] = position(axis);
+  }
+  calibrationStep_ = CalibrationStep::HorizontalMin;
+  activity_ = Activity::Calibrating;
+}
+
+void Robot::nudge(Axis axis, float degrees) {
+  if (activity_ != Activity::Calibrating || !nudgeable(calibrationStep_, axis)) return;
+  float& target = nudgeTarget_[static_cast<size_t>(axis)];
+  target = kServoRange.clamp(target + degrees);
+}
+
+SettingsCheck Robot::markCalibration() {
+  if (activity_ != Activity::Calibrating) return {};
+  float h = position(Axis::Horizontal);
+  float v = position(Axis::Vertical);
+  AxisSettings& horizontal = draft_.axis(Axis::Horizontal);
+  AxisSettings& vertical = draft_.axis(Axis::Vertical);
+
+  switch (calibrationStep_) {
+    case CalibrationStep::HorizontalMin:
+      horizontal.travel.min = h;
+      calibrationStep_ = CalibrationStep::HorizontalMax;
+      break;
+    case CalibrationStep::HorizontalMax:
+      if (h <= horizontal.travel.min) return {SettingsError::TravelOrder, Axis::Horizontal};
+      horizontal.travel.max = h;
+      calibrationStep_ = CalibrationStep::VerticalMin;
+      break;
+    case CalibrationStep::VerticalMin:
+      vertical.travel.min = v;
+      calibrationStep_ = CalibrationStep::VerticalMax;
+      break;
+    case CalibrationStep::VerticalMax:
+      if (v <= vertical.travel.min) return {SettingsError::TravelOrder, Axis::Vertical};
+      vertical.travel.max = v;
+      calibrationStep_ = CalibrationStep::Stow;
+      break;
+    case CalibrationStep::Stow:
+      if (!horizontal.travel.contains(h)) return {SettingsError::StowOutOfTravel, Axis::Horizontal};
+      if (!vertical.travel.contains(v)) return {SettingsError::StowOutOfTravel, Axis::Vertical};
+      horizontal.stow = h;
+      vertical.stow = v;
+      sweepPoint_ = 0;
+      calibrationStep_ = CalibrationStep::Sweep;
+      break;
+    default:
+      break;
+  }
+  return {};
+}
+
+void Robot::confirmCalibration() {
+  if (calibrationStep_ != CalibrationStep::Confirm) return;
+  RobotSettings confirmed = draft_;
+  confirmed.calibrated = true;
+  applySettings(confirmed);  // validated: an invalid draft leaves the old settings
+  stow();
+}
+
+void Robot::cancelCalibration() {
+  if (activity_ != Activity::Calibrating) return;
+  stow();
+}
+
+void Robot::endCalibration() { calibrationStep_ = CalibrationStep::None; }
+
+void Robot::stepCalibration(Axis axis, float dt) {
+  MotionLimits limits = motionLimits(axis);
+  if (limits.maxSpeed > kCalibrationSpeed) limits.maxSpeed = kCalibrationSpeed;
+  float target = calibrationStep_ == CalibrationStep::Sweep || calibrationStep_ == CalibrationStep::Confirm
+                     ? sweepTarget(draft_, axis, sweepPoint_)
+                     : nudgeTarget_[static_cast<size_t>(axis)];
+  state(axis).motion.stepToward(target, dt, kServoRange, limits);
 }
 
 float Robot::position(Axis axis) const { return state(axis).motion.position(); }

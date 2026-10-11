@@ -10,6 +10,21 @@ enum class Activity : uint8_t {
   Idle,
   Manual,   // a person is moving the wand
   Stowing,  // moving to the Stow position, then releasing the servos
+  Calibrating,
+};
+
+// Calibration walks the owner through these steps in order. The owner moves
+// the axis with small nudges and marks the current position at each step,
+// then watches a slow sweep of the whole envelope and confirms.
+enum class CalibrationStep : uint8_t {
+  None,           // not calibrating
+  HorizontalMin,
+  HorizontalMax,
+  VerticalMin,
+  VerticalMax,
+  Stow,           // both axes nudged to the rest position
+  Sweep,          // the robot sweeps the new envelope by itself
+  Confirm,        // waiting for the owner to confirm nothing touched
 };
 
 // Owns all safety-critical behaviour of CatWandConnect: Travel limits, speed,
@@ -48,6 +63,37 @@ class Robot {
   // servos are released.
   void stow();
 
+  // --- Calibration ---------------------------------------------------------
+  // While calibrating, the axes may go anywhere in the servo range, slowly,
+  // since the Travel limits are what is being set. Nothing is saved until
+  // confirmCalibration(); Stow, Manual control or cancel keep the previous
+  // settings.
+
+  static constexpr float kCalibrationSpeed = 20;  // °/s
+
+  void startCalibration();
+
+  // Moves the axis of the current step by `degrees`. In the Stow step both
+  // axes can be nudged. Ignored outside those steps.
+  void nudge(Axis axis, float degrees);
+
+  // Records the current position for the current step and moves to the next.
+  // Rejected (the step stays) when the maximum is not above the minimum, or
+  // the Stow position is outside the new Travel limits.
+  SettingsCheck markCalibration();
+
+  // In the Confirm step: saves the new Travel limits and Stow position, marks
+  // the robot calibrated and Stows.
+  void confirmCalibration();
+
+  // Abandons Calibration, keeping the previous settings, and Stows.
+  void cancelCalibration();
+
+  CalibrationStep calibrationStep() const { return calibrationStep_; }
+
+  // Travel limits and Stow position recorded so far.
+  const RobotSettings& calibrationDraft() const { return draft_; }
+
   // Validates, stores and applies new settings as a whole. Invalid settings
   // are rejected and the current ones stay in effect.
   SettingsCheck applySettings(const RobotSettings& settings);
@@ -77,6 +123,8 @@ class Robot {
   float stowTarget(Axis axis) const;
   bool atStow() const;
   void rememberRestingPosition();
+  void stepCalibration(Axis axis, float dt);
+  void endCalibration();
 
   MotorDriver& motors_;
   Clock& clock_;
@@ -87,6 +135,11 @@ class Robot {
   Activity activity_ = Activity::Idle;
   bool gentleStow_ = false;  // power-up Stow, at kMinSpeed
   float savedRest_[kAxisCount] = {-1, -1};
+
+  CalibrationStep calibrationStep_ = CalibrationStep::None;
+  RobotSettings draft_ = defaultSettings();
+  float nudgeTarget_[kAxisCount] = {};
+  size_t sweepPoint_ = 0;
   uint32_t lastTickMs_ = 0;
   uint32_t lastManualMs_ = 0;
 };

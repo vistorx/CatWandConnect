@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow and a gentle power-up. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up and Calibration. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
 ## What it does
 
@@ -15,7 +15,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 🐢 | **Smooth and safe motion.** Configurable speed and acceleration. The wand brakes before its Travel limits and stops if your phone disconnects. | ✅ |
 | 📶 | **Easy Wi-Fi setup.** Enter your Wi-Fi in the browser right after flashing, or through the robot's own `CatWandConnect-XXXX` hotspot. | ✅ |
 | 🔌 | **Gentle power-up.** The robot remembers where it rested and crawls back to its Stow position, so the servos don't jump. | ✅ |
-| 🎯 | **Calibration wizard** to set the Travel limits and Stow position safely for your build. | 🚧 |
+| 🎯 | **Calibration wizard.** Set the Travel limits and Stow position for your build, step by step, then watch a slow test sweep before saving. | ✅ |
 | 🔧 | **Your wiring.** Choose pins, invert axes and set servo pulse ranges from the interface. | 🚧 |
 | 🇫🇷 | **English and French interface**, robot naming, Info page, home-screen shortcut. | 🚧 |
 | 🔒 | **Optional settings PIN**, so guests can play but not change the setup. | 🚧 |
@@ -81,9 +81,8 @@ pio run -e esp32 -t upload   # or esp32s3 / esp32c3
 1. Power the robot. With no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** hotspot.
 2. Join it from your phone. The setup page opens by itself; if not, browse to `http://192.168.4.1/`. Pick your Wi-Fi and enter its password.
 3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page).
-4. Play. Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
-
-Until Calibration is available, movement stays within a conservative 60°–120° range on each axis. Stay close to the robot the first time.
+4. **Calibrate.** The main screen invites you to. The wizard has you nudge each axis to the ends of its safe travel and pick the Stow position, then sweeps the new envelope slowly so you can check nothing touches. Until then, movement stays within a conservative 60°–120° range on each axis.
+5. **Play.** Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
 
 Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 

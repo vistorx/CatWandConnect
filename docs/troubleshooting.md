@@ -34,7 +34,10 @@ The supply is too weak or the wires too thin. Use a 5 V supply of 3 A or more, a
 - If the Stow button says "Stowing…", the robot is stowing, and nothing interrupts Stow. Wait for it to finish.
 
 **The wand stops at a narrow range.**
-Until Calibration is available, movement is limited to 60°–120° on each axis for safety.
+Until Calibration has been completed, movement is limited to 60°–120° on each axis for safety. Run it from the banner on the main screen or from Settings.
+
+**Calibration won't accept a position.**
+The maximum of an axis must be above its minimum, and the Stow position must be inside the limits you just set. Nudge further and mark again.
 
 **The wand moves the wrong way.**
 Axis inversion is coming with [#10](https://github.com/vistorx/CatWandConnect/issues/10). Until then, turn the servo horn around or swap the servo's mounting direction.

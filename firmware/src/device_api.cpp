@@ -13,9 +13,31 @@ const char* activityName(cwc::Activity activity) {
   switch (activity) {
     case cwc::Activity::Manual: return "manual";
     case cwc::Activity::Stowing: return "stowing";
+    case cwc::Activity::Calibrating: return "calibrating";
     case cwc::Activity::Idle: return "idle";
   }
   return "idle";
+}
+
+const char* stepName(cwc::CalibrationStep step) {
+  switch (step) {
+    case cwc::CalibrationStep::None: return "none";
+    case cwc::CalibrationStep::HorizontalMin: return "horizontal_min";
+    case cwc::CalibrationStep::HorizontalMax: return "horizontal_max";
+    case cwc::CalibrationStep::VerticalMin: return "vertical_min";
+    case cwc::CalibrationStep::VerticalMax: return "vertical_max";
+    case cwc::CalibrationStep::Stow: return "stow";
+    case cwc::CalibrationStep::Sweep: return "sweep";
+    case cwc::CalibrationStep::Confirm: return "confirm";
+  }
+  return "none";
+}
+
+bool parseAxis(const char* name, cwc::Axis& axis) {
+  if (strcmp(name, "horizontal") == 0) axis = cwc::Axis::Horizontal;
+  else if (strcmp(name, "vertical") == 0) axis = cwc::Axis::Vertical;
+  else return false;
+  return true;
 }
 
 const char* axisName(cwc::Axis axis) { return axis == cwc::Axis::Horizontal ? "horizontal" : "vertical"; }
@@ -77,6 +99,13 @@ void DeviceApi::begin(AsyncWebServer& server) {
     request->send(202, "application/json", "{}");
   });
 
+  server.on("/api/calibration", HTTP_GET, [this](AsyncWebServerRequest* request) { getCalibration(request); });
+  auto* calibrate = new AsyncCallbackJsonWebHandler(
+      "/api/calibration",
+      [this](AsyncWebServerRequest* request, JsonVariant& body) { postCalibration(request, body); });
+  calibrate->setMethod(HTTP_POST);
+  server.addHandler(calibrate);
+
   server.on("/api/settings", HTTP_GET, [this](AsyncWebServerRequest* request) { getSettings(request); });
   auto* put = new AsyncCallbackJsonWebHandler(
       "/api/settings", [this](AsyncWebServerRequest* request, JsonVariant& body) { putSettings(request, body); });
@@ -119,6 +148,64 @@ void DeviceApi::putSettings(AsyncWebServerRequest* request, JsonVariant& body) {
   }
   sendJson(request, 200, doc);
   newClient_ = true;  // push the new speed to every open interface
+}
+
+void DeviceApi::writeCalibration(JsonObject out) {
+  out["step"] = stepName(robot_.calibrationStep());
+  JsonObject draft = out["draft"].to<JsonObject>();
+  for (cwc::Axis axis : cwc::kAxes) {
+    const cwc::AxisSettings& a = robot_.calibrationDraft().axis(axis);
+    JsonObject o = draft[axisName(axis)].to<JsonObject>();
+    o["min"] = tenths(a.travel.min);
+    o["max"] = tenths(a.travel.max);
+    o["stow"] = tenths(a.stow);
+  }
+}
+
+void DeviceApi::getCalibration(AsyncWebServerRequest* request) {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writeCalibration(doc.to<JsonObject>());
+  }
+  sendJson(request, 200, doc);
+}
+
+void DeviceApi::postCalibration(AsyncWebServerRequest* request, JsonVariant& body) {
+  const char* action = body["action"] | "";
+  JsonDocument doc;
+  cwc::SettingsCheck check;
+  bool known = true;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    if (strcmp(action, "start") == 0) {
+      robot_.startCalibration();
+    } else if (strcmp(action, "nudge") == 0) {
+      cwc::Axis axis;
+      if (parseAxis(body["axis"] | "", axis)) robot_.nudge(axis, body["degrees"] | 0.0f);
+      else known = false;
+    } else if (strcmp(action, "mark") == 0) {
+      check = robot_.markCalibration();
+    } else if (strcmp(action, "confirm") == 0) {
+      robot_.confirmCalibration();
+    } else if (strcmp(action, "cancel") == 0) {
+      robot_.cancelCalibration();
+    } else {
+      known = false;
+    }
+    if (known && check.ok()) writeCalibration(doc.to<JsonObject>());
+  }
+
+  if (!known) {
+    request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+  } else if (!check.ok()) {
+    doc["error"] = cwc::settingsErrorName(check.error);
+    doc["axis"] = axisName(check.axis);
+    sendJson(request, 400, doc);
+  } else {
+    sendJson(request, 200, doc);
+    newClient_ = true;
+  }
 }
 
 // --- WebSocket --------------------------------------------------------------
@@ -208,6 +295,8 @@ void DeviceApi::broadcastState(bool force) {
     doc["activity"] = activityName(robot_.activity());
     doc["held"] = robot_.held(cwc::Axis::Horizontal) || robot_.held(cwc::Axis::Vertical);
     doc["playSpeed"] = tenths(robot_.settings().playSpeed * 100) / 100;
+    doc["calibrated"] = robot_.settings().calibrated;
+    doc["calibration"] = stepName(robot_.calibrationStep());
   }
   String state;
   serializeJson(doc, state);

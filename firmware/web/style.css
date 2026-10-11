@@ -198,3 +198,34 @@ h2 { font-size: 1.05rem; margin: 1rem 0 .25rem; }
 
 .stow.busy { opacity: .75; }
 .joystick.locked { opacity: .4; }
+
+button.secondary {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.wizard h2 { font-size: 1.2rem; margin-top: .25rem; }
+.wizard .progress { color: var(--muted); font-size: .85rem; margin: 0; }
+.wizard legend output { margin-left: .5rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.nudge-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-top: .5rem; }
+.nudge-row button { padding: .9rem .25rem; font-variant-numeric: tabular-nums; }
+.actions { display: flex; flex-direction: column; gap: .75rem; margin-top: .5rem; }
+.actions .primary { margin-top: 0; }
+
+.banner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  border-radius: .75rem;
+  border: 1px solid var(--warn);
+  color: var(--fg);
+  font-size: .9rem;
+}
+.banner a { font-weight: 600; white-space: nowrap; }
+
+.link-button { display: inline-block; margin-top: .5rem; font-weight: 600; }
