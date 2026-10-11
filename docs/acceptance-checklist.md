@@ -70,3 +70,18 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Repeat, but cut the power while the wand is moving. At power-up, it starts from the last position where it rested, so expect a small jump at most, then crawls to Stow.
 - [ ] On a freshly erased board (`pio run -e <chip> -t erase`), power-up goes straight to the Stow position.
 - [ ] While the robot crawls to Stow after power-up, the main screen shows "Stowing…" and the joystick does nothing.
+
+## Calibration
+
+- [ ] On a robot that was never calibrated, the main screen shows the "Not calibrated yet" banner, and the joystick is limited to 60°–120°.
+- [ ] The wizard walks through Horizontal first end, Horizontal other end, Vertical first end, Vertical other end, Stow, sweep, confirm, showing "Step n of 6".
+- [ ] The ±1° and ±5° buttons move only the step's axis, slowly, and the position on screen follows.
+- [ ] The nudges can go beyond 60°–120°.
+- [ ] Marking a maximum at or below its minimum shows an error and stays on the step.
+- [ ] Marking a Stow position outside the new limits shows an error and stays on the step.
+- [ ] The sweep visits the four corners of the new envelope slowly and ends at the Stow position, without touching anything.
+- [ ] "Nothing touched: save" saves; the banner disappears and the joystick now reaches the new limits but not beyond.
+- [ ] Settings shows the new limits and Stow position. Changing them there is validated the same way.
+- [ ] Pressing Cancel at any step, or Stow on the main screen, keeps the previous limits and Stows.
+- [ ] After a power cycle the robot is still calibrated, with the same limits.
+- [ ] Running Calibration again starts from the current limits.
