@@ -18,7 +18,7 @@ On the S3 and C3, GPIO 18 and 19 carry USB, so the defaults differ. To wire diff
 
 ## Wiring
 
-The robot runs from a single 5 V source that feeds three things: the two servos and the board. Two options, wired the same way past the source.
+The robot runs from a single 5 V supply that feeds the two servos and the board.
 
 Each MG996R has three wires: **orange** (signal), **red** (+5 V) and **brown** (ground).
 
@@ -33,21 +33,10 @@ Each MG996R has three wires: **orange** (signal), **red** (+5 V) and **brown** (
 
 Use a small terminal block, a Wago-style connector or a perfboard as the +5 V and GND "rails" that everything plugs into.
 
-### Option A: 5 V power supply (recommended)
+![Wiring: a 5 V power supply feeds a +5 V rail and a GND rail; both servos' red and brown wires and the board's 5V and GND pins connect to the rails; GPIO 18 goes to the horizontal servo's orange wire and GPIO 19 to the vertical servo's; a capacitor sits across the rails near the servos.](images/wiring.svg)
 
-![Wiring with a 5 V power supply: the supply's + and − feed a +5 V rail and a GND rail; both servos' red and brown wires and the board's 5V and GND pins connect to the rails; GPIO 18 goes to the horizontal servo's orange wire and GPIO 19 to the vertical servo's; a capacitor sits across the rails near the servos.](images/wiring-power-supply.svg)
-
-- A 5 V adapter of **3 A or more** (4 A gives comfortable headroom), with a DC-jack-to-screw-terminal adapter.
-- The board takes its power from its **5V/VIN** pin. Its USB port can stay unplugged; plug it in only to flash or read logs.
-- Most dev boards have a diode that keeps the external 5 V from flowing back into your computer over USB, but not all. If you're not sure about yours, unplug the 5 V supply (or the board's 5V wire) before connecting USB to a computer.
-
-### Option B: USB-C power adapter
-
-![The same wiring, fed by a USB-C power adapter through a USB-C breakout board: the breakout's VBUS is +5 V and its GND is ground.](images/wiring-usb-c.svg)
-
-- A USB-C phone charger that delivers **5 V at 3 A**, and a **USB-C breakout board** (a "USB-C power" or "PD trigger" module set to 5 V). The breakout's VBUS is +5 V and its GND is ground.
-- Pick a breakout with the two **5.1 kΩ CC resistors**. Most "USB-C power" breakouts have them; without them, a USB-C charger gives no power.
-- **Don't power the servos through the ESP32 board's own USB port.** Its traces, fuse and diode are made for a few hundred milliamps, and two MG996R draw far more when they start or stall. The board's USB port stays free for flashing.
+- One 5 V supply of **3 A or more** powers everything; the board takes its power from its **5V/VIN** pin.
+- Plug the board's USB into a computer only to flash or read logs. Most dev boards have a diode that keeps the external 5 V from flowing back into the computer, but not all: if you're not sure about yours, unplug the 5 V supply first.
 
 ## Rules
 
