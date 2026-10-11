@@ -1,0 +1,115 @@
+name: Release
+
+# A vX.Y.Z tag builds every chip, publishes a GitHub release and updates the
+# web flasher. Running it by hand builds the same files as a dry run, without
+# publishing anything.
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Robot core tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: firmware
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install platformio
+      - run: pio test -e native
+      - run: node tools/check_lang.mjs
+
+  build:
+    name: Build ${{ matrix.env }}
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [esp32, esp32s3, esp32c3]
+    defaults:
+      run:
+        working-directory: firmware
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install platformio
+      - name: Version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="0.0.0-dev+${GITHUB_SHA::7}"; fi
+          echo "CWC_VERSION=$v" >> "$GITHUB_ENV"
+      - run: pio run -e ${{ matrix.env }}
+      - name: Collect binaries
+        run: |
+          mkdir -p ../dist
+          cp .pio/build/${{ matrix.env }}/firmware.bin ../dist/catwandconnect-${{ matrix.env }}-ota.bin
+          cp .pio/build/${{ matrix.env }}/factory.bin ../dist/catwandconnect-${{ matrix.env }}-factory.bin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.env }}
+          path: dist/
+
+  site:
+    name: Flasher site
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: firmware-*
+          merge-multiple: true
+          path: dist/
+      - name: Assemble
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="0.0.0-dev+${GITHUB_SHA::7}"; fi
+          mkdir -p site
+          cp flasher/index.html site/
+          cp dist/*-factory.bin site/
+          python firmware/tools/flasher_manifest.py "$v" site/manifest.json
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  release:
+    name: GitHub release
+    if: github.ref_type == 'tag'
+    needs: site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: firmware-*
+          merge-multiple: true
+          path: dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.bin
+          generate_release_notes: true
+
+  pages:
+    name: Publish the web flasher
+    # GitHub Pages needs a public repository (or a paid plan).
+    if: github.ref_type == 'tag' && !github.event.repository.private
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

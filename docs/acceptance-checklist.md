@@ -10,7 +10,7 @@ Start each section from a board with no saved Wi-Fi: erase it with `pio run -e <
 
 ### Improv over USB
 
-- [ ] Flash the board, then open an Improv client on the USB port (the web flasher once #15 lands; until then <https://www.improv-wifi.com/> → "Connect device to Wi-Fi"). It shows the device as CatWandConnect with the right chip and version.
+- [ ] Flash the board with the web flasher (or with PlatformIO, then open the web flasher and connect to the board). It offers "Connect to Wi-Fi" and shows the device as CatWandConnect with the right version.
 - [ ] The client lists nearby networks.
 - [ ] Entering a wrong password reports "unable to connect", and the robot opens its hotspot.
 - [ ] Entering the right credentials connects, and the client shows a link to the robot's address. The link opens the robot's page.
@@ -144,3 +144,12 @@ Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup]
 - [ ] Changing a maximum speed in Home Assistant shows in the robot's Settings, and a value of 5 °/s is ignored.
 - [ ] Unplugging the robot makes its entities unavailable in Home Assistant within about a minute. Plugging it back makes them available again.
 - [ ] Renaming the robot: after its restart, Home Assistant shows the new name.
+
+## Web flasher and releases
+
+- [ ] The release page has a `-factory.bin` and an `-ota.bin` per chip, and the version in the Info page matches the tag.
+- [ ] The web flasher opens in Chrome or Edge on a computer and shows the release's version. In Safari or Firefox it explains that it needs Chrome or Edge.
+- [ ] With an ESP32, an ESP32-S3 and an ESP32-C3 board in turn: "Connect and install" detects the chip and installs. Erasing on a first install works.
+- [ ] After installing, "Connect to Wi-Fi" provisions the robot and "Visit device" opens its interface.
+- [ ] Installing over an existing robot without erasing keeps its settings.
+

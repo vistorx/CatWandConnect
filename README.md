@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming, a French translation, an optional settings PIN, firmware updates from the browser and Home Assistant. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: V1 feature-complete, not yet released.** Every V1 feature below is implemented and tested automatically, but the firmware has not yet been validated on the real robot. The first release follows the hardware checks in the [acceptance checklist](docs/acceptance-checklist.md).
 
 ## What it does
 
@@ -20,7 +20,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 🇫🇷 | **English and French interface.** Name your robot (it becomes `http://<name>.local/`), check the Info page, and add the interface to your phone's home screen. | ✅ |
 | 🔒 | **Optional settings PIN.** Guests can play and Stow, but not change the setup. | ✅ |
 | ⬆️ | **Firmware updates from the browser.** Upload the new file in Settings; settings and Calibration are kept, and a failed upload leaves the old firmware running. | ✅ |
-| ⚡ | **Web flasher.** Install the robot from Chrome or Edge in one click, no tools needed. | 🚧 |
+| ⚡ | **Web flasher.** Install the robot from Chrome or Edge in one click, no tools needed, and enter your Wi-Fi right after. | ✅ |
 | 🏠 | **Home Assistant**, optional, through MQTT discovery: the robot appears by itself with Stow, positions and speeds, under the same safety rules. | ✅ |
 
 Automatic play sessions are planned for V1.1.
@@ -68,18 +68,20 @@ The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertic
 
 ### Install the firmware
 
-The one-click web flasher will come with the first release. Until then, build and flash from source with [PlatformIO](https://platformio.org/). Plug the board in over USB, then:
+**From your browser:** open the [web flasher](https://vistorx.github.io/CatWandConnect/) in Chrome or Edge on a computer, plug the board in over USB and press **Connect and install**. The right firmware for your chip is picked automatically. Then enter your Wi-Fi when asked.
+
+**From source**, with [PlatformIO](https://platformio.org/):
 
 ```sh
 cd firmware
 pio run -e esp32 -t upload   # or esp32s3 / esp32c3
 ```
 
-[Getting started](docs/getting-started.md) covers the tools in detail.
+[Getting started](docs/getting-started.md) covers the tools in detail. Later updates go over Wi-Fi from **Settings → Firmware update**, using the `-ota.bin` file of a [release](https://github.com/vistorx/CatWandConnect/releases).
 
 ### First start
 
-1. Power the robot. With no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** hotspot.
+1. If you entered your Wi-Fi in the web flasher, skip to step 3. Otherwise power the robot: with no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** hotspot.
 2. Join it from your phone. The setup page opens by itself; if not, browse to `http://192.168.4.1/`. Pick your Wi-Fi and enter its password.
 3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page).
 4. **Calibrate.** The main screen invites you to. The wizard has you nudge each axis to the ends of its safe travel and pick the Stow position, then sweeps the new envelope slowly so you can check nothing touches. Until then, movement stays within a conservative 60°–120° range on each axis.
@@ -96,6 +98,7 @@ Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 | [Home Assistant](docs/home-assistant.md) | Connecting the robot to Home Assistant over MQTT |
 | [Device API](docs/api.md) | The robot's HTTP, WebSocket and MQTT API, for scripts and integrations |
 | [Acceptance checklist](docs/acceptance-checklist.md) | What to check on the real robot before each release |
+| [Releasing](docs/releasing.md) | Publishing a version and the web flasher |
 | [Glossary](CONTEXT.md) | The words the project uses: Stow, Travel limits, Calibration… |
 | [Decisions](docs/adr/) | Why things are the way they are |
 
