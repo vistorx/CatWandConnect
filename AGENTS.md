@@ -15,7 +15,7 @@ CatWandConnect is an open-hardware cat toy robot: an ESP32 drives a wand on two 
 - One ticket per branch and PR. Reference the ticket in the PR.
 - When you settle a new term or decision, update `CONTEXT.md` or add an ADR in the same PR.
 - Target the ESP32 family only (ESP32, ESP32-S3, ESP32-C3). ESP8266 support is out of scope (ADR 0008); close requests for it with a link to that ADR.
-- When a ticket adds or changes a feature, update the README's feature table and the user docs in the same PR.
+- When a ticket adds or changes a feature, update `docs/features.md`, the README summary if needed, and the user docs in the same PR.
 
 ## Agent skills
 
