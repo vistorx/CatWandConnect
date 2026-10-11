@@ -1,116 +1,116 @@
-# Cat Playing Platform
+# CatWandConnect
 
-This project provides an automatic toy platform for cats, designed to be controlled by an ESP32 through ESPHome. It is available in two mechanical versions: a simple V1 and a more evolved V2 with a skateboard bearing and 4 mm steel balls.
+**An open-hardware robot that plays with your cat.** An ESP32 swings a toy wand on two servos. You drive it from your phone through a web page served by the robot itself, with no app, no cloud and no account. Home Assistant is optional.
 
-## BOM by version
+Everything is free and open: the printable parts, the firmware and the docs.
 
-### Version V1
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow and a gentle power-up. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
-Deprecated: this first mechanical design was too demanding for the servo axis. After a few hours of play, the vertical servo could overheat and fail because of the mechanical stress and repeated load on the shaft. I corrected the design several times, and the V2 was reinforced to make the mechanism more resilient and durable.
+## What it does
 
-Files for this version are available in the folder [cat_playing_platform_V1](cat_playing_platform_V1).
+| | Feature | Status |
+|---|---|---|
+| 📱 | **Phone joystick.** Move the wand in real time from any browser on your Wi-Fi, at `http://catwandconnect.local/`. | ✅ |
+| 🛑 | **Stow button.** One tap puts the wand back to rest and stops everything; nothing can interrupt it. | ✅ |
+| 🐢 | **Smooth and safe motion.** Configurable speed and acceleration. The wand brakes before its Travel limits and stops if your phone disconnects. | ✅ |
+| 📶 | **Easy Wi-Fi setup.** Enter your Wi-Fi in the browser right after flashing, or through the robot's own `CatWandConnect-XXXX` hotspot. | ✅ |
+| 🔌 | **Gentle power-up.** The robot remembers where it rested and crawls back to its Stow position, so the servos don't jump. | ✅ |
+| 🎯 | **Calibration wizard** to set the Travel limits and Stow position safely for your build. | 🚧 |
+| 🔧 | **Your wiring.** Choose pins, invert axes and set servo pulse ranges from the interface. | 🚧 |
+| 🇫🇷 | **English and French interface**, robot naming, Info page, home-screen shortcut. | 🚧 |
+| 🔒 | **Optional settings PIN**, so guests can play but not change the setup. | 🚧 |
+| ⬆️ | **Firmware updates** from the browser, and a **web flasher** that installs the robot from Chrome or Edge in one click. | 🚧 |
+| 🏠 | **Home Assistant** through MQTT discovery. | 🚧 |
 
-#### Printed parts
+Automatic play sessions are planned for V1.1.
 
-* [CLAMP - Clamp.stl](cat_playing_platform_V1/CLAMP%20-%20Clamp.stl.nextcloud)
-* [CLAMP - Pad.stl](cat_playing_platform_V1/CLAMP%20-%20Pad.stl.nextcloud)
-* [CLAMP - Screw.stl](cat_playing_platform_V1/CLAMP%20-%20Screw.stl.nextcloud)
-* [CLAMP - Screw_pad.stl](cat_playing_platform_V1/CLAMP%20-%20Screw_pad.stl.nextcloud)
-* [Part Studio 1 - Part 2.stl](cat_playing_platform_V1/Part%20Studio%201%20-%20Part%202.stl.nextcloud)
-* [Part Studio 1 - Part 3.stl](cat_playing_platform_V1/Part%20Studio%201%20-%20Part%203.stl.nextcloud)
-* [Servo support.stl](cat_playing_platform_V1/Servo%20support.stl.nextcloud)
-* [Stick support.stl](cat_playing_platform_V1/Stick%20support.stl.nextcloud)
+## Build one
 
-#### External parts
+### Printed parts: Mk2 Mechanism
 
-* 1 ESP32 (with USB-C connector recommanded)
-* 2 micro-servos MG996R
-* 1 stable power supply
+The **Mk2** is the current Mechanism. It is reinforced with a 608 skateboard bearing and a track of 4 mm steel balls. All files are in [`stls/mk2/`](stls/mk2/), and [`catwandconnect-mk2.3mf`](stls/mk2/catwandconnect-mk2.3mf) contains the whole plate.
 
-### Version V2
+| Part | File |
+|------|------|
+| Arm | [`catwandconnect-mk2-arm.stl`](stls/mk2/catwandconnect-mk2-arm.stl) |
+| Bearing | [`catwandconnect-mk2-bearing.stl`](stls/mk2/catwandconnect-mk2-bearing.stl) |
+| Clamp | [`catwandconnect-mk2-clamp.stl`](stls/mk2/catwandconnect-mk2-clamp.stl) |
+| Screw | [`catwandconnect-mk2-screw.stl`](stls/mk2/catwandconnect-mk2-screw.stl) |
+| Rotor plate | [`catwandconnect-mk2-rotor_plate.stl`](stls/mk2/catwandconnect-mk2-rotor_plate.stl) |
+| Top plate | [`catwandconnect-mk2-top_plate.stl`](stls/mk2/catwandconnect-mk2-top_plate.stl) |
 
-This version is paid and is not included in the public Git repository. If you want access to it, use the purchase link below once it is available:
+The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertical servo overheated under load, and the firmware does not target it.
 
-* Purchase link: [Coming soon]()
+### Other parts
 
-#### Printed parts
+| Qty | Part | Notes |
+|-----|------|-------|
+| 1 | ESP32, ESP32-S3 or ESP32-C3 board | Any dev board with USB works, from about €3. USB-C is handy. |
+| 2 | MG996R servos | Standard-size metal-gear servos. |
+| 1 | 5 V power supply, 3 A or more | For the servos. Never power them from the board. |
+| 1 | 608 skateboard bearing | |
+| 16–24 | 4 mm steel balls | Adjust the count to your print's finish. |
+| 4 | M3×8 button-head screws | Horizontal servo mounting |
+| 2 | M3×25 button-head screws | Lower plate of the horizontal axis to the ball track |
+| 1 | M3×8 countersunk screw | Horizontal servo shaft plate |
+| 1 | M3×20 countersunk screw | Vertical servo shaft |
+| 4 | M3×8 button-head screws | Vertical servo mounting |
+| 3 | M3×30 countersunk screws | Bearing to the vertical shaft |
+| | A toy wand, wires, Dupont connectors | |
 
-* cat_playing_platform_v2 - arm.stl
-* cat_playing_platform_v2 - bearing.stl
-* cat_playing_platform_v2 - clamp.stl
-* cat_playing_platform_v2 - rotor_plate.stl
-* cat_playing_platform_v2 - screw.stl
-* cat_playing_platform_v2 - top_plate.stl
+**ESP8266 boards are not supported, and almost certainly never will be.** They lack the memory and hardware the robot needs; see [ADR 0008](docs/adr/0008-no-esp8266-support.md).
 
-#### External parts
+### Assemble and wire
 
-* 1 ESP32 (with USB-C connector recommanded)
-* 2 micro-servos MG996R
-* 1 stable power supply
-* 1 skateboard bearing (608 type recommended)
-* 4 mm steel balls: 16 to 24 pieces recommended, to be adjusted according to the mechanical finish
+- [Assembly](docs/assembly.md): mechanical assembly order and checks.
+- [Electronics](docs/electronics.md): wiring the servos and the power supply, with the default pins for each chip.
 
-#### Required screws (M3 only)
+### Install the firmware
 
-* 4x M3x8 mm button-head screws: horizontal servo mounting
-* 2x M3x25 mm button-head screws: fixing the lower plate of the horizontal axis to the ball track
-* 1x M3x8 mm countersunk screw: fixing the horizontal servo shaft plate
-* 1x M3x20 mm countersunk screw: fixing the vertical servo shaft
-* 4x M3x8 mm button-head screws: vertical servo mounting
-* 3x M3x30 mm countersunk screws: fixing the skateboard bearing to the vertical shaft
+The one-click web flasher will come with the first release. Until then, build and flash from source with [PlatformIO](https://platformio.org/). Plug the board in over USB, then:
 
-## Repository structure
-
-* [cat-playing-platform.yaml](cat-playing-platform.yaml) : main ESPHome configuration
-* [board.yaml](board.yaml) : pin mapping and board-specific settings
-* [docs/electronics.md](docs/electronics.md) : electronic implementation documentation
-* [docs/assembly.md](docs/assembly.md) : mechanical assembly guide
-* [docs/troubleshooting.md](docs/troubleshooting.md) : troubleshooting guide
-
-## ESPHome implementation
-
-### 1. Prerequisites
-
-* Install ESPHome on your machine or via Home Assistant
-* Have an ESP32 board available
-* Have Wi-Fi access for the initial flashing step
-
-### 2. Configure Wi-Fi in ESPHome
-
-Copy `sources/secrets.yaml.example` to `sources/secrets.yaml` and fill in your Wi-Fi credentials, API encryption key, OTA password and fallback hotspot password. `secrets.yaml` is git-ignored and must never be committed.
-
-### 3. Upload the configuration
-
-From a terminal, run:
-
-```bash
-esphome run cat-playing-platform.yaml
+```sh
+cd firmware
+pio run -e esp32 -t upload   # or esp32s3 / esp32c3
 ```
 
-The first build flashes the firmware onto the board. If the board is not connected yet, plug it in via USB and rerun the command.
+[Getting started](docs/getting-started.md) covers the tools in detail.
 
-### 4. Use the board after flashing
+### First start
 
-Once the firmware is loaded:
+1. Power the robot. With no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** hotspot.
+2. Join it from your phone. The setup page opens by itself; if not, browse to `http://192.168.4.1/`. Pick your Wi-Fi and enter its password.
+3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page).
+4. Play. Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
 
+Until Calibration is available, movement stays within a conservative 60°–120° range on each axis. Stay close to the robot the first time.
 
+Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 
-1. The board connects to the Wi-Fi network configured in ESPHome.
-2. It then appears in ESPHome or Home Assistant as a device named `Cat Playing Platform`.
-3. The play sequence switch can be used to trigger the platform motion.
+## Documentation
 
-## Electronic documentation
+| Doc | For |
+|-----|-----|
+| [Getting started](docs/getting-started.md) | Setting up a machine, building, testing, the simulator and the code layout |
+| [Device API](docs/api.md) | The robot's HTTP and WebSocket API, for scripts and integrations |
+| [Acceptance checklist](docs/acceptance-checklist.md) | What to check on the real robot before each release |
+| [Glossary](CONTEXT.md) | The words the project uses: Stow, Travel limits, Calibration… |
+| [Decisions](docs/adr/) | Why things are the way they are |
 
-The detailed documentation for servo and power connections is available in [docs/electronics.md](docs/electronics.md).
+## Contributing
 
-## Additional documentation topics to consider
+Issues and pull requests are welcome. Start with [Getting started](docs/getting-started.md). You can work on the interface without hardware thanks to the simulator in `firmware/tools/dev_server.mjs`. AI coding agents of any brand get their instructions from [AGENTS.md](AGENTS.md).
 
-Other useful sections can be added later:
+## Support the project
 
-* step-by-step mechanical assembly procedure
-* servo calibration settings
-* safety and component protection guidelines
-* Wi-Fi and OTA troubleshooting procedure
-* final assembly photo and version overview
+CatWandConnect is free. If your cat enjoys it, you can support its development through [GitHub Sponsors](https://github.com/sponsors/vistorx). Ready-to-assemble kits may follow later.
 
+## Licence
 
+| | |
+|---|---|
+| Firmware | [GPL-3.0-or-later](LICENSES/GPL-3.0-or-later.txt) |
+| Hardware designs | [CERN-OHL-S-2.0](LICENSES/CERN-OHL-S-2.0.txt) |
+| Documentation | [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt) |
+
+You may build, modify and sell your own version. See [LICENSE.md](LICENSE.md). The name "CatWandConnect" is reserved for the official project and kits; see the [trademark policy](TRADEMARK.md).

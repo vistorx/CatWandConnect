@@ -1,6 +1,6 @@
 # Physical acceptance checklist
 
-Checks that need the real robot, run before each release on a Mk2 Mechanism. The automated tests cover the Robot core; everything here is the hardware and network around it. Note the board, chip and firmware version you tested with.
+Checks that need the real robot, run before each release on a Mk2 Mechanism. The automated tests cover the Robot core; everything here is the hardware and network around it. Note the board, chip and firmware version you tested with. Each ticket that adds behaviour tests can't cover adds its section here.
 
 Keep a serial monitor open (`pio device monitor` in `firmware/`) to read the `[wifi]` log lines.
 

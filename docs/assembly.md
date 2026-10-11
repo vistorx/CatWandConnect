@@ -1,30 +1,29 @@
-# Mechanical assembly
+# Assembly: Mk2 Mechanism
 
-This page describes the recommended assembly order for version V2.
+The recommended assembly order for the Mk2. The parts and hardware are listed in the [README](../README.md#build-one).
 
-Version V2 is a paid version and is not included in the public repository. Purchase link: [Coming soon]()
+> This order was reconstructed from the parts and screw list and hasn't been checked step by step against a build yet. Corrections and photos are welcome.
 
-## General steps
+## Before you start
 
-1. Print the parts listed in the BOM in the README.
-2. Install the skateboard bearing in the support plate of version V2.
-3. Mount the 4 mm steel balls in the platform guide area.
-4. Assemble the arm and rotating plate with suitable screws.
-5. Verify free movement before connecting the servo motors.
+- Print every part in [`stls/mk2/`](../stls/mk2/).
+- Clean the ball track and the bearing seat of strings and elephant's foot, so the balls roll freely.
+- Plug each servo into a powered, flashed board and let the robot Stow once, so both servos sit at their Stow position before you fit the arm. This keeps the arm centred within its range.
 
-## Required screws (M3 only)
+## Steps
 
-* 4x M3x8 mm button-head screws for the horizontal-axis servo mounting
-* 2x M3x25 mm button-head screws for fixing the lower plate of the horizontal axis to the ball track
-* 1x M3x8 mm countersunk screw for fixing the horizontal servo shaft plate
-* 1x M3x20 mm countersunk screw for fixing the vertical servo shaft
-* 4x M3x8 mm button-head screws for the vertical-axis servo mounting
-* 3x M3x30 mm countersunk screws for fixing the skateboard bearing to the vertical shaft
+1. **Bearing.** Press the 608 bearing into its seat. It should sit flush and turn without rubbing.
+2. **Ball track.** Lay the 4 mm steel balls in the track, starting with 16 and adding more until the plate turns smoothly without play. Usually 16–24 are needed.
+3. **Horizontal servo.** Mount it with four M3×8 button-head screws, then fix the horizontal servo shaft plate with the M3×8 countersunk screw.
+4. **Horizontal axis.** Fix the lower plate of the horizontal axis to the ball track with the two M3×25 button-head screws.
+5. **Vertical servo.** Mount it with four M3×8 button-head screws, and fix its shaft with the M3×20 countersunk screw.
+6. **Bearing to the vertical shaft.** Fix it with the three M3×30 countersunk screws.
+7. **Arm and wand.** Fit the arm and attach the wand.
+8. **Clamp.** Fix the robot in place with the clamp and its screw.
 
-## Pre-checks
+## Checks
 
-* The parts must rotate without binding.
-* The bearing must not rub against adjacent parts.
-* The screws must be tightened without crushing the printed parts.
-
-
+- Unpowered, both axes turn by hand without binding, and the bearing doesn't rub anything.
+- No screw crushes a printed part. Tighten until snug, not more.
+- Route the servo cables so they can't snag as the axes move.
+- Power up and stay close: the wand should crawl to its Stow position. Then try the joystick gently. See the [acceptance checklist](acceptance-checklist.md).
