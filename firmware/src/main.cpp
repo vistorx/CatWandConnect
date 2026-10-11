@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
+#include <identity/identity.h>
 #include <robot_core/robot.h>
 
 #include "device_api.h"
@@ -11,10 +12,6 @@
 #include "web/web_ui.h"
 
 namespace {
-
-// Defaults until device naming lands (#11).
-constexpr const char* kDeviceName = "CatWandConnect";
-constexpr const char* kHostname = "catwandconnect";
 
 #if CONFIG_IDF_TARGET_ESP32S3
 constexpr cwc::Chip kChip = cwc::Chip::Esp32S3;
@@ -53,8 +50,17 @@ PwmServoDriver motors;
 cwc::Robot robot(motors, clock, storage);
 
 AsyncWebServer server(80);
-Network network(kDeviceName, kHostname);
+Network network;
 DeviceApi api(robot, storage, kChip);
+
+// The owner's name for the robot, set from the Device interface.
+String loadDeviceName() {
+  Preferences prefs;
+  prefs.begin("device", true);
+  String name = prefs.getString("name", identity::kDefaultName);
+  prefs.end();
+  return identity::validName(name.c_str()) ? name : String(identity::kDefaultName);
+}
 
 }  // namespace
 
@@ -63,12 +69,14 @@ void setup() {
   Serial.printf("CatWandConnect %s starting\n", CWC_VERSION);
   storage.begin();
   cwc::HardwareConfig hardware = cwc::loadHardware(storage, kChip);
+  String name = loadDeviceName();
+  String hostname = identity::hostnameFor(name.c_str()).c_str();
   motors.begin(hardware);
   robot.begin();
 
-  api.begin(server, hardware);
+  api.begin(server, hardware, name);
   registerWebUi(server, [] { return network.inSetup(); });
-  network.begin(server);
+  network.begin(server, name, hostname);
   server.begin();
 }
 

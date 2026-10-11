@@ -4,15 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CatWandConnect</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#111113">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <h1 data-i18n="settings.title"></h1>
-  <a href="/" class="nav" data-i18n="nav.back"></a>
+  <nav class="header-links">
+    <a href="info.html" class="nav" data-i18n="nav.info"></a>
+    <a href="/" class="nav" data-i18n="nav.back"></a>
+  </nav>
 </header>
 
 <main class="form-page">
+  <form id="device">
+    <h2 data-i18n="settings.device"></h2>
+    <p class="hint" data-i18n="settings.device.hint"></p>
+    <fieldset>
+      <div class="field wide">
+        <label for="name" data-i18n="settings.name"></label>
+        <input id="name" maxlength="32" required>
+      </div>
+      <div class="field wide">
+        <span data-i18n="settings.address"></span>
+        <output id="address" class="unit"></output>
+      </div>
+      <div class="field wide">
+        <label for="language" data-i18n="settings.language"></label>
+        <select id="language"></select>
+      </div>
+    </fieldset>
+    <button class="primary" data-i18n="settings.device.save"></button>
+    <p class="message" role="status"></p>
+  </form>
+
   <form id="limits">
     <h2 data-i18n="settings.limits"></h2>
     <p class="hint" data-i18n="settings.limits.hint"></p>

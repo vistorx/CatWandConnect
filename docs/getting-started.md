@@ -124,7 +124,7 @@ Code layout:
 - `firmware/lib/robot_core/` is the Robot core. It is pure C++17 and never includes Arduino headers. It reaches hardware only through the `MotorDriver`, `Clock` and `Storage` interfaces in `ports.h`.
 - `firmware/src/` is the Arduino side. It implements those interfaces and wires them to the Robot core.
 - `firmware/src/network/` gets the robot onto Wi-Fi: Improv provisioning, the fallback hotspot with its setup page, and mDNS. `firmware/lib/improv/` is the Improv protocol framing, as pure, tested C++.
-- `firmware/web/` is the Device interface: plain HTML, CSS and JS with no build step. Text lives in `web/lang/*.json`. `tools/embed_web.py` compresses it into the firmware at build time. The interface talks to the robot only through the [Device API](api.md).
+- `firmware/web/` is the Device interface: plain HTML, CSS and JS with no build step. Text lives in `web/lang/*.json`. To add a language, copy `en.json`, translate it, add it to `LANGUAGES` in `i18n.js`, and run `node tools/check_lang.mjs` (CI runs it too). `tools/embed_web.py` compresses it into the firmware at build time. The interface talks to the robot only through the [Device API](api.md).
 - `firmware/test/` holds the native tests, with in-memory fakes of the interfaces.
 - [`docs/acceptance-checklist.md`](acceptance-checklist.md) lists what to check on the real robot. Extend it whenever you add behaviour that tests cannot cover.
 

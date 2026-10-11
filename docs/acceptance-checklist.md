@@ -95,3 +95,14 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Narrowing a pulse range (for example 600–2000 µs) and saving reduces that servo's travel, and resets Calibration.
 - [ ] A pulse range under 500 µs wide shows an error and saves nothing.
 - [ ] The wiring survives a power cycle.
+
+## Identity, Info, language and home screen
+
+- [ ] In Settings, the address preview follows the name as you type ("Salon d'été" → `salon-d-ete.local`).
+- [ ] Saving a new name restarts the robot. Afterwards the main screen title shows it, `http://<new-name>.local/` opens, and the old address no longer does.
+- [ ] With the robot's Wi-Fi forgotten, the hotspot is called `<name>-XXXX`.
+- [ ] An empty name, or a name made only of emoji, is refused with a message.
+- [ ] The Info page shows name, address, firmware version, chip, Wi-Fi network, IP, signal, uptime, temperature, free memory and MAC, refreshing every few seconds. "Copy" copies them, or selects them if the browser refuses.
+- [ ] A phone set to French shows the interface in French. Choosing English in Settings switches it at once and the choice is remembered after a reload. "Automatic" goes back to the phone's language.
+- [ ] iPhone (Safari) → Share → Add to Home Screen: the icon appears, and opening it shows the interface full screen without the Safari bars.
+- [ ] Android (Chrome) → menu → Add to Home screen: the icon appears and opens the interface.

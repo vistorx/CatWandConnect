@@ -14,6 +14,7 @@ Browse to `http://192.168.4.1/`. Some phones also ask whether to "stay connected
 Check the network name and password. The ESP32 only supports **2.4 GHz** Wi-Fi; if your router has separate 2.4 GHz and 5 GHz networks, pick the 2.4 GHz one.
 
 **`catwandconnect.local` doesn't open.**
+If you renamed the robot, its address changed too: it is shown in Settings and on the Info page, for example `catwandconnect-salon.local`.
 Some Android phones and older Windows PCs don't resolve `.local` names. Use the IP address shown at the end of setup, or find it in your router's device list or the serial monitor. Also check that your phone is on the same Wi-Fi as the robot, not on mobile data or a guest network.
 
 **The robot keeps falling back to its hotspot.**
@@ -47,4 +48,4 @@ Rewire to the pins shown in Settings → Wiring, or pick the pins you wired. If 
 
 ## Still stuck?
 
-Open an [issue](https://github.com/vistorx/CatWandConnect/issues). Include your board, the firmware version (printed at startup in the serial monitor) and the serial log.
+Open an [issue](https://github.com/vistorx/CatWandConnect/issues). Include the details from the **Info** page (Settings → Info → Copy) and, if you can, the serial log.

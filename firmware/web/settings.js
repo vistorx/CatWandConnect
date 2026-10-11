@@ -121,10 +121,50 @@ async function saveHardware(form) {
   setTimeout(() => location.reload(), 8000);
 }
 
+// --- Robot name and interface language ----------------------------------------
+
+// Mirrors the firmware's hostname rule (lib/identity) for the live preview.
+function hostnameFor(name) {
+  const host = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+/, '').slice(0, 32).replace(/-+$/, '');
+  return host || 'catwandconnect';
+}
+
+function deviceSection(info) {
+  $('name').value = info.name;
+  const preview = () => { $('address').textContent = `${hostnameFor($('name').value)}.local`; };
+  $('name').addEventListener('input', preview);
+  preview();
+
+  const select = $('language');
+  select.append(new Option(I18n.t('settings.language.auto'), 'auto'));
+  for (const [code, label] of Object.entries(I18n.LANGUAGES)) select.append(new Option(label, code));
+  select.value = I18n.preference();
+  // The language is a per-browser choice: apply it at once, no restart.
+  select.addEventListener('change', () => {
+    I18n.setPreference(select.value);
+    location.reload();
+  });
+
+  $('device').addEventListener('submit', async event => {
+    event.preventDefault();
+    const response = await fetch('/api/device', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: $('name').value.trim() }),
+    });
+    const result = await response.json();
+    if (!response.ok) return report($('device'), 'error', I18n.t(`error.${result.error}`));
+    report($('device'), 'ok', I18n.t('settings.name_saved', { host: result.hostname }));
+    setTimeout(() => { location.href = `http://${result.hostname}/settings.html`; }, 8000);
+  });
+}
+
 async function start() {
   axisFields($('limits-axes'), LIMITS);
   axisFields($('motion-axes'), MOTION);
   await I18n.load();
+  deviceSection(await (await fetch('/api/info')).json());
   const settings = await (await fetch('/api/settings')).json();
   fill(settings, LIMITS);
   fill(settings, MOTION);

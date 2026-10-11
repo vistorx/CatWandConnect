@@ -36,6 +36,7 @@ JSON text messages, one per frame, each with a type in `t`.
 | `playSpeed` | The speed slider's value, so every open interface stays in sync. |
 | `calibrated` | Whether Calibration has been completed. |
 | `calibration` | The current Calibration step, `none` when not calibrating (see below). |
+| `name` | The robot's name. |
 
 ## HTTP
 
@@ -68,6 +69,23 @@ Stow beats every other command and cannot be interrupted. Manual control, from a
 | `{"action":"cancel"}` | Abandons Calibration, keeping the previous settings, and Stows. |
 
 The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `vertical_max`, `stow`, then `sweep` (the robot visits the four corners of the new envelope and returns to Stow by itself), then `confirm`. Stow and Manual control abandon Calibration too.
+
+### Identity and info
+
+`GET /api/info` returns what the Info page shows:
+
+```json
+{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.1.0","chip":"ESP32-D0WD-V3",
+ "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
+ "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
+```
+
+`uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
+
+`PUT /api/device` with `{"name":"CatWandConnect salon"}` renames the robot and returns `{"name":…,"hostname":"catwandconnect-salon.local","restart":true}`. The robot restarts about a second later.
+
+- **Valid names:** 1 to 32 bytes, no control characters, at least one letter or digit. Otherwise the request returns `400` with `invalid_name`.
+- **Derived names:** the hostname is the name in lowercase ASCII, with accents removed and other characters turned into hyphens. The hotspot is called `<name>-XXXX`.
 
 ### Hardware
 
@@ -132,4 +150,4 @@ Each successful `PUT` writes to flash, so send it when a value is settled, not o
 
 ### Interface files
 
-`/` serves the Wi-Fi setup page while the robot is not on a Wi-Fi network, and the main screen once it is. The interface's files (`/app.js`, `/lang/en.json`, …) are served gzip-compressed.
+`/` serves the Wi-Fi setup page while the robot is not on a Wi-Fi network, and the main screen once it is. The interface's files (`/app.js`, `/lang/en.json`, `/manifest.webmanifest`, …) are served gzip-compressed.
