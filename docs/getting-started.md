@@ -4,7 +4,7 @@ How to pick up CatWandConnect on a new machine, whether you are the maintainer o
 
 ## Where things stand
 
-The dedicated firmware in `firmware/` replaces the old ESPHome proof of concept. It already provides Wi-Fi provisioning, Manual control, speed settings, Stow and a gentle power-up. The remaining V1 work is tracked under [issue #1](https://github.com/vistorx/CatWandConnect/issues/1). None of it has been run on real hardware yet; [`acceptance-checklist.md`](acceptance-checklist.md) lists what to verify.
+The dedicated firmware in `firmware/` replaces the old ESPHome proof of concept. It already provides Wi-Fi provisioning, Manual control, speed settings, Stow, a gentle power-up and Calibration. The remaining V1 work is tracked under [issue #1](https://github.com/vistorx/CatWandConnect/issues/1). None of it has been run on real hardware yet; [`acceptance-checklist.md`](acceptance-checklist.md) lists what to verify.
 
 ## What to read first
 

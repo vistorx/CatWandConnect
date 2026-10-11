@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CatWandConnect</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 data-i18n="calibration.title"></h1>
+  <a href="/" class="nav" data-i18n="nav.back"></a>
+</header>
+
+<main class="form-page wizard">
+  <p class="progress" id="progress"></p>
+  <h2 id="step-title"></h2>
+  <p id="step-text"></p>
+
+  <section id="nudges"></section>
+
+  <p class="message" role="status" id="message"></p>
+
+  <div class="actions">
+    <button id="primary" class="primary"></button>
+    <button id="secondary" class="secondary" hidden></button>
+    <button id="cancel" class="secondary" data-i18n="calibration.cancel" hidden></button>
+  </div>
+</main>
+
+<script src="i18n.js"></script>
+<script src="calibrate.js"></script>
+</body>
+</html>
