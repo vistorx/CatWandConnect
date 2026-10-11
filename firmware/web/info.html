@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CatWandConnect</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#111113">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 data-i18n="info.title"></h1>
+  <a href="settings.html" class="nav" data-i18n="nav.back"></a>
+</header>
+
+<main class="form-page">
+  <p class="hint" data-i18n="info.report"></p>
+  <dl id="info" class="info"></dl>
+  <button id="copy" class="secondary" data-i18n="info.copy"></button>
+  <p class="message" role="status" id="message"></p>
+</main>
+
+<script src="i18n.js"></script>
+<script src="info.js"></script>
+</body>
+</html>

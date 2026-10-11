@@ -1,5 +1,7 @@
 #include "network/network.h"
 
+#include <identity/identity.h>
+
 #include <ESPmDNS.h>
 #include <WiFi.h>
 
@@ -42,15 +44,14 @@ String jsonString(const String& value) {
 
 }  // namespace
 
-Network::Network(const char* deviceName, const char* hostname)
-    : deviceName_(deviceName), hostname_(hostname) {}
-
-void Network::begin(AsyncWebServer& server) {
+void Network::begin(AsyncWebServer& server, const String& deviceName, const String& hostname) {
+  deviceName_ = deviceName;
+  hostname_ = hostname;
   uint8_t mac[6];
   WiFi.macAddress(mac);
   char suffix[5];
   snprintf(suffix, sizeof(suffix), "%02X%02X", mac[4], mac[5]);
-  hotspotSsid_ = String("CatWandConnect-") + suffix;
+  hotspotSsid_ = identity::hotspotName(deviceName_.c_str(), suffix).c_str();
 
   prefs_.begin("wifi", false);
   savedSsid_ = prefs_.getString("ssid", "");
@@ -58,7 +59,7 @@ void Network::begin(AsyncWebServer& server) {
 
   // Credentials live in our own namespace; keep the Wi-Fi driver from storing a copy.
   WiFi.persistent(false);
-  WiFi.setHostname(hostname_);
+  WiFi.setHostname(hostname_.c_str());
 
   setupRoutes(server);
 
@@ -132,7 +133,7 @@ void Network::startAttempt(const String& ssid, const String& password, Source so
 }
 
 void Network::onConnected() {
-  Serial.printf("[wifi] connected, open %s or http://%s.local/\n", deviceUrl().c_str(), hostname_);
+  Serial.printf("[wifi] connected, open %s or http://%s.local/\n", deviceUrl().c_str(), hostname_.c_str());
   mode_ = Mode::Connected;
   lostSince_ = 0;
   WiFi.setAutoReconnect(true);
@@ -193,7 +194,7 @@ void Network::closeHotspot() {
 
 void Network::startMdns() {
   if (mdnsStarted_) return;
-  if (MDNS.begin(hostname_)) {
+  if (MDNS.begin(hostname_.c_str())) {
     MDNS.addService("http", "tcp", 80);
     mdnsStarted_ = true;
   }
@@ -238,7 +239,7 @@ void Network::answerImprov(const improv::Request& request) {
 
     case Command::GetDeviceInfo:
       sendImprov(improv::rpcResultPacket(Command::GetDeviceInfo,
-                                         {"CatWandConnect", CWC_VERSION, kChipFamily, deviceName_}));
+                                         {"CatWandConnect", CWC_VERSION, kChipFamily, deviceName_.c_str()}));
       break;
 
     case Command::GetWifiNetworks: {
@@ -311,7 +312,7 @@ String Network::statusJson() const {
   json += lastAttemptFailed_ ? "true" : "false";
   json += ",\"ssid\":" + jsonString(mode_ == Mode::Connected ? savedSsid_ : attemptSsid_);
   json += ",\"ip\":" + jsonString(mode_ == Mode::Connected ? WiFi.localIP().toString() : "");
-  json += ",\"host\":" + jsonString(String(hostname_) + ".local");
+  json += ",\"host\":" + jsonString(hostname_ + ".local");
   return json + "}";
 }
 

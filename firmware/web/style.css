@@ -48,7 +48,7 @@ header {
   padding: max(1rem, env(safe-area-inset-top)) 1rem 1rem;
 }
 
-h1 { font-size: 1.25rem; margin: 0; flex: 1; }
+h1 { font-size: 1.25rem; margin: 0; flex: 1; overflow-wrap: anywhere; }
 
 a { color: var(--accent); }
 .nav { text-decoration: none; font-weight: 600; }
@@ -232,3 +232,21 @@ button.secondary {
 
 .field input[type="checkbox"] { justify-self: end; width: 1.4rem; height: 1.4rem; accent-color: var(--accent); }
 .field select { width: 100%; }
+
+.info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .6rem 1rem;
+  margin: 0 0 1.5rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+}
+.info dt { color: var(--muted); }
+.info dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.header-links { display: flex; gap: 1rem; }
+
+.field.wide { grid-template-columns: auto minmax(0, 1fr); }
+.field.wide input, .field.wide select { text-align: left; }
+.field.wide output { text-align: right; overflow-wrap: anywhere; }

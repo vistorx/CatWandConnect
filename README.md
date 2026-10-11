@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration and wiring settings. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming and a French translation. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
 ## What it does
 
@@ -17,7 +17,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 🔌 | **Gentle power-up.** The robot remembers where it rested and crawls back to its Stow position, so the servos don't jump. | ✅ |
 | 🎯 | **Calibration wizard.** Set the Travel limits and Stow position for your build, step by step, then watch a slow test sweep before saving. | ✅ |
 | 🔧 | **Your wiring.** Choose pins (only the safe ones for your chip), reverse axes and set servo pulse ranges from the interface. | ✅ |
-| 🇫🇷 | **English and French interface**, robot naming, Info page, home-screen shortcut. | 🚧 |
+| 🇫🇷 | **English and French interface.** Name your robot (it becomes `http://<name>.local/`), check the Info page, and add the interface to your phone's home screen. | ✅ |
 | 🔒 | **Optional settings PIN**, so guests can play but not change the setup. | 🚧 |
 | ⬆️ | **Firmware updates** from the browser, and a **web flasher** that installs the robot from Chrome or Edge in one click. | 🚧 |
 | 🏠 | **Home Assistant** through MQTT discovery. | 🚧 |
@@ -83,6 +83,7 @@ pio run -e esp32 -t upload   # or esp32s3 / esp32c3
 3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page).
 4. **Calibrate.** The main screen invites you to. The wizard has you nudge each axis to the ends of its safe travel and pick the Stow position, then sweeps the new envelope slowly so you can check nothing touches. Until then, movement stays within a conservative 60°–120° range on each axis.
 5. **Play.** Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
+6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. Use your browser's "Add to Home Screen" for an app-like icon.
 
 Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 
