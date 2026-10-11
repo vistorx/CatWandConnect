@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming, a French translation, an optional settings PIN and firmware updates from the browser. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration, wiring settings, naming, a French translation, an optional settings PIN, firmware updates from the browser and Home Assistant. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
 ## What it does
 
@@ -21,7 +21,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 🔒 | **Optional settings PIN.** Guests can play and Stow, but not change the setup. | ✅ |
 | ⬆️ | **Firmware updates from the browser.** Upload the new file in Settings; settings and Calibration are kept, and a failed upload leaves the old firmware running. | ✅ |
 | ⚡ | **Web flasher.** Install the robot from Chrome or Edge in one click, no tools needed. | 🚧 |
-| 🏠 | **Home Assistant** through MQTT discovery. | 🚧 |
+| 🏠 | **Home Assistant**, optional, through MQTT discovery: the robot appears by itself with Stow, positions and speeds, under the same safety rules. | ✅ |
 
 Automatic play sessions are planned for V1.1.
 
@@ -93,7 +93,8 @@ Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 | Doc | For |
 |-----|-----|
 | [Getting started](docs/getting-started.md) | Setting up a machine, building, testing, the simulator and the code layout |
-| [Device API](docs/api.md) | The robot's HTTP and WebSocket API, for scripts and integrations |
+| [Home Assistant](docs/home-assistant.md) | Connecting the robot to Home Assistant over MQTT |
+| [Device API](docs/api.md) | The robot's HTTP, WebSocket and MQTT API, for scripts and integrations |
 | [Acceptance checklist](docs/acceptance-checklist.md) | What to check on the real robot before each release |
 | [Glossary](CONTEXT.md) | The words the project uses: Stow, Travel limits, Calibration… |
 | [Decisions](docs/adr/) | Why things are the way they are |

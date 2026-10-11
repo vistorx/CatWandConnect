@@ -67,6 +67,39 @@
     <button class="primary" data-i18n="settings.hardware.save"></button>
     <p class="message" role="status"></p>
   </form>
+  <form id="mqtt">
+    <h2 data-i18n="mqtt.title"></h2>
+    <p class="hint" data-i18n="mqtt.hint"></p>
+    <fieldset>
+      <div class="field wide">
+        <label for="mqtt-enabled" data-i18n="mqtt.enabled"></label>
+        <input id="mqtt-enabled" type="checkbox">
+      </div>
+      <div class="field wide">
+        <label for="mqtt-host" data-i18n="mqtt.host"></label>
+        <input id="mqtt-host" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="homeassistant.local">
+      </div>
+      <div class="field wide">
+        <label for="mqtt-port" data-i18n="mqtt.port"></label>
+        <input id="mqtt-port" type="number" min="1" max="65535" inputmode="numeric">
+      </div>
+      <div class="field wide">
+        <label for="mqtt-user" data-i18n="mqtt.user"></label>
+        <input id="mqtt-user" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="field wide">
+        <label for="mqtt-password" data-i18n="mqtt.password"></label>
+        <input id="mqtt-password" type="password" autocomplete="new-password">
+      </div>
+      <div class="field wide">
+        <span data-i18n="mqtt.status"></span>
+        <output id="mqtt-status"></output>
+      </div>
+    </fieldset>
+    <button class="primary" data-i18n="settings.save"></button>
+    <p class="message" role="status"></p>
+  </form>
+
   <form id="security">
     <h2 data-i18n="security.title"></h2>
     <p class="hint" data-i18n="security.hint"></p>

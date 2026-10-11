@@ -275,6 +275,78 @@ void test_stow_uses_the_configured_position() {
   TEST_ASSERT_EQUAL_FLOAT(70, rig.robot.position(Axis::Vertical));
 }
 
+void test_goto_moves_to_the_position_and_stops() {
+  Rig rig;
+
+  rig.robot.manualGoto(Axis::Horizontal, 110);
+  rig.run(5000);
+
+  TEST_ASSERT_EQUAL_FLOAT(110, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Vertical));
+  TEST_ASSERT_TRUE(rig.robot.activity() == Activity::Idle);
+}
+
+void test_goto_is_clamped_into_travel_limits() {
+  Rig rig;
+
+  rig.robot.manualGoto(Axis::Vertical, 10);
+  rig.run(5000);
+
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultTravel.min, rig.robot.position(Axis::Vertical));
+}
+
+void test_goto_respects_the_manual_control_speed() {
+  Rig rig;
+  float limit = defaultSettings().axis(Axis::Horizontal).maxSpeed * defaultSettings().playSpeed;
+  rig.robot.manualGoto(Axis::Horizontal, 120);
+
+  float previous = rig.robot.position(Axis::Horizontal);
+  for (int i = 0; i < 300; ++i) {
+    rig.run(10);
+    float now = rig.robot.position(Axis::Horizontal);
+    TEST_ASSERT_TRUE(now - previous <= limit * 0.01f + 0.001f);
+    previous = now;
+  }
+}
+
+void test_goto_does_not_time_out_like_the_joystick() {
+  Rig rig;
+  RobotSettings s = rig.robot.settings();
+  s.axis(Axis::Horizontal).maxSpeed = 10;  // 6 °/s at the default play speed: a 3 s trip
+  rig.robot.applySettings(s);
+
+  rig.robot.manualGoto(Axis::Horizontal, 108);
+  rig.run(5000);
+
+  TEST_ASSERT_EQUAL_FLOAT(108, rig.robot.position(Axis::Horizontal));
+}
+
+void test_stow_and_joystick_cancel_goto() {
+  Rig rig;
+  rig.robot.manualGoto(Axis::Horizontal, 120);
+  rig.run(200);
+  rig.robot.stow();
+  rig.run(5000);
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Horizontal));
+
+  rig.robot.manualGoto(Axis::Horizontal, 120);
+  rig.run(200);
+  rig.robot.manualStop();
+  rig.run(3000);
+  TEST_ASSERT_TRUE(rig.robot.position(Axis::Horizontal) < 120);
+}
+
+void test_goto_is_ignored_while_stowing() {
+  Rig rig;
+  rig.hold(1, 0, 500);
+  rig.robot.stow();
+
+  rig.robot.manualGoto(Axis::Horizontal, 115);
+  rig.run(5000);
+
+  TEST_ASSERT_EQUAL_FLOAT(kDefaultStow, rig.robot.position(Axis::Horizontal));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_power_up_rests_at_stow_with_servos_released);
@@ -296,5 +368,11 @@ int main() {
   RUN_TEST(test_manual_control_after_stow_holds_servos_again);
   RUN_TEST(test_stow_stays_within_travel_limits);
   RUN_TEST(test_stow_uses_the_configured_position);
+  RUN_TEST(test_goto_moves_to_the_position_and_stops);
+  RUN_TEST(test_goto_is_clamped_into_travel_limits);
+  RUN_TEST(test_goto_respects_the_manual_control_speed);
+  RUN_TEST(test_goto_does_not_time_out_like_the_joystick);
+  RUN_TEST(test_stow_and_joystick_cancel_goto);
+  RUN_TEST(test_goto_is_ignored_while_stowing);
   return UNITY_END();
 }

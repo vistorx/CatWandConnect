@@ -56,6 +56,11 @@ class Robot {
   // kManualTimeoutMs while the joystick is held. Ignored while stowing.
   void manualMove(float horizontal, float vertical);
 
+  // Manual control by position, e.g. from Home Assistant: moves the axis to
+  // `degrees` (clamped into the Travel limits) at the Manual control speed,
+  // then stops. Ignored while stowing; the joystick or Stow cancel it.
+  void manualGoto(Axis axis, float degrees);
+
   // Brings Manual control to a stop, e.g. when the joystick is released.
   void manualStop();
 
@@ -115,6 +120,8 @@ class Robot {
   struct AxisState {
     AxisMotion motion;
     float command = 0;      // joystick deflection, Manual control only
+    bool hasGoto = false;   // Manual control by position
+    float gotoTarget = 0;
     float lastSent = -1;    // last position sent to the motor driver
     bool held = false;      // the servo is being driven
   };

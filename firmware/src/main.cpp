@@ -9,6 +9,7 @@
 #include <robot_core/robot.h>
 
 #include "device_api.h"
+#include "mqtt_bridge.h"
 #include "network/network.h"
 #include "ota.h"
 #include "servo_driver.h"
@@ -56,6 +57,7 @@ auth::PinGuard pin([] { return esp_random(); });
 AsyncWebServer server(80);
 Network network;
 DeviceApi api(robot, storage, kChip, pin);
+MqttBridge mqtt;
 
 // The owner's name for the robot, set from the Device interface.
 String loadDeviceName() {
@@ -91,6 +93,7 @@ void setup() {
   registerOta(server, pin, kChip, [] { api.stopForUpdate(); }, [] { api.restartSoon(); });
   registerWebUi(server, [] { return network.inSetup(); });
   network.begin(server, name, hostname, pin);
+  mqtt.begin(server, pin, api, name, hostname);
   server.begin();
 }
 
