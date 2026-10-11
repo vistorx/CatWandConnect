@@ -8,6 +8,7 @@
 // Manual control commands go through an inbox drained by loop().
 
 #include <ArduinoJson.h>
+#include <auth/pin_guard.h>
 #include <ESPAsyncWebServer.h>
 #include <robot_core/hardware.h>
 #include <robot_core/robot.h>
@@ -17,8 +18,8 @@
 
 class DeviceApi {
  public:
-  DeviceApi(cwc::Robot& robot, cwc::Storage& storage, cwc::Chip chip)
-      : robot_(robot), storage_(storage), chip_(chip) {}
+  DeviceApi(cwc::Robot& robot, cwc::Storage& storage, cwc::Chip chip, auth::PinGuard& pin)
+      : robot_(robot), storage_(storage), chip_(chip), pin_(pin) {}
 
   // `hardware` is the wiring the servo driver was started with; `name` the
   // robot's name.
@@ -51,10 +52,14 @@ class DeviceApi {
   void writeHardware(JsonObject out, const cwc::HardwareConfig& hardware);
   void getInfo(AsyncWebServerRequest* request);
   void putDevice(AsyncWebServerRequest* request, JsonVariant& body);
+  void getAuth(AsyncWebServerRequest* request);
+  void unlock(AsyncWebServerRequest* request, JsonVariant& body);
+  void putPin(AsyncWebServerRequest* request, JsonVariant& body);
 
   cwc::Robot& robot_;
   cwc::Storage& storage_;
   cwc::Chip chip_;
+  auth::PinGuard& pin_;  // only touched from the network task
   std::mutex robotLock_;
   cwc::HardwareConfig hardware_{};       // as saved, applied after restart
   std::atomic<uint32_t> restartAt_{0};

@@ -38,13 +38,9 @@ function report(form, kind, text) {
 }
 
 async function save(form, body, fields) {
-  const response = await fetch('/api/settings', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const result = await response.json();
-  if (!response.ok) {
+  const { ok, data: result } = await Api.call('PUT', '/api/settings', body);
+  if (result.error === 'pin_required') return;
+  if (!ok) {
     const axis = result.axis ? I18n.t(`axis.${result.axis}`) : '';
     report(form, 'error', I18n.t(`error.${result.error}`, { axis }));
     return;
@@ -107,13 +103,9 @@ async function saveHardware(form) {
       maxPulse: Number($(`${axis}-maxPulse`).value),
     };
   }
-  const response = await fetch('/api/hardware', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ axes }),
-  });
-  const result = await response.json();
-  if (!response.ok) {
+  const { ok, data: result } = await Api.call('PUT', '/api/hardware', { axes });
+  if (result.error === 'pin_required') return;
+  if (!ok) {
     report(form, 'error', I18n.t(`error.${result.error}`, { axis: result.axis ? I18n.t(`axis.${result.axis}`) : '' }));
     return;
   }
@@ -148,16 +140,30 @@ function deviceSection(info) {
 
   $('device').addEventListener('submit', async event => {
     event.preventDefault();
-    const response = await fetch('/api/device', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: $('name').value.trim() }),
-    });
-    const result = await response.json();
-    if (!response.ok) return report($('device'), 'error', I18n.t(`error.${result.error}`));
+    const { ok, data: result } = await Api.call('PUT', '/api/device', { name: $('name').value.trim() });
+    if (result.error === 'pin_required') return;
+    if (!ok) return report($('device'), 'error', I18n.t(`error.${result.error}`));
     report($('device'), 'ok', I18n.t('settings.name_saved', { host: result.hostname }));
     setTimeout(() => { location.href = `http://${result.hostname}/settings.html`; }, 8000);
   });
+}
+
+// --- Settings PIN ---------------------------------------------------------------
+
+async function securitySection() {
+  const state = (await Api.call('GET', '/api/auth')).data;
+  $('pin-status').textContent = I18n.t(state.enabled ? 'security.on' : 'security.off');
+  $('pin-remove').hidden = !state.enabled;
+}
+
+async function savePin(pin) {
+  const { ok, data } = await Api.call('PUT', '/api/auth/pin', { pin });
+  if (data.error === 'pin_required') return;
+  if (!ok) return report($('security'), 'error', I18n.t(`error.${data.error}`));
+  Api.setToken(data.token || '');
+  $('pin').value = '';
+  report($('security'), 'ok', I18n.t(data.enabled ? 'security.saved' : 'security.removed'));
+  securitySection();
 }
 
 async function start() {
@@ -168,6 +174,13 @@ async function start() {
   const settings = await (await fetch('/api/settings')).json();
   fill(settings, LIMITS);
   fill(settings, MOTION);
+
+  await securitySection();
+  $('security').addEventListener('submit', event => {
+    event.preventDefault();
+    savePin($('pin').value);
+  });
+  $('pin-remove').addEventListener('click', () => savePin(''));
 
   hardwareFields(await (await fetch('/api/hardware')).json());
   $('hardware').addEventListener('submit', event => {

@@ -108,5 +108,21 @@
   "info.signal.weak": "weak",
   "info.uptime.value": "{d} d {h} h {m} min",
   "info.copy": "Copy",
-  "info.copied": "Copied."
+  "info.copied": "Copied.",
+  "pin.title": "Settings PIN",
+  "pin.text": "Enter the robot's PIN to change its settings.",
+  "pin.unlock": "Unlock",
+  "pin.wrong": "Wrong PIN.",
+  "pin.locked": "Too many wrong PINs. Try again in {seconds} s.",
+  "security.title": "Settings PIN",
+  "security.hint": "With a PIN, anyone on your Wi-Fi can still play and Stow, but changing limits, Calibration, wiring, name, Wi-Fi, Home Assistant or firmware asks for it. Forgot it? Erase and reflash the robot.",
+  "security.status": "Status",
+  "security.on": "On",
+  "security.off": "Off",
+  "security.new": "New PIN (4–8 digits)",
+  "security.save": "Set PIN",
+  "security.remove": "Remove PIN",
+  "security.saved": "PIN set.",
+  "security.removed": "PIN removed.",
+  "error.invalid_pin": "The PIN must be 4 to 8 digits."
 }

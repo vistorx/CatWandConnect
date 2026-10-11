@@ -11,6 +11,7 @@
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <atomic>
+#include <auth/pin_guard.h>
 #include <improv/improv.h>
 
 class Network {
@@ -18,7 +19,8 @@ class Network {
   // Registers the Wi-Fi API and captive-portal routes on `server`.
   // `deviceName` names the hotspot and is shown to Improv clients;
   // `hostname` feeds DHCP and mDNS.
-  void begin(AsyncWebServer& server, const String& deviceName, const String& hostname);
+  // `pin` protects changing the Wi-Fi from the setup page.
+  void begin(AsyncWebServer& server, const String& deviceName, const String& hostname, auth::PinGuard& pin);
   void loop();
 
   // True until the robot is on the owner's Wi-Fi: "/" should show the setup page.
@@ -45,6 +47,7 @@ class Network {
   String networksJson();
   String deviceUrl() const;
 
+  auth::PinGuard* pin_ = nullptr;
   String deviceName_;
   String hostname_;
   String hotspotSsid_;

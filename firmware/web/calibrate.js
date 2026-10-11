@@ -19,13 +19,9 @@ let step = null;
 let position = { horizontal: null, vertical: null };
 
 async function call(action, extra = {}) {
-  const response = await fetch('/api/calibration', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, ...extra }),
-  });
-  const result = await response.json();
-  if (!response.ok) {
+  const { ok, data: result } = await Api.call('POST', '/api/calibration', { action, ...extra });
+  if (result.error === 'pin_required') return;
+  if (!ok) {
     const axis = result.axis ? I18n.t(`axis.${result.axis}`) : '';
     say('error', I18n.t(`error.${result.error}`, { axis }));
     return;

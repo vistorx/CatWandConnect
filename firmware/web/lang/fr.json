@@ -108,5 +108,21 @@
   "info.signal.weak": "faible",
   "info.uptime.value": "{d} j {h} h {m} min",
   "info.copy": "Copier",
-  "info.copied": "Copié."
+  "info.copied": "Copié.",
+  "pin.title": "Code PIN des réglages",
+  "pin.text": "Saisissez le code PIN du robot pour modifier ses réglages.",
+  "pin.unlock": "Déverrouiller",
+  "pin.wrong": "Code PIN incorrect.",
+  "pin.locked": "Trop de codes incorrects. Réessayez dans {seconds} s.",
+  "security.title": "Code PIN des réglages",
+  "security.hint": "Avec un code PIN, tout le monde sur votre Wi-Fi peut encore jouer et ranger, mais modifier les limites, la calibration, le câblage, le nom, le Wi-Fi, Home Assistant ou le firmware le demande. Code oublié ? Effacez et reflashez le robot.",
+  "security.status": "État",
+  "security.on": "Activé",
+  "security.off": "Désactivé",
+  "security.new": "Nouveau code (4 à 8 chiffres)",
+  "security.save": "Définir le code",
+  "security.remove": "Supprimer le code",
+  "security.saved": "Code PIN défini.",
+  "security.removed": "Code PIN supprimé.",
+  "error.invalid_pin": "Le code PIN doit comporter 4 à 8 chiffres."
 }
