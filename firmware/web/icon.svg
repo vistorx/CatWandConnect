@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#2b6cb0"/>
+  <!-- wand -->
+  <path d="M120 420 L330 150" stroke="#fff" stroke-width="30" stroke-linecap="round"/>
+  <!-- string -->
+  <path d="M330 150 C 370 130, 400 170, 380 220" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- feathers -->
+  <g transform="translate(380 250)">
+    <ellipse rx="22" ry="62" fill="#f6ad55" transform="rotate(-25)"/>
+    <ellipse rx="22" ry="62" fill="#fbd38d" transform="rotate(20)"/>
+    <ellipse rx="18" ry="54" fill="#ed8936"/>
+    <circle r="18" fill="#fff"/>
+  </g>
+</svg>

@@ -33,6 +33,17 @@ const robot = {
   calibration: { step: 'none', draft: null, target: null, sweep: [] },
 };
 
+let deviceName = 'CatWandConnect';
+const startedAt = Date.now();
+
+function info() {
+  const host = deviceName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'catwandconnect';
+  return { name: deviceName, hostname: `${host}.local`, version: '0.0.0-dev (simulator)', chip: 'ESP32-D0WD-V3',
+    chipRevision: 3, cores: 2, cpuMhz: 240, flashMb: 4, freeHeap: 182000, mac: '24:6F:28:00:00:01',
+    ssid: 'Simulated', ip: '127.0.0.1', rssi: -61, uptime: Math.floor((Date.now() - startedAt) / 1000), temperature: 47.5 };
+}
+
 let hardware = {
   chip: 'ESP32',
   allowedPins: [4, 13, 14, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
@@ -150,7 +161,7 @@ setInterval(() => {
 function state() {
   return { t: 'state', h: round(robot.position.horizontal), v: round(robot.position.vertical),
     activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed,
-    calibrated: robot.settings.calibrated, calibration: robot.calibration.step };
+    calibrated: robot.settings.calibrated, calibration: robot.calibration.step, name: deviceName };
 }
 
 const round = value => Math.round(value * 10) / 10;
@@ -196,6 +207,15 @@ function putSettings(body) {
 const API = {
   'GET /api/settings': () => [200, robot.settings],
   'PUT /api/settings': putSettings,
+  'GET /api/info': () => [200, info()],
+  'PUT /api/device': body => {
+    const name = String(body.name ?? '').trim();
+    if (!name || new TextEncoder().encode(name).length > 32 || !/[a-z0-9]/i.test(name.normalize('NFD'))) {
+      return [400, { error: 'invalid_name' }];
+    }
+    deviceName = name;
+    return [200, { name, hostname: info().hostname, restart: true }];
+  },
   'GET /api/hardware': () => [200, hardware],
   'PUT /api/hardware': putHardware,
   'GET /api/calibration': () => [200, calibrationView()],

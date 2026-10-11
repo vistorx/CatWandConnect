@@ -1,0 +1,6 @@
+{
+  "name": "identity",
+  "version": "0.0.0",
+  "description": "Device naming rules for CatWandConnect: valid names, hostnames and hotspot names. Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

@@ -15,11 +15,10 @@
 
 class Network {
  public:
-  // `deviceName` is shown to Improv clients; `hostname` feeds DHCP and mDNS.
-  Network(const char* deviceName, const char* hostname);
-
   // Registers the Wi-Fi API and captive-portal routes on `server`.
-  void begin(AsyncWebServer& server);
+  // `deviceName` names the hotspot and is shown to Improv clients;
+  // `hostname` feeds DHCP and mDNS.
+  void begin(AsyncWebServer& server, const String& deviceName, const String& hostname);
   void loop();
 
   // True until the robot is on the owner's Wi-Fi: "/" should show the setup page.
@@ -46,8 +45,8 @@ class Network {
   String networksJson();
   String deviceUrl() const;
 
-  const char* deviceName_;
-  const char* hostname_;
+  String deviceName_;
+  String hostname_;
   String hotspotSsid_;
 
   Preferences prefs_;

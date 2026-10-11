@@ -23,6 +23,8 @@ jobs:
           key: pio-native-${{ hashFiles('firmware/platformio.ini') }}
       - run: pip install platformio
       - run: pio test -e native
+      - name: Language files match en.json
+        run: node tools/check_lang.mjs
 
   build:
     name: Build ${{ matrix.env }}

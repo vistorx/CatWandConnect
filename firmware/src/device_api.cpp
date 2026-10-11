@@ -1,6 +1,9 @@
 #include "device_api.h"
 
 #include <AsyncJson.h>
+#include <Preferences.h>
+#include <WiFi.h>
+#include <identity/identity.h>
 
 namespace {
 
@@ -97,8 +100,15 @@ void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc)
 
 }  // namespace
 
-void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware) {
+void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name) {
   hardware_ = hardware;
+  name_ = name;
+
+  server.on("/api/info", HTTP_GET, [this](AsyncWebServerRequest* request) { getInfo(request); });
+  auto* device = new AsyncCallbackJsonWebHandler(
+      "/api/device", [this](AsyncWebServerRequest* request, JsonVariant& body) { putDevice(request, body); });
+  device->setMethod(HTTP_PUT);
+  server.addHandler(device);
 
   server.on("/api/hardware", HTTP_GET, [this](AsyncWebServerRequest* request) { getHardware(request); });
   auto* hw = new AsyncCallbackJsonWebHandler(
@@ -297,6 +307,51 @@ void DeviceApi::putHardware(AsyncWebServerRequest* request, JsonVariant& body) {
   restartAt_ = millis() + kRestartDelayMs;
 }
 
+// --- Identity and info ------------------------------------------------------
+
+void DeviceApi::getInfo(AsyncWebServerRequest* request) {
+  JsonDocument doc;
+  doc["name"] = name_;
+  doc["hostname"] = String(identity::hostnameFor(name_.c_str()).c_str()) + ".local";
+  doc["version"] = CWC_VERSION;
+  doc["chip"] = ESP.getChipModel();
+  doc["chipRevision"] = ESP.getChipRevision();
+  doc["cores"] = ESP.getChipCores();
+  doc["cpuMhz"] = ESP.getCpuFreqMHz();
+  doc["flashMb"] = ESP.getFlashChipSize() / (1024 * 1024);
+  doc["freeHeap"] = ESP.getFreeHeap();
+  doc["mac"] = WiFi.macAddress();
+  doc["ssid"] = WiFi.status() == WL_CONNECTED ? WiFi.SSID() : "";
+  doc["ip"] = WiFi.status() == WL_CONNECTED ? WiFi.localIP().toString() : "";
+  doc["rssi"] = WiFi.status() == WL_CONNECTED ? WiFi.RSSI() : 0;
+  doc["uptime"] = millis() / 1000;
+  doc["temperature"] = tenths(temperatureRead());
+  sendJson(request, 200, doc);
+}
+
+void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
+  const char* name = body["name"] | "";
+  if (!identity::validName(name)) {
+    request->send(400, "application/json", "{\"error\":\"invalid_name\"}");
+    return;
+  }
+  Preferences prefs;
+  prefs.begin("device", false);
+  prefs.putString("name", name);
+  prefs.end();
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    robot_.manualStop();
+  }
+
+  JsonDocument doc;
+  doc["name"] = name;
+  doc["hostname"] = String(identity::hostnameFor(name).c_str()) + ".local";
+  doc["restart"] = true;
+  sendJson(request, 200, doc);
+  restartAt_ = millis() + kRestartDelayMs;  // mDNS, DHCP and the hotspot pick up the name at boot
+}
+
 // --- WebSocket --------------------------------------------------------------
 
 void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uint8_t* data, size_t len) {
@@ -393,6 +448,7 @@ void DeviceApi::broadcastState(bool force) {
     doc["calibrated"] = robot_.settings().calibrated;
     doc["calibration"] = stepName(robot_.calibrationStep());
   }
+  doc["name"] = name_;
   String state;
   serializeJson(doc, state);
 

@@ -1,15 +1,35 @@
 // Interface text lives in lang/<code>.json. To add a language, add its file
-// and its code to SUPPORTED.
+// (tools/check_lang.mjs checks it against en.json) and list it in LANGUAGES.
 const I18n = (() => {
-  const SUPPORTED = ['en'];
+  const LANGUAGES = { en: 'English', fr: 'Français' };
   const FALLBACK = 'en';
+  const STORAGE_KEY = 'cwc.lang';
   let strings = {};
 
+  // 'auto' or a language code, remembered per browser.
+  function preference() {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || 'auto';
+    } catch {
+      return 'auto';
+    }
+  }
+
+  function setPreference(code) {
+    try {
+      if (code === 'auto') localStorage.removeItem(STORAGE_KEY);
+      else localStorage.setItem(STORAGE_KEY, code);
+    } catch {
+      // Private browsing: the choice lasts until the page is reloaded.
+    }
+  }
+
   function pick() {
-    const wanted = navigator.languages || [navigator.language || FALLBACK];
-    for (const tag of wanted) {
+    const chosen = preference();
+    if (chosen in LANGUAGES) return chosen;
+    for (const tag of navigator.languages || [navigator.language || FALLBACK]) {
       const code = tag.slice(0, 2).toLowerCase();
-      if (SUPPORTED.includes(code)) return code;
+      if (code in LANGUAGES) return code;
     }
     return FALLBACK;
   }
@@ -38,5 +58,5 @@ const I18n = (() => {
     apply();
   }
 
-  return { load, t, apply };
+  return { LANGUAGES, load, t, apply, preference, setPreference };
 })();
