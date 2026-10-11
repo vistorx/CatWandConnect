@@ -46,6 +46,17 @@ Tick **Reverse direction** for that axis in Settings → Wiring, then run Calibr
 **I chose the wrong pins and the servos don't move.**
 Rewire to the pins shown in Settings → Wiring, or pick the pins you wired. If you can no longer open the interface, erase and reflash the board (`pio run -e <chip> -t erase`, then upload) to return to the defaults.
 
+## Firmware updates
+
+**"This firmware is for another chip".**
+Each chip has its own file. The Info page shows your chip (ESP32, ESP32-S3 or ESP32-C3); download the `-ota.bin` file with that name.
+
+**The update failed or the page lost the connection.**
+The robot keeps its current firmware: the new one is only used once it has been received completely and verified. Reload the page and try again, closer to the router if Wi-Fi is weak.
+
+**The robot doesn't come back after an update.**
+Reflash it over USB with the web flasher (or PlatformIO). Settings are kept unless you choose to erase.
+
 ## Settings PIN
 
 **I forgot the PIN.**

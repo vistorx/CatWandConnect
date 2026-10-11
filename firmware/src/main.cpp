@@ -10,6 +10,7 @@
 
 #include "device_api.h"
 #include "network/network.h"
+#include "ota.h"
 #include "servo_driver.h"
 #include "web/web_ui.h"
 
@@ -87,6 +88,7 @@ void setup() {
   robot.begin();
 
   api.begin(server, hardware, name);
+  registerOta(server, pin, kChip, [] { api.stopForUpdate(); }, [] { api.restartSoon(); });
   registerWebUi(server, [] { return network.inSetup(); });
   network.begin(server, name, hostname, pin);
   server.begin();

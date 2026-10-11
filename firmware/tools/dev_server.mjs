@@ -257,6 +257,11 @@ const API = {
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost');
+  if (request.method === 'POST' && url.pathname === '/api/update') {
+    for await (const chunk of request) void chunk;  // pretend to flash it
+    if (!authorized(request)) return send(response, 401, { error: 'pin_required' });
+    return send(response, 200, { ok: true, restart: true });
+  }
   const route = API[`${request.method} ${url.pathname}`];
   if (route) {
     let body = '';

@@ -84,6 +84,20 @@
     <button id="pin-remove" type="button" class="secondary" data-i18n="security.remove" hidden></button>
     <p class="message" role="status"></p>
   </form>
+  <form id="firmware">
+    <h2 data-i18n="firmware.title"></h2>
+    <p class="hint" data-i18n="firmware.hint"></p>
+    <fieldset>
+      <div class="field wide">
+        <span data-i18n="firmware.current"></span>
+        <output id="firmware-version"></output>
+      </div>
+      <input id="firmware-file" type="file" accept=".bin,application/octet-stream" required>
+      <progress id="firmware-progress" max="100" value="0" hidden></progress>
+    </fieldset>
+    <button class="primary" data-i18n="firmware.upload"></button>
+    <p class="message" role="status"></p>
+  </form>
 </main>
 
 <script src="i18n.js"></script>
