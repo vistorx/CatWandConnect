@@ -48,7 +48,7 @@ The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertic
 |-----|------|-------|
 | 1 | ESP32, ESP32-S3 or ESP32-C3 board | Any dev board with USB works, from about €3. USB-C is handy. |
 | 2 | MG996R servos | Standard-size metal-gear servos. |
-| 1 | 5 V power supply, 3 A or more | For the servos. Never power them from the board. |
+| 1 | 5 V power supply, 3 A or more | Powers the servos and the board: a 5 V adapter, or a USB-C charger with a USB-C breakout. See [Electronics](docs/electronics.md). |
 | 1 | 608 skateboard bearing | |
 | 16–24 | 4 mm steel balls | Adjust the count to your print's finish. |
 | 4 | M3×8 button-head screws | Horizontal servo mounting |
@@ -64,7 +64,7 @@ The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertic
 ### Assemble and wire
 
 - [Assembly](docs/assembly.md): mechanical assembly order and checks.
-- [Electronics](docs/electronics.md): wiring the servos and the power supply, with the default pins for each chip.
+- [Electronics](docs/electronics.md): wiring diagrams for a 5 V power supply or a USB-C adapter, with the default pins for each chip.
 
 ### Install the firmware
 
