@@ -370,6 +370,14 @@ void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
   restartAt_ = millis() + kRestartDelayMs;  // mDNS, DHCP and the hotspot pick up the name at boot
 }
 
+void DeviceApi::stopForUpdate() {
+  std::lock_guard<std::mutex> guard(inboxLock_);
+  inbox_.stop = true;
+  inbox_.move = false;
+}
+
+void DeviceApi::restartSoon() { restartAt_ = millis() + kRestartDelayMs; }
+
 // --- Settings PIN -------------------------------------------------------------
 
 void DeviceApi::getAuth(AsyncWebServerRequest* request) {

@@ -128,6 +128,8 @@ Code layout:
 - `firmware/test/` holds the native tests, with in-memory fakes of the interfaces.
 - [`docs/acceptance-checklist.md`](acceptance-checklist.md) lists what to check on the real robot. Extend it whenever you add behaviour that tests cannot cover.
 
+The firmware uses the `min_spiffs` partition table: two 1.9 MB app slots for OTA updates, and a 4 MB layout on every chip so 8 MB boards work too. Boards flashed before this layout was adopted need one USB flash to switch; later updates can go over Wi-Fi.
+
 If your clone sits in a synced folder, set `PLATFORMIO_BUILD_DIR` to a folder outside it. Builds write hundreds of megabytes to `firmware/.pio/`.
 
 ## Working with an AI agent

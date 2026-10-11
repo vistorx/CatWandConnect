@@ -166,11 +166,66 @@ async function savePin(pin) {
   securitySection();
 }
 
+// --- Firmware update (/api/update) -------------------------------------------------
+
+// XHR rather than fetch, for upload progress.
+function uploadFirmware(file) {
+  return new Promise(resolve => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/update');
+    if (Api.token()) xhr.setRequestHeader('Authorization', `Bearer ${Api.token()}`);
+    xhr.upload.onprogress = event => {
+      if (event.lengthComputable) $('firmware-progress').value = Math.round((event.loaded / event.total) * 100);
+    };
+    xhr.onload = () => {
+      let data = {};
+      try { data = JSON.parse(xhr.responseText); } catch { /* not JSON */ }
+      resolve({ status: xhr.status, data });
+    };
+    xhr.onerror = () => resolve({ status: 0, data: { error: 'upload_interrupted' } });
+    const form = new FormData();
+    form.append('firmware', file, file.name);
+    xhr.send(form);
+  });
+}
+
+async function updateFirmware() {
+  const form = $('firmware');
+  const file = $('firmware-file').files[0];
+  if (!file) return;
+  const button = form.querySelector('button');
+  button.disabled = true;
+  $('firmware-progress').hidden = false;
+  $('firmware-progress').value = 0;
+  report(form, '', I18n.t('firmware.uploading'));
+
+  let result = await uploadFirmware(file);
+  if (result.status === 401 && (await Api.askPin())) result = await uploadFirmware(file);
+
+  button.disabled = false;
+  if (result.status === 200) {
+    report(form, 'ok', I18n.t('firmware.done'));
+    setTimeout(() => location.reload(), 15000);
+  } else if (result.data.error !== 'pin_required') {
+    $('firmware-progress').hidden = true;
+    report(form, 'error', I18n.t(`error.${result.data.error || 'update_failed'}`));
+  } else {
+    $('firmware-progress').hidden = true;
+    report(form, '', '');
+  }
+}
+
 async function start() {
   axisFields($('limits-axes'), LIMITS);
   axisFields($('motion-axes'), MOTION);
   await I18n.load();
-  deviceSection(await (await fetch('/api/info')).json());
+  const info = await (await fetch('/api/info')).json();
+  deviceSection(info);
+  $('firmware-version').textContent = info.version;
+  $('firmware').addEventListener('submit', event => {
+    event.preventDefault();
+    updateFirmware();
+  });
   const settings = await (await fetch('/api/settings')).json();
   fill(settings, LIMITS);
   fill(settings, MOTION);

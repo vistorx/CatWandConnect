@@ -99,6 +99,17 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 - **Valid names:** 1 to 32 bytes, no control characters, at least one letter or digit. Otherwise the request returns `400` with `invalid_name`.
 - **Derived names:** the hostname is the name in lowercase ASCII, with accents removed and other characters turned into hyphens. The hotspot is called `<name>-XXXX`.
 
+### Firmware update
+
+🔒 `POST /api/update` with a `multipart/form-data` body holding the app image (`firmware.bin`, the `-ota.bin` file of a release).
+
+- **Before writing**, the robot checks that the file is an ESP image built for its chip. It refuses `not_firmware` and `wrong_chip` with `400`.
+- **While writing**, it stops Manual control and writes the image to the inactive OTA slot. Only a complete, verified image is marked bootable.
+- **Success:** `200 {"ok":true,"restart":true}`, and the robot restarts on the new firmware about a second later.
+- **Failure:** `400 {"error":"update_failed","detail":"…"}`. If the upload is interrupted, the robot keeps running its current firmware.
+
+Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. Example: `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+
 ### Hardware
 
 `GET /api/hardware` returns the wiring and the pins this chip allows:
