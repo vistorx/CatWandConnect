@@ -43,6 +43,8 @@ JSON text messages, one per frame, each with a type in `t`.
 
 ### Priorities
 
+At power-up the robot commands the position where it last rested (clamped into the Travel limits) and then Stows at the slowest speed, 10 °/s; `activity` is `stowing` meanwhile.
+
 Stow beats every other command and cannot be interrupted. Manual control, from any source, cancels any other activity. Nothing resumes on its own afterwards.
 
 ### Settings

@@ -45,10 +45,12 @@ class FakeStorage : public Storage {
   bool write(const char* key, const void* data, size_t size) override {
     auto bytes = static_cast<const uint8_t*>(data);
     blobs[key].assign(bytes, bytes + size);
+    ++writes;
     return true;
   }
 
   std::map<std::string, std::vector<uint8_t>> blobs;
+  int writes = 0;
 };
 
 }  // namespace cwc::test
