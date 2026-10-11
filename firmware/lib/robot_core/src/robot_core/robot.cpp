@@ -238,6 +238,12 @@ SettingsCheck Robot::applySettings(const RobotSettings& settings) {
   return check;
 }
 
+void Robot::invalidateCalibration() {
+  if (!settings_.calibrated) return;
+  settings_.calibrated = false;
+  saveSettings(storage_, settings_);
+}
+
 TravelLimits Robot::travelLimits(Axis axis) const {
   return settings_.calibrated ? settings_.axis(axis).travel : kDefaultTravel;
 }

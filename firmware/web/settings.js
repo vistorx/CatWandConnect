@@ -64,6 +64,63 @@ const LIMITS = [
   { key: 'stow', unit: '°', step: 0.5, min: 0, max: 180 },
 ];
 
+// --- Wiring: GPIO, direction and pulse range (/api/hardware) -------------------
+
+function hardwareFields(hardware) {
+  const options = hardware.allowedPins.map(pin => `<option value="${pin}">GPIO ${pin}</option>`).join('');
+  $('hardware-axes').innerHTML = AXES.map(axis => `
+    <fieldset>
+      <legend>${I18n.t(`axis.${axis}`)}</legend>
+      <div class="field">
+        <label for="${axis}-pin">${I18n.t('settings.pin')}</label>
+        <select id="${axis}-pin">${options}</select>
+      </div>
+      <div class="field">
+        <label for="${axis}-inverted">${I18n.t('settings.inverted')}</label>
+        <input id="${axis}-inverted" type="checkbox">
+      </div>
+      <div class="field">
+        <label for="${axis}-minPulse">${I18n.t('settings.minPulse')} <span class="unit">µs</span></label>
+        <input id="${axis}-minPulse" type="number" step="10" min="300" max="2700" required>
+      </div>
+      <div class="field">
+        <label for="${axis}-maxPulse">${I18n.t('settings.maxPulse')} <span class="unit">µs</span></label>
+        <input id="${axis}-maxPulse" type="number" step="10" min="300" max="2700" required>
+      </div>
+    </fieldset>`).join('');
+  for (const axis of AXES) {
+    const a = hardware.axes[axis];
+    $(`${axis}-pin`).value = a.pin;
+    $(`${axis}-inverted`).checked = a.inverted;
+    $(`${axis}-minPulse`).value = a.minPulse;
+    $(`${axis}-maxPulse`).value = a.maxPulse;
+  }
+}
+
+async function saveHardware(form) {
+  const axes = {};
+  for (const axis of AXES) {
+    axes[axis] = {
+      pin: Number($(`${axis}-pin`).value),
+      inverted: $(`${axis}-inverted`).checked,
+      minPulse: Number($(`${axis}-minPulse`).value),
+      maxPulse: Number($(`${axis}-maxPulse`).value),
+    };
+  }
+  const response = await fetch('/api/hardware', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ axes }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    report(form, 'error', I18n.t(`error.${result.error}`, { axis: result.axis ? I18n.t(`axis.${result.axis}`) : '' }));
+    return;
+  }
+  report(form, 'ok', I18n.t(result.calibrationReset ? 'settings.restarting_recalibrate' : 'settings.restarting'));
+  setTimeout(() => location.reload(), 8000);
+}
+
 async function start() {
   axisFields($('limits-axes'), LIMITS);
   axisFields($('motion-axes'), MOTION);
@@ -71,6 +128,12 @@ async function start() {
   const settings = await (await fetch('/api/settings')).json();
   fill(settings, LIMITS);
   fill(settings, MOTION);
+
+  hardwareFields(await (await fetch('/api/hardware')).json());
+  $('hardware').addEventListener('submit', event => {
+    event.preventDefault();
+    saveHardware($('hardware'));
+  });
 
   for (const [form, fields] of [[$('limits'), LIMITS], [$('motion'), MOTION]]) {
     form.addEventListener('submit', event => {

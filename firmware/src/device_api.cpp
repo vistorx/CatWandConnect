@@ -77,6 +77,18 @@ void readSettings(JsonObjectConst in, cwc::RobotSettings& settings) {
   }
 }
 
+const char* chipName(cwc::Chip chip) {
+  switch (chip) {
+    case cwc::Chip::Esp32S3: return "ESP32-S3";
+    case cwc::Chip::Esp32C3: return "ESP32-C3";
+    case cwc::Chip::Esp32: break;
+  }
+  return "ESP32";
+}
+
+// Lets the HTTP response reach the browser before the board restarts.
+constexpr uint32_t kRestartDelayMs = 800;
+
 void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc) {
   String body;
   serializeJson(doc, body);
@@ -85,7 +97,15 @@ void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc)
 
 }  // namespace
 
-void DeviceApi::begin(AsyncWebServer& server) {
+void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware) {
+  hardware_ = hardware;
+
+  server.on("/api/hardware", HTTP_GET, [this](AsyncWebServerRequest* request) { getHardware(request); });
+  auto* hw = new AsyncCallbackJsonWebHandler(
+      "/api/hardware", [this](AsyncWebServerRequest* request, JsonVariant& body) { putHardware(request, body); });
+  hw->setMethod(HTTP_PUT);
+  server.addHandler(hw);
+
   socket_.onEvent([this](AsyncWebSocket*, AsyncWebSocketClient* client, AwsEventType type, void* arg,
                          uint8_t* data, size_t len) { onEvent(client, type, arg, data, len); });
   server.addHandler(&socket_);
@@ -208,6 +228,75 @@ void DeviceApi::postCalibration(AsyncWebServerRequest* request, JsonVariant& bod
   }
 }
 
+void DeviceApi::writeHardware(JsonObject out, const cwc::HardwareConfig& hardware) {
+  out["chip"] = chipName(chip_);
+  JsonArray pins = out["allowedPins"].to<JsonArray>();
+  cwc::PinList list = cwc::allowedPins(chip_);
+  for (size_t i = 0; i < list.count; ++i) pins.add(list.pins[i]);
+  JsonObject axes = out["axes"].to<JsonObject>();
+  for (cwc::Axis axis : cwc::kAxes) {
+    const cwc::ServoHardware& servo = hardware.axis(axis);
+    JsonObject o = axes[axisName(axis)].to<JsonObject>();
+    o["pin"] = servo.pin;
+    o["inverted"] = servo.inverted;
+    o["minPulse"] = servo.minPulseUs;
+    o["maxPulse"] = servo.maxPulseUs;
+  }
+}
+
+void DeviceApi::getHardware(AsyncWebServerRequest* request) {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writeHardware(doc.to<JsonObject>(), hardware_);
+  }
+  sendJson(request, 200, doc);
+}
+
+void DeviceApi::putHardware(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!body.is<JsonObject>()) {
+    request->send(400, "application/json", "{\"error\":\"invalid_json\"}");
+    return;
+  }
+
+  JsonDocument doc;
+  cwc::HardwareCheck check;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    cwc::HardwareConfig next = hardware_;
+    JsonObjectConst axes = body["axes"];
+    for (cwc::Axis axis : cwc::kAxes) {
+      JsonObjectConst o = axes[axisName(axis)];
+      if (o.isNull()) continue;
+      cwc::ServoHardware& servo = next.axis(axis);
+      if (o["pin"].is<uint8_t>()) servo.pin = o["pin"];
+      if (o["inverted"].is<bool>()) servo.inverted = o["inverted"];
+      if (o["minPulse"].is<uint16_t>()) servo.minPulseUs = o["minPulse"];
+      if (o["maxPulse"].is<uint16_t>()) servo.maxPulseUs = o["maxPulse"];
+    }
+    check = cwc::validateHardware(next, chip_);
+    if (check.ok()) {
+      bool recalibrate = cwc::invalidatesCalibration(hardware_, next);
+      cwc::saveHardware(storage_, next, chip_);
+      if (recalibrate) robot_.invalidateCalibration();
+      robot_.manualStop();
+      hardware_ = next;
+      writeHardware(doc.to<JsonObject>(), hardware_);
+      doc["restart"] = true;
+      doc["calibrationReset"] = recalibrate;
+    }
+  }
+
+  if (!check.ok()) {
+    doc["error"] = cwc::hardwareErrorName(check.error);
+    doc["axis"] = axisName(check.axis);
+    sendJson(request, 400, doc);
+    return;
+  }
+  sendJson(request, 200, doc);
+  restartAt_ = millis() + kRestartDelayMs;
+}
+
 // --- WebSocket --------------------------------------------------------------
 
 void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uint8_t* data, size_t len) {
@@ -258,6 +347,12 @@ void DeviceApi::onMessage(const char* text, size_t len) {
 }
 
 void DeviceApi::loop() {
+  uint32_t restartAt = restartAt_;
+  if (restartAt != 0 && static_cast<int32_t>(millis() - restartAt) >= 0) {
+    Serial.println("Restarting to apply the new hardware configuration");
+    ESP.restart();
+  }
+
   Inbox inbox;
   {
     std::lock_guard<std::mutex> guard(inboxLock_);
