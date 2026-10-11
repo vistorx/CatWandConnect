@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up and Calibration. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
+> **Status: in development, no release yet.** The firmware already does Wi-Fi setup, Manual control from a phone, speed settings, Stow, a gentle power-up, Calibration and wiring settings. It has not been validated on the real robot yet. Follow progress in [issue #1](https://github.com/vistorx/CatWandConnect/issues/1).
 
 ## What it does
 
@@ -16,7 +16,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 | 📶 | **Easy Wi-Fi setup.** Enter your Wi-Fi in the browser right after flashing, or through the robot's own `CatWandConnect-XXXX` hotspot. | ✅ |
 | 🔌 | **Gentle power-up.** The robot remembers where it rested and crawls back to its Stow position, so the servos don't jump. | ✅ |
 | 🎯 | **Calibration wizard.** Set the Travel limits and Stow position for your build, step by step, then watch a slow test sweep before saving. | ✅ |
-| 🔧 | **Your wiring.** Choose pins, invert axes and set servo pulse ranges from the interface. | 🚧 |
+| 🔧 | **Your wiring.** Choose pins (only the safe ones for your chip), reverse axes and set servo pulse ranges from the interface. | ✅ |
 | 🇫🇷 | **English and French interface**, robot naming, Info page, home-screen shortcut. | 🚧 |
 | 🔒 | **Optional settings PIN**, so guests can play but not change the setup. | 🚧 |
 | ⬆️ | **Firmware updates** from the browser, and a **web flasher** that installs the robot from Chrome or Edge in one click. | 🚧 |

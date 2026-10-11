@@ -98,6 +98,10 @@ class Robot {
   // are rejected and the current ones stay in effect.
   SettingsCheck applySettings(const RobotSettings& settings);
 
+  // Forgets Calibration, e.g. after the servo direction or pulse range
+  // changed: movement goes back to the conservative defaults.
+  void invalidateCalibration();
+
   const RobotSettings& settings() const { return settings_; }
   Activity activity() const { return activity_; }
   float position(Axis axis) const;

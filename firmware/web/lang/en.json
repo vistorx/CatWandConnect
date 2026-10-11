@@ -66,5 +66,17 @@
   "settings.max": "Maximum",
   "settings.stow": "Stow",
   "settings.calibrate": "Run Calibration",
-  "error.invalid_request": "The robot did not understand the request."
+  "error.invalid_request": "The robot did not understand the request.",
+  "settings.hardware": "Wiring",
+  "settings.hardware.hint": "Which GPIO drives each servo, its direction and its pulse range. Saving restarts the robot. Changing the direction or pulse range resets Calibration, since the limits would no longer match.",
+  "settings.hardware.save": "Save and restart",
+  "settings.pin": "Signal pin",
+  "settings.inverted": "Reverse direction",
+  "settings.minPulse": "Pulse at 0°",
+  "settings.maxPulse": "Pulse at 180°",
+  "settings.restarting": "Saved. The robot is restarting…",
+  "settings.restarting_recalibrate": "Saved. The robot is restarting; run Calibration again afterwards.",
+  "error.pin_not_allowed": "{axis}: this pin can't drive a servo on this chip.",
+  "error.pin_duplicate": "Both servos can't use the same pin.",
+  "error.pulse_out_of_range": "{axis}: pulses must be between 300 and 2700 µs, at least 500 µs apart."
 }

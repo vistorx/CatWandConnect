@@ -117,7 +117,7 @@ main {
 .form-page form { display: flex; flex-direction: column; }
 label { margin: 1rem 0 .3rem; }
 
-input, button {
+input, button, select {
   font: inherit;
   padding: .75rem;
   border-radius: .5rem;
@@ -228,4 +228,7 @@ button.secondary {
 }
 .banner a { font-weight: 600; white-space: nowrap; }
 
-.link-button { display: inline-block; margin-top: .5rem; font-weight: 600; }
+.link-button { display: inline-block; margin: .25rem 0 1rem; font-weight: 600; }
+
+.field input[type="checkbox"] { justify-self: end; width: 1.4rem; height: 1.4rem; accent-color: var(--accent); }
+.field select { width: 100%; }

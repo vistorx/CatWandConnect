@@ -85,3 +85,13 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Pressing Cancel at any step, or Stow on the main screen, keeps the previous limits and Stows.
 - [ ] After a power cycle the robot is still calibrated, with the same limits.
 - [ ] Running Calibration again starts from the current limits.
+
+## Hardware configuration
+
+- [ ] Settings → Wiring lists only pins allowed on the board's chip, and shows the current wiring.
+- [ ] Choosing the same pin for both servos shows an error and saves nothing.
+- [ ] Rewire the Horizontal servo to another allowed pin, select it and save: the robot restarts, and after boot the servo works on the new pin.
+- [ ] Ticking "Reverse direction" on an axis and saving: the robot restarts, the joystick moves that axis the other way, and the "Not calibrated yet" banner is back.
+- [ ] Narrowing a pulse range (for example 600–2000 µs) and saving reduces that servo's travel, and resets Calibration.
+- [ ] A pulse range under 500 µs wide shows an error and saves nothing.
+- [ ] The wiring survives a power cycle.

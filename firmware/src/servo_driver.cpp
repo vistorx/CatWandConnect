@@ -13,21 +13,20 @@ uint8_t channel(cwc::Axis axis) { return static_cast<uint8_t>(axis); }
 
 }  // namespace
 
-PwmServoDriver::PwmServoDriver(const ServoConfig& horizontal, const ServoConfig& vertical)
-    : configs_{horizontal, vertical} {}
-
-void PwmServoDriver::begin() {
-  for (cwc::Axis axis : {cwc::Axis::Horizontal, cwc::Axis::Vertical}) {
+void PwmServoDriver::begin(const cwc::HardwareConfig& config) {
+  config_ = config;
+  for (cwc::Axis axis : cwc::kAxes) {
     ledcSetup(channel(axis), kFrequencyHz, kResolutionBits);
     ledcWrite(channel(axis), 0);  // no pulse until the Robot core commands a position
-    ledcAttachPin(configs_[channel(axis)].pin, channel(axis));
+    ledcAttachPin(config_.axis(axis).pin, channel(axis));
   }
 }
 
 void PwmServoDriver::moveTo(cwc::Axis axis, float degrees) {
-  const ServoConfig& config = configs_[channel(axis)];
+  const cwc::ServoHardware& servo = config_.axis(axis);
   float fraction = constrain(degrees, 0.0f, 180.0f) / 180.0f;
-  float pulseUs = config.minPulseUs + fraction * (config.maxPulseUs - config.minPulseUs);
+  if (servo.inverted) fraction = 1 - fraction;
+  float pulseUs = servo.minPulseUs + fraction * (servo.maxPulseUs - servo.minPulseUs);
   ledcWrite(channel(axis), static_cast<uint32_t>(pulseUs * kMaxDuty / kPeriodUs + 0.5f));
 }
 

@@ -33,6 +33,29 @@ const robot = {
   calibration: { step: 'none', draft: null, target: null, sweep: [] },
 };
 
+let hardware = {
+  chip: 'ESP32',
+  allowedPins: [4, 13, 14, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
+  axes: { horizontal: { pin: 18, inverted: false, minPulse: 400, maxPulse: 2200 },
+    vertical: { pin: 19, inverted: false, minPulse: 600, maxPulse: 2400 } },
+};
+
+function putHardware(body) {
+  const next = structuredClone(hardware);
+  for (const axis of ['horizontal', 'vertical']) Object.assign(next.axes[axis], body.axes?.[axis] ?? {});
+  for (const axis of ['horizontal', 'vertical']) {
+    const a = next.axes[axis];
+    if (!next.allowedPins.includes(a.pin)) return [400, { error: 'pin_not_allowed', axis }];
+    if (a.minPulse < 300 || a.maxPulse > 2700 || a.minPulse + 500 > a.maxPulse) return [400, { error: 'pulse_out_of_range', axis }];
+  }
+  if (next.axes.horizontal.pin === next.axes.vertical.pin) return [400, { error: 'pin_duplicate', axis: 'vertical' }];
+  const reset = ['horizontal', 'vertical'].some(axis => ['inverted', 'minPulse', 'maxPulse']
+    .some(key => next.axes[axis][key] !== hardware.axes[axis][key]));
+  if (reset) robot.settings.calibrated = false;
+  hardware = next;
+  return [200, { ...hardware, restart: true, calibrationReset: reset }];
+}
+
 const STEP_ORDER = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max', 'stow', 'sweep', 'confirm'];
 
 function calibrationView() {
@@ -173,6 +196,8 @@ function putSettings(body) {
 const API = {
   'GET /api/settings': () => [200, robot.settings],
   'PUT /api/settings': putSettings,
+  'GET /api/hardware': () => [200, hardware],
+  'PUT /api/hardware': putHardware,
   'GET /api/calibration': () => [200, calibrationView()],
   'POST /api/calibration': calibrate,
   'POST /api/stow': () => { stow(); return [202, {}]; },

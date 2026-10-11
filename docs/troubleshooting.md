@@ -23,7 +23,7 @@ The signal is too weak or the router changed. Move the robot closer, or enter th
 
 **The servos don't move at all.**
 - Check the common ground between the board and the servo supply.
-- Check that the signal wires use the default pins for your chip ([Electronics](electronics.md#default-pins)).
+- Check that the signal wires use the pins shown in Settings → Wiring (the defaults are in [Electronics](electronics.md#default-pins)).
 - At power-up the robot crawls very slowly (10 °/s) to its Stow position, then releases the servos. That is expected.
 
 **The servos jitter or the board resets when they move.**
@@ -40,7 +40,10 @@ Until Calibration has been completed, movement is limited to 60°–120° on eac
 The maximum of an axis must be above its minimum, and the Stow position must be inside the limits you just set. Nudge further and mark again.
 
 **The wand moves the wrong way.**
-Axis inversion is coming with [#10](https://github.com/vistorx/CatWandConnect/issues/10). Until then, turn the servo horn around or swap the servo's mounting direction.
+Tick **Reverse direction** for that axis in Settings → Wiring, then run Calibration again.
+
+**I chose the wrong pins and the servos don't move.**
+Rewire to the pins shown in Settings → Wiring, or pick the pins you wired. If you can no longer open the interface, erase and reflash the board (`pio run -e <chip> -t erase`, then upload) to return to the defaults.
 
 ## Still stuck?
 

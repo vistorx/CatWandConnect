@@ -9,6 +9,7 @@
 
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
+#include <robot_core/hardware.h>
 #include <robot_core/robot.h>
 
 #include <atomic>
@@ -16,11 +17,14 @@
 
 class DeviceApi {
  public:
-  explicit DeviceApi(cwc::Robot& robot) : robot_(robot) {}
+  DeviceApi(cwc::Robot& robot, cwc::Storage& storage, cwc::Chip chip)
+      : robot_(robot), storage_(storage), chip_(chip) {}
 
-  void begin(AsyncWebServer& server);
+  // `hardware` is the wiring the servo driver was started with.
+  void begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware);
 
   // Applies pending commands, ticks the robot and broadcasts its state.
+  // Restarts the board when a hardware change asked for it.
   void loop();
 
  private:
@@ -41,9 +45,16 @@ class DeviceApi {
   void getCalibration(AsyncWebServerRequest* request);
   void postCalibration(AsyncWebServerRequest* request, JsonVariant& body);
   void writeCalibration(JsonObject out);  // caller holds robotLock_
+  void getHardware(AsyncWebServerRequest* request);
+  void putHardware(AsyncWebServerRequest* request, JsonVariant& body);
+  void writeHardware(JsonObject out, const cwc::HardwareConfig& hardware);
 
   cwc::Robot& robot_;
+  cwc::Storage& storage_;
+  cwc::Chip chip_;
   std::mutex robotLock_;
+  cwc::HardwareConfig hardware_{};       // as saved, applied after restart
+  std::atomic<uint32_t> restartAt_{0};
   AsyncWebSocket socket_{"/ws"};
 
   std::mutex inboxLock_;

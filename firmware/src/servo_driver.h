@@ -1,23 +1,19 @@
 #pragma once
 
-// Hobby PWM servos (MG996R on the Mk2) driven by the ESP32 LEDC peripheral.
+// Hobby PWM servos (MG996R on the Mk2) driven by the ESP32 LEDC peripheral,
+// wired as described by a HardwareConfig.
 
+#include <robot_core/hardware.h>
 #include <robot_core/ports.h>
-
-struct ServoConfig {
-  uint8_t pin;
-  uint16_t minPulseUs;  // pulse at 0°
-  uint16_t maxPulseUs;  // pulse at 180°
-};
 
 class PwmServoDriver : public cwc::MotorDriver {
  public:
-  PwmServoDriver(const ServoConfig& horizontal, const ServoConfig& vertical);
+  // Takes the wiring and starts the PWM channels, without sending pulses.
+  void begin(const cwc::HardwareConfig& config);
 
-  void begin();
   void moveTo(cwc::Axis axis, float degrees) override;
   void release(cwc::Axis axis) override;
 
  private:
-  ServoConfig configs_[cwc::kAxisCount];
+  cwc::HardwareConfig config_{};
 };

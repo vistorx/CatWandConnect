@@ -69,6 +69,28 @@ Stow beats every other command and cannot be interrupted. Manual control, from a
 
 The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `vertical_max`, `stow`, then `sweep` (the robot visits the four corners of the new envelope and returns to Stow by itself), then `confirm`. Stow and Manual control abandon Calibration too.
 
+### Hardware
+
+`GET /api/hardware` returns the wiring and the pins this chip allows:
+
+```json
+{
+  "chip": "ESP32",
+  "allowedPins": [4, 13, 14, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
+  "axes": {
+    "horizontal": {"pin": 18, "inverted": false, "minPulse": 400, "maxPulse": 2200},
+    "vertical":   {"pin": 19, "inverted": false, "minPulse": 600, "maxPulse": 2400}
+  }
+}
+```
+
+`PUT /api/hardware` with any subset of `axes` changes it.
+
+- **Allowed pins** are those the chip can safely use. Flash, PSRAM, USB, serial-console, strapping and input-only pins are excluded, and the two servos can't share a pin.
+- **Pulses** (`minPulse` at 0°, `maxPulse` at 180°) must be between 300 and 2700 µs, at least 500 µs apart.
+- **Valid:** `200` with the new wiring plus `"restart": true`, and the robot restarts about a second later to apply it. `"calibrationReset": true` means the change in direction or pulse range made the old Travel limits meaningless: Calibration is forgotten and movement is back to 60°–120°.
+- **Invalid:** `400` with `pin_not_allowed`, `pin_duplicate` or `pulse_out_of_range`, plus `axis`.
+
 ### Settings
 
 `GET /api/settings` returns the Robot core's settings:
