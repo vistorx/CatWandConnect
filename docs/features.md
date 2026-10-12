@@ -34,6 +34,10 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 - **Home-screen icon.** Add the interface to your phone's home screen; it opens full screen like an app.
 - **Info page.** Firmware version, chip, Wi-Fi signal, IP address, uptime, temperature and memory, with a Copy button for bug reports.
 
+## Help
+
+- **Where to get help.** A [Discord server](https://discord.gg/Rbqge3v9dk) for questions, build help and sharing builds, in several languages and with no GitHub account needed; GitHub issue forms for bugs and installation problems; private reporting for security problems. See [Getting help](../SUPPORT.md).
+
 ## Updates
 
 - **Firmware updates from the browser.** Upload the new file in Settings. Settings and Calibration are kept, and if the upload fails or is interrupted the robot keeps its current firmware.
