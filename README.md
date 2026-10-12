@@ -93,6 +93,7 @@ Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 | [Device API](docs/api.md) | The robot's HTTP, WebSocket and MQTT API, for scripts and integrations |
 | [Acceptance checklist](docs/acceptance-checklist.md) | What to check on the real robot before each release |
 | [Releasing](docs/releasing.md) | Publishing a version and the web flasher |
+| [Media](media/README.md) | Logo, banners, photos and screenshots, and how to add them |
 | [Glossary](CONTEXT.md) | The words the project uses: Stow, Travel limits, Calibration… |
 | [Decisions](docs/adr/) | Why things are the way they are |
 

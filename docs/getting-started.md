@@ -19,6 +19,7 @@ The dedicated firmware in `firmware/` replaces the old ESPHome proof of concept.
 
 In the repo:
 
+- Logo, banners, photos and screenshots in `media/` (see [`media/README.md`](../media/README.md)).
 - Domain docs, ADRs and agent config.
 - Printable parts: Mk2 in `stls/mk2/` (reference), Mk1 in `archive/stls/mk1/` (retired).
 - The Claude Code project settings that enable the `mattpocock-skills` plugin (`.claude/settings.json`).
