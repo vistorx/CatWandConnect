@@ -25,6 +25,8 @@ jobs:
       - run: pio test -e native
       - name: Language files match en.json
         run: node tools/check_lang.mjs
+      - name: Flasher channel rules
+        run: python tools/test_flasher_site.py
 
   build:
     name: Build ${{ matrix.env }}

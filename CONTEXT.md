@@ -47,3 +47,9 @@ The first Mechanism, retired because its vertical servo overheated under load.
 
 **Mk2**:
 The current reference Mechanism, reinforced with a 608 skateboard bearing and a 4 mm steel-ball track. The only one the firmware targets.
+
+## Releases
+
+**Release channel**:
+Which firmware releases a user is offered: **Stable** (`vX.Y.Z`, the default) or **Beta** (`vX.Y.Z-beta.N` pre-releases, tested on real robots before going stable).
+_Avoid_: Nightly, dev build, preview (a dev build is an untagged local or CI build, not a channel)
