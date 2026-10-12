@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question, build help or showing your robot
+    url: https://discord.gg/Rbqge3v9dk
+    about: Ask in #support on the CatWandConnect Discord server. No GitHub account needed; English or French welcome.
+  - name: Security vulnerability
+    url: https://github.com/vistorx/CatWandConnect/security/advisories/new
+    about: Report it privately. Never in a public issue.
+  - name: Troubleshooting guide
+    url: https://github.com/vistorx/CatWandConnect/blob/main/docs/troubleshooting.md
+    about: Answers to the common problems with installing, Wi-Fi, Motion and updates.

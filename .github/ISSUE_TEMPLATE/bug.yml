@@ -1,0 +1,90 @@
+name: Bug report
+description: Something on the robot, in the Device interface or with Home Assistant does not work as expected.
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. English or French welcome (le français est bienvenu).
+        **Security problem?** Do not report it here: see [SECURITY.md](https://github.com/vistorx/CatWandConnect/blob/main/SECURITY.md).
+        Installation problem (the board doesn't show up, the install fails)? Use the *Installation problem* form instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: I pressed Stow while the wand was moving. I expected it to go back to rest, but it kept moving for 2 seconds.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we make it happen again? Leave empty if you don't know.
+      placeholder: |
+        1. Open the Device interface on a phone
+        2. Drag the joystick fully left
+        3. Press Stow
+  - type: textarea
+    id: diagnostic-report
+    attributes:
+      label: Diagnostic report
+      description: |
+        In the Device interface, open Settings → Info and press **Copy**, then paste the text here.
+        It holds the firmware version, chip and the robot's state. Check it contains no password: issues are public.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Firmware version
+      description: Shown on the Info page, for example 0.1.0-beta.2. Skip it if it is already in the diagnostic report.
+      placeholder: 0.1.0-beta.2
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Chip
+      options:
+        - ESP32
+        - ESP32-S3
+        - ESP32-C3
+        - I don't know
+    validations:
+      required: true
+  - type: dropdown
+    id: mechanism
+    attributes:
+      label: Mechanism
+      options:
+        - Mk2
+        - Own design
+        - No Mechanism yet (board and servos only)
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where is the problem?
+      options:
+        - Motion (joystick, speed, Stow, Travel limits)
+        - Calibration
+        - Wi-Fi or setup hotspot
+        - Device interface (display, language, settings)
+        - Settings PIN
+        - Firmware update
+        - Home Assistant / MQTT
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Serial log
+      description: Optional. Open the web flasher, connect the board, then Logs & Console, and copy the lines around the problem. You can also drag a .txt file here.
+      render: text
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Photos or videos of the robot, your wiring, what you already tried.
