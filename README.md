@@ -4,19 +4,60 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
+<p align="center">
+  <a href="https://vistorx.github.io/CatWandConnect/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
+  <br>
+  <a href="https://github.com/vistorx/CatWandConnect/releases"><img src="https://img.shields.io/github/v/release/vistorx/CatWandConnect?include_prereleases&label=latest" alt="Latest version"></a>
+  <a href="https://github.com/vistorx/CatWandConnect/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/vistorx/CatWandConnect/ci.yml?branch=main&label=tests" alt="Tests"></a>
+  <a href="#install-the-firmware"><img src="https://img.shields.io/badge/chips-ESP32%20%C2%B7%20S3%20%C2%B7%20C3-2b6cb0" alt="ESP32, ESP32-S3, ESP32-C3"></a>
+</p>
+
 > **Status: V1 in beta.** Every V1 feature is implemented and tested automatically. The firmware is now being validated on the real robot as beta releases, against the [acceptance checklist](docs/acceptance-checklist.md). The first stable release follows once it passes.
 
 ## What it does
 
 - **Play from your phone.** A joystick and a speed slider in any browser on your Wi-Fi, with no app to install.
 - **Safe by design.** Travel limits it never exceeds, a Stow button nothing can interrupt, smooth motion, and a stop as soon as your phone disconnects.
-- **Easy to set up.** Install from the browser, enter your Wi-Fi, and let the Calibration wizard fit the robot to your build.
+- **Easy to set up.** [Install from the browser](#install-the-firmware), enter your Wi-Fi, and let the Calibration wizard fit the robot to your build.
 - **Yours to adapt.** Your pins and servos, your robot's name, English or French, an optional PIN, and updates over Wi-Fi.
 - **Home Assistant if you want it**, through MQTT, and an open API for everything else.
 
 **[See every feature in detail →](docs/features.md)**
 
 Automatic play sessions are planned for V1.1.
+
+## Install the firmware
+
+No tools to install: the firmware goes on the board straight from your browser. You can install it on a bare board before [building the robot](#build-one).
+
+<p align="center">
+  <a href="https://vistorx.github.io/CatWandConnect/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
+</p>
+
+| | |
+|---|---|
+| **1. Open** | The [web flasher](https://vistorx.github.io/CatWandConnect/) in **Chrome or Edge** on a computer. |
+| **2. Plug** | The ESP32 board over USB, with a cable that carries data. |
+| **3. Install** | Press **Connect and install** and pick the board's port. The right firmware for your chip is chosen for you. |
+| **4. Connect** | Enter your Wi-Fi when asked, then choose **Visit device**. |
+
+> [!NOTE]
+> Until the first stable release, the web flasher installs the **beta**, which gets new changes first and may still have bugs. See [release channels](docs/releasing.md#channels).
+
+<details>
+<summary><b>Updating, building from source, troubleshooting</b></summary>
+
+- **Update a robot that is already installed:** download the `-ota.bin` file for your chip from the [latest release](https://github.com/vistorx/CatWandConnect/releases), then upload it in the robot's **Settings → Firmware update**. Settings and Calibration are kept.
+- **Build from source** with [PlatformIO](https://platformio.org/); [Getting started](docs/getting-started.md) covers the tools:
+
+  ```sh
+  cd firmware
+  pio run -e esp32 -t upload   # or esp32s3 / esp32c3
+  ```
+
+- **The board doesn't show up?** Install its USB driver (CH340/CH9102 or CP210x), try another cable, and see [Troubleshooting](docs/troubleshooting.md).
+
+</details>
 
 ## Build one
 
@@ -59,20 +100,7 @@ The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertic
 - [Assembly](docs/assembly.md): mechanical assembly order and checks.
 - [Electronics](docs/electronics.md): the wiring diagram, with the default pins for each chip.
 
-### Install the firmware
-
-**From your browser:** open the [web flasher](https://vistorx.github.io/CatWandConnect/) in Chrome or Edge on a computer, plug the board in over USB and press **Connect and install**. The right firmware for your chip is picked automatically. Then enter your Wi-Fi when asked. Until the first stable release, the flasher offers beta versions only.
-
-**From source**, with [PlatformIO](https://platformio.org/):
-
-```sh
-cd firmware
-pio run -e esp32 -t upload   # or esp32s3 / esp32c3
-```
-
-[Getting started](docs/getting-started.md) covers the tools in detail. Later updates go over Wi-Fi from **Settings → Firmware update**, using the `-ota.bin` file of a [release](https://github.com/vistorx/CatWandConnect/releases).
-
-### First start
+## First start
 
 1. If you entered your Wi-Fi in the web flasher, skip to step 3. Otherwise power the robot: with no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** hotspot.
 2. Join it from your phone. The setup page opens by itself; if not, browse to `http://192.168.4.1/`. Pick your Wi-Fi and enter its password.
