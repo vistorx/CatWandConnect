@@ -3,6 +3,7 @@
 #include <Update.h>
 
 #include "pin_http.h"
+#include "log.h"
 
 namespace {
 
@@ -67,7 +68,7 @@ void registerOta(AsyncWebServer& server, auth::PinGuard& pin, cwc::Chip chip, st
             upload.error = "update_failed";
           } else {
             upload.active = true;
-            Serial.println("[update] receiving firmware");
+            logLine("[update] receiving firmware");
             onStart();
           }
         }
@@ -83,7 +84,7 @@ void registerOta(AsyncWebServer& server, auth::PinGuard& pin, cwc::Chip chip, st
           // Verifies the image and only then marks the new slot bootable.
           if (!Update.end(true)) upload.error = "update_failed";
           upload.active = false;
-          Serial.printf("[update] %s (%u bytes)\n", upload.error ? "failed" : "done", unsigned(index + len));
+          logLine("[update] %s (%u bytes)", upload.error ? "failed" : "done", unsigned(index + len));
         }
       });
 }

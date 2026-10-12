@@ -9,6 +9,8 @@
 #include <robot_core/robot.h>
 
 #include "device_api.h"
+#include "diagnostics_api.h"
+#include "log.h"
 #include "mqtt_bridge.h"
 #include "network/network.h"
 #include "ota.h"
@@ -80,7 +82,7 @@ String loadPin() {
 
 void setup() {
   Serial.begin(115200);
-  Serial.printf("CatWandConnect %s starting\n", CWC_VERSION);
+  logLine("CatWandConnect %s starting, last reset: %s", CWC_VERSION, resetReason());
   storage.begin();
   cwc::HardwareConfig hardware = cwc::loadHardware(storage, kChip);
   String name = loadDeviceName();
@@ -94,6 +96,7 @@ void setup() {
   registerWebUi(server, [] { return network.inSetup(); });
   network.begin(server, name, hostname, pin);
   mqtt.begin(server, pin, api, name, hostname);
+  registerDiagnostics(server, api, mqtt, network, pin, name, hostname);
   server.begin();
 }
 

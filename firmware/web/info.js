@@ -53,7 +53,74 @@ $('copy').addEventListener('click', async () => {
   }
 });
 
+// --- Diagnostic report (GET /api/diagnostics), redacted unless asked ---
+
+async function report(full) {
+  const response = await fetch(`/api/diagnostics${full ? '?full=1' : ''}`);
+  if (!response.ok) throw new Error(String(response.status));
+  return response.text();
+}
+
+async function showReport() {
+  try {
+    $('report').textContent = await report(false);
+  } catch {
+    $('report').textContent = I18n.t('diag.unavailable');
+  }
+}
+
+function fileName(full) {
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  return `catwandconnect-report-${stamp}${full ? '-full' : ''}.txt`;
+}
+
+function download(text, name) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function reportMessage(key, kind = 'ok') {
+  $('report-message').dataset.kind = kind;
+  $('report-message').textContent = I18n.t(key);
+}
+
+$('report-copy').addEventListener('click', async () => {
+  await showReport();
+  try {
+    await navigator.clipboard.writeText($('report').textContent);
+    reportMessage('diag.copied');
+  } catch {
+    // No clipboard on plain http:// in most browsers: select the text instead.
+    getSelection().selectAllChildren($('report'));
+    reportMessage('diag.selected');
+  }
+});
+
+$('report-download').addEventListener('click', async () => {
+  try {
+    const text = await report(false);
+    $('report').textContent = text;
+    download(text, fileName(false));
+  } catch {
+    reportMessage('diag.unavailable', 'error');
+  }
+});
+
+$('report-full').addEventListener('click', async () => {
+  try {
+    download(await report(true), fileName(true));
+  } catch {
+    reportMessage('diag.unavailable', 'error');
+  }
+});
+
 I18n.load().then(() => {
   refresh();
   setInterval(refresh, 5000);
+  showReport();
 });

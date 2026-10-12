@@ -247,6 +247,23 @@ button.secondary {
 .info dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .header-links { display: flex; gap: 1rem; }
 
+.report {
+  max-height: 16rem;
+  overflow: auto;
+  margin: 0 0 1rem;
+  padding: .75rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  font-size: .75rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.full-report { margin-top: 1.5rem; color: var(--muted); }
+.full-report summary { cursor: pointer; }
+.full-report .hint { margin: .5rem 0; }
+
 .field.wide { grid-template-columns: minmax(6rem, 38%) minmax(0, 1fr); }
 .field.wide input, .field.wide select { text-align: left; }
 .field.wide output { text-align: right; overflow-wrap: anywhere; }
