@@ -32,6 +32,11 @@ class DeviceApi {
     return f(robot_);
   }
 
+  // The settings and the saved wiring as GET /api/settings and /api/hardware
+  // return them, for the Diagnostic report.
+  String settingsJson();
+  String hardwareJson();
+
   // Stops Manual control before a firmware update; safe from any task.
   void stopForUpdate();
 

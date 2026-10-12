@@ -6,6 +6,7 @@
 #include <identity/identity.h>
 
 #include "pin_http.h"
+#include "log.h"
 
 namespace {
 
@@ -164,6 +165,28 @@ void DeviceApi::getSettings(AsyncWebServerRequest* request) {
     writeSettings(doc.to<JsonObject>(), robot_.settings());
   }
   sendJson(request, 200, doc);
+}
+
+String DeviceApi::settingsJson() {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writeSettings(doc.to<JsonObject>(), robot_.settings());
+  }
+  String out;
+  serializeJson(doc, out);
+  return out;
+}
+
+String DeviceApi::hardwareJson() {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writeHardware(doc.to<JsonObject>(), hardware_);
+  }
+  String out;
+  serializeJson(doc, out);
+  return out;
 }
 
 void DeviceApi::putSettings(AsyncWebServerRequest* request, JsonVariant& body) {
@@ -489,7 +512,7 @@ void DeviceApi::onMessage(const char* text, size_t len) {
 void DeviceApi::loop() {
   uint32_t restartAt = restartAt_;
   if (restartAt != 0 && static_cast<int32_t>(millis() - restartAt) >= 0) {
-    Serial.println("Restarting to apply the new hardware configuration");
+    logLine("Restarting to apply the new hardware configuration");
     ESP.restart();
   }
 

@@ -30,8 +30,8 @@ body:
     attributes:
       label: Diagnostic report
       description: |
-        In the Device interface, open Settings → Info and press **Copy**, then paste the text here.
-        It holds the firmware version, chip and the robot's state. Check it contains no password: issues are public.
+        In the Device interface, open Settings → Info, then **Copy the report** (or download it and drag the file here).
+        Your Wi-Fi name and addresses are already hidden. Older firmware: press **Copy** under the Info list instead.
       render: text
     validations:
       required: true
