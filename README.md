@@ -55,7 +55,7 @@ No tools to install: the firmware goes on the board straight from your browser. 
   pio run -e esp32 -t upload   # or esp32s3 / esp32c3
   ```
 
-- **The board doesn't show up?** Install its USB driver (CH340/CH9102 or CP210x), try another cable, and see [Troubleshooting](docs/troubleshooting.md).
+- **The board doesn't show up?** Try another cable, then install the driver for its USB chip: see [Installing with the web flasher](docs/troubleshooting.md#installing-with-the-web-flasher) for the download links.
 
 </details>
 

@@ -45,6 +45,12 @@
   .beta-note[hidden] { display: none; }
   a { color: var(--accent); }
   code { font-size: .9em; }
+  .help { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .help summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+  .help table { border-collapse: collapse; width: 100%; margin: .5rem 0 .75rem; font-size: .95rem; }
+  .help th, .help td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .help th { background: var(--bg); }
+  .help p { margin: .5rem 0 0; }
 </style>
 </head>
 <body>
@@ -74,8 +80,34 @@
     <ul>
       <li data-t="before1">Chrome or Edge on a computer (Windows, macOS, Linux or ChromeOS).</li>
       <li data-t="before2">An ESP32, ESP32-S3 or ESP32-C3 board and a USB cable that carries data, not only power. ESP8266 boards are not supported.</li>
-      <li data-t="before3">If the board doesn't show up, install its USB driver: CH340/CH9102 (WCH) or CP210x (Silicon Labs), depending on the chip next to its USB port.</li>
+      <li data-t="before3">If the board doesn't show up, try another cable, then install the driver for the USB chip next to its connector (help below).</li>
     </ul>
+    <details class="help" id="drivers">
+      <summary data-t="driversTitle">The board doesn't show up?</summary>
+      <ol>
+        <li data-t="drv1">Try another USB cable: many only carry power. Plug straight into the computer, not through a hub.</li>
+        <li data-t="drv2">Read the marking on the small chip next to the USB connector, and install its driver:</li>
+      </ol>
+      <table>
+        <thead><tr><th data-t="drvChip">Chip</th><th>Windows</th><th>macOS</th></tr></thead>
+        <tbody>
+          <tr><td>CH340, CH341</td>
+            <td><a href="https://www.wch-ic.com/downloads/CH341SER_EXE.html">CH341SER.EXE</a></td>
+            <td><a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html">CH34XSER_MAC.ZIP</a></td></tr>
+          <tr><td>CH9102, CH343</td>
+            <td><a href="https://www.wch-ic.com/downloads/CH343SER_EXE.html">CH343SER.EXE</a></td>
+            <td><a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html">CH34XSER_MAC.ZIP</a></td></tr>
+          <tr><td>CP2102, CP210x</td>
+            <td colspan="2"><a href="https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers" data-t="drvSilabs">Silicon Labs CP210x drivers</a></td></tr>
+        </tbody>
+      </table>
+      <ol start="3">
+        <li data-t="drv3">Unplug and replug the board, then press the button again. On macOS, allow the driver in System Settings → Privacy &amp; Security.</li>
+        <li data-t="drv4">No chip next to the connector (ESP32-S3 or ESP32-C3 with native USB)? No driver is needed: hold the BOOT button while plugging the board in.</li>
+      </ol>
+      <p data-t="drvMore">Linux and ChromeOS need no driver.</p>
+      <p data-t="drvMoreLink">More help: <a href="https://github.com/vistorx/CatWandConnect/blob/main/docs/troubleshooting.md#installing-with-the-web-flasher">troubleshooting guide</a>.</p>
+    </details>
   </section>
 
   <section>
@@ -104,7 +136,15 @@
     beforeTitle: "Avant de commencer",
     before1: "Chrome ou Edge sur un ordinateur (Windows, macOS, Linux ou ChromeOS).",
     before2: "Une carte ESP32, ESP32-S3 ou ESP32-C3 et un câble USB qui transporte les données, pas seulement l'alimentation. Les cartes ESP8266 ne sont pas compatibles.",
-    before3: "Si la carte n'apparaît pas, installez son pilote USB : CH340/CH9102 (WCH) ou CP210x (Silicon Labs), selon la puce placée à côté de son port USB.",
+    before3: "Si la carte n'apparaît pas, essayez un autre câble, puis installez le pilote de la puce USB placée à côté de son connecteur (aide ci-dessous).",
+    driversTitle: "La carte n'apparaît pas ?",
+    drv1: "Essayez un autre câble USB : beaucoup ne font que l'alimentation. Branchez directement sur l'ordinateur, sans hub.",
+    drv2: "Lisez l'inscription sur la petite puce à côté du connecteur USB, et installez son pilote :",
+    drvChip: "Puce",
+    drvSilabs: "Pilotes CP210x de Silicon Labs",
+    drv3: "Débranchez et rebranchez la carte, puis appuyez de nouveau sur le bouton. Sur macOS, autorisez le pilote dans Réglages Système → Confidentialité et sécurité.",
+    drv4: "Pas de puce à côté du connecteur (ESP32-S3 ou ESP32-C3 en USB natif) ? Aucun pilote n'est nécessaire : maintenez le bouton BOOT en branchant la carte.",
+    drvMore: "Linux et ChromeOS n'ont besoin d'aucun pilote.",
     stepsTitle: "Étapes",
     step1: "Branchez la carte à l'ordinateur, appuyez sur le bouton ci-dessus et choisissez son port.",
     step2: "Choisissez « Install CatWandConnect ». Le bon firmware pour votre puce est choisi automatiquement. Effacez la carte lors d'une première installation.",
@@ -122,6 +162,8 @@
     for (const el of document.querySelectorAll('[data-t]')) {
       if (FR[el.dataset.t]) el.textContent = FR[el.dataset.t];
     }
+    document.querySelector('[data-t="drvMoreLink"]').innerHTML =
+      'Plus d\'aide : <a href="https://github.com/vistorx/CatWandConnect/blob/main/docs/troubleshooting.md#installing-with-the-web-flasher">guide de dépannage</a> (en anglais).';
     document.querySelector('[data-t="more"]').innerHTML =
       'Pièces, câblage, montage et aide : voir le <a href="https://github.com/vistorx/CatWandConnect">dépôt du projet</a>.';
   }
