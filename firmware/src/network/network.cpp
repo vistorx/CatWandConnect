@@ -77,13 +77,17 @@ void Network::begin(AsyncWebServer& server, const String& deviceName, const Stri
 }
 
 void Network::loop() {
-  uint32_t now = millis();
   handleImprov();
 
   if (setupRequested_) {
     setupRequested_ = false;
     startAttempt(setupSsid_, setupPassword_, Source::SetupPage);
   }
+
+  // Read the clock only now: an attempt started just above sets modeSince_
+  // to a later millis(), and an earlier `now` would make `now - modeSince_`
+  // wrap around and fail the attempt at once (#62).
+  uint32_t now = millis();
 
   switch (mode_) {
     case Mode::Connecting:
