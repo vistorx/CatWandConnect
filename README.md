@@ -1,4 +1,6 @@
-# CatWandConnect
+<h1 align="center">
+  <img src="media/banner/banner-robot-cat-wand.jpg" alt="CatWandConnect: a robot holding a toy wand with a fish, and a kitten jumping for it" width="100%">
+</h1>
 
 **An open-hardware robot that plays with your cat.** An ESP32 swings a toy wand on two servos. You drive it from your phone through a web page served by the robot itself, with no app, no cloud and no account. Home Assistant is optional.
 
