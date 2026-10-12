@@ -74,7 +74,7 @@
   "settings.calibrate": "Run Calibration",
   "error.invalid_request": "The robot did not understand the request.",
   "settings.hardware": "Wiring",
-  "settings.hardware.hint": "Which GPIO drives each servo, its direction and its pulse range. Saving restarts the robot. Changing the direction or pulse range resets Calibration, since the limits would no longer match.",
+  "settings.hardware.hint": "Which GPIO drives each servo and its direction; under Servo travel, its pulse range. Saving restarts the robot. Changing the direction or pulse range resets Calibration, since the limits would no longer match.",
   "settings.hardware.save": "Save and restart",
   "settings.pin": "Signal pin",
   "settings.inverted": "Reverse direction",
@@ -173,5 +173,9 @@
   "calibration.limits": "Allowed: {min}° to {max}°",
   "error.travel_order_at": "{axis}: the maximum must be above the minimum ({min}°).",
   "calibration.min": "minimum",
-  "calibration.max": "maximum"
+  "calibration.max": "maximum",
+  "settings.pulse.title": "Servo travel (advanced)",
+  "settings.pulse.hint": "The pulse width the servo receives at 0° and at 180°. It sets how far the servo turns, not how fast: speed is set under Speed and acceleration, above. Widen the range if the servo turns less than half a turn from end to end; narrow it if the servo buzzes or strains at its ends. Most servos work with the defaults.",
+  "settings.pulse.default": "Default: {min} – {max} µs.",
+  "settings.pulse.reset": "Reset to default"
 }

@@ -62,6 +62,9 @@ const LIMITS = [
 
 // --- Wiring: GPIO, direction and pulse range (/api/hardware) -------------------
 
+// Factory pulse ranges, as in defaultHardware() (lib/robot_core/.../hardware.cpp).
+const DEFAULT_PULSES = { horizontal: { min: 400, max: 2200 }, vertical: { min: 600, max: 2400 } };
+
 function hardwareFields(hardware) {
   const options = hardware.allowedPins.map(pin => `<option value="${pin}">GPIO ${pin}</option>`).join('');
   $('hardware-axes').innerHTML = AXES.map(axis => `
@@ -75,15 +78,34 @@ function hardwareFields(hardware) {
         <label for="${axis}-inverted">${I18n.t('settings.inverted')}</label>
         <input id="${axis}-inverted" type="checkbox">
       </div>
-      <div class="field">
-        <label for="${axis}-minPulse">${I18n.t('settings.minPulse')} <span class="unit">µs</span></label>
-        <input id="${axis}-minPulse" type="number" step="10" min="300" max="2700" required>
-      </div>
-      <div class="field">
-        <label for="${axis}-maxPulse">${I18n.t('settings.maxPulse')} <span class="unit">µs</span></label>
-        <input id="${axis}-maxPulse" type="number" step="10" min="300" max="2700" required>
-      </div>
+      <details class="advanced">
+        <summary>${I18n.t('settings.pulse.title')}</summary>
+        <p class="hint">${I18n.t('settings.pulse.hint')}</p>
+        <div class="field">
+          <label for="${axis}-minPulse">${I18n.t('settings.minPulse')} <span class="unit">µs</span></label>
+          <input id="${axis}-minPulse" type="number" step="10" min="300" max="2700" required>
+        </div>
+        <div class="field">
+          <label for="${axis}-maxPulse">${I18n.t('settings.maxPulse')} <span class="unit">µs</span></label>
+          <input id="${axis}-maxPulse" type="number" step="10" min="300" max="2700" required>
+        </div>
+        <p class="hint">
+          ${I18n.t('settings.pulse.default', DEFAULT_PULSES[axis])}
+          <button type="button" class="text-button" data-reset-pulse="${axis}">${I18n.t('settings.pulse.reset')}</button>
+        </p>
+      </details>
     </fieldset>`).join('');
+  // A wrong value in a collapsed section must be visible to be fixed.
+  $('hardware-axes').querySelectorAll('details input').forEach(input => {
+    input.addEventListener('invalid', () => { input.closest('details').open = true; });
+  });
+  $('hardware-axes').querySelectorAll('[data-reset-pulse]').forEach(button => {
+    button.addEventListener('click', () => {
+      const axis = button.dataset.resetPulse;
+      $(`${axis}-minPulse`).value = DEFAULT_PULSES[axis].min;
+      $(`${axis}-maxPulse`).value = DEFAULT_PULSES[axis].max;
+    });
+  });
   for (const axis of AXES) {
     const a = hardware.axes[axis];
     $(`${axis}-pin`).value = a.pin;

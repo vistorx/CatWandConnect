@@ -74,7 +74,7 @@
   "settings.calibrate": "Lancer la calibration",
   "error.invalid_request": "Le robot n'a pas compris la demande.",
   "settings.hardware": "Câblage",
-  "settings.hardware.hint": "La broche qui pilote chaque servo, son sens et sa plage d'impulsions. L'enregistrement redémarre le robot. Changer le sens ou la plage d'impulsions efface la calibration, car les limites ne correspondraient plus.",
+  "settings.hardware.hint": "La broche qui pilote chaque servo et son sens ; sous Course du servo, sa plage d'impulsions. L'enregistrement redémarre le robot. Changer le sens ou la plage d'impulsions efface la calibration, car les limites ne correspondraient plus.",
   "settings.hardware.save": "Enregistrer et redémarrer",
   "settings.pin": "Broche du signal",
   "settings.inverted": "Inverser le sens",
@@ -173,5 +173,9 @@
   "calibration.limits": "Autorisé : {min}° à {max}°",
   "error.travel_order_at": "{axis} : le maximum doit être au-dessus du minimum ({min}°).",
   "calibration.min": "minimum",
-  "calibration.max": "maximum"
+  "calibration.max": "maximum",
+  "settings.pulse.title": "Course du servo (avancé)",
+  "settings.pulse.hint": "La largeur d'impulsion envoyée au servo à 0° et à 180°. Elle règle jusqu'où le servo tourne, pas sa vitesse : la vitesse se règle plus haut, dans Vitesse et accélération. Élargissez la plage si le servo fait moins d'un demi-tour d'une extrémité à l'autre ; resserrez-la s'il grésille ou force en bout de course. La plupart des servos fonctionnent avec les valeurs par défaut.",
+  "settings.pulse.default": "Par défaut : {min} – {max} µs.",
+  "settings.pulse.reset": "Revenir aux valeurs par défaut"
 }
