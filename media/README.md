@@ -8,6 +8,7 @@ The project's visual assets: logo, banners, photos and screenshots. Drop the sou
 | `banner/` | Wide images for the top of the README, the flasher page and social previews | PNG or JPEG, 1280×640 (GitHub's social preview size) |
 | `photos/` | Photos of the robot, of the build steps and of cats playing with it | JPEG or WebP |
 | `screenshots/` | Screenshots of the Device interface, the flasher and Home Assistant | PNG |
+| `buttons/` | Call-to-action buttons used in the README, such as the install button | SVG |
 
 ## Naming
 
