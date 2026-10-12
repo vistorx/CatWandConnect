@@ -5,7 +5,8 @@ Usage: python tools/flasher_site.py <releases.json> <site-dir>
 <releases.json> is the output of
 `gh release list --json tagName,isPrerelease,isDraft,publishedAt`.
 For each channel it downloads the factory images of the chosen release into
-<site-dir>/<channel>/ and writes a manifest there:
+<site-dir>/<channel>/, splits them into parts that leave the settings
+partition alone (flasher_manifest.split_image) and writes a manifest there:
 
 - stable: the newest release that is not a pre-release;
 - beta: the newest release of any kind (so a stable newer than every beta is
@@ -20,7 +21,7 @@ import os
 import subprocess
 import sys
 
-from flasher_manifest import CHIPS, manifest
+from flasher_manifest import CHIPS, site_manifest
 
 
 def pick_channels(releases):
@@ -42,7 +43,7 @@ def build(releases, site, download):
         os.makedirs(folder, exist_ok=True)
         download(tag, folder)
         with open(os.path.join(folder, "manifest.json"), "w") as f:
-            json.dump(manifest(version), f, indent=2)
+            json.dump(site_manifest(version, folder), f, indent=2)
             f.write("\n")
         channels[channel] = {"version": version, "tag": tag}
     with open(os.path.join(site, "channels.json"), "w") as f:

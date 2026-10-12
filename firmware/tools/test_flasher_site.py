@@ -1,11 +1,31 @@
-"""Checks the flasher channel rules: python tools/test_flasher_site.py"""
+"""Checks the flasher channel rules and image parts: python tools/test_flasher_site.py"""
 
 import json
 import os
+import struct
 import tempfile
 import unittest
 
+from flasher_manifest import CHIPS, split_image
 from flasher_site import build, pick_channels
+
+NVS = (0x9000, 0x5000)
+
+
+def entry(name, kind, subtype, offset, size):
+    return struct.pack("<HBBII16sI", 0x50AA, kind, subtype, offset, size, name.encode(), 0)
+
+
+def factory_image(app_size=0x3000):
+    """A merged image like merge_bin's: bootloader, min_spiffs table, otadata, app."""
+    image = bytearray(b"\xff" * (0x10000 + app_size))
+    image[0x1000:0x1100] = b"\xe9" * 0x100                       # bootloader
+    table = (entry("nvs", 1, 2, *NVS) + entry("otadata", 1, 0, 0xE000, 0x2000) +
+             entry("app0", 0, 0x10, 0x10000, 0x1E0000) + entry("app1", 0, 0x11, 0x1F0000, 0x1E0000))
+    image[0x8000:0x8000 + len(table)] = table
+    image[0xE000:0xE020] = b"\x01" * 0x20                         # otadata
+    image[0x10000:] = b"\xaa" * app_size                          # app
+    return bytes(image)
 
 
 def release(tag, day, pre=False, draft=False):
@@ -34,16 +54,48 @@ class PickChannels(unittest.TestCase):
         self.assertEqual(pick_channels(releases)["stable"], "v0.1.0")
 
 
+class SplitImage(unittest.TestCase):
+    def test_no_part_touches_the_settings_partition(self):
+        start, size = NVS
+        for offset, data in split_image(factory_image()):
+            self.assertTrue(offset + len(data) <= start or offset >= start + size,
+                            f"part at {offset:#x} overlaps NVS")
+
+    def test_parts_rebuild_everything_but_the_settings_partition(self):
+        image = factory_image()
+        rebuilt = bytearray(b"\xff" * len(image))
+        for offset, data in split_image(image):
+            rebuilt[offset:offset + len(data)] = data
+        start, size = NVS
+        self.assertEqual(rebuilt[:start], image[:start])
+        self.assertEqual(rebuilt[start + size:], image[start + size:])
+
+    def test_an_image_without_a_partition_table_is_refused(self):
+        with self.assertRaises(ValueError):
+            split_image(b"\xff" * 0x20000)
+
+
 class Build(unittest.TestCase):
     def test_writes_a_manifest_per_channel_and_the_channel_list(self):
         releases = [release("v0.1.0-beta.1", 12, pre=True)]
         downloaded = []
         with tempfile.TemporaryDirectory() as site:
-            channels = build(releases, site, lambda tag, folder: downloaded.append((tag, folder)))
+            def download(tag, folder):
+                downloaded.append((tag, folder))
+                for env in CHIPS:
+                    with open(os.path.join(folder, f"catwandconnect-{env}-factory.bin"), "wb") as f:
+                        f.write(factory_image())
+
+            channels = build(releases, site, download)
             self.assertEqual(channels, {"beta": {"version": "0.1.0-beta.1", "tag": "v0.1.0-beta.1"}})
             self.assertEqual(downloaded, [("v0.1.0-beta.1", os.path.join(site, "beta"))])
             with open(os.path.join(site, "beta", "manifest.json")) as f:
-                self.assertEqual(json.load(f)["version"], "0.1.0-beta.1")
+                manifest = json.load(f)
+            self.assertEqual(manifest["version"], "0.1.0-beta.1")
+            for chip in manifest["builds"]:
+                for part in chip["parts"]:
+                    self.assertTrue(os.path.exists(os.path.join(site, "beta", part["path"])), part["path"])
+                    self.assertNotEqual(part["offset"], 0x9000)
             with open(os.path.join(site, "channels.json")) as f:
                 self.assertEqual(json.load(f), channels)
             self.assertFalse(os.path.exists(os.path.join(site, "stable")))
