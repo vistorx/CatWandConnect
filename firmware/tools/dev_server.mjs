@@ -37,6 +37,7 @@ let deviceName = 'CatWandConnect';
 let mqtt = { enabled: false, host: '', port: 1883, user: '', passwordSet: false, connected: false, error: '',
   baseTopic: 'catwandconnect/catwandconnect' };
 let pin = '';
+let scanToggle = false;
 const tokens = new Set();
 
 // Mirrors the robot's settings PIN: protected routes need a session token.
@@ -265,7 +266,15 @@ const API = {
   'POST /api/stow': () => { stow(); return [202, {}]; },
   'GET /api/wifi/status': () => [200, { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1',
     host: 'catwandconnect.local' }],
-  'GET /api/wifi/networks': () => [200, { scanning: false, networks: [{ ssid: 'Simulated', rssi: -50, secure: true }] }],
+  'GET /api/wifi/networks': () => {
+    // Answers "scanning" once in two, like the robot's background scan.
+    scanToggle = !scanToggle;
+    if (scanToggle) return [200, { scanning: true }];
+    return [200, { scanning: false, networks: [
+      { ssid: 'Livebox-84B0', rssi: -57, secure: true }, { ssid: 'Simulated', rssi: -50, secure: true },
+      { ssid: 'Guest', rssi: -72, secure: false }, { ssid: 'Simulated', rssi: -80, secure: true },
+      { ssid: 'A very long network name that does not fit on a phone screen', rssi: -90, secure: true }] }];
+  },
 };
 
 const server = createServer(async (request, response) => {
