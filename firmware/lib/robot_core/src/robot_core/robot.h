@@ -135,6 +135,7 @@ class Robot {
   bool atStow() const;
   void rememberRestingPosition();
   void stepCalibration(Axis axis, float dt);
+  void enterCalibrationStep(CalibrationStep step);
   void endCalibration();
 
   MotorDriver& motors_;

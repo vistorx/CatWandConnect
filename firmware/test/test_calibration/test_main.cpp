@@ -28,8 +28,10 @@ struct Rig {
     }
   }
 
-  // Nudges until the axis reaches `degrees`, the way the owner would.
+  // Lets the wand reach the step's starting point, then nudges until the axis
+  // reaches `degrees`, the way the owner would.
   void nudgeTo(Axis axis, float degrees) {
+    run(15000);
     robot.nudge(axis, degrees - robot.position(axis));
     run(15000);
   }
@@ -45,6 +47,7 @@ struct Rig {
     TEST_ASSERT_TRUE(robot.markCalibration().ok());
     nudgeTo(Axis::Vertical, vMax);
     TEST_ASSERT_TRUE(robot.markCalibration().ok());
+    run(15000);
     robot.nudge(Axis::Horizontal, hStow - robot.position(Axis::Horizontal));
     robot.nudge(Axis::Vertical, vStow - robot.position(Axis::Vertical));
     run(15000);
@@ -247,6 +250,44 @@ void test_recalibration_starts_from_the_current_limits() {
   TEST_ASSERT_EQUAL_FLOAT(30, rig.robot.calibrationDraft().axis(Axis::Horizontal).travel.min);
 }
 
+// Each step moves its axis to the value it is about to set, so recalibrating
+// starts from the current limits wherever the wand was left.
+void test_each_step_starts_at_the_value_it_sets() {
+  Rig rig;
+  rig.calibrate(30, 150, 40, 140, 100, 60);
+  rig.robot.confirmCalibration();
+  rig.run(15000);
+  rig.robot.manualGoto(Axis::Horizontal, 145);
+  rig.robot.manualGoto(Axis::Vertical, 135);
+  rig.run(15000);
+
+  rig.robot.startCalibration();
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 30, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_TRUE(rig.robot.markCalibration().ok());
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 150, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_TRUE(rig.robot.markCalibration().ok());
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 40, rig.robot.position(Axis::Vertical));
+  TEST_ASSERT_TRUE(rig.robot.markCalibration().ok());
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 140, rig.robot.position(Axis::Vertical));
+  TEST_ASSERT_TRUE(rig.robot.markCalibration().ok());
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 100, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 60, rig.robot.position(Axis::Vertical));
+  TEST_ASSERT_TRUE(rig.robot.markCalibration().ok());
+}
+
+void test_a_first_calibration_starts_at_the_default_limits() {
+  Rig rig;
+  rig.robot.startCalibration();
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 60, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 90, rig.robot.position(Axis::Vertical));  // other axis untouched
+}
+
 void test_confirm_outside_the_confirm_step_does_nothing() {
   Rig rig;
   rig.robot.startCalibration();
@@ -271,6 +312,8 @@ int main() {
   RUN_TEST(test_cancel_keeps_the_previous_settings_and_stows);
   RUN_TEST(test_stow_and_manual_control_abandon_calibration);
   RUN_TEST(test_recalibration_starts_from_the_current_limits);
+  RUN_TEST(test_each_step_starts_at_the_value_it_sets);
+  RUN_TEST(test_a_first_calibration_starts_at_the_default_limits);
   RUN_TEST(test_confirm_outside_the_confirm_step_does_nothing);
   return UNITY_END();
 }
