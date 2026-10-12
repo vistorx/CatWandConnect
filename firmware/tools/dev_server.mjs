@@ -37,6 +37,8 @@ let deviceName = 'CatWandConnect';
 let mqtt = { enabled: false, host: '', port: 1883, user: '', passwordSet: false, connected: false, error: '',
   baseTopic: 'catwandconnect/catwandconnect' };
 let pin = '';
+let wrongPins = 0;
+let lockedUntil = 0;  // simulated lockout: 30 s after 5 wrong PINs
 let scanToggle = false;
 const tokens = new Set();
 
@@ -225,7 +227,15 @@ const API = {
   'GET /api/info': () => [200, info()],
   'GET /api/auth': (body, url, request) => [200, { enabled: !!pin, authorized: authorized(request), lockedFor: 0 }],
   'POST /api/auth/unlock': body => {
-    if (!pin || body.pin !== pin) return [401, { error: 'wrong_pin' }];
+    if (Date.now() < lockedUntil) return [429, { error: 'locked_out', retryAfter: Math.ceil((lockedUntil - Date.now()) / 1000) }];
+    if (!pin || body.pin !== pin) {
+      if (++wrongPins >= 5) {
+        lockedUntil = Date.now() + 30000;
+        return [429, { error: 'wrong_pin', retryAfter: 30 }];
+      }
+      return [401, { error: 'wrong_pin' }];
+    }
+    wrongPins = 0;
     const token = Math.random().toString(16).slice(2);
     tokens.add(token);
     return [200, { token }];
