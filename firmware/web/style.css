@@ -136,6 +136,39 @@ button.primary {
 
 button:disabled { opacity: .5; }
 
+button.text-button {
+  padding: .25rem 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.networks-head { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.networks {
+  list-style: none;
+  margin: .3rem 0 0;
+  padding: 0;
+  max-height: 16rem;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: .5rem;
+}
+.networks li + li { border-top: 1px solid var(--line); }
+.networks button {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: .75rem;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+}
+.networks button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.network-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.network-signal { flex: none; letter-spacing: -.1em; }
+.networks-note { padding: .75rem; color: var(--muted); }
+
 .slider {
   width: 100%;
   display: grid;

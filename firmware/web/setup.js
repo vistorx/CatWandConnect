@@ -2,16 +2,72 @@
 const $ = id => document.getElementById(id);
 const say = (key, vars) => { $('status').textContent = I18n.t(key, vars); };
 
-async function scan() {
-  const result = await (await fetch('/api/wifi/networks')).json();
-  if (result.scanning) return setTimeout(scan, 1500);
+// Signal bars from RSSI: -55 dBm and above is excellent, -85 and below weak.
+const bars = rssi => (rssi >= -55 ? 4 : rssi >= -67 ? 3 : rssi >= -78 ? 2 : 1);
+
+function note(key) {
+  const item = document.createElement('li');
+  item.className = 'networks-note';
+  item.textContent = I18n.t(key);
+  $('networks').replaceChildren(item);
+}
+
+function pick(ssid, focus = true) {
+  $('ssid').value = ssid;
+  for (const button of $('networks').querySelectorAll('button')) {
+    button.setAttribute('aria-pressed', String(button.dataset.ssid === ssid));
+  }
+  if (focus) $('password').focus();
+}
+
+function show(networks) {
   const seen = new Set();
-  for (const network of result.networks.sort((a, b) => b.rssi - a.rssi)) {
+  const items = [];
+  for (const network of networks.sort((a, b) => b.rssi - a.rssi)) {
     if (!network.ssid || seen.has(network.ssid)) continue;
     seen.add(network.ssid);
-    $('networks').append(new Option(network.ssid));
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.ssid = network.ssid;
+    button.setAttribute('aria-pressed', String(network.ssid === $('ssid').value));
+    const name = document.createElement('span');
+    name.className = 'network-name';
+    name.textContent = network.ssid;
+    const signal = document.createElement('span');
+    signal.className = 'network-signal';
+    signal.textContent = `${network.secure ? '🔒 ' : ''}${'▂▄▆█'.slice(0, bars(network.rssi))}`;
+    signal.title = `${network.rssi} dBm`;
+    button.append(name, signal);
+    button.addEventListener('click', () => pick(network.ssid));
+    const item = document.createElement('li');
+    item.append(button);
+    items.push(item);
   }
+  if (items.length === 0) return note('setup.none');
+  $('networks').replaceChildren(...items);
+  // Preselect the strongest network when nothing is chosen yet.
+  if (!$('ssid').value) pick(items[0].firstChild.dataset.ssid, false);
 }
+
+async function scan() {
+  $('rescan').disabled = true;
+  note('setup.scanning');
+  try {
+    for (;;) {
+      const result = await (await fetch('/api/wifi/networks')).json();
+      if (!result.scanning) {
+        show(result.networks);
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+  } catch {
+    note('setup.scanFailed');
+  }
+  $('rescan').disabled = false;
+}
+
+$('rescan').addEventListener('click', scan);
 
 async function watch() {
   const status = await (await fetch('/api/wifi/status')).json();
@@ -52,5 +108,4 @@ $('form').addEventListener('submit', async event => {
   setTimeout(watch, 2000);
 });
 
-I18n.load();
-scan();
+I18n.load().then(scan);

@@ -19,9 +19,13 @@
 <main class="form-page">
   <p data-i18n="setup.intro"></p>
   <form id="form">
+    <div class="networks-head">
+      <span data-i18n="setup.nearby"></span>
+      <button type="button" id="rescan" class="text-button" data-i18n="setup.rescan"></button>
+    </div>
+    <ul id="networks" class="networks" aria-live="polite"></ul>
     <label for="ssid" data-i18n="setup.network"></label>
-    <input id="ssid" name="ssid" list="networks" autocomplete="off" required>
-    <datalist id="networks"></datalist>
+    <input id="ssid" name="ssid" autocomplete="off" autocapitalize="off" spellcheck="false" required>
     <label for="password" data-i18n="setup.password"></label>
     <input id="password" name="password" type="password" autocomplete="off">
     <button id="connect" class="primary" data-i18n="setup.connect"></button>
