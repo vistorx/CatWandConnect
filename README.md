@@ -109,7 +109,15 @@ The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertic
 5. **Play.** Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
 6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. Use your browser's "Add to Home Screen" for an app-like icon.
 
-Something wrong? See [Troubleshooting](docs/troubleshooting.md).
+Something wrong? See [Troubleshooting](docs/troubleshooting.md), then [Getting help](SUPPORT.md).
+
+## Get help
+
+- **Questions, build help, show your robot:** the [CatWandConnect Discord](https://discord.gg/Rbqge3v9dk). No GitHub account needed; English, French and other languages welcome.
+- **Found a bug?** [Open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose), or post it in `#support` on Discord if you don't have a GitHub account.
+- **Security problem?** Report it [privately](SECURITY.md), never in public.
+
+There is no guaranteed response time: CatWandConnect is maintained in spare time. See [SUPPORT.md](SUPPORT.md) for what to include.
 
 ## Documentation
 
@@ -122,6 +130,8 @@ Something wrong? See [Troubleshooting](docs/troubleshooting.md).
 | [Acceptance checklist](docs/acceptance-checklist.md) | What to check on the real robot before each release |
 | [Releasing](docs/releasing.md) | Publishing a version and the web flasher |
 | [Media](media/README.md) | Logo, banners, photos and screenshots, and how to add them |
+| [Getting help](SUPPORT.md) · [Security](SECURITY.md) | Where to ask, how to report a bug or a vulnerability |
+| [Discord server](docs/discord.md) | How the community server is organised, for maintainers |
 | [Glossary](CONTEXT.md) | The words the project uses: Stow, Travel limits, Calibration… |
 | [Decisions](docs/adr/) | Why things are the way they are |
 

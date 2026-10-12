@@ -53,3 +53,13 @@ The current reference Mechanism, reinforced with a 608 skateboard bearing and a 
 **Release channel**:
 Which firmware releases a user is offered: **Stable** (`vX.Y.Z`, the default) or **Beta** (`vX.Y.Z-beta.N` pre-releases, tested on real robots before going stable).
 _Avoid_: Nightly, dev build, preview (a dev build is an untagged local or CI build, not a channel)
+
+## Support
+
+**Diagnostic report**:
+The text the robot generates about itself to diagnose a problem: firmware version, chip, last reset reason, settings, Calibration, Wi-Fi and MQTT state, and recent log lines. Redacted (Wi-Fi name, IP and MAC addresses, broker address and credentials) whenever it is sent to support.
+_Avoid_: Crash report, dump, telemetry (the robot never sends anything by itself)
+
+**Support relay**:
+A small online service that receives a Diagnostic report from the user's browser and creates the GitHub issue, so people without a GitHub account can report bugs. It holds the secrets the open-source firmware cannot.
+_Avoid_: Backend, cloud, server (the robot has none)

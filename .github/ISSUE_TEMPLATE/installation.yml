@@ -1,0 +1,68 @@
+name: Installation problem
+description: The web flasher can't find the board, the install fails, or the robot doesn't start after installing.
+labels: ["installation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English or French welcome (le français est bienvenu).
+        First check [Installing with the web flasher](https://github.com/vistorx/CatWandConnect/blob/main/docs/troubleshooting.md#installing-with-the-web-flasher): another USB cable and the right USB driver fix most cases.
+  - type: dropdown
+    id: step
+    attributes:
+      label: Where does it stop?
+      options:
+        - The board doesn't show up in the port list
+        - The install starts but fails
+        - The install finishes but the robot doesn't start
+        - I can't set up the Wi-Fi after installing
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, and the exact error message if there was one.
+    validations:
+      required: true
+  - type: input
+    id: board
+    attributes:
+      label: Board
+      description: The board's name or a link to where you bought it, and the marking on the small chip next to its USB connector (CH340, CH9102, CP2102…).
+      placeholder: ESP32 DevKit with a CH9102F chip
+    validations:
+      required: true
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Chip
+      options:
+        - ESP32
+        - ESP32-S3
+        - ESP32-C3
+        - I don't know
+    validations:
+      required: true
+  - type: dropdown
+    id: channel
+    attributes:
+      label: Release channel picked in the web flasher
+      options:
+        - Stable
+        - Beta
+        - I didn't see a choice
+  - type: input
+    id: computer
+    attributes:
+      label: Computer and browser
+      placeholder: Windows 11, Chrome 141
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log
+      description: Optional. The web flasher's messages, or its Logs & Console output. You can also drag a .txt file or a screenshot here.
+      render: text
