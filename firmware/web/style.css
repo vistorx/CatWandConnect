@@ -303,6 +303,9 @@ button.secondary {
 }
 .full-report { margin-top: 1.5rem; color: var(--muted); }
 .full-report summary { cursor: pointer; }
+.advanced { margin-top: .75rem; }
+.advanced summary { cursor: pointer; font-weight: 600; }
+.advanced .hint .text-button { margin-left: .25rem; }
 .full-report .hint { margin: .5rem 0; }
 
 .field.wide { grid-template-columns: minmax(6rem, 38%) minmax(0, 1fr); }
