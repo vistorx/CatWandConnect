@@ -20,7 +20,7 @@ Start each section from a board with no saved Wi-Fi: erase it with `pio run -e <
 
 - [ ] With no saved Wi-Fi, a `CatWandConnect-XXXX` network appears within a few seconds of power-up.
 - [ ] Joining it from a phone opens the setup page automatically, on both iOS and Android. If not, `http://192.168.4.1/` opens it.
-- [ ] The network field suggests nearby networks.
+- [ ] The setup page lists nearby networks, strongest first and preselected, with a lock on secured ones. Tapping one fills the network name; "Rescan" searches again; a hidden network can still be typed.
 - [ ] A wrong password shows "Could not connect" and the hotspot stays up.
 - [ ] The right password shows "Connected" with the robot's address. The hotspot disappears about 30 s later.
 - [ ] Rebooting reconnects to that network without the hotspot.
