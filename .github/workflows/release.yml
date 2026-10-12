@@ -87,6 +87,7 @@ jobs:
           v="0.0.0-dev+${GITHUB_SHA::7}"
           mkdir -p site/beta
           cp flasher/index.html site/
+          cp -r media site/
           cp dist/*-factory.bin site/beta/
           python firmware/tools/flasher_manifest.py "$v" site/beta/manifest.json
           echo "{\"beta\": {\"version\": \"$v\", \"tag\": \"\"}}" > site/channels.json
@@ -139,6 +140,7 @@ jobs:
           gh release list --limit 100 --json tagName,isPrerelease,isDraft,publishedAt > releases.json
           mkdir -p site
           cp flasher/index.html site/
+          cp -r media site/
           python firmware/tools/flasher_site.py releases.json site
       - uses: actions/upload-pages-artifact@v3
         with:
