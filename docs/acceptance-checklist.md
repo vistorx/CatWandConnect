@@ -74,7 +74,8 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 ## Calibration
 
 - [ ] On a robot that was never calibrated, the main screen shows the "Not calibrated yet" banner, and the joystick is limited to 60°–120°.
-- [ ] The wizard walks through Horizontal first end, Horizontal other end, Vertical first end, Vertical other end, Stow, sweep, confirm, showing "Step n of 6".
+- [ ] The wizard walks through Horizontal minimum, Horizontal maximum, Vertical minimum, Vertical maximum, Stow, sweep, confirm, showing "Step n of 6".
+- [ ] From the second step on, "Marked so far" shows the values already marked; the Stow step shows each axis's allowed range; a maximum below the minimum names the minimum in the error.
 - [ ] The ±1° and ±5° buttons move only the step's axis, slowly, and the position on screen follows.
 - [ ] The nudges can go beyond 60°–120°.
 - [ ] Marking a maximum at or below its minimum shows an error and stays on the step.
