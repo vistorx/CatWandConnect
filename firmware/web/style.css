@@ -328,3 +328,37 @@ button.secondary {
 
 #firmware input[type="file"] { width: 100%; margin-top: .75rem; }
 progress { width: 100%; height: .6rem; margin-top: .75rem; accent-color: var(--accent); }
+
+/* Phone held sideways: joystick on the left sized to the height, everything
+   else on the right, Stow under it; nothing to scroll. */
+@media (orientation: landscape) and (max-height: 500px) {
+  header {
+    max-width: 52rem;
+    padding: max(.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) .5rem max(1rem, env(safe-area-inset-left));
+  }
+  main {
+    max-width: 52rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    align-items: center;
+    column-gap: 2rem;
+    row-gap: .75rem;
+    padding: 0 max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left));
+  }
+  main > * { grid-column: 2; }
+  .joystick {
+    grid-column: 1;
+    grid-row: 1 / span 5;
+    width: min(calc(100vh - 4.5rem), 18rem);
+    width: min(calc(100dvh - 4.5rem), 18rem);
+  }
+  .hint { margin: 0; }
+  .stow-bar {
+    left: auto;
+    width: min(calc(100vw - min(calc(100dvh - 4.5rem), 18rem) - 4rem), 26rem);
+    padding: .75rem max(1rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) 0;
+    background: none;
+  }
+  .stow { padding: .8rem; }
+}

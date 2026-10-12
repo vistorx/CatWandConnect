@@ -4,7 +4,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 ## Play
 
-- **Phone joystick.** Open `http://catwandconnect.local/` in any browser on your Wi-Fi and drag the joystick: the wand follows in real time. A small drag moves it slowly; a full drag moves it at full speed. Let go and it stops.
+- **Phone joystick.** Open `http://catwandconnect.local/` in any browser on your Wi-Fi and drag the joystick: the wand follows in real time. A small drag moves it slowly; a full drag moves it at full speed. Let go and it stops. Works with the phone upright or sideways.
 - **Speed slider.** Set how lively the wand is, from a slow crawl to full speed, right on the main screen. Every open phone stays in sync.
 - **Live position.** The main screen shows where each axis is.
 - **Several phones at once.** Anyone on your Wi-Fi can open the interface and watch or play.
