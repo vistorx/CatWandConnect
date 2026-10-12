@@ -17,17 +17,49 @@ const NUDGES = [-5, -1, 1, 5];
 
 let step = null;
 let position = { horizontal: null, vertical: null };
+let draft = null;  // values recorded so far, from /api/calibration
+
+// Steps already marked in this Calibration, before `step`.
+const ORDER = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max', 'stow'];
 
 async function call(action, extra = {}) {
   const { ok, data: result } = await Api.call('POST', '/api/calibration', { action, ...extra });
   if (result.error === 'pin_required') return;
   if (!ok) {
     const axis = result.axis ? I18n.t(`axis.${result.axis}`) : '';
-    say('error', I18n.t(`error.${result.error}`, { axis }));
+    if (result.error === 'travel_order' && draft && result.axis) {
+      say('error', I18n.t('error.travel_order_at', { axis, min: Math.round(draft[result.axis].min) }));
+    } else {
+      say('error', I18n.t(`error.${result.error}`, { axis }));
+    }
     return;
   }
   say('', '');
+  if (result.draft) draft = result.draft;
   show(result.step);
+  renderMarked();
+}
+
+// Recalls the values marked at earlier steps, and the limits on the Stow step.
+function renderMarked() {
+  const box = $('marked');
+  const done = ORDER.slice(0, Math.max(0, ORDER.indexOf(step)));
+  if (!draft || !done.length) {
+    box.hidden = true;
+    return;
+  }
+  const items = [];
+  for (const axis of ['horizontal', 'vertical']) {
+    const min = done.includes(`${axis}_min`);
+    const max = done.includes(`${axis}_max`);
+    if (!min && !max) continue;
+    const value = min && max
+      ? I18n.t('calibration.range', { min: Math.round(draft[axis].min), max: Math.round(draft[axis].max) })
+      : `${I18n.t(min ? 'calibration.min' : 'calibration.max')} ${Math.round(draft[axis][min ? 'min' : 'max'])}°`;
+    items.push(`<li><strong>${I18n.t(`axis.${axis}`)}</strong> ${value}</li>`);
+  }
+  box.innerHTML = `<h3>${I18n.t('calibration.marked')}</h3><ul>${items.join('')}</ul>`;
+  box.hidden = false;
 }
 
 function say(kind, text) {
@@ -47,6 +79,7 @@ function show(next) {
   $('nudges').innerHTML = info.axes.map(axis => `
     <fieldset>
       <legend>${I18n.t(`axis.${axis}`)} <output id="pos-${axis}"></output></legend>
+      ${step === 'stow' && draft ? `<p class="hint">${I18n.t('calibration.limits', { min: Math.round(draft[axis].min), max: Math.round(draft[axis].max) })}</p>` : ''}
       <div class="nudge-row">
         ${NUDGES.map(d => `<button type="button" class="secondary" data-axis="${axis}" data-degrees="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)}°</button>`).join('')}
       </div>
@@ -104,13 +137,18 @@ function connect() {
     if (state.t !== 'state') return;
     position = { horizontal: state.h, vertical: state.v };
     renderPositions();
-    show(state.calibration);
+    if (state.calibration !== step) {
+      show(state.calibration);
+      fetch('/api/calibration').then(r => r.json()).then(c => { draft = c.draft; renderMarked(); }).catch(() => {});
+    }
   };
   socket.onclose = () => setTimeout(connect, 2000);
 }
 
 I18n.load().then(async () => {
   const calibration = await (await fetch('/api/calibration')).json();
+  draft = calibration.draft;
   show(calibration.step);
+  renderMarked();
   connect();
 });
