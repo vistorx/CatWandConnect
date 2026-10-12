@@ -18,6 +18,7 @@
   "setup.connecting": "Connexion…",
   "setup.failed": "Connexion impossible. Vérifiez le nom du réseau et le mot de passe.",
   "setup.connected": "Connecté à {ssid}. Revenez sur votre Wi-Fi habituel, puis ouvrez http://{host}/ ou http://{ip}/",
+  "setup.lost": "Le robot ne répond plus. Si son hotspot est toujours là, reconnectez-vous-y et réessayez. Sinon, il est peut-être déjà sur votre Wi-Fi : revenez sur votre Wi-Fi habituel et ouvrez http://{host}/",
   "nav.settings": "Réglages",
   "nav.back": "Retour",
   "speed.label": "Vitesse",

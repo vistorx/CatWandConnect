@@ -18,6 +18,7 @@
   "setup.connecting": "Connecting…",
   "setup.failed": "Could not connect. Check the network name and password.",
   "setup.connected": "Connected to {ssid}. Rejoin your home Wi-Fi, then open http://{host}/ or http://{ip}/",
+  "setup.lost": "No answer from the robot. If its hotspot is still listed, rejoin it and try again. Otherwise it may already be on your Wi-Fi: rejoin your home Wi-Fi and open http://{host}/",
   "nav.settings": "Settings",
   "nav.back": "Back",
   "speed.label": "Speed",

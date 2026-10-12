@@ -69,12 +69,27 @@ async function scan() {
 
 $('rescan').addEventListener('click', scan);
 
+// While the robot tries a network its radio leaves the hotspot's channel, so
+// some status requests fail: keep asking until an answer or the deadline.
+const WATCH_LIMIT_MS = 60000;
+let watchUntil = 0;
+let host = location.host;  // replaced by the robot's .local name once known
+
 async function watch() {
-  const status = await (await fetch('/api/wifi/status')).json();
-  if (status.mode === 'connected') {
+  let status = null;
+  try {
+    status = await (await fetch('/api/wifi/status', { cache: 'no-store' })).json();
+  } catch {
+    // The robot is busy trying the network, or the phone left the hotspot.
+  }
+  if (status && status.host) host = status.host;
+  if (status && status.mode === 'connected') {
     say('setup.connected', { ssid: status.ssid, host: status.host, ip: status.ip });
-  } else if (status.failed) {
+  } else if (status && status.failed) {
     say('setup.failed');
+    $('connect').disabled = false;
+  } else if (Date.now() > watchUntil) {
+    say('setup.lost', { host });
     $('connect').disabled = false;
   } else {
     setTimeout(watch, 2000);
@@ -105,7 +120,9 @@ $('form').addEventListener('submit', async event => {
     $('connect').disabled = false;
     return;
   }
+  watchUntil = Date.now() + WATCH_LIMIT_MS;
   setTimeout(watch, 2000);
 });
 
 I18n.load().then(scan);
+fetch('/api/wifi/status').then(r => r.json()).then(status => { host = status.host || host; }).catch(() => {});
