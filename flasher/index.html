@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CatWandConnect flasher</title>
+<link rel="icon" type="image/png" href="media/logo/logo-64.png">
+<link rel="apple-touch-icon" href="media/logo/logo-320.png">
 <meta name="description" content="Install the CatWandConnect firmware on an ESP32 from your browser.">
 <script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"></script>
 <style>
@@ -18,8 +20,11 @@
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, sans-serif; color: var(--fg); background: var(--bg); line-height: 1.5; }
   main { max-width: 40rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
-  h1 { font-size: 2rem; margin: 0 0 .25rem; }
-  .lead { color: var(--muted); margin: 0 0 2rem; font-size: 1.1rem; }
+  .brand { text-align: center; margin-bottom: 2rem; }
+  .brand img { width: 10rem; height: 10rem; border-radius: 2rem; display: block; margin: 0 auto 1rem;
+    box-shadow: 0 2px 12px rgb(0 0 0 / .08); }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .lead { color: var(--muted); margin: 0; font-size: 1.1rem; }
   section { background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
   h2 { font-size: 1.1rem; margin: 0 0 .5rem; }
   ol, ul { margin: .25rem 0; padding-left: 1.25rem; }
@@ -44,8 +49,11 @@
 </head>
 <body>
 <main>
-  <h1>CatWandConnect</h1>
-  <p class="lead" data-t="lead">Install the cat toy robot's firmware on an ESP32, straight from your browser.</p>
+  <header class="brand">
+    <img src="media/logo/logo-320.png" alt="" width="160" height="160">
+    <h1 class="visually-hidden">CatWandConnect</h1>
+    <p class="lead" data-t="lead">Install the cat toy robot's firmware on an ESP32, straight from your browser.</p>
+  </header>
 
   <section class="install">
     <div class="channels" id="channels" role="radiogroup" hidden>
