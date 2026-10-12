@@ -45,6 +45,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] While moving, switching off the phone's Wi-Fi or closing the tab stops the wand within about a second.
 - [ ] A second phone on the main screen sees the positions move too.
 - [ ] The page is usable on a phone in portrait orientation, without zooming or scrolling the joystick off screen.
+- [ ] In landscape, the joystick, positions, speed slider and Stow fit on screen without scrolling; dragging the joystick never scrolls the page.
 
 ## Speed and settings
 
