@@ -31,6 +31,13 @@
     border: 0; border-radius: .75rem; padding: .9rem 1.75rem; cursor: pointer;
   }
   .unsupported { color: var(--muted); }
+  .channels { display: inline-flex; border: 1px solid var(--line); border-radius: .75rem; overflow: hidden; margin-bottom: 1.25rem; }
+  .channels[hidden] { display: none; }
+  .channels label { padding: .45rem 1.1rem; cursor: pointer; }
+  .channels input { position: absolute; opacity: 0; }
+  .channels label:has(input:checked) { background: var(--accent); color: #fff; font-weight: 600; }
+  .beta-note { color: var(--muted); font-size: .9rem; margin: 0 0 1.25rem; }
+  .beta-note[hidden] { display: none; }
   a { color: var(--accent); }
   code { font-size: .9em; }
 </style>
@@ -41,7 +48,12 @@
   <p class="lead" data-t="lead">Install the cat toy robot's firmware on an ESP32, straight from your browser.</p>
 
   <section class="install">
-    <esp-web-install-button manifest="manifest.json">
+    <div class="channels" id="channels" role="radiogroup" hidden>
+      <label><input type="radio" name="channel" value="stable"><span data-t="stable">Stable</span></label>
+      <label><input type="radio" name="channel" value="beta"><span data-t="beta">Beta</span></label>
+    </div>
+    <p class="beta-note" id="beta-note" data-t="betaNote" hidden>Beta versions get the newest changes first and may still have bugs.</p>
+    <esp-web-install-button id="installer">
       <button slot="activate" data-t="install">Connect and install</button>
       <span slot="unsupported" class="unsupported" data-t="unsupported">Your browser can't talk to USB devices. Use Chrome or Edge on a computer.</span>
       <span slot="not-allowed" class="unsupported" data-t="notAllowed">This page must be opened over HTTPS.</span>
@@ -92,6 +104,10 @@
     step4: "Choisissez « Visit device » pour ouvrir l'interface du robot. Ensuite, elle est sur http://catwandconnect.local/.",
     later: "Wi-Fi sauté ? Le robot ouvre son propre hotspot CatWandConnect-XXXX avec une page de configuration.",
     moreTitle: "Pour aller plus loin",
+    stable: "Stable",
+    beta: "Bêta",
+    betaNote: "Les versions bêta reçoivent les nouveautés en premier et peuvent encore contenir des bugs.",
+    firmware: "Firmware",
   };
   if ((navigator.language || '').toLowerCase().startsWith('fr')) {
     document.documentElement.lang = 'fr';
@@ -101,8 +117,27 @@
     document.querySelector('[data-t="more"]').innerHTML =
       'Pièces, câblage, montage et aide : voir le <a href="https://github.com/vistorx/CatWandConnect">dépôt du projet</a>.';
   }
-  fetch('manifest.json').then(r => r.json()).then(m => {
-    document.getElementById('version').textContent = `Firmware ${m.version}`;
+  // channels.json lists the published channels: {"stable": {"version": …}, "beta": {…}}.
+  // Stable is the default; before the first stable release only Beta exists.
+  const fr = document.documentElement.lang === 'fr';
+  const label = (key, en) => (fr && FR[key]) || en;
+  fetch('channels.json').then(r => r.json()).then(channels => {
+    const names = ['stable', 'beta'].filter(c => channels[c]);
+    if (!names.length) return;
+    const picker = document.getElementById('channels');
+    const select = channel => {
+      document.getElementById('installer').setAttribute('manifest', `${channel}/manifest.json`);
+      document.getElementById('beta-note').hidden = channel !== 'beta';
+      document.getElementById('version').textContent =
+        `${label('firmware', 'Firmware')} ${channels[channel].version} (${label(channel, channel === 'beta' ? 'Beta' : 'Stable')})`;
+    };
+    for (const input of picker.querySelectorAll('input')) {
+      if (!channels[input.value]) input.parentElement.hidden = true;
+      input.addEventListener('change', () => select(input.value));
+    }
+    picker.hidden = names.length < 2;
+    picker.querySelector(`input[value="${names[0]}"]`).checked = true;
+    select(names[0]);
   }).catch(() => {});
 </script>
 </body>

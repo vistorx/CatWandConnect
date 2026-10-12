@@ -1,12 +1,21 @@
 name: Release
 
-# A vX.Y.Z tag builds every chip, publishes a GitHub release and updates the
-# web flasher. Running it by hand builds the same files as a dry run, without
-# publishing anything.
+# A vX.Y.Z tag publishes a stable release, a vX.Y.Z-beta.N tag a pre-release.
+# Both build every chip and republish the web flasher with its Stable and Beta
+# channels. Running it by hand is a dry run that publishes nothing, unless
+# "Republish the web flasher" is ticked: that only rebuilds the flasher from
+# the existing releases.
 on:
   push:
-    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+"
   workflow_dispatch:
+    inputs:
+      publish_flasher:
+        description: Republish the web flasher from the existing releases
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -14,6 +23,7 @@ permissions:
 jobs:
   test:
     name: Robot core tests
+    if: ${{ !inputs.publish_flasher }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,6 +36,7 @@ jobs:
       - run: pip install platformio
       - run: pio test -e native
       - run: node tools/check_lang.mjs
+      - run: python tools/test_flasher_site.py
 
   build:
     name: Build ${{ matrix.env }}
@@ -58,8 +69,10 @@ jobs:
           name: firmware-${{ matrix.env }}
           path: dist/
 
-  site:
-    name: Flasher site
+  preview:
+    name: Flasher preview
+    # Dry run only: the flasher with this build as its Beta channel, kept as an artifact.
+    if: github.ref_type != 'tag'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -71,19 +84,21 @@ jobs:
           path: dist/
       - name: Assemble
         run: |
-          if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="0.0.0-dev+${GITHUB_SHA::7}"; fi
-          mkdir -p site
+          v="0.0.0-dev+${GITHUB_SHA::7}"
+          mkdir -p site/beta
           cp flasher/index.html site/
-          cp dist/*-factory.bin site/
-          python firmware/tools/flasher_manifest.py "$v" site/manifest.json
-      - uses: actions/upload-pages-artifact@v3
+          cp dist/*-factory.bin site/beta/
+          python firmware/tools/flasher_manifest.py "$v" site/beta/manifest.json
+          echo "{\"beta\": {\"version\": \"$v\", \"tag\": \"\"}}" > site/channels.json
+      - uses: actions/upload-artifact@v4
         with:
+          name: flasher-preview
           path: site/
 
   release:
     name: GitHub release
     if: github.ref_type == 'tag'
-    needs: site
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -97,19 +112,36 @@ jobs:
         with:
           files: dist/*.bin
           generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          make_latest: ${{ !contains(github.ref_name, '-') }}
 
   pages:
     name: Publish the web flasher
     # GitHub Pages needs a public repository (or a paid plan).
-    if: github.ref_type == 'tag' && !github.event.repository.private
+    if: >-
+      always() && !github.event.repository.private &&
+      (needs.release.result == 'success' || (needs.release.result == 'skipped' && inputs.publish_flasher))
     needs: release
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - name: Assemble the Stable and Beta channels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --limit 100 --json tagName,isPrerelease,isDraft,publishedAt > releases.json
+          mkdir -p site
+          cp flasher/index.html site/
+          python firmware/tools/flasher_site.py releases.json site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
       - id: deploy
         uses: actions/deploy-pages@v4

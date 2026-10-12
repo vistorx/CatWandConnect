@@ -4,7 +4,7 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
-> **Status: V1 feature-complete, not yet released.** Every V1 feature is implemented and tested automatically, but the firmware has not yet been validated on the real robot. The first release follows the hardware checks in the [acceptance checklist](docs/acceptance-checklist.md).
+> **Status: V1 in beta.** Every V1 feature is implemented and tested automatically. The firmware is now being validated on the real robot as beta releases, against the [acceptance checklist](docs/acceptance-checklist.md). The first stable release follows once it passes.
 
 ## What it does
 
@@ -61,7 +61,7 @@ The retired Mk1 is kept in [`archive/`](archive/) for reference only. Its vertic
 
 ### Install the firmware
 
-**From your browser:** open the [web flasher](https://vistorx.github.io/CatWandConnect/) in Chrome or Edge on a computer, plug the board in over USB and press **Connect and install**. The right firmware for your chip is picked automatically. Then enter your Wi-Fi when asked.
+**From your browser:** open the [web flasher](https://vistorx.github.io/CatWandConnect/) in Chrome or Edge on a computer, plug the board in over USB and press **Connect and install**. The right firmware for your chip is picked automatically. Then enter your Wi-Fi when asked. Until the first stable release, the flasher offers beta versions only.
 
 **From source**, with [PlatformIO](https://platformio.org/):
 

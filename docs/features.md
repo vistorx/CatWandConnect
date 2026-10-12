@@ -21,7 +21,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 ## Setup
 
-- **Web flasher.** Install the firmware from Chrome or Edge on a computer in one click, with no tools to install. The right file for your chip is picked automatically.
+- **Web flasher.** Install the firmware from Chrome or Edge on a computer in one click, with no tools to install. The right file for your chip is picked automatically. Choose the Stable or Beta channel.
 - **Wi-Fi in two ways.** Enter your Wi-Fi in the web flasher right after installing, or join the robot's own `CatWandConnect-XXXX` hotspot, whose setup page opens by itself.
 - **Self-healing Wi-Fi.** If your router disappears, the hotspot comes back; the robot keeps retrying your network and leaves the hotspot as soon as it returns.
 - **Calibration wizard.** A step-by-step guide to set the Travel limits and Stow position for your build: nudge each axis to its ends, pick the rest position, then watch a slow test sweep before saving. Cancel at any time to keep the previous values.
@@ -38,6 +38,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 - **Firmware updates from the browser.** Upload the new file in Settings. Settings and Calibration are kept, and if the upload fails or is interrupted the robot keeps its current firmware.
 - **Releases.** Each version is published with ready-made files for every supported chip.
+- **Stable and Beta channels.** Stable versions are for everyone. Beta versions get new changes first so they can be tested on real robots; the web flasher lets you pick either one.
 
 ## Integrations
 
