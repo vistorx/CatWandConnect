@@ -2,6 +2,27 @@
 
 When something goes wrong, open the serial monitor first. Plug the board in over USB and run `pio device monitor` from `firmware/` (115200 baud). The robot logs what it is doing, for example `[wifi] connected, open http://192.168.1.20/`.
 
+## Installing with the web flasher
+
+**The board doesn't show up in the port list.**
+Work through these in order:
+
+1. **Try another USB cable.** Many cables only carry power; you need one that carries data. Plug straight into the computer, not through a hub.
+2. **Find the USB chip.** It is the small chip next to the board's USB connector; its marking says which driver you need. Boards whose USB goes straight to an ESP32-S3 or ESP32-C3 (no chip next to the connector) need no driver.
+3. **Install its driver**, then unplug and replug the board and reopen the port list:
+
+   | Chip marking | Windows | macOS |
+   |--------------|---------|-------|
+   | **CH340**, CH341 | [CH341SER.EXE](https://www.wch-ic.com/downloads/CH341SER_EXE.html) | [CH34XSER_MAC.ZIP](https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html) |
+   | **CH9102**, CH343 | [CH343SER.EXE](https://www.wch-ic.com/downloads/CH343SER_EXE.html) | [CH34XSER_MAC.ZIP](https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html) |
+   | **CP2102**, CP2104, CP210x | [CP210x VCP drivers](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers) | same page, macOS package |
+
+   Linux and ChromeOS include these drivers. On macOS, allow the driver in **System Settings → Privacy & Security** after installing it.
+4. **Still nothing?** Hold the board's **BOOT** button while plugging it in, then try again. Espressif's guide to [checking the serial connection](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/establish-serial-connection.html) helps find the port by hand.
+
+**"Failed to initialize" or the install stops halfway.**
+Close any other program using the port (serial monitor, Arduino IDE, another browser tab), hold **BOOT**, and press Connect and install again.
+
 ## Wi-Fi
 
 **I can't find the `CatWandConnect-XXXX` hotspot.**
