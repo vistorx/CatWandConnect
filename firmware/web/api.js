@@ -69,13 +69,39 @@ const Api = (() => {
           dialog.close('ok');
           return;
         }
-        message.textContent = result.retryAfter
-          ? I18n.t('pin.locked', { seconds: result.retryAfter })
-          : I18n.t('pin.wrong');
         input.value = '';
-        input.focus();
+        if (result.retryAfter) {
+          lockFor(result.retryAfter);
+        } else {
+          message.textContent = I18n.t('pin.wrong');
+          input.focus();
+        }
       });
+      // Counts the lockout down on screen; the robot refuses tries until then.
+      let countdown = null;
+      const unlockButton = dialog.querySelector('button[value="ok"]');
+      function lockFor(seconds) {
+        clearInterval(countdown);
+        const until = Date.now() + seconds * 1000;
+        const tick = () => {
+          const left = Math.ceil((until - Date.now()) / 1000);
+          if (left <= 0) {
+            clearInterval(countdown);
+            message.textContent = '';
+            unlockButton.disabled = false;
+            input.disabled = false;
+            input.focus();
+            return;
+          }
+          message.textContent = I18n.t('pin.locked', { seconds: left });
+        };
+        unlockButton.disabled = true;
+        input.disabled = true;
+        tick();
+        countdown = setInterval(tick, 1000);
+      }
       dialog.addEventListener('close', () => {
+        clearInterval(countdown);
         dialog.remove();
         resolve(dialog.returnValue === 'ok');
       });
