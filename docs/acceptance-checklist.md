@@ -93,6 +93,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Choosing the same pin for both servos shows an error and saves nothing.
 - [ ] Rewire the Horizontal servo to another allowed pin, select it and save: the robot restarts, and after boot the servo works on the new pin.
 - [ ] Ticking "Reverse direction" on an axis and saving: the robot restarts, the joystick moves that axis the other way, and the "Not calibrated yet" banner is back.
+- [ ] The pulse range sits under "Servo travel (advanced)", collapsed, with an explanation, the defaults and "Reset to default".
 - [ ] Narrowing a pulse range (for example 600–2000 µs) and saving reduces that servo's travel, and resets Calibration.
 - [ ] A pulse range under 500 µs wide shows an error and saves nothing.
 - [ ] The wiring survives a power cycle.

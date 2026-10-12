@@ -25,7 +25,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 - **Wi-Fi in two ways.** Enter your Wi-Fi in the web flasher right after installing, or join the robot's own `CatWandConnect-XXXX` hotspot, whose setup page opens by itself and lists nearby networks, strongest first.
 - **Self-healing Wi-Fi.** If your router disappears, the hotspot comes back; the robot keeps retrying your network and leaves the hotspot as soon as it returns.
 - **Calibration wizard.** A step-by-step guide to set the Travel limits and Stow position for your build: each step brings the wand to the current value, nudge it to the right end, pick the rest position (the wizard recalls what you have marked and the allowed range), then watch a slow test sweep before saving. Cancel at any time to keep the previous values.
-- **Your wiring.** Choose which GPIO drives each servo (only the pins that are safe on your chip are offered), reverse an axis, and set each servo's pulse range.
+- **Your wiring.** Choose which GPIO drives each servo (only the pins that are safe on your chip are offered), reverse an axis and, under Servo travel (advanced), set each servo's pulse range: how far it turns, with a reset to the defaults.
 
 ## Everyday use
 
