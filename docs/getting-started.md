@@ -131,7 +131,7 @@ Code layout:
 
 The firmware uses the `min_spiffs` partition table: two 1.9 MB app slots for OTA updates, and a 4 MB layout on every chip so 8 MB boards work too. Boards flashed before this layout was adopted need one USB flash to switch; later updates can go over Wi-Fi.
 
-Each build also writes `factory.bin`, the full flash image the web flasher uses. Publishing a version is described in [Releasing](releasing.md); the flasher page is `flasher/index.html`.
+Each build also writes `factory.bin`, the full flash image (it wipes the settings; the web flasher writes it in two parts that skip them). Publishing a version is described in [Releasing](releasing.md); the flasher page is `flasher/index.html`.
 
 If your clone sits in a synced folder, set `PLATFORMIO_BUILD_DIR` to a folder outside it. Builds write hundreds of megabytes to `firmware/.pio/`.
 
