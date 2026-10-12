@@ -24,7 +24,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 - **Web flasher.** Install the firmware from Chrome or Edge on a computer in one click, with no tools to install. The right file for your chip is picked automatically. Choose the Stable or Beta channel. Reinstalling over a robot keeps its Wi-Fi and settings unless you tick "Erase device".
 - **Wi-Fi in two ways.** Enter your Wi-Fi in the web flasher right after installing, or join the robot's own `CatWandConnect-XXXX` hotspot, whose setup page opens by itself and lists nearby networks, strongest first.
 - **Self-healing Wi-Fi.** If your router disappears, the hotspot comes back; the robot keeps retrying your network and leaves the hotspot as soon as it returns.
-- **Calibration wizard.** A step-by-step guide to set the Travel limits and Stow position for your build: nudge each axis to its ends, pick the rest position, then watch a slow test sweep before saving. Cancel at any time to keep the previous values.
+- **Calibration wizard.** A step-by-step guide to set the Travel limits and Stow position for your build: each step brings the wand to the current value, nudge it to the right end, pick the rest position, then watch a slow test sweep before saving. Cancel at any time to keep the previous values.
 - **Your wiring.** Choose which GPIO drives each servo (only the pins that are safe on your chip are offered), reverse an axis, and set each servo's pulse range.
 
 ## Everyday use

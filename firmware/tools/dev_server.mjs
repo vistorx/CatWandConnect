@@ -93,13 +93,22 @@ function calibrationView() {
   return { step: c.step, draft };
 }
 
+// Like the Robot core: each step moves its axis to the value it is about to set.
+function enterStep(step) {
+  const c = robot.calibration;
+  c.step = step;
+  const [axis, end] = step.split('_');
+  if (end === 'min' || end === 'max') c.target[axis] = c.draft[axis][end];
+  if (step === 'stow') for (const a of ['horizontal', 'vertical']) c.target[a] = c.draft[a].stow;
+}
+
 function calibrate(body) {
   const c = robot.calibration;
   const pos = robot.position;
   if (body.action === 'start') {
     c.draft = calibrationView().draft;
     c.target = { ...pos };
-    c.step = 'horizontal_min';
+    enterStep('horizontal_min');
     robot.activity = 'calibrating';
   } else if (body.action === 'nudge' && c.step !== 'none') {
     c.target[body.axis] = Math.max(0, Math.min(180, c.target[body.axis] + Number(body.degrees)));
@@ -116,7 +125,7 @@ function calibrate(body) {
       c.sweep = [[d.horizontal.min, d.vertical.min], [d.horizontal.max, d.vertical.min], [d.horizontal.max, d.vertical.max],
         [d.horizontal.min, d.vertical.max], [d.horizontal.min, d.vertical.min], [d.horizontal.stow, d.vertical.stow]];
     }
-    c.step = STEP_ORDER[STEP_ORDER.indexOf(c.step) + 1];
+    enterStep(STEP_ORDER[STEP_ORDER.indexOf(c.step) + 1]);
   } else if (body.action === 'confirm' && c.step === 'confirm') {
     for (const a of ['horizontal', 'vertical']) Object.assign(robot.settings.axes[a], c.draft[a]);
     robot.settings.calibrated = true;

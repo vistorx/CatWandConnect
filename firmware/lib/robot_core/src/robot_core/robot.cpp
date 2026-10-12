@@ -178,8 +178,29 @@ void Robot::startCalibration() {
     draft_.axis(axis).travel = travelLimits(axis);
     nudgeTarget_[static_cast<size_t>(axis)] = position(axis);
   }
-  calibrationStep_ = CalibrationStep::HorizontalMin;
+  enterCalibrationStep(CalibrationStep::HorizontalMin);
   activity_ = Activity::Calibrating;
+}
+
+// Moves the step's axes to the value the step is about to set, so the owner
+// starts from the current limits (known safe) wherever the wand was left.
+void Robot::enterCalibrationStep(CalibrationStep step) {
+  calibrationStep_ = step;
+  const AxisSettings& horizontal = draft_.axis(Axis::Horizontal);
+  const AxisSettings& vertical = draft_.axis(Axis::Vertical);
+  float* h = &nudgeTarget_[static_cast<size_t>(Axis::Horizontal)];
+  float* v = &nudgeTarget_[static_cast<size_t>(Axis::Vertical)];
+  switch (step) {
+    case CalibrationStep::HorizontalMin: *h = horizontal.travel.min; break;
+    case CalibrationStep::HorizontalMax: *h = horizontal.travel.max; break;
+    case CalibrationStep::VerticalMin: *v = vertical.travel.min; break;
+    case CalibrationStep::VerticalMax: *v = vertical.travel.max; break;
+    case CalibrationStep::Stow:
+      *h = horizontal.travel.clamp(horizontal.stow);
+      *v = vertical.travel.clamp(vertical.stow);
+      break;
+    default: break;
+  }
 }
 
 void Robot::nudge(Axis axis, float degrees) {
@@ -198,21 +219,21 @@ SettingsCheck Robot::markCalibration() {
   switch (calibrationStep_) {
     case CalibrationStep::HorizontalMin:
       horizontal.travel.min = h;
-      calibrationStep_ = CalibrationStep::HorizontalMax;
+      enterCalibrationStep(CalibrationStep::HorizontalMax);
       break;
     case CalibrationStep::HorizontalMax:
       if (h <= horizontal.travel.min) return {SettingsError::TravelOrder, Axis::Horizontal};
       horizontal.travel.max = h;
-      calibrationStep_ = CalibrationStep::VerticalMin;
+      enterCalibrationStep(CalibrationStep::VerticalMin);
       break;
     case CalibrationStep::VerticalMin:
       vertical.travel.min = v;
-      calibrationStep_ = CalibrationStep::VerticalMax;
+      enterCalibrationStep(CalibrationStep::VerticalMax);
       break;
     case CalibrationStep::VerticalMax:
       if (v <= vertical.travel.min) return {SettingsError::TravelOrder, Axis::Vertical};
       vertical.travel.max = v;
-      calibrationStep_ = CalibrationStep::Stow;
+      enterCalibrationStep(CalibrationStep::Stow);
       break;
     case CalibrationStep::Stow:
       if (!horizontal.travel.contains(h)) return {SettingsError::StowOutOfTravel, Axis::Horizontal};
