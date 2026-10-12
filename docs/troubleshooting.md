@@ -88,4 +88,4 @@ After 5 wrong PINs the robot refuses new tries for 30 s, then longer after each 
 
 ## Still stuck?
 
-See [Getting help](../SUPPORT.md): ask on the [Discord server](https://discord.gg/Rbqge3v9dk), no GitHub account needed, or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose). Include the details from the **Info** page (Settings → Info → Copy) and, if you can, the serial log. Security problems go [privately](../SECURITY.md), never in public.
+See [Getting help](../SUPPORT.md): ask on the [Discord server](https://discord.gg/Rbqge3v9dk), no GitHub account needed, or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose). Include the **Diagnostic report** from the Info page (Settings → Info → Copy the report): it already holds the robot's recent log, with your Wi-Fi name and addresses hidden. Security problems go [privately](../SECURITY.md), never in public.

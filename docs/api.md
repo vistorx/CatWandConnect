@@ -94,6 +94,20 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 
 `uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
 
+`GET /api/diagnostics` returns the Diagnostic report as plain text (`text/plain`): firmware version, chip, last reset reason, uptime, memory, settings PIN state, Wi-Fi and Home Assistant (MQTT) state, settings, wiring and the last 200 log lines (at most 12 KB). It is redacted by default: the robot's name and hostname (unless they are the default), the Wi-Fi network, IP and MAC addresses, the broker address and the MQTT user are replaced by placeholders such as `<wifi-network>`, in the log lines too. `GET /api/diagnostics?full=1` keeps them, for local use only. The MQTT password is never included.
+
+```text
+CatWandConnect diagnostic report
+Redacted: yes
+
+Firmware: 0.1.0-beta.2
+Last reset: power-on
+Wi-Fi network: <wifi-network>
+...
+Recent log:
+[    1.204] [wifi] connecting to "<wifi-network>"
+```
+
 🔒 `PUT /api/device` with `{"name":"CatWandConnect salon"}` renames the robot and returns `{"name":…,"hostname":"catwandconnect-salon.local","restart":true}`. The robot restarts about a second later.
 
 - **Valid names:** 1 to 32 bytes, no control characters, at least one letter or digit. Otherwise the request returns `400` with `invalid_name`.

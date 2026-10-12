@@ -3,6 +3,7 @@
 #include <identity/identity.h>
 
 #include "pin_http.h"
+#include "log.h"
 
 #include <ESPmDNS.h>
 #include <WiFi.h>
@@ -68,7 +69,7 @@ void Network::begin(AsyncWebServer& server, const String& deviceName, const Stri
   setupRoutes(server);
 
   if (savedSsid_.isEmpty()) {
-    Serial.println("[wifi] no saved network");
+    logLine("[wifi] no saved network");
     openHotspot();
   } else {
     startAttempt(savedSsid_, savedPassword_, Source::Saved);
@@ -97,10 +98,10 @@ void Network::loop() {
       if (WiFi.status() == WL_CONNECTED) {
         lostSince_ = 0;
       } else if (lostSince_ == 0) {
-        Serial.println("[wifi] connection lost, reconnecting");
+        logLine("[wifi] connection lost, reconnecting");
         lostSince_ = now;
       } else if (now - lostSince_ > kLostGraceMs) {
-        Serial.println("[wifi] still unreachable");
+        logLine("[wifi] still unreachable");
         WiFi.setAutoReconnect(false);
         WiFi.disconnect();
         openHotspot();
@@ -122,7 +123,8 @@ void Network::loop() {
 }
 
 void Network::startAttempt(const String& ssid, const String& password, Source source) {
-  Serial.printf("[wifi] connecting to \"%s\"\n", ssid.c_str());
+  notePersonal(ssid, "wifi-network");
+  logLine("[wifi] connecting to \"%s\"", ssid.c_str());
   attemptSsid_ = ssid;
   attemptPassword_ = password;
   attemptSource_ = source;
@@ -137,7 +139,7 @@ void Network::startAttempt(const String& ssid, const String& password, Source so
 }
 
 void Network::onConnected() {
-  Serial.printf("[wifi] connected, open %s or http://%s.local/\n", deviceUrl().c_str(), hostname_.c_str());
+  logLine("[wifi] connected, open %s or http://%s.local/", deviceUrl().c_str(), hostname_.c_str());
   mode_ = Mode::Connected;
   lostSince_ = 0;
   WiFi.setAutoReconnect(true);
@@ -161,7 +163,7 @@ void Network::onConnected() {
 }
 
 void Network::onAttemptFailed() {
-  Serial.printf("[wifi] could not connect to \"%s\"\n", attemptSsid_.c_str());
+  logLine("[wifi] could not connect to \"%s\"", attemptSsid_.c_str());
   lastAttemptFailed_ = true;
   WiFi.disconnect();
   if (attemptSource_ == Source::Improv) {
@@ -182,7 +184,7 @@ void Network::openHotspot() {
   WiFi.softAP(hotspotSsid_.c_str());
   dns_.start(53, "*", WiFi.softAPIP());
   hotspotActive_ = true;
-  Serial.printf("[wifi] hotspot \"%s\" open, setup page at http://%s/\n", hotspotSsid_.c_str(),
+  logLine("[wifi] hotspot \"%s\" open, setup page at http://%s/", hotspotSsid_.c_str(),
                 WiFi.softAPIP().toString().c_str());
   startMdns();
 }
@@ -193,7 +195,7 @@ void Network::closeHotspot() {
   WiFi.mode(WIFI_STA);
   hotspotActive_ = false;
   hotspotCloseAt_ = 0;
-  Serial.println("[wifi] hotspot closed");
+  logLine("[wifi] hotspot closed");
 }
 
 void Network::startMdns() {

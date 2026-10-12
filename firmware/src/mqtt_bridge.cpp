@@ -7,6 +7,7 @@
 #include <home_assistant/home_assistant.h>
 
 #include "device_api.h"
+#include "log.h"
 #include "pin_http.h"
 
 namespace {
@@ -156,7 +157,7 @@ bool MqttBridge::connect() {
     error_ = state == MQTT_CONNECT_BAD_CREDENTIALS || state == MQTT_CONNECT_UNAUTHORIZED ? "bad_credentials"
              : state < 0                                                                ? "unreachable"
                                                                                         : "refused";
-    Serial.printf("[mqtt] connection to %s:%u failed (state %d)\n", config.host.c_str(), config.port, state);
+    logLine("[mqtt] connection to %s:%u failed (state %d)", config.host.c_str(), config.port, state);
     return false;
   }
 
@@ -171,7 +172,7 @@ bool MqttBridge::connect() {
     std::lock_guard<std::mutex> guard(lock_);
     error_ = "";
   }
-  Serial.printf("[mqtt] connected to %s:%u\n", config.host.c_str(), config.port);
+  logLine("[mqtt] connected to %s:%u", config.host.c_str(), config.port);
   return true;
 }
 
@@ -215,7 +216,7 @@ void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsign
       case home_assistant::CommandKind::MaxSpeed: {
         cwc::RobotSettings settings = robot.settings();
         settings.axis(command.axis).maxSpeed = command.value;
-        if (!robot.applySettings(settings).ok()) Serial.printf("[mqtt] rejected maximum speed %s\n", text.c_str());
+        if (!robot.applySettings(settings).ok()) logLine("[mqtt] rejected maximum speed %s", text.c_str());
         break;
       }
       case home_assistant::CommandKind::None:
@@ -224,6 +225,11 @@ void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsign
     return 0;
   });
   publishState(true);
+}
+
+MqttStatus MqttBridge::status() {
+  std::lock_guard<std::mutex> guard(lock_);
+  return {config_.enabled, connected_, config_.host, config_.port, config_.user, error_};
 }
 
 // --- REST: broker settings ----------------------------------------------------------

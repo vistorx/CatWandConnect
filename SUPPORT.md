@@ -17,7 +17,7 @@ Before asking, the [Troubleshooting guide](docs/troubleshooting.md) answers the 
 
 The more of this you include, the faster we can help:
 
-- **The details from the robot's Info page.** In the Device interface, open Settings → Info and press **Copy**, then paste the text. It holds the firmware version, chip, Wi-Fi signal, uptime and memory.
+- **The Diagnostic report.** In the Device interface, open Settings → Info, then **Copy the report** or **Download the report**, and paste or attach it. It holds the firmware version, chip, why the robot last restarted, its settings and its recent log, with your Wi-Fi name and addresses hidden. Firmware older than 0.1.0-beta.2 has no report: press **Copy** under the Info list instead.
 - **What you did, what you expected, and what happened instead.**
 - **Your build:** board and chip (ESP32, ESP32-S3 or ESP32-C3), Mechanism (for example Mk2), how you installed the firmware (web flasher, update, built from source).
 - **The serial log, if you can.** Open the [web flasher](https://vistorx.github.io/CatWandConnect/), connect the board, then **Logs & Console**. Copy the lines around the problem.

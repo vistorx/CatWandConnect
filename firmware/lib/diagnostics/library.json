@@ -1,0 +1,6 @@
+{
+  "name": "diagnostics",
+  "version": "0.0.0",
+  "description": "Diagnostic report for CatWandConnect: recent log lines, reset reason, redaction and report text. Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

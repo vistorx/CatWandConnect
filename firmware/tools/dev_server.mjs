@@ -275,6 +275,10 @@ const server = createServer(async (request, response) => {
     if (!authorized(request)) return send(response, 401, { error: 'pin_required' });
     return send(response, 200, { ok: true, restart: true });
   }
+  if (request.method === 'GET' && url.pathname === '/api/diagnostics') {
+    response.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return response.end(diagnostics(url.searchParams.get('full') === '1'));
+  }
   const route = API[`${request.method} ${url.pathname}`];
   if (route) {
     let body = '';
@@ -299,6 +303,40 @@ const server = createServer(async (request, response) => {
     send(response, 404, { error: 'not_found' });
   }
 });
+
+// A Diagnostic report shaped like the robot's (lib/diagnostics), for UI work.
+function diagnostics(full) {
+  const i = info();
+  const hide = (value, label) => (full ? value : `<${label}>`);
+  const s = i.uptime;
+  return `CatWandConnect diagnostic report
+Redacted: ${full ? 'no' : 'yes'}
+
+Name: ${i.name === 'CatWandConnect' ? i.name : hide(i.name, 'name')}
+Address: http://${i.hostname === 'catwandconnect.local' ? 'catwandconnect' : hide(i.hostname.replace(/\.local$/, ''), 'hostname')}.local/
+Firmware: ${i.version}
+Chip: ${i.chip} rev ${i.chipRevision}, ${i.cores} x ${i.cpuMhz} MHz, ${i.flashMb} MB flash
+Last reset: power-on
+Running for: ${Math.floor(s / 86400)} d ${Math.floor(s % 86400 / 3600)} h ${Math.floor(s % 3600 / 60)} min (${s} s)
+Free memory: ${Math.floor(i.freeHeap / 1024)} KB (lowest ${Math.floor(i.freeHeap / 1024) - 20} KB)
+Chip temperature: ${i.temperature.toFixed(1)} C
+Settings PIN: ${pin ? 'on' : 'off'}
+
+Wi-Fi: connected, signal ${i.rssi} dBm
+Wi-Fi network: ${hide(i.ssid, 'wifi-network')}
+IP address: ${hide(i.ip, 'ip')}
+MAC address: ${hide(i.mac, 'mac')}
+Home Assistant (MQTT): ${mqtt.enabled ? 'enabled, not connected' : 'disabled'}
+
+Settings: ${JSON.stringify(robot.settings)}
+Hardware: ${JSON.stringify(hardware)}
+
+Recent log:
+[    0.012] CatWandConnect ${i.version} starting, last reset: power-on
+[    1.204] [wifi] connecting to "${hide(i.ssid, 'wifi-network')}"
+[    3.410] [wifi] connected, open http://${hide(i.ip, 'ip')}/ or http://${i.hostname}/
+`;
+}
 
 function send(response, code, body) {
   response.writeHead(code, { 'Content-Type': 'application/json' });

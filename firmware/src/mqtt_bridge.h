@@ -21,11 +21,23 @@ struct MqttConfig {
   String password;
 };
 
+struct MqttStatus {
+  bool enabled = false;
+  bool connected = false;
+  String host;
+  uint16_t port = 1883;
+  String user;
+  String error;
+};
+
 class MqttBridge {
  public:
   // `name` and `hostname` identify the robot in Home Assistant.
   void begin(AsyncWebServer& server, auth::PinGuard& pin, DeviceApi& api, const String& name,
              const String& hostname);
+
+  // Broker settings and link state, without the password. Safe from any task.
+  MqttStatus status();
 
  private:
   static void taskEntry(void* self);

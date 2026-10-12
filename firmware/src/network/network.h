@@ -26,6 +26,9 @@ class Network {
   // True until the robot is on the owner's Wi-Fi: "/" should show the setup page.
   bool inSetup() const { return mode_ != Mode::Connected; }
 
+  // The saved home network's name, empty when none is saved.
+  String savedNetwork() const { return savedSsid_; }
+
  private:
   enum class Mode { Connecting, Connected, Hotspot };
   enum class Source { Saved, Improv, SetupPage };

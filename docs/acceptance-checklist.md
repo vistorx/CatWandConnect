@@ -103,6 +103,11 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] With the robot's Wi-Fi forgotten, the hotspot is called `<name>-XXXX`.
 - [ ] An empty name, or a name made only of emoji, is refused with a message.
 - [ ] The Info page shows name, address, firmware version, chip, Wi-Fi network, IP, signal, uptime, temperature, free memory and MAC, refreshing every few seconds. "Copy" copies them, or selects them if the browser refuses.
+- [ ] The Info page shows a Diagnostic report with the firmware version, "Last reset: power-on" after unplugging and replugging, the settings, the wiring and recent log lines such as `[wifi] connected`.
+- [ ] In the report, the Wi-Fi network, the IP and MAC addresses, and the broker and MQTT user (with Home Assistant set up) appear only as `<wifi-network>`, `<ip>`, `<mac>`, `<broker>` and `<mqtt-user>`, including inside the log lines. A robot renamed "Salon" shows `<name>` and `<hostname>`. The MQTT password never appears.
+- [ ] "Copy the report" copies it, or selects it if the browser refuses; "Download the report" saves a `.txt` file on the phone and on a computer.
+- [ ] "Download the full report" saves a version with the real Wi-Fi name and addresses, and its file name ends in `-full`.
+- [ ] After a restart from Settings (renaming the robot), the report says "Last reset: software restart".
 - [ ] A phone set to French shows the interface in French. Choosing English in Settings switches it at once and the choice is remembered after a reload. "Automatic" goes back to the phone's language.
 - [ ] iPhone (Safari) → Share → Add to Home Screen: the icon appears, and opening it shows the interface full screen without the Safari bars.
 - [ ] Android (Chrome) → menu → Add to Home screen: the icon appears and opens the interface.
