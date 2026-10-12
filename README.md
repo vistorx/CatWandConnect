@@ -34,12 +34,10 @@ No tools to install: the firmware goes on the board straight from your browser. 
   <a href="https://vistorx.github.io/CatWandConnect/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
 </p>
 
-| | |
-|---|---|
-| **1. Open** | The [web flasher](https://vistorx.github.io/CatWandConnect/) in **Chrome or Edge** on a computer. |
-| **2. Plug** | The ESP32 board over USB, with a cable that carries data. |
-| **3. Install** | Press **Connect and install** and pick the board's port. The right firmware for your chip is chosen for you. |
-| **4. Connect** | Enter your Wi-Fi when asked, then choose **Visit device**. |
+1. **Open** the [web flasher](https://vistorx.github.io/CatWandConnect/) in **Chrome or Edge** on a computer.
+2. **Plug** the ESP32 board in over USB, with a cable that carries data.
+3. **Install:** press **Connect and install** and pick the board's port. The right firmware for your chip is chosen for you.
+4. **Connect:** enter your Wi-Fi when asked, then choose **Visit device**.
 
 > [!NOTE]
 > Until the first stable release, the web flasher installs the **beta**, which gets new changes first and may still have bugs. See [release channels](docs/releasing.md#channels).
