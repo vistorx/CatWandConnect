@@ -35,6 +35,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 - **Home-screen icon.** Add the interface to your phone's home screen; it opens full screen like an app.
 - **Info page.** Firmware version, chip, Wi-Fi signal, IP address, uptime, temperature and memory, with a Copy button for bug reports.
 - **Diagnostic report.** On the Info page, a ready-to-attach report for bug reports: firmware, chip, why it last restarted, memory, Wi-Fi and Home Assistant state, settings, wiring and the robot's recent log. Your Wi-Fi name, addresses and broker details are hidden. Copy it or download it as a text file; a full version, for your own use only, keeps them.
+- **Help page.** From Settings → Robot or the Info page: ask a question on Discord, or report a problem. You describe it, check the exact text that will be public, and the robot opens a GitHub bug report prefilled with your description and its redacted Diagnostic report (the most recent log lines that fit), and downloads the full report to attach.
 
 ## Help
 

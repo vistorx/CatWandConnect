@@ -116,6 +116,9 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] "Copy the report" copies it, or selects it if the browser refuses; "Download the report" saves a `.txt` file on the phone and on a computer.
 - [ ] "Download the full report" saves a version with the real Wi-Fi name and addresses, and its file name ends in `-full`.
 - [ ] After a restart from Settings (renaming the robot), the report says "Last reset: software restart".
+- [ ] Settings → Robot and the Info page link to Help. "Open Discord" opens the server invite; "Common problems" opens the troubleshooting doc.
+- [ ] On Help, "Prepare the report" with an empty description asks for one; with a description, it shows the exact public text (description + redacted report) and a warning that it will be public.
+- [ ] "Open the issue on GitHub" downloads the report and opens GitHub's bug form with the description, the report, the firmware version and the chip already filled in.
 - [ ] A phone set to French shows the interface in French. Choosing English in Settings switches it at once and the choice is remembered after a reload. "Automatic" goes back to the phone's language.
 - [ ] iPhone (Safari) → Share → Add to Home Screen: the icon appears, and opening it shows the interface full screen without the Safari bars.
 - [ ] Android (Chrome) → menu → Add to Home screen: the icon appears and opens the interface.
