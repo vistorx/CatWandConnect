@@ -1,16 +1,19 @@
-# Assembly: Mk2 Mechanism
+# Assembly guide: Mk2 Mechanism
 
-The recommended assembly order for the Mk2. The parts and hardware are listed in the [README](../README.md#build-one).
+> **Coming soon.** A step-by-step guide with photos will be written from the reference build. Until then, the draft below gives the order, reconstructed from the parts and screw list and not yet checked against a build. Corrections and photos are welcome.
 
-> This order was reconstructed from the parts and screw list and hasn't been checked step by step against a build yet. Corrections and photos are welcome.
+You need the printed and mechanical parts from [Hardware](hardware.md), and the wiring from [Electronics](electronics.md).
 
-## Before you start
+<details>
+<summary><b>Draft assembly order</b></summary>
+
+### Before you start
 
 - Print every part in [`stls/mk2/`](../stls/mk2/).
 - Clean the ball track and the bearing seat of strings and elephant's foot, so the balls roll freely.
 - Plug each servo into a powered, flashed board and let the robot Stow once, so both servos sit at their Stow position before you fit the arm. This keeps the arm centred within its range.
 
-## Steps
+### Steps
 
 1. **Bearing.** Press the 608 bearing into its seat. It should sit flush and turn without rubbing.
 2. **Ball track.** Lay the 4 mm steel balls in the track, starting with 16 and adding more until the plate turns smoothly without play. Usually 16–24 are needed.
@@ -21,9 +24,11 @@ The recommended assembly order for the Mk2. The parts and hardware are listed in
 7. **Arm and wand.** Fit the arm and attach the wand.
 8. **Clamp.** Fix the robot in place with the clamp and its screw.
 
-## Checks
+### Checks
 
 - Unpowered, both axes turn by hand without binding, and the bearing doesn't rub anything.
 - No screw crushes a printed part. Tighten until snug, not more.
 - Route the servo cables so they can't snag as the axes move.
 - Power up and stay close: the wand should crawl to its Stow position. Then try the joystick gently. See the [acceptance checklist](acceptance-checklist.md).
+
+</details>
