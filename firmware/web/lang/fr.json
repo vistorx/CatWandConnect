@@ -198,5 +198,7 @@
   "firmware.hotspot": "Vous êtes sur le hotspot du robot. Si cette page s'est ouverte dans la fenêtre de connexion Wi-Fi du téléphone, elle ne peut pas choisir de fichier : ouvrez cette adresse dans votre navigateur habituel (Chrome, Safari…) en restant sur le hotspot, puis envoyez le fichier depuis là.",
   "firmware.copy": "Copier",
   "firmware.copied": "Copié",
-  "setup.skip.browser": "Pour mettre à jour le firmware depuis le hotspot, ouvrez le robot dans votre navigateur habituel plutôt que dans cette fenêtre de connexion : http://192.168.4.1/"
+  "setup.skip.browser": "Pour mettre à jour le firmware depuis le hotspot, ouvrez le robot dans votre navigateur habituel plutôt que dans cette fenêtre de connexion : http://192.168.4.1/",
+  "calibration.recalibrate": "Recommencer la calibration",
+  "calibration.cancel_new": "Annuler la nouvelle calibration"
 }
