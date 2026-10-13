@@ -23,120 +23,134 @@
 </header>
 
 <main class="form-page">
-  <form id="device">
-    <h2 data-i18n="settings.device"></h2>
-    <p class="hint" data-i18n="settings.device.hint"></p>
-    <fieldset>
-      <div class="field wide">
-        <label for="name" data-i18n="settings.name"></label>
-        <input id="name" maxlength="32" required>
-      </div>
-      <div class="field wide">
-        <span data-i18n="settings.address"></span>
-        <output id="address" class="unit"></output>
-      </div>
-      <div class="field wide">
-        <label for="language" data-i18n="settings.language"></label>
-        <select id="language"></select>
-      </div>
-    </fieldset>
-    <button class="primary" data-i18n="settings.device.save"></button>
-    <p class="message" role="status"></p>
-  </form>
+  <nav id="tabs" class="tabs" role="tablist"></nav>
 
-  <section id="wifi">
-    <h2 data-i18n="settings.wifi"></h2>
-    <p id="wifi-state" class="hint"></p>
-    <a id="wifi-setup" href="/setup.html" class="link-button" data-i18n="settings.wifi.setup" hidden></a>
-  </section>
+  <div id="tab-motion" class="tab-panel" role="tabpanel" hidden>
+    <form id="limits">
+      <h2 data-i18n="settings.limits"></h2>
+      <p class="hint" data-i18n="settings.limits.hint"></p>
+      <a href="calibrate.html" class="button-link secondary" data-i18n="settings.calibrate"></a>
+      <div id="limits-axes"></div>
+      <button class="primary" data-i18n="settings.save"></button>
+      <p class="message" role="status"></p>
+    </form>
+    <form id="motion">
+      <h2 data-i18n="settings.motion"></h2>
+      <p class="hint" data-i18n="settings.motion.hint"></p>
+      <div id="motion-axes"></div>
+      <button class="primary" data-i18n="settings.save"></button>
+      <p class="message" role="status"></p>
+    </form>
+  </div>
 
-  <form id="limits">
-    <h2 data-i18n="settings.limits"></h2>
-    <p class="hint" data-i18n="settings.limits.hint"></p>
-    <a href="calibrate.html" class="link-button" data-i18n="settings.calibrate"></a>
-    <div id="limits-axes"></div>
-    <button class="primary" data-i18n="settings.save"></button>
-    <p class="message" role="status"></p>
-  </form>
+  <div id="tab-hardware" class="tab-panel" role="tabpanel" hidden>
+    <form id="hardware">
+      <h2 data-i18n="settings.hardware"></h2>
+      <p class="hint" data-i18n="settings.hardware.hint"></p>
+      <div id="hardware-axes"></div>
+      <button class="primary" data-i18n="settings.hardware.save"></button>
+      <p class="message" role="status"></p>
+    </form>
+  </div>
 
-  <form id="motion">
-    <h2 data-i18n="settings.motion"></h2>
-    <p class="hint" data-i18n="settings.motion.hint"></p>
-    <div id="motion-axes"></div>
-    <button class="primary" data-i18n="settings.save"></button>
-    <p class="message" role="status"></p>
-  </form>
-  <form id="hardware">
-    <h2 data-i18n="settings.hardware"></h2>
-    <p class="hint" data-i18n="settings.hardware.hint"></p>
-    <div id="hardware-axes"></div>
-    <button class="primary" data-i18n="settings.hardware.save"></button>
-    <p class="message" role="status"></p>
-  </form>
-  <form id="mqtt">
-    <h2 data-i18n="mqtt.title"></h2>
-    <p class="hint" data-i18n="mqtt.hint"></p>
-    <fieldset>
-      <div class="field wide">
-        <label for="mqtt-enabled" data-i18n="mqtt.enabled"></label>
-        <input id="mqtt-enabled" type="checkbox">
-      </div>
-      <div class="field wide">
-        <label for="mqtt-host" data-i18n="mqtt.host"></label>
-        <input id="mqtt-host" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="homeassistant.local">
-      </div>
-      <div class="field wide">
-        <label for="mqtt-port" data-i18n="mqtt.port"></label>
-        <input id="mqtt-port" type="number" min="1" max="65535" inputmode="numeric">
-      </div>
-      <div class="field wide">
-        <label for="mqtt-user" data-i18n="mqtt.user"></label>
-        <input id="mqtt-user" autocomplete="off" autocapitalize="off" spellcheck="false">
-      </div>
-      <div class="field wide">
-        <label for="mqtt-password" data-i18n="mqtt.password"></label>
-        <input id="mqtt-password" type="password" autocomplete="new-password">
-      </div>
-      <div class="field wide">
-        <span data-i18n="mqtt.status"></span>
-        <output id="mqtt-status"></output>
-      </div>
-    </fieldset>
-    <button class="primary" data-i18n="settings.save"></button>
-    <p class="message" role="status"></p>
-  </form>
+  <div id="tab-network" class="tab-panel" role="tabpanel" hidden>
+    <section id="wifi">
+      <h2 data-i18n="settings.wifi"></h2>
+      <p id="wifi-state" class="hint"></p>
+      <a id="wifi-setup" href="/setup.html" class="link-button" data-i18n="settings.wifi.setup" hidden></a>
+    </section>
+    <form id="mqtt">
+      <h2 data-i18n="mqtt.title"></h2>
+      <p class="hint" data-i18n="mqtt.hint"></p>
+      <fieldset>
+        <div class="field wide">
+          <label for="mqtt-enabled" data-i18n="mqtt.enabled"></label>
+          <input id="mqtt-enabled" type="checkbox">
+        </div>
+        <div class="field wide">
+          <label for="mqtt-host" data-i18n="mqtt.host"></label>
+          <input id="mqtt-host" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="homeassistant.local">
+        </div>
+        <div class="field wide">
+          <label for="mqtt-port" data-i18n="mqtt.port"></label>
+          <input id="mqtt-port" type="number" min="1" max="65535" inputmode="numeric">
+        </div>
+        <div class="field wide">
+          <label for="mqtt-user" data-i18n="mqtt.user"></label>
+          <input id="mqtt-user" autocomplete="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="field wide">
+          <label for="mqtt-password" data-i18n="mqtt.password"></label>
+          <input id="mqtt-password" type="password" autocomplete="new-password">
+        </div>
+        <div class="field wide">
+          <span data-i18n="mqtt.status"></span>
+          <output id="mqtt-status"></output>
+        </div>
+      </fieldset>
+      <button class="primary" data-i18n="settings.save"></button>
+      <p class="message" role="status"></p>
+    </form>
+  </div>
 
-  <form id="security">
-    <h2 data-i18n="security.title"></h2>
-    <p class="hint" data-i18n="security.hint"></p>
-    <fieldset>
-      <div class="field wide">
-        <span data-i18n="security.status"></span>
-        <output id="pin-status"></output>
-      </div>
-      <div class="field wide">
-        <label for="pin" data-i18n="security.new"></label>
-        <input id="pin" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{4,8}" maxlength="8" required>
-      </div>
-    </fieldset>
-    <button class="primary" data-i18n="security.save"></button>
-    <button id="pin-remove" type="button" class="secondary" data-i18n="security.remove" hidden></button>
-    <p class="message" role="status"></p>
-  </form>
-  <form id="firmware">
-    <h2 data-i18n="firmware.title"></h2>
-    <p class="hint" data-i18n="firmware.hint"></p>
-    <fieldset>
-      <div class="field wide">
-        <span data-i18n="firmware.current"></span>
-        <output id="firmware-version"></output>
-      </div>
-      <input id="firmware-file" type="file" accept=".bin,application/octet-stream" required>
-      <progress id="firmware-progress" max="100" value="0" hidden></progress>
-    </fieldset>
-    <button class="primary" data-i18n="firmware.upload"></button>
-    <p class="message" role="status"></p>
-  </form>
+  <div id="tab-robot" class="tab-panel" role="tabpanel" hidden>
+    <form id="device">
+      <h2 data-i18n="settings.device"></h2>
+      <p class="hint" data-i18n="settings.device.hint"></p>
+      <fieldset>
+        <div class="field wide">
+          <label for="name" data-i18n="settings.name"></label>
+          <input id="name" maxlength="32" required>
+        </div>
+        <div class="field wide">
+          <span data-i18n="settings.address"></span>
+          <output id="address" class="unit"></output>
+        </div>
+        <div class="field wide">
+          <label for="language" data-i18n="settings.language"></label>
+          <select id="language"></select>
+        </div>
+      </fieldset>
+      <button class="primary" data-i18n="settings.device.save"></button>
+      <p class="message" role="status"></p>
+    </form>
+    <form id="security">
+      <h2 data-i18n="security.title"></h2>
+      <p class="hint" data-i18n="security.hint"></p>
+      <fieldset>
+        <div class="field wide">
+          <span data-i18n="security.status"></span>
+          <output id="pin-status"></output>
+        </div>
+        <div class="field wide">
+          <label for="pin" data-i18n="security.new"></label>
+          <input id="pin" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{4,8}" maxlength="8" required>
+        </div>
+      </fieldset>
+      <button class="primary" data-i18n="security.save"></button>
+      <button id="pin-remove" type="button" class="secondary" data-i18n="security.remove" hidden></button>
+      <p class="message" role="status"></p>
+    </form>
+    <form id="firmware">
+      <h2 data-i18n="firmware.title"></h2>
+      <p class="hint" data-i18n="firmware.hint"></p>
+      <fieldset>
+        <div class="field wide">
+          <span data-i18n="firmware.current"></span>
+          <output id="firmware-version"></output>
+        </div>
+        <input id="firmware-file" type="file" accept=".bin,application/octet-stream" required>
+        <progress id="firmware-progress" max="100" value="0" hidden></progress>
+      </fieldset>
+      <button class="primary" data-i18n="firmware.upload"></button>
+      <p class="message" role="status"></p>
+    </form>
+    <section id="about">
+      <h2 data-i18n="settings.about"></h2>
+      <p class="hint" data-i18n="settings.about.hint"></p>
+      <a href="info.html" class="link-button" data-i18n="settings.about.open"></a>
+    </section>
+  </div>
 </main>
 
 <script src="i18n.js"></script>

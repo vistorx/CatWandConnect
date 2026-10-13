@@ -18,7 +18,7 @@ If you already use MQTT, skip to step 2.
 
 ## 2. Connect the robot
 
-1. Open the robot's interface, then **Settings → Home Assistant**.
+1. Open the robot's interface, then **Settings → Network → Home Assistant**.
 2. Tick **Enabled**, and enter:
    - **Broker**: your Home Assistant's address, for example `homeassistant.local` or its IP;
    - **Port**: `1883`;

@@ -47,7 +47,7 @@ No tools to install: the firmware goes on the board straight from your browser. 
 <details>
 <summary><b>Updating, building from source, troubleshooting</b></summary>
 
-- **Update a robot that is already installed:** download the `-ota.bin` file for your chip from the [latest release](https://github.com/vistorx/CatWandConnect/releases), then upload it in the robot's **Settings → Firmware update**. Settings and Calibration are kept.
+- **Update a robot that is already installed:** download the `-ota.bin` file for your chip from the [latest release](https://github.com/vistorx/CatWandConnect/releases), then upload it in the robot's **Settings → Robot → Firmware update**. Settings and Calibration are kept.
 - **Build from source** with [PlatformIO](https://platformio.org/); [Getting started](docs/getting-started.md) covers the tools:
 
   ```sh

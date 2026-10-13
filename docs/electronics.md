@@ -14,7 +14,7 @@ Any ESP32, ESP32-S3 or ESP32-C3 development board. ESP8266 boards are not suppor
 | ESP32-S3 | GPIO 4 | GPIO 5 |
 | ESP32-C3 | GPIO 4 | GPIO 5 |
 
-On the S3 and C3, GPIO 18 and 19 carry USB, so the defaults differ. To wire differently, choose the pins in **Settings → Wiring**; the robot restarts to apply them. The list only offers pins that are safe on your chip.
+On the S3 and C3, GPIO 18 and 19 carry USB, so the defaults differ. To wire differently, choose the pins in **Settings → Hardware → Wiring**; the robot restarts to apply them. The list only offers pins that are safe on your chip.
 
 ## Wiring
 
@@ -48,4 +48,4 @@ Use a small terminal block, a Wago-style connector or a perfboard as the +5 V an
 
 ## Servo pulse range
 
-The defaults come from the proof of concept: 400–2200 µs for the Horizontal servo and 600–2400 µs for the Vertical one, mapped to 0°–180°. If your servos don't reach their full travel, or buzz at an end, adjust the pulse range in **Settings → Wiring**. The same section reverses an axis whose direction is mirrored. Either change resets Calibration, so run it again afterwards.
+The defaults come from the proof of concept: 400–2200 µs for the Horizontal servo and 600–2400 µs for the Vertical one, mapped to 0°–180°. If your servos don't reach their full travel, or buzz at an end, adjust the pulse range in **Settings → Hardware → Wiring**. The same section reverses an axis whose direction is mirrored. Either change resets Calibration, so run it again afterwards.
