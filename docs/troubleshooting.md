@@ -98,7 +98,7 @@ Your phone can no longer reach the robot, so its own Help page can't open either
 - Check your phone is on the same Wi-Fi as the robot, not on mobile data or a guest network.
 - If the robot lost your Wi-Fi, it starts its `CatWandConnect-XXXX` hotspot: join it and open `http://192.168.4.1/` (see [Wi-Fi](#wi-fi)).
 - Unplug the robot for a few seconds and plug it back in. The page reconnects by itself.
-- Still nothing: connect it to a computer and open "Logs & Console" on the [web flasher](https://vistorx.github.io/CatWandConnect/) to read what it says, then ask on [Discord](https://discord.gg/Rbqge3v9dk) or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose) with that log.
+- Still nothing: connect it to a computer and open "Logs & Console" on the [web flasher](https://vistorx.github.io/CatWandConnect/flasher/) to read what it says, then ask on [Discord](https://discord.gg/Rbqge3v9dk) or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose) with that log.
 
 ## Still stuck?
 

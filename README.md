@@ -7,7 +7,7 @@
 Everything is free and open: the printable parts, the firmware and the docs.
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
   <br>
   <a href="https://github.com/vistorx/CatWandConnect/releases"><img src="https://img.shields.io/github/v/release/vistorx/CatWandConnect?include_prereleases&label=latest" alt="Latest version"></a>
   <a href="https://github.com/vistorx/CatWandConnect/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/vistorx/CatWandConnect/ci.yml?branch=main&label=tests" alt="Tests"></a>
@@ -41,7 +41,7 @@ Three parts: install the firmware, wire the electronics, print and assemble the 
 
 The firmware installs from your browser, with nothing to download: open the web flasher in Chrome or Edge, plug the board in over USB and press **Connect and install**. The right build for your chip is picked for you. Later updates go over Wi-Fi, from the robot's own Settings page.
 
-**[Open the web flasher →](https://vistorx.github.io/CatWandConnect/)** · [Install and first start](docs/install.md) · [Release channels](docs/releasing.md#channels)
+**[Open the web flasher →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Install and first start](docs/install.md) · [Release channels](docs/releasing.md#channels)
 
 ### 2. Electronics
 

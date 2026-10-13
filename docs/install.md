@@ -5,10 +5,10 @@
 No tools to install: the firmware goes on the board straight from your browser. You can install it on a bare board before [building the robot](assembly.md).
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/"><img src="../media/buttons/install.svg" alt="Install in your browser" width="340"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Install in your browser" width="340"></a>
 </p>
 
-1. **Open** the [web flasher](https://vistorx.github.io/CatWandConnect/) in **Chrome or Edge** on a computer.
+1. **Open** the [web flasher](https://vistorx.github.io/CatWandConnect/flasher/) in **Chrome or Edge** on a computer.
 2. **Plug** the ESP32 board in over USB, with a cable that carries data.
 3. **Install:** press **Connect and install** and pick the board's port. The right firmware for your chip is chosen for you.
 4. **Connect:** enter your Wi-Fi when asked, then choose **Visit device**.
