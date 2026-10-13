@@ -32,6 +32,14 @@ _Avoid_: Endstops, butées
 Moving the wand to its rest position and stopping everything else. Takes priority over any other command.
 _Avoid_: Park, home
 
+**Minimum speed**:
+The slowest speed of an axis under Manual control, at the bottom of the speed slider: the slowest it still moves smoothly. Set per axis, below the maximum speed.
+_Avoid_: Crawl speed, low speed
+
+**Speed range**:
+An axis's speeds from its Minimum speed to its maximum speed. The main screen's speed slider moves within it.
+_Avoid_: Speed limits (Travel limits are positions, not speeds)
+
 **Calibration**:
 The guided process in which the user sets each axis's Travel limits and the Stow position, then confirms the robot can sweep that envelope without hitting anything.
 _Avoid_: Setup, homing
