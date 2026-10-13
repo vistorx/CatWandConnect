@@ -367,6 +367,7 @@ Name: ${i.name === 'CatWandConnect' ? i.name : hide(i.name, 'name')}
 Address: http://${i.hostname === 'catwandconnect.local' ? 'catwandconnect' : hide(i.hostname.replace(/\.local$/, ''), 'hostname')}.local/
 Firmware: ${i.version}
 Chip: ${i.chip} rev ${i.chipRevision}, ${i.cores} x ${i.cpuMhz} MHz, ${i.flashMb} MB flash
+Device ID: 3f9a12c4
 Last reset: power-on
 Running for: ${Math.floor(s / 86400)} d ${Math.floor(s % 86400 / 3600)} h ${Math.floor(s % 3600 / 60)} min (${s} s)
 Free memory: ${Math.floor(i.freeHeap / 1024)} KB (lowest ${Math.floor(i.freeHeap / 1024) - 20} KB)

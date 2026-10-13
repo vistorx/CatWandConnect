@@ -56,6 +56,7 @@ std::string reportText(const ReportData& d, bool redacted) {
   line(out, "Address", "http://" + d.hostname + ".local/");
   line(out, "Firmware", d.version);
   line(out, "Chip", d.chip);
+  if (!d.deviceId.empty()) line(out, "Device ID", d.deviceId);
   line(out, "Last reset", d.resetReason);
   line(out, "Running for", format("%u d %u h %u min (%u s)", unsigned(d.uptimeS / 86400), unsigned(d.uptimeS % 86400 / 3600),
                                   unsigned(d.uptimeS % 3600 / 60), unsigned(d.uptimeS)));
@@ -88,5 +89,7 @@ std::string reportText(const ReportData& d, bool redacted) {
 
   return redacted ? redactorFor(d).apply(out) : out;
 }
+
+std::string deviceIdFrom(uint32_t random) { return format("%08x", unsigned(random)); }
 
 }  // namespace diagnostics
