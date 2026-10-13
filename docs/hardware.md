@@ -15,8 +15,6 @@ The **Mk2** is the current Mechanism. It is reinforced with a 608 skateboard bea
 | Rotor plate | [`catwandconnect-mk2-rotor_plate.stl`](../stls/mk2/catwandconnect-mk2-rotor_plate.stl) |
 | Top plate | [`catwandconnect-mk2-top_plate.stl`](../stls/mk2/catwandconnect-mk2-top_plate.stl) |
 
-The retired Mk1 is kept in [`archive/`](../archive/) for reference only. Its vertical servo overheated under load, and the firmware does not target it.
-
 ## Print recommendations
 
 > Starting points, not yet checked against the reference build. Share the settings that work for you on [Discord](https://discord.gg/Rbqge3v9dk) and they will land here.
