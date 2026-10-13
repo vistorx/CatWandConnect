@@ -41,7 +41,7 @@ The relay uses its own bot, **CatWandConnect Support**. It is not the admin bot.
   - If the contact is exactly a member's Discord username, the post mentions that member. This needs the Server Members intent; without it, the name stays plain text.
   - Posts allow no other mentions.
   - If Discord fails, the issue is still created.
-- **`/issue`.** In a `#support` post, a member with Manage Threads runs `/issue`. The relay creates a `needs-triage` issue with the post's title and first message, any `catwandconnect-report*.txt` Diagnostic report attached to that message, and the post link, then answers in the post with the issue link. Running it again on the same post links the existing issue instead of creating a duplicate.
+- **`/issue`.** In a `#support` post, a member with Manage Threads runs `/issue`. The relay creates a `needs-triage` issue with the post's title and first message, any `catwandconnect-report*.txt` Diagnostic report attached to that message, and the post link, then answers in the post with the issue link. Running it again on the same post links the existing issue instead of creating a duplicate. The relay finds that issue from its own earlier answer in the post first, then through GitHub search, because search takes a while to index a new issue.
 - **Release notifications.** After each release, the `notify-discord` job of the Release workflow runs `relay/scripts/notify-release.mjs`.
   - It reads the squash-merge titles since the previous tag (for a stable release, since the previous stable one), the issues and PRs they reference, and the issues those PRs close.
   - It posts the version and how to update in every Discord post linked from those closed issues, in their body or comments.
