@@ -50,11 +50,13 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 
 ## Speed and settings
 
-- [ ] The speed slider changes how fast the joystick moves the wand. At 10 % the wand crawls; at 100 % it reaches the maximum speed.
+- [ ] The speed slider changes how fast the joystick moves the wand. At 10 % the wand moves at the minimum speed; at 100 % it reaches the maximum speed.
 - [ ] Moving the slider on one phone updates it on a second phone.
 - [ ] In Settings, lowering the Horizontal maximum speed slows only the horizontal motion.
 - [ ] Lowering the acceleration makes starts and stops visibly softer; raising it makes them snappier, without the Mechanism jerking or skipping.
 - [ ] Entering 5 °/s as the maximum speed shows an error and keeps the previous value.
+- [ ] Setting the Horizontal minimum speed to 20 °/s makes the slider's 10 % move the wand noticeably faster than before; a minimum equal to the maximum shows an error.
+- [ ] After updating from 0.1.0 by OTA, settings and Calibration are kept, and each minimum speed is a tenth of its maximum.
 - [ ] After a power cycle, the slider and Settings values are kept.
 
 ## Stow, priority, hold and release

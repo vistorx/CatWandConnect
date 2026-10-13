@@ -14,11 +14,15 @@ struct AxisSettings {
   float stow;           // degrees, within `travel`
   float maxSpeed;       // °/s
   float maxAccel;       // °/s²
+  // Bottom of the Speed range: Manual control's speed at the lowest speed
+  // slider setting. Strictly below maxSpeed.
+  float minSpeed;       // °/s
 };
 
 struct RobotSettings {
   AxisSettings axes[kAxisCount];
-  // Fraction of maxSpeed used by Manual control: the main screen's speed slider.
+  // The main screen's speed slider, from kMinPlaySpeed to 1: Manual control
+  // runs at minSpeed at the bottom and maxSpeed at the top (manualSpeed()).
   float playSpeed;
   // True once Calibration has been completed; until then movement stays
   // within kDefaultTravel whatever `travel` says.
@@ -39,6 +43,14 @@ constexpr float kMaxSpeed = 360;
 constexpr float kMinAccel = 20;  // °/s²
 constexpr float kMaxAccel = 2000;
 constexpr float kMinPlaySpeed = 0.1f;
+constexpr float kSlowestSpeed = 1;  // °/s, lowest allowed minimum speed
+
+// Default minimum speed for a maximum speed: a tenth of it, as the speed
+// slider's bottom was before the minimum speed existed.
+float defaultMinSpeed(float maxSpeed);
+
+// Manual control's speed (°/s) for an axis at the given speed slider setting.
+float manualSpeed(const AxisSettings& axis, float playSpeed);
 
 RobotSettings defaultSettings();
 
@@ -48,6 +60,7 @@ enum class SettingsError : uint8_t {
   TravelOutOfRange,   // limit outside the servo range
   StowOutOfTravel,    // Stow outside the Travel limits
   SpeedOutOfRange,
+  MinSpeedOutOfRange,  // below kSlowestSpeed or not below the maximum speed
   AccelOutOfRange,
   PlaySpeedOutOfRange,
 };

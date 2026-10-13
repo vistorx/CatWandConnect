@@ -62,6 +62,7 @@ void writeSettings(JsonObject out, const cwc::RobotSettings& settings) {
     o["max"] = tenths(a.travel.max);
     o["stow"] = tenths(a.stow);
     o["maxSpeed"] = tenths(a.maxSpeed);
+    o["minSpeed"] = tenths(a.minSpeed);
     o["maxAccel"] = tenths(a.maxAccel);
   }
 }
@@ -79,6 +80,7 @@ void readSettings(JsonObjectConst in, cwc::RobotSettings& settings) {
     if (o["max"].is<float>()) a.travel.max = o["max"];
     if (o["stow"].is<float>()) a.stow = o["stow"];
     if (o["maxSpeed"].is<float>()) a.maxSpeed = o["maxSpeed"];
+    if (o["minSpeed"].is<float>()) a.minSpeed = o["minSpeed"];
     if (o["maxAccel"].is<float>()) a.maxAccel = o["maxAccel"];
   }
 }

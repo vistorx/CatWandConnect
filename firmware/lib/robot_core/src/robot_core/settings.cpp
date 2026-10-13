@@ -11,7 +11,7 @@ constexpr uint32_t kMagic = 0x43574331;  // "CWC1"
 
 // Bump when RobotSettings changes, and teach loadSettings() to migrate the
 // previous record into the new one.
-constexpr uint16_t kVersion = 1;
+constexpr uint16_t kVersion = 2;
 
 struct Record {
   uint32_t magic;
@@ -20,9 +20,56 @@ struct Record {
   RobotSettings settings;
 };
 
+// Version 1, written by firmware 0.1.0: no minimum speed.
+struct AxisSettingsV1 {
+  TravelLimits travel;
+  float stow;
+  float maxSpeed;
+  float maxAccel;
+};
+
+struct RobotSettingsV1 {
+  AxisSettingsV1 axes[kAxisCount];
+  float playSpeed;
+  bool calibrated;
+};
+
+struct RecordV1 {
+  uint32_t magic;
+  uint16_t version;
+  uint16_t size;
+  RobotSettingsV1 settings;
+};
+
+bool readV1(Storage& storage, RobotSettings& out) {
+  RecordV1 record;
+  if (!storage.read(kKey, &record, sizeof(record))) return false;
+  if (record.magic != kMagic || record.version != 1 || record.size != sizeof(RobotSettingsV1)) return false;
+  out = defaultSettings();
+  for (size_t i = 0; i < kAxisCount; ++i) {
+    const AxisSettingsV1& old = record.settings.axes[i];
+    out.axes[i] = {old.travel, old.stow, old.maxSpeed, old.maxAccel, defaultMinSpeed(old.maxSpeed)};
+  }
+  out.playSpeed = record.settings.playSpeed;
+  out.calibrated = record.settings.calibrated;
+  return true;
+}
+
 bool within(float value, float low, float high) { return std::isfinite(value) && value >= low && value <= high; }
 
 }  // namespace
+
+float defaultMinSpeed(float maxSpeed) {
+  float speed = maxSpeed * 0.1f;
+  return speed < kSlowestSpeed ? kSlowestSpeed : speed;
+}
+
+float manualSpeed(const AxisSettings& axis, float playSpeed) {
+  float along = (playSpeed - kMinPlaySpeed) / (1 - kMinPlaySpeed);
+  if (along < 0) along = 0;
+  if (along > 1) along = 1;
+  return axis.minSpeed + (axis.maxSpeed - axis.minSpeed) * along;
+}
 
 RobotSettings defaultSettings() {
   RobotSettings settings{};
@@ -31,6 +78,7 @@ RobotSettings defaultSettings() {
     axis.stow = kDefaultStow;
     axis.maxSpeed = 90;
     axis.maxAccel = 360;
+    axis.minSpeed = defaultMinSpeed(axis.maxSpeed);
   }
   settings.playSpeed = 0.6f;
   settings.calibrated = false;
@@ -49,6 +97,9 @@ SettingsCheck validate(const RobotSettings& settings) {
     if (a.travel.min >= a.travel.max) return fail(SettingsError::TravelOrder);
     if (!within(a.stow, a.travel.min, a.travel.max)) return fail(SettingsError::StowOutOfTravel);
     if (!within(a.maxSpeed, kMinSpeed, kMaxSpeed)) return fail(SettingsError::SpeedOutOfRange);
+    if (!within(a.minSpeed, kSlowestSpeed, kMaxSpeed) || a.minSpeed >= a.maxSpeed) {
+      return fail(SettingsError::MinSpeedOutOfRange);
+    }
     if (!within(a.maxAccel, kMinAccel, kMaxAccel)) return fail(SettingsError::AccelOutOfRange);
   }
   if (!within(settings.playSpeed, kMinPlaySpeed, 1)) return {SettingsError::PlaySpeedOutOfRange, Axis::Horizontal};
@@ -62,6 +113,7 @@ const char* settingsErrorName(SettingsError error) {
     case SettingsError::TravelOutOfRange: return "travel_out_of_range";
     case SettingsError::StowOutOfTravel: return "stow_out_of_travel";
     case SettingsError::SpeedOutOfRange: return "speed_out_of_range";
+    case SettingsError::MinSpeedOutOfRange: return "min_speed_out_of_range";
     case SettingsError::AccelOutOfRange: return "accel_out_of_range";
     case SettingsError::PlaySpeedOutOfRange: return "play_speed_out_of_range";
   }
@@ -70,12 +122,17 @@ const char* settingsErrorName(SettingsError error) {
 
 RobotSettings loadSettings(Storage& storage) {
   Record record;
-  if (!storage.read(kKey, &record, sizeof(record))) return defaultSettings();
-  if (record.magic != kMagic || record.version != kVersion || record.size != sizeof(RobotSettings)) {
+  RobotSettings settings;
+  if (storage.read(kKey, &record, sizeof(record))) {
+    if (record.magic != kMagic || record.version != kVersion || record.size != sizeof(RobotSettings)) {
+      return defaultSettings();
+    }
+    settings = record.settings;
+  } else if (!readV1(storage, settings)) {
     return defaultSettings();
   }
-  if (!validate(record.settings).ok()) return defaultSettings();
-  return record.settings;
+  if (!validate(settings).ok()) return defaultSettings();
+  return settings;
 }
 
 bool saveSettings(Storage& storage, const RobotSettings& settings) {

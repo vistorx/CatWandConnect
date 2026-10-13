@@ -175,19 +175,20 @@ Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. Example: `c
   "playSpeed": 0.6,
   "calibrated": false,
   "axes": {
-    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "maxAccel": 360},
-    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "maxAccel": 360}
+    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360},
+    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360}
   }
 }
 ```
 
 | Field | Meaning | Valid range |
 |-------|---------|-------------|
-| `playSpeed` | Fraction of `maxSpeed` used by Manual control: the main screen's speed slider. | 0.1–1 |
+| `playSpeed` | The main screen's speed slider: Manual control runs at `minSpeed` at 0.1 and at `maxSpeed` at 1, linearly in between. | 0.1–1 |
 | `calibrated` | Whether Calibration has been completed. Until then, movement stays within 60°–120° whatever `min` and `max` say. Read-only: only Calibration sets it. | |
 | `min`, `max` | Travel limits, in degrees. | 0–180, `min` < `max` |
 | `stow` | Stow position, in degrees. | within `min`–`max` |
 | `maxSpeed` | Maximum speed, in °/s. | 10–360 |
+| `minSpeed` | Minimum speed, in °/s: Manual control's speed at the bottom of the speed slider. Defaults to a tenth of `maxSpeed`. | 1 to below `maxSpeed` |
 | `maxAccel` | Acceleration, in °/s². | 20–2000 |
 
 🔒 `PUT /api/settings` (except a body containing only `playSpeed`) with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
