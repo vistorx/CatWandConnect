@@ -5,10 +5,17 @@ const SEND_INTERVAL_MS = 100;  // well under the robot's 500 ms Manual control t
 
 let socket = null;
 
+let offlineSince = null;
+
 function setLink(state) {
   const link = $('link');
   link.dataset.state = state;
   link.textContent = I18n.t(`link.${state}`);
+  link.title = link.textContent;  // the text is hidden on narrow phones
+  // Offer help once the connection has been lost for a while.
+  if (state === 'online') offlineSince = null;
+  else offlineSince ??= Date.now();
+  $('link-help').hidden = state === 'online' || Date.now() - offlineSince < 10000;
 }
 
 function connect() {

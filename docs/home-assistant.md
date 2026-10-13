@@ -67,6 +67,6 @@ Entity ids follow the robot's name: `button.catwandconnect_stow` by default, `bu
 | The broker refused the user or password | The user and password; the user must exist in Home Assistant (or in Mosquitto's own logins). |
 | Connected, but no device in Home Assistant | The MQTT integration is set up and uses the default discovery prefix `homeassistant`. |
 
-The robot's MQTT topics are documented in the [Device API](api.md#home-assistant-mqtt).
+The robot's MQTT topics are documented in the [Device API](api.md#home-assistant-mqtt). Still stuck? See [Getting help](../SUPPORT.md), or open **Help** in the robot's Settings → Robot: Home Assistant's device page has a **Visit** link to the robot's interface (MQTT discovery only allows one link per device, so it can't point to the Help page directly).
 
 A dedicated Home Assistant integration may come later ([ADR 0005](adr/0005-home-assistant-via-mqtt-first.md)).

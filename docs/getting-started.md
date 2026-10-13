@@ -159,3 +159,7 @@ The slash-command skills are specific to Claude Code. Agents without them follow
 Hardware you need to test on the robot: an ESP32, ESP32-S3 or ESP32-C3 board, two MG996R servos, a 5 V supply that can deliver several amps, and a printed Mk2 Mechanism.
 
 **ESP8266 boards are not supported, and almost certainly never will be.** See [ADR 0008](adr/0008-no-esp8266-support.md).
+
+## Getting help
+
+Questions go to the [Discord server](https://discord.gg/Rbqge3v9dk); bugs to [GitHub issues](https://github.com/vistorx/CatWandConnect/issues/new/choose). See [Getting help](../SUPPORT.md).

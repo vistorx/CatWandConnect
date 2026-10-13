@@ -220,5 +220,6 @@
   "help.bug.account": "Opening the issue needs a GitHub account and an internet connection on this phone. No account? Post the report in #support on Discord instead.",
   "help.bug.opened": "The report was downloaded: drag it into the issue before submitting it.",
   "help.security": "Found a security problem? Never report it in public:",
-  "help.security.link": "report it privately"
+  "help.security.link": "report it privately",
+  "help.stuck": "Need help?"
 }

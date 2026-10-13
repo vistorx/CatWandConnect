@@ -118,6 +118,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] After a restart from Settings (renaming the robot), the report says "Last reset: software restart".
 - [ ] Settings → Robot and the Info page link to Help. "Open Discord" opens the server invite; "Common problems" opens the troubleshooting doc.
 - [ ] On Help, "Prepare the report" with an empty description asks for one; with a description, it shows the exact public text (description + redacted report) and a warning that it will be public.
+- [ ] With the robot unplugged for 10 s, the main screen shows "Need help?" under the header, leading to Help; a failed firmware upload and a failed Wi-Fi setup show the same link.
 - [ ] "Open the issue on GitHub" downloads the report and opens GitHub's bug form with the description, the report, the firmware version and the chip already filled in.
 - [ ] A phone set to French shows the interface in French. Choosing English in Settings switches it at once and the choice is remembered after a reload. "Automatic" goes back to the phone's language.
 - [ ] iPhone (Safari) → Share → Add to Home Screen: the icon appears, and opening it shows the interface full screen without the Safari bars.

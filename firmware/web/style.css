@@ -51,14 +51,20 @@ header {
   padding: max(1rem, env(safe-area-inset-top)) 1rem 1rem;
 }
 
-h1 { font-size: 1.25rem; margin: 0; flex: 1; overflow-wrap: anywhere; }
+h1 { font-size: 1.25rem; margin: 0; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 a { color: var(--accent); }
 .nav { text-decoration: none; font-weight: 600; }
 
-.link { font-size: .85rem; color: var(--muted); }
+.link { font-size: .85rem; color: var(--muted); white-space: nowrap; }
 .link::before { content: "●"; margin-right: .35rem; color: var(--warn); }
 .link[data-state="online"]::before { color: var(--ok); }
+/* Narrow phones: keep the robot's name whole, show only the link dot. */
+@media (max-width: 420px) {
+  .link { font-size: 0; }
+  .link::before { font-size: 1rem; margin-right: 0; }
+}
+.link-help { margin: 0; padding: 0 1rem; font-size: .85rem; text-align: right; }
 
 main {
   max-width: 28rem;

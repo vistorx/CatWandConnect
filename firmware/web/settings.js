@@ -276,6 +276,7 @@ async function updateFirmware() {
   } else if (result.data.error !== 'pin_required') {
     $('firmware-progress').hidden = true;
     report(form, 'error', I18n.t(`error.${result.data.error || 'update_failed'}`));
+    form.querySelector('.message').insertAdjacentHTML('beforeend', ` <a href="help.html">${I18n.t('help.stuck')}</a>`);
   } else {
     $('firmware-progress').hidden = true;
     report(form, '', '');
