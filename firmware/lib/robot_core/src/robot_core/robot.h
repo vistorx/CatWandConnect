@@ -11,7 +11,11 @@ enum class Activity : uint8_t {
   Manual,   // a person is moving the wand
   Stowing,  // moving to the Stow position, then releasing the servos
   Calibrating,
+  TuningSpeed,  // sweeping one axis while the owner adjusts its speed
 };
+
+// Which end of an axis's Speed range Speed tuning adjusts.
+enum class SpeedBound : uint8_t { Minimum, Maximum };
 
 // Calibration walks the owner through these steps in order. The owner moves
 // the axis with small nudges and marks the current position at each step,
@@ -106,6 +110,34 @@ class Robot {
   // Travel limits and Stow position recorded so far.
   const RobotSettings& calibrationDraft() const { return draft_; }
 
+  // --- Speed tuning ----------------------------------------------------------
+  // The robot sweeps one axis between its Travel limits at a trial speed while
+  // the other axis holds still; the owner makes it faster or slower, then
+  // keeps the speed as the axis's minimum or maximum. Nothing is saved until
+  // keepSpeedTuning(); Stow, Manual control or cancel keep the previous value.
+
+  // Starts from the axis's current value of `bound`. Refused before
+  // Calibration (the sweep needs safe Travel limits) and while stowing or
+  // calibrating.
+  bool startSpeedTuning(Axis axis, SpeedBound bound);
+
+  // One step faster or slower: 2 °/s below 30 °/s, 5 °/s up to 90 °/s,
+  // 10 °/s above, within the range allowed for the bound.
+  void adjustSpeedTuning(bool faster);
+
+  // Saves the trial speed through the settings validation, then Stows.
+  // Keeping a maximum at or below the minimum resets the minimum to its
+  // default for that maximum; a minimum not below the maximum is refused and
+  // the tuning goes on.
+  SettingsCheck keepSpeedTuning();
+
+  // Abandons Speed tuning, keeping the previous value, and Stows.
+  void cancelSpeedTuning();
+
+  Axis tuningAxis() const { return tuningAxis_; }
+  SpeedBound tuningBound() const { return tuningBound_; }
+  float tuningSpeed() const { return tuningSpeed_; }
+
   // Validates, stores and applies new settings as a whole. Invalid settings
   // are rejected and the current ones stay in effect.
   SettingsCheck applySettings(const RobotSettings& settings);
@@ -144,6 +176,7 @@ class Robot {
   void stepCalibration(Axis axis, float dt);
   void enterCalibrationStep(CalibrationStep step);
   void endCalibration();
+  void stepSpeedTuning(Axis axis, float dt);
 
   MotorDriver& motors_;
   Clock& clock_;
@@ -159,6 +192,11 @@ class Robot {
   RobotSettings draft_ = defaultSettings();
   float nudgeTarget_[kAxisCount] = {};
   size_t sweepPoint_ = 0;
+
+  Axis tuningAxis_ = Axis::Horizontal;
+  SpeedBound tuningBound_ = SpeedBound::Maximum;
+  float tuningSpeed_ = 0;
+  bool tuningTowardMax_ = true;
   uint32_t lastTickMs_ = 0;
   uint32_t lastManualMs_ = 0;
 };

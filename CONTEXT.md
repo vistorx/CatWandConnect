@@ -40,6 +40,10 @@ _Avoid_: Crawl speed, low speed
 An axis's speeds from its Minimum speed to its maximum speed. The main screen's speed slider moves within it.
 _Avoid_: Speed limits (Travel limits are positions, not speeds)
 
+**Speed tuning**:
+The guided process in which the robot sweeps one axis between its Travel limits while the owner makes it faster or slower, then keeps that speed as the axis's Minimum speed or maximum speed. Distinct from Calibration, which sets positions.
+_Avoid_: Speed calibration
+
 **Calibration**:
 The guided process in which the user sets each axis's Travel limits and the Stow position, then confirms the robot can sweep that envelope without hitting anything.
 _Avoid_: Setup, homing

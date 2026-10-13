@@ -57,6 +57,9 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Entering 5 °/s as the maximum speed shows an error and keeps the previous value.
 - [ ] Setting the Horizontal minimum speed to 20 °/s makes the slider's 10 % move the wand noticeably faster than before; a minimum equal to the maximum shows an error.
 - [ ] After updating from 0.1.0 by OTA, settings and Calibration are kept, and each minimum speed is a tenth of its maximum.
+- [ ] Settings → Motion → Tune speeds, Horizontal maximum: the wand sweeps smoothly between the Travel limits and the vertical axis stays still. Faster/Slower change the sweep speed within a second; the number shown matches what you see.
+- [ ] Keep this speed saves it (Settings → Motion shows it) and Stows; Cancel, Stow from another phone or Home Assistant, and touching the joystick all end the tuning and keep the previous value.
+- [ ] Tuning the minimum speed of an SG90 axis: at 2–4 °/s the motion visibly jerks; the kept value makes the speed slider's 10 % smooth.
 - [ ] After a power cycle, the slider and Settings values are kept.
 
 ## Stow, priority, hold and release

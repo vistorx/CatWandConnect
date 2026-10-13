@@ -20,6 +20,7 @@ const char* activityName(cwc::Activity activity) {
     case cwc::Activity::Manual: return "manual";
     case cwc::Activity::Stowing: return "stowing";
     case cwc::Activity::Calibrating: return "calibrating";
+    case cwc::Activity::TuningSpeed: return "tuning_speed";
     case cwc::Activity::Idle: return "idle";
   }
   return "idle";
@@ -151,6 +152,13 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
   calibrate->setMethod(HTTP_POST);
   server.addHandler(calibrate);
 
+  server.on("/api/speed-tuning", HTTP_GET, [this](AsyncWebServerRequest* request) { getSpeedTuning(request); });
+  auto* tune = new AsyncCallbackJsonWebHandler(
+      "/api/speed-tuning",
+      [this](AsyncWebServerRequest* request, JsonVariant& body) { postSpeedTuning(request, body); });
+  tune->setMethod(HTTP_POST);
+  server.addHandler(tune);
+
   server.on("/api/settings", HTTP_GET, [this](AsyncWebServerRequest* request) { getSettings(request); });
   auto* put = new AsyncCallbackJsonWebHandler(
       "/api/settings", [this](AsyncWebServerRequest* request, JsonVariant& body) { putSettings(request, body); });
@@ -229,6 +237,64 @@ void DeviceApi::writeCalibration(JsonObject out) {
     o["min"] = tenths(a.travel.min);
     o["max"] = tenths(a.travel.max);
     o["stow"] = tenths(a.stow);
+  }
+}
+
+void DeviceApi::writeSpeedTuning(JsonObject out) {
+  bool tuning = robot_.activity() == cwc::Activity::TuningSpeed;
+  out["active"] = tuning;
+  if (!tuning) return;
+  out["axis"] = axisName(robot_.tuningAxis());
+  out["bound"] = robot_.tuningBound() == cwc::SpeedBound::Maximum ? "max" : "min";
+  out["speed"] = tenths(robot_.tuningSpeed());
+}
+
+void DeviceApi::getSpeedTuning(AsyncWebServerRequest* request) {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writeSpeedTuning(doc.to<JsonObject>());
+  }
+  sendJson(request, 200, doc);
+}
+
+void DeviceApi::postSpeedTuning(AsyncWebServerRequest* request, JsonVariant& body) {
+  if (!requirePin(pin_, request)) return;
+  const char* action = body["action"] | "";
+  JsonDocument doc;
+  cwc::SettingsCheck check;
+  bool known = true;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    if (strcmp(action, "start") == 0) {
+      cwc::Axis axis;
+      const char* bound = body["bound"] | "";
+      bool max = strcmp(bound, "max") == 0;
+      known = parseAxis(body["axis"] | "", axis) && (max || strcmp(bound, "min") == 0) &&
+              robot_.startSpeedTuning(axis, max ? cwc::SpeedBound::Maximum : cwc::SpeedBound::Minimum);
+    } else if (strcmp(action, "faster") == 0) {
+      robot_.adjustSpeedTuning(true);
+    } else if (strcmp(action, "slower") == 0) {
+      robot_.adjustSpeedTuning(false);
+    } else if (strcmp(action, "keep") == 0) {
+      check = robot_.keepSpeedTuning();
+    } else if (strcmp(action, "cancel") == 0) {
+      robot_.cancelSpeedTuning();
+    } else {
+      known = false;
+    }
+    if (known && check.ok()) writeSpeedTuning(doc.to<JsonObject>());
+  }
+
+  if (!known) {
+    request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+  } else if (!check.ok()) {
+    doc["error"] = cwc::settingsErrorName(check.error);
+    doc["axis"] = axisName(check.axis);
+    sendJson(request, 400, doc);
+  } else {
+    sendJson(request, 200, doc);
+    newClient_ = true;  // push the new activity and trial speed to every open interface
   }
 }
 
@@ -567,6 +633,7 @@ void DeviceApi::broadcastState(bool force) {
     doc["playSpeed"] = tenths(robot_.settings().playSpeed * 100) / 100;
     doc["calibrated"] = robot_.settings().calibrated;
     doc["calibration"] = stepName(robot_.calibrationStep());
+    if (robot_.activity() == cwc::Activity::TuningSpeed) writeSpeedTuning(doc["tuning"].to<JsonObject>());
   }
   doc["name"] = name_;
   String state;
