@@ -12,8 +12,9 @@ const REPORT_HEADER = 'CatWandConnect diagnostic report\nRedacted: yes\n';
 // Returns { ok: true, value } or { ok: false, error }.
 export function validate(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return { ok: false, error: 'invalid_report' };
-  const { description, report, contact = '' } = input;
-  if (typeof description !== 'string' || typeof report !== 'string' || typeof contact !== 'string') {
+  const { description, report, contact = '', followOnDiscord = false } = input;
+  if (typeof description !== 'string' || typeof report !== 'string' || typeof contact !== 'string'
+    || typeof followOnDiscord !== 'boolean') {
     return { ok: false, error: 'invalid_report' };
   }
   const what = description.trim();
@@ -23,7 +24,7 @@ export function validate(input) {
     return { ok: false, error: 'invalid_report' };
   }
   if (contact.length > LIMITS.contact) return { ok: false, error: 'invalid_contact' };
-  return { ok: true, value: { description: what, report: report.replace(/\r\n/g, '\n'), contact: contact.trim() } };
+  return { ok: true, value: { description: what, report: report.replace(/\r\n/g, '\n'), contact: contact.trim(), followOnDiscord } };
 }
 
 function field(report, name) {
@@ -71,4 +72,22 @@ export function buildIssue({ description, report, contact }) {
     body: lines.join('\n'),
     labels: ['from-device', 'needs-triage'],
   };
+}
+
+// The first message of the #support thread opened for a report.
+export function threadMessage({ description, contact }, issueUrl, mentionId) {
+  const who = mentionId ? `<@${mentionId}>` : (contact ? neutralize(contact) : 'Someone');
+  const what = description.length > 1200 ? `${description.slice(0, 1197)}…` : description;
+  return [
+    `${who} reported a problem from their robot. Follow it here; the fix will be announced in this thread.`,
+    '',
+    `> ${neutralize(what).replace(/\n/g, '\n> ')}`,
+    '',
+    `GitHub issue: ${issueUrl}`,
+  ].join('\n');
+}
+
+export function threadTitle(description) {
+  const first = description.split('\n')[0].trim();
+  return first.length > 90 ? `${first.slice(0, 89)}…` : first;
 }
