@@ -118,7 +118,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] After a restart from Settings (renaming the robot), the report says "Last reset: software restart".
 - [ ] Settings → Robot and the Info page link to Help. "Open Discord" opens the server invite; "Common problems" opens the troubleshooting doc.
 - [ ] On Help, "Prepare the report" with an empty description asks for one; with a description, it shows the exact public text (description + redacted report) and a warning that it will be public.
-- [ ] With the robot unplugged for 10 s, the main screen shows "Need help?" under the header, leading to Help; a failed firmware upload and a failed Wi-Fi setup show the same link.
+- [ ] With the robot unplugged for 10 s, the main screen shows "Need help?" under the header, opening the "The robot stopped responding" troubleshooting section on GitHub in a new tab. A failed firmware upload and a failed Wi-Fi attempt show "Need help?" leading to the robot's Help page.
 - [ ] "Open the issue on GitHub" downloads the report and opens GitHub's bug form with the description, the report, the firmware version and the chip already filled in.
 - [ ] On the setup hotspot, "A problem?" downloads the redacted report; Help shows "Save for later" and saves a description.
 - [ ] After a restart and once on Wi-Fi, the main screen shows "A problem report saved on the hotspot is waiting"; Help → "Review and send" prepares the same issue, "Discard" removes it and the banner goes away.
