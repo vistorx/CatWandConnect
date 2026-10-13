@@ -2,6 +2,17 @@
 
 How to wire the two servos and the power supply to the board. The firmware drives the servos with 50 Hz PWM pulses; the board only sends the signals and never powers the servos.
 
+## Parts
+
+| Qty | Part | Notes |
+|-----|------|-------|
+| 1 | ESP32, ESP32-S3 or ESP32-C3 dev board | Any board with USB, from about €3. USB-C is handy. |
+| 2 | MG996R servos | Standard-size metal-gear servos. |
+| 1 | 5 V power supply, 3 A or more | Powers the servos and the board. |
+| 1 | Capacitor, 470–1000 µF, 10 V or more | Optional, against resets and stutter. |
+| 1 | Terminal block, Wago-style connectors or perfboard | The +5 V and GND rails. |
+| | Wires, Dupont connectors | Thick enough for the servos' 5 V and GND. |
+
 ## Supported boards
 
 Any ESP32, ESP32-S3 or ESP32-C3 development board. ESP8266 boards are not supported ([ADR 0008](adr/0008-no-esp8266-support.md)).
