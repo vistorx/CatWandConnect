@@ -249,5 +249,22 @@
   "pending.failed": "Le rapport n'a pas pu être enregistré.",
   "setup.problem": "Un problème ?",
   "setup.problem.hint": "Téléchargez le rapport de diagnostic du robot (nom du Wi-Fi et adresses masqués), ou décrivez le problème et enregistrez-le pour plus tard. Questions : discord.gg/Rbqge3v9dk",
-  "setup.problem.save": "Le décrire et enregistrer pour plus tard"
+  "setup.problem.save": "Le décrire et enregistrer pour plus tard",
+  "settings.tune_speed": "Régler les vitesses",
+  "tuning.title": "Réglage des vitesses",
+  "tuning.intro": "Choisis une vitesse à régler. Le robot balaie cet axe d'une limite à l'autre pendant que tu accélères ou ralentis ; garde la vitesse qui te semble juste.",
+  "tuning.not_calibrated": "Lance d'abord la Calibration : le balayage a besoin de tes limites de course.",
+  "tuning.max": "Vitesse maximale",
+  "tuning.min": "Vitesse minimale",
+  "tuning.start": "Régler",
+  "tuning.max.title": "{axis} : vitesse maximale",
+  "tuning.max.text": "Accélère jusqu'à ce que la baguette tremble, dépasse ou que le servo force, puis reviens d'un cran et garde-la.",
+  "tuning.min.title": "{axis} : vitesse minimale",
+  "tuning.min.text": "Ralentis jusqu'à ce que le mouvement devienne saccadé, puis remonte d'un cran et garde-la. Elle devient le bas du curseur de vitesse.",
+  "tuning.slower": "Plus lent",
+  "tuning.faster": "Plus vite",
+  "tuning.keep": "Garder cette vitesse",
+  "tuning.cancel": "Annuler",
+  "tuning.kept": "Enregistré : {speed} °/s.",
+  "tuning.position": "Position : {degrees}°"
 }

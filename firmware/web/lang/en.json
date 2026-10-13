@@ -249,5 +249,22 @@
   "pending.failed": "The report could not be saved.",
   "setup.problem": "A problem?",
   "setup.problem.hint": "Download the robot's Diagnostic report (your Wi-Fi name and addresses are hidden), or describe the problem and save it for later. Questions: discord.gg/Rbqge3v9dk",
-  "setup.problem.save": "Describe it and save for later"
+  "setup.problem.save": "Describe it and save for later",
+  "settings.tune_speed": "Tune speeds",
+  "tuning.title": "Speed tuning",
+  "tuning.intro": "Pick a speed to tune. The robot sweeps that axis back and forth between its limits while you make it faster or slower; keep the speed that looks right.",
+  "tuning.not_calibrated": "Run Calibration first: the sweep needs your Travel limits.",
+  "tuning.max": "Maximum speed",
+  "tuning.min": "Minimum speed",
+  "tuning.start": "Tune",
+  "tuning.max.title": "{axis}: maximum speed",
+  "tuning.max.text": "Speed up until the wand shakes, overshoots or the servo strains, then go back one step and keep it.",
+  "tuning.min.title": "{axis}: minimum speed",
+  "tuning.min.text": "Slow down until the motion turns jerky, then go up one step and keep it. It becomes the bottom of the speed slider.",
+  "tuning.slower": "Slower",
+  "tuning.faster": "Faster",
+  "tuning.keep": "Keep this speed",
+  "tuning.cancel": "Cancel",
+  "tuning.kept": "Saved: {speed} °/s.",
+  "tuning.position": "Position: {degrees}°"
 }

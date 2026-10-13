@@ -16,6 +16,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 - **Stow.** A big button, always visible, puts the wand back to its rest position and stops everything else. Nothing can interrupt it. At rest the servos are released, so they don't buzz or heat up.
 - **Dead-man rule.** If your phone disconnects or stops sending for half a second, the wand stops.
 - **Smooth motion.** Minimum speed, maximum speed and acceleration per axis, so starts and stops never jerk the Mechanism and the slowest setting never stutters. Settings saved by 0.1.0 are kept on update, with a minimum speed of a tenth of the maximum.
+- **Speed tuning.** Settings → Motion → Tune speeds: the robot sweeps one axis back and forth between its limits while you tap Faster or Slower, then keep the speed that looks right as that axis's maximum (just before it shakes) or minimum (just above where it turns jerky). Available once calibrated; Stow, the joystick or Cancel keep the previous value.
 - **Gentle power-up.** The robot remembers where the wand last rested, starts there so the servos don't jump, then crawls back to its Stow position.
 - **Optional settings PIN.** Guests can play and Stow, but changing limits, Calibration, wiring, name, Wi-Fi, Home Assistant or firmware asks for the PIN. Repeated wrong PINs lock it for a growing delay.
 

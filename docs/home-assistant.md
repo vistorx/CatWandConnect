@@ -36,7 +36,7 @@ Go to **Settings → Devices & services → MQTT → Devices**. The robot appear
 | Stow | Button | Puts the wand away and releases the servos. Beats every other command. |
 | Horizontal position, Vertical position | Number (0–180°) | Shows where each axis is. Setting a value moves the axis there at the Manual control speed, within the Travel limits. |
 | Horizontal maximum speed, Vertical maximum speed | Number (10–360 °/s) | The same setting as in the robot's Settings. A maximum at or below the minimum speed resets the minimum to a tenth of the new maximum. |
-| Activity | Sensor | `idle`, `manual`, `stowing` or `calibrating`. |
+| Activity | Sensor | `idle`, `manual`, `stowing`, `calibrating` or `tuning_speed`. |
 
 When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
