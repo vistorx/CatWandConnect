@@ -13,6 +13,7 @@ class PwmServoDriver : public cwc::MotorDriver {
 
   void moveTo(cwc::Axis axis, float degrees) override;
   void release(cwc::Axis axis) override;
+  void reverse(cwc::Axis axis) override;
 
  private:
   cwc::HardwareConfig config_{};
