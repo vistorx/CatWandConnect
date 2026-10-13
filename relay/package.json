@@ -1,0 +1,6 @@
+{
+  "name": "catwandconnect-support-relay",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test" }
+}

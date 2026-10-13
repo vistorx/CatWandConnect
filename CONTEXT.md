@@ -67,3 +67,7 @@ _Avoid_: Queued report, outbox, offline report
 **Support relay**:
 A small online service that receives a Diagnostic report from the user's browser and creates the GitHub issue, so people without a GitHub account can report bugs. It holds the secrets the open-source firmware cannot.
 _Avoid_: Backend, cloud, server (the robot has none)
+
+**Device ID**:
+A random 8-hex-digit identifier the robot draws once and keeps in flash, shown in the Diagnostic report so support can group the reports of one robot. Not personal data, unlike the MAC address, so it stays in the redacted report.
+_Avoid_: Serial number, MAC, UUID
