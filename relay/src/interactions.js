@@ -109,16 +109,31 @@ export function issueFromThread(thread, message, report, url) {
   return { title: `[discord] ${neutralize(title)}`, body: lines.join('\n'), labels: ['needs-triage'] };
 }
 
+async function answeredIssue(env, interaction, threadId, fetcher) {
+  const messages = await discord(env, 'GET', `/channels/${threadId}/messages?limit=100`, null, fetcher).catch(() => []);
+  const prefix = `https://github.com/${env.REPOSITORY}/issues/`;
+  for (const message of messages) {
+    if (message.author?.id !== interaction.application_id) continue;
+    const at = (message.content || '').indexOf(`tracked in ${prefix}`);
+    if (at < 0) continue;
+    const number = /^\d+/.exec(message.content.slice(at + 'tracked in '.length + prefix.length));
+    if (number) return `${prefix}${number[0]}`;
+  }
+  return null;
+}
+
 async function convert(env, interaction, fetcher) {
   const threadId = interaction.channel_id;
   const url = threadUrl(env.DISCORD_GUILD_ID, threadId);
   const token = await installationToken(env, fetcher);
 
-  // Running /issue twice links the existing issue instead of a duplicate.
-  const existing = (await searchIssues(env, token, `is:issue in:body "${url}"`, fetcher))
-    .find(item => item.body && item.body.includes(url));
+  // Running /issue twice links the existing issue instead of a duplicate. The
+  // relay's own earlier answer in the thread is checked first, because GitHub
+  // search takes a while to index a new issue.
+  const existing = await answeredIssue(env, interaction, threadId, fetcher)
+    || (await searchIssues(env, token, `is:issue in:body "${url}"`, fetcher)).find(item => item.body && item.body.includes(url))?.html_url;
   if (existing) {
-    return followUp(env, interaction, `This thread is already tracked in ${existing.html_url}`, fetcher);
+    return followUp(env, interaction, `This thread is already tracked in ${existing}`, fetcher);
   }
 
   const thread = interaction.channel;

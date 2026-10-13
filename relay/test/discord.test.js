@@ -23,7 +23,7 @@ const ENV = {
   DISCORD_BOT_TOKEN: 'bot', DISCORD_GUILD_ID: GUILD, DISCORD_SUPPORT_FORUM: FORUM, DISCORD_BUG_TAG: '681', DISCORD_PUBLIC_KEY: PUBLIC_KEY,
 };
 
-function fakeApis({ members = [], existing = [], firstMessage = { content: 'It stops', author: { username: 'pierre' } }, attachment = null } = {}) {
+function fakeApis({ members = [], existing = [], threadMessages = [], firstMessage = { content: 'It stops', author: { username: 'pierre' } }, attachment = null } = {}) {
   const calls = [];
   let body = 'issue body';
   const fetcher = async (url, init = {}) => {
@@ -41,6 +41,7 @@ function fakeApis({ members = [], existing = [], firstMessage = { content: 'It s
     if (url.endsWith('/issues/7') && call.method === 'PATCH') { body = call.body.body; return Response.json({}); }
     if (url.includes('/members/search')) return Response.json(members);
     if (url.endsWith(`/channels/${FORUM}/threads`)) return Response.json({ id: '999' }, { status: 201 });
+    if (url.includes('/channels/555/messages?')) return Response.json(threadMessages);
     if (url.includes('/channels/555/messages/555')) {
       return Response.json({ ...firstMessage, attachments: attachment ? [{ filename: 'catwandconnect-report.txt', size: 200, url: 'https://cdn/report.txt' }] : [] });
     }
@@ -143,6 +144,17 @@ test('/issue twice links the existing issue instead of a duplicate', async () =>
   assert.ok(!apis.calls.some(c => c.url.endsWith('/issues') && c.method === 'POST'));
   const answer = apis.calls.find(c => c.url.includes('/webhooks/'));
   assert.match(answer.body.content, /already tracked in https:\/\/github\.com\/x\/issues\/3/);
+});
+
+test('/issue twice, before GitHub search has indexed the first issue, still finds it in the thread', async () => {
+  const apis = fakeApis({ threadMessages: [
+    { author: { id: 'someone' }, content: 'see https://github.com/vistorx/CatWandConnect/issues/1' },
+    { author: { id: 'app' }, content: 'Thanks! This is now tracked in https://github.com/vistorx/CatWandConnect/issues/114. We will post here when a fix ships.' },
+  ] });
+  await handle(interaction(command()), ENV, { fetch: apis.fetcher });
+  assert.ok(!apis.calls.some(c => c.url.endsWith('/issues') && c.method === 'POST'));
+  const answer = apis.calls.find(c => c.url.includes('/webhooks/'));
+  assert.match(answer.body.content, /already tracked in https:\/\/github\.com\/vistorx\/CatWandConnect\/issues\/114/);
 });
 
 test('issue from a thread neutralises mentions', () => {
