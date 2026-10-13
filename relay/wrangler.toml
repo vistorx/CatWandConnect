@@ -13,6 +13,11 @@ REPOSITORY = "vistorx/CatWandConnect"
 ENABLED = "true"
 # Issues the relay may create per UTC day, all robots together.
 DAILY_CAP = "30"
+# Discord server and #support forum (docs/discord.md); the relay's own bot
+# token is the DISCORD_BOT_TOKEN secret.
+DISCORD_GUILD_ID = "1559112591748366357"
+DISCORD_SUPPORT_FORUM = "1559207553940848680"
+DISCORD_BUG_TAG = "1559207553940848681"
 
 # Per-IP limit: 3 reports per minute.
 [[ratelimits]]

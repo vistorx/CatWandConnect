@@ -39,4 +39,4 @@ The webhook URL is a secret: anyone who has it can post in the channel. Never pa
 
 ## Administration
 
-The server is administered through a private bot application ("CatWandConnect Admin", Administrator permission, **Public Bot** off, its role at the top of the role list) using the Discord REST API. Its token is kept outside the repository, on the maintainer's machine. The Support relay uses a separate bot with only the permissions it needs, and its token lives only in the repository's Actions secrets.
+The server is administered through a private bot application ("CatWandConnect Admin", Administrator permission, **Public Bot** off, its role at the top of the role list) using the Discord REST API. Its token is kept outside the repository, on the maintainer's machine. The Support relay uses a separate bot, **CatWandConnect Support**, with only the permissions it needs. Its token lives only in the repository's Actions secrets. That bot opens `#support` posts for reports sent from robots, answers the moderators' `/issue` command, and posts in linked posts when a fix ships ([Support relay](support-relay.md#discord)).

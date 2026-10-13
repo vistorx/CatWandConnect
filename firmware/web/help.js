@@ -177,7 +177,7 @@ async function send() {
     const response = await fetch(`${Links.relay}/report`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: what, report, contact: $('contact').value.trim() }),
+      body: JSON.stringify({ description: what, report, contact: $('contact').value.trim(), followOnDiscord: $('follow').checked }),
     });
     answer = { ok: response.ok, data: await response.json() };
   } catch { /* network error: fall back below */ }
@@ -190,6 +190,14 @@ async function send() {
     link.rel = 'noopener';
     link.textContent = answer.data.url;
     $('sent').replaceChildren(I18n.t('help.send.follow'), ' ', link);
+    if (answer.data.thread) {
+      const thread = document.createElement('a');
+      thread.href = answer.data.thread;
+      thread.target = '_blank';
+      thread.rel = 'noopener';
+      thread.textContent = I18n.t('help.send.thread');
+      $('sent').append(document.createElement('br'), thread);
+    }
     $('sent').hidden = false;
     $('relay').hidden = true;
     if (pending && pending.pending && pending.description === what) {

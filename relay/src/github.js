@@ -94,3 +94,20 @@ export async function createIssue(env, token, issue, fetcher = fetch) {
   const created = await github(fetcher, 'POST', `/repos/${env.REPOSITORY}/issues`, token, issue);
   return { number: created.number, url: created.html_url };
 }
+
+export async function updateIssue(env, token, number, changes, fetcher = fetch) {
+  return github(fetcher, 'PATCH', `/repos/${env.REPOSITORY}/issues/${number}`, token, changes);
+}
+
+export async function getIssue(env, token, number, fetcher = fetch) {
+  return github(fetcher, 'GET', `/repos/${env.REPOSITORY}/issues/${number}`, token);
+}
+
+export async function searchIssues(env, token, query, fetcher = fetch) {
+  const q = encodeURIComponent(`repo:${env.REPOSITORY} ${query}`);
+  return (await github(fetcher, 'GET', `/search/issues?q=${q}&per_page=5`, token)).items;
+}
+
+export async function commentIssue(env, token, number, body, fetcher = fetch) {
+  return github(fetcher, 'POST', `/repos/${env.REPOSITORY}/issues/${number}/comments`, token, { body });
+}

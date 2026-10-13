@@ -118,6 +118,28 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-') }}
           make_latest: ${{ !contains(github.ref_name, '-') }}
 
+  notify-discord:
+    name: Notify Discord threads
+    if: github.ref_type == 'tag'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Posts in every #support thread linked to an issue this release closes
+      # (relay/scripts/notify-release.mjs). Never fails the release.
+      - run: node relay/scripts/notify-release.mjs "${{ github.ref_name }}" || true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: '1559112591748366357'
+
   pages:
     name: Publish the web flasher
     # GitHub Pages needs a public repository (or a paid plan).

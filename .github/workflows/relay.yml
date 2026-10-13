@@ -3,7 +3,8 @@ name: Support relay
 # Tests and deploys the Support relay (relay/, a Cloudflare Worker) when it
 # changes on main. Secrets live only in this repository's Actions secrets:
 # CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, SUPPORT_APP_ID,
-# SUPPORT_APP_PRIVATE_KEY (docs/support-relay.md).
+# SUPPORT_APP_PRIVATE_KEY, DISCORD_BOT_TOKEN, DISCORD_PUBLIC_KEY,
+# DISCORD_APPLICATION_ID (docs/support-relay.md).
 
 on:
   push:
@@ -39,9 +40,19 @@ jobs:
           secrets: |
             SUPPORT_APP_ID
             SUPPORT_APP_PRIVATE_KEY
+            DISCORD_BOT_TOKEN
+            DISCORD_PUBLIC_KEY
         env:
           SUPPORT_APP_ID: ${{ secrets.SUPPORT_APP_ID }}
           SUPPORT_APP_PRIVATE_KEY: ${{ secrets.SUPPORT_APP_PRIVATE_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+      - name: Register the /issue command on Discord
+        run: node scripts/register-commands.mjs
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_GUILD_ID: '1559112591748366357'
       - name: Check the deployed relay answers
         env:
           URL: ${{ steps.deploy.outputs.deployment-url }}

@@ -9,7 +9,8 @@ It is a Cloudflare Worker whose code lives in [`relay/`](../relay). The [Support
 | Request | Answer |
 |---|---|
 | `GET /status` | `{"available": true}`, or `false` while the kill switch is on. |
-| `POST /report` with `{"description": "...", "report": "...", "contact": "..."}` | `201 {"number": 12, "url": "https://github.com/…/issues/12"}` |
+| `POST /report` with `{"description": "...", "report": "...", "contact": "...", "followOnDiscord": false}` | `201 {"number": 12, "url": "https://github.com/…/issues/12"}`, plus `"thread": "https://discord.com/channels/…"` when a Discord thread was opened |
+| `POST /discord/interactions` | Discord's interactions endpoint (signed with Ed25519): the `/issue` command. |
 
 `report` must be a redacted Diagnostic report: it starts with `CatWandConnect diagnostic report` and `Redacted: yes`, and is at most 14 KB. `description` is required (2,000 characters at most) and `contact` is optional (100 characters). The request body is limited to 20 KB.
 
@@ -31,6 +32,23 @@ On any error the Device interface falls back to the prefilled GitHub issue.
 **Issues.** Each issue is titled `[device] <first line of the description>` and labelled `from-device` and `needs-triage`. It contains the description, firmware, chip, the robot's random Device ID (never its MAC address), the optional contact, and the full report in a code block. `@` mentions and `fixes #N` keywords in user text are neutralised.
 
 **Abuse limits.** There is no captcha, because Cloudflare Turnstile cannot run on a `.local` page. Instead the relay allows 3 reports per minute per IP address, a global cap of `DAILY_CAP` issues per UTC day (counted on GitHub with the `from-device` label, 30 by default), and the format and size checks above.
+
+## Discord
+
+The relay uses its own bot, **CatWandConnect Support**. It is not the admin bot. Its only permissions are View Channels, Send Messages, Create Public Threads, Send Messages in Threads, Read Message History, Embed Links and Attach Files.
+
+- **Follow on Discord** (`followOnDiscord: true`). After creating the issue, the relay opens a `#support` forum post tagged `bug` that links to the issue, and adds the post's link to the issue body.
+  - If the contact is exactly a member's Discord username, the post mentions that member. This needs the Server Members intent; without it, the name stays plain text.
+  - Posts allow no other mentions.
+  - If Discord fails, the issue is still created.
+- **`/issue`.** In a `#support` post, a member with Manage Threads runs `/issue`. The relay creates a `needs-triage` issue with the post's title and first message, any `catwandconnect-report*.txt` Diagnostic report attached to that message, and the post link, then answers in the post with the issue link. Running it again on the same post links the existing issue instead of creating a duplicate.
+- **Release notifications.** After each release, the `notify-discord` job of the Release workflow runs `relay/scripts/notify-release.mjs`.
+  - It reads the squash-merge titles since the previous tag (for a stable release, since the previous stable one), the issues and PRs they reference, and the issues those PRs close.
+  - It posts the version and how to update in every Discord post linked from those closed issues, in their body or comments.
+  - A hidden `[release vX.Y.Z]` marker line prevents posting twice.
+  - It never fails the release.
+
+The Support relay workflow registers `/issue` on the server at every deploy.
 
 ## Setup (maintainer, once)
 
@@ -54,8 +72,13 @@ The agent never sees the secrets. They are pasted only into the repository's Act
    - `SUPPORT_APP_PRIVATE_KEY`: the whole `.pem` file, including its `BEGIN` and `END` lines.
 
    Then delete the downloaded `.pem`. A new one can be generated at any time.
-4. **Deploy.** Run the *Support relay* workflow (Actions tab → Run workflow). Its log ends with the relay's URL and `{"available":true}`.
-5. **Wire it.** Put the relay URL in `firmware/web/links.js` (`relay`). The Help page then checks `GET /status` and offers "Send to support" next to the prefilled issue. With `relay` empty, the relay unreachable or the kill switch on, the Help page offers only the prefilled issue.
+4. **Discord bot.** In the [Developer Portal](https://discord.com/developers/applications), create the application `CatWandConnect Support`.
+   - On the Bot tab, untick **Public Bot**, then Reset Token.
+   - Add the secrets `DISCORD_BOT_TOKEN`, `DISCORD_APPLICATION_ID` and `DISCORD_PUBLIC_KEY` (the Public Key comes from General Information).
+   - Invite the bot with `https://discord.com/oauth2/authorize?client_id=<application id>&scope=bot%20applications.commands&permissions=309237763072`.
+   - After the next deploy, set **Interactions Endpoint URL** (General Information) to `<relay URL>/discord/interactions`. Discord checks it when you save.
+5. **Deploy.** Run the *Support relay* workflow (Actions tab → Run workflow). Its log ends with the relay's URL and `{"available":true}`.
+6. **Wire it.** Put the relay URL in `firmware/web/links.js` (`relay`). The Help page then checks `GET /status` and offers "Send to support" next to the prefilled issue. With `relay` empty, the relay unreachable or the kill switch on, the Help page offers only the prefilled issue.
 
 ## Operating it
 
