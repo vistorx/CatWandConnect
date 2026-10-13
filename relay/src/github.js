@@ -66,7 +66,11 @@ async function github(fetcher, method, path, token, body) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(`GitHub ${method} ${path} answered ${response.status}: ${data.message || ''}`);
+  if (!response.ok) {
+    const error = new Error(`GitHub ${method} ${path} answered ${response.status}: ${data.message || ''}`);
+    error.detail = `${path.split('/').filter(Boolean).slice(0, 2).join('/')}: ${response.status}`;
+    throw error;
+  }
   return data;
 }
 

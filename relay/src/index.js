@@ -87,7 +87,8 @@ export async function handle(request, env, deps = {}) {
     return json(201, issue, origin);
   } catch (error) {
     console.error(error.message);
-    return json(502, { error: 'github_unavailable' }, origin);
+    // The GitHub step and status only (no secret, no report) to diagnose the setup.
+    return json(502, { error: 'github_unavailable', detail: error.detail || 'key' }, origin);
   }
 }
 
