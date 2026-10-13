@@ -1,6 +1,10 @@
 #include "diagnostics_api.h"
 
+#include <ArduinoJson.h>
+#include <AsyncJson.h>
+#include <Preferences.h>
 #include <WiFi.h>
+#include <diagnostics/pending.h>
 #include <diagnostics/report.h>
 
 #include "device_api.h"
@@ -8,9 +12,34 @@
 #include "mqtt_bridge.h"
 #include "network/network.h"
 
+namespace {
+
+// The Pending report lives next to the settings, in the "cwc" NVS namespace.
+class NvsBlobs : public diagnostics::BlobStore {
+ public:
+  bool read(const char* key, void* data, size_t size) override {
+    Preferences prefs;
+    prefs.begin("cwc", true);
+    bool ok = prefs.getBytesLength(key) == size && prefs.getBytes(key, data, size) == size;
+    prefs.end();
+    return ok;
+  }
+  bool write(const char* key, const void* data, size_t size) override {
+    Preferences prefs;
+    prefs.begin("cwc", false);
+    bool ok = prefs.putBytes(key, data, size) == size;
+    prefs.end();
+    return ok;
+  }
+};
+
+NvsBlobs blobs;
+
+}  // namespace
+
 void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, Network& network,
                          auth::PinGuard& pin, const String& name, const String& hostname) {
-  server.on("/api/diagnostics", HTTP_GET, [&api, &mqtt, &network, &pin, name, hostname](AsyncWebServerRequest* request) {
+  auto build = [&api, &mqtt, &network, &pin, name, hostname](bool redacted) {
     diagnostics::ReportData d;
     d.name = name.c_str();
     d.hostname = hostname.c_str();
@@ -46,8 +75,44 @@ void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqt
     d.hardware = api.hardwareJson().c_str();
     d.log = recentLog();
     d.notedPersonal = notedPersonal();
+    return diagnostics::reportText(d, redacted);
+  };
 
+  // Registered before /api/diagnostics, which would also match this path.
+  server.on("/api/diagnostics/pending", HTTP_GET, [](AsyncWebServerRequest* request) {
+    diagnostics::PendingReport pending;
+    JsonDocument doc;
+    doc["pending"] = diagnostics::loadPending(blobs, pending);
+    if (doc["pending"]) {
+      doc["description"] = pending.description;
+      doc["report"] = pending.report;
+    }
+    String body;
+    serializeJson(doc, body);
+    request->send(200, "application/json", body);
+  });
+  server.on("/api/diagnostics/pending", HTTP_DELETE, [](AsyncWebServerRequest* request) {
+    diagnostics::clearPending(blobs);
+    logLine("[support] pending report discarded");
+    request->send(200, "application/json", "{\"pending\":false}");
+  });
+  auto* save = new AsyncCallbackJsonWebHandler(
+      "/api/diagnostics/pending", [build](AsyncWebServerRequest* request, JsonVariant& body) {
+        const char* description = body["description"] | "";
+        if (*description == 0) {
+          request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+          return;
+        }
+        // The robot builds the redacted report itself: never trust a client's copy.
+        bool ok = diagnostics::savePending(blobs, description, build(true));
+        logLine("[support] pending report %s", ok ? "saved" : "could not be saved");
+        request->send(ok ? 200 : 500, "application/json", ok ? "{\"pending\":true}" : "{\"error\":\"storage\"}");
+      });
+  save->setMethod(HTTP_PUT);
+  server.addHandler(save);
+
+  server.on("/api/diagnostics", HTTP_GET, [build](AsyncWebServerRequest* request) {
     bool full = request->hasParam("full") && request->getParam("full")->value() == "1";
-    request->send(200, "text/plain; charset=utf-8", diagnostics::reportText(d, !full).c_str());
+    request->send(200, "text/plain; charset=utf-8", build(!full).c_str());
   });
 }

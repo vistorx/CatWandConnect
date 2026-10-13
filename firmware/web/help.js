@@ -94,7 +94,58 @@ $('open-issue').addEventListener('click', () => {
 });
 $('download').addEventListener('click', download);
 
+// --- Pending report: saved on the hotspot, sent later -----------------------
+
+let pending = null;  // { pending, description, report } kept by the robot
+
+async function loadPending() {
+  try {
+    pending = await (await fetch('/api/diagnostics/pending')).json();
+  } catch {
+    pending = null;
+  }
+  $('pending').hidden = !(pending && pending.pending);
+}
+
+$('save-later').addEventListener('click', async () => {
+  const what = $('what').value.trim();
+  if (!what) return say('error', I18n.t('help.bug.what.missing'));
+  const response = await fetch('/api/diagnostics/pending', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ description: what }),
+  });
+  say(response.ok ? 'ok' : 'error', I18n.t(response.ok ? 'pending.saved' : 'pending.failed'));
+  if (response.ok) loadPending();
+});
+
+$('pending-use').addEventListener('click', () => {
+  // Same flow as a new report, with the saved description and report.
+  $('what').value = pending.description;
+  report = pending.report;
+  const fitted = fitReport(pending.description);
+  issueUrl = fitted.url;
+  $('summary').textContent = `${pending.description}\n\n${fitted.body}`;
+  $('trimmed').hidden = !fitted.trimmed;
+  $('publish').hidden = false;
+  $('publish').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+$('pending-discard').addEventListener('click', async () => {
+  await fetch('/api/diagnostics/pending', { method: 'DELETE' });
+  say('ok', I18n.t('pending.discarded'));
+  loadPending();
+});
+
+// On the hotspot the phone has no internet: offer to keep the report instead.
+async function checkNetwork() {
+  try {
+    const wifi = await (await fetch('/api/wifi/status')).json();
+    $('offline').hidden = wifi.mode === 'connected';
+  } catch { /* leave it hidden */ }
+}
+
 I18n.load().then(() => {
+  loadPending();
+  checkNetwork();
   $('discord').href = Links.discord;
   $('troubleshooting').href = Links.troubleshooting;
   $('security').href = Links.security;

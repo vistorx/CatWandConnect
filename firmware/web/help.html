@@ -20,6 +20,15 @@
 </header>
 
 <main class="form-page">
+  <section id="pending" hidden>
+    <h2 data-i18n="pending.title"></h2>
+    <p class="hint" data-i18n="pending.hint"></p>
+    <div class="actions">
+      <button id="pending-use" class="primary" data-i18n="pending.use"></button>
+      <button id="pending-discard" class="secondary" data-i18n="pending.discard"></button>
+    </div>
+  </section>
+
   <section>
     <h2 data-i18n="help.question.title"></h2>
     <p class="hint" data-i18n="help.question.hint"></p>
@@ -35,6 +44,10 @@
       <textarea id="what" rows="4"></textarea>
     </label>
     <button id="preview" class="primary" data-i18n="help.bug.preview"></button>
+    <div id="offline" hidden>
+      <p class="note" data-i18n="pending.offline"></p>
+      <button id="save-later" class="secondary" data-i18n="pending.save"></button>
+    </div>
 
     <div id="publish" hidden>
       <p class="note" data-i18n="help.bug.public"></p>

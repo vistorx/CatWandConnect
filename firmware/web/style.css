@@ -145,6 +145,7 @@ button.primary {
 
 button:disabled { opacity: .5; }
 #skip { margin-top: 1.5rem; }
+#status:empty { display: none; }
 
 button.text-button {
   padding: .25rem 0;
@@ -278,6 +279,8 @@ button.secondary {
   font-size: .9rem;
 }
 .banner a { font-weight: 600; white-space: nowrap; }
+p.banner { margin: 0; }
+.banner:not([hidden]) + .banner { margin-top: -.75rem; }
 
 .link-button { display: inline-block; margin: .25rem 0 1rem; font-weight: 600; }
 
