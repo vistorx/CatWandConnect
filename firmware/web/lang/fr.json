@@ -221,5 +221,19 @@
   "help.bug.opened": "Le rapport a été téléchargé : glissez-le dans l'issue avant de l'envoyer.",
   "help.security": "Un problème de sécurité ? Ne le signalez jamais en public :",
   "help.security.link": "signalez-le en privé",
-  "help.stuck": "Besoin d'aide ?"
+  "help.stuck": "Besoin d'aide ?",
+  "pending.banner": "Un rapport de problème enregistré sur le hotspot attend.",
+  "pending.banner.open": "L'envoyer ou le supprimer",
+  "pending.title": "Rapport enregistré",
+  "pending.hint": "Vous avez décrit un problème pendant que le robot était sur son hotspot. Envoyez-le maintenant que vous êtes en ligne, ou supprimez-le. Il n'est jamais envoyé tout seul.",
+  "pending.use": "Relire et envoyer",
+  "pending.discard": "Supprimer",
+  "pending.discarded": "Rapport enregistré supprimé.",
+  "pending.offline": "Pas d'internet sur le hotspot du robot ? Enregistrez le rapport sur le robot et envoyez-le quand il sera sur votre Wi-Fi.",
+  "pending.save": "Enregistrer pour plus tard",
+  "pending.saved": "Enregistré sur le robot. Quand il sera sur votre Wi-Fi, l'écran principal proposera de l'envoyer.",
+  "pending.failed": "Le rapport n'a pas pu être enregistré.",
+  "setup.problem": "Un problème ?",
+  "setup.problem.hint": "Téléchargez le rapport de diagnostic du robot (nom du Wi-Fi et adresses masqués), ou décrivez le problème et enregistrez-le pour plus tard. Questions : discord.gg/Rbqge3v9dk",
+  "setup.problem.save": "Le décrire et enregistrer pour plus tard"
 }

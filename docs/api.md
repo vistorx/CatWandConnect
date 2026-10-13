@@ -97,6 +97,16 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 
 `GET /api/diagnostics` returns the Diagnostic report as plain text (`text/plain`): firmware version, chip, last reset reason, uptime, memory, settings PIN state, Wi-Fi and Home Assistant (MQTT) state, settings, wiring and the last 200 log lines (at most 12 KB). It is redacted by default: the robot's name and hostname (unless they are the default), the Wi-Fi network, IP and MAC addresses, the broker address and the MQTT user are replaced by placeholders such as `<wifi-network>`, in the log lines too. `GET /api/diagnostics?full=1` keeps them, for local use only. The MQTT password is never included.
 
+`/api/diagnostics/pending` holds the Pending report, a problem described on the hotspot and sent later:
+
+| Method | Body | Answer |
+|---|---|---|
+| `GET` | | `{"pending": true, "description": "...", "report": "..."}` or `{"pending": false}` |
+| `PUT` | `{"description": "..."}` | Saves the description (600 characters at most) with the redacted report the robot builds itself, replacing any previous one. The report keeps its summary and its most recent log lines within 3 KB. `400` without a description. |
+| `DELETE` | | Discards it. |
+
+The robot never sends it: the Device interface offers it on the main screen once the robot is on the owner's network.
+
 ```text
 CatWandConnect diagnostic report
 Redacted: yes

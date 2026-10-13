@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 const WEB = fileURLToPath(new URL('../web/', import.meta.url));
 const PORT = Number(process.argv[2] || 8080);
+let pendingReport = null;  // the Pending report, kept until sent or discarded
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 
@@ -297,8 +298,16 @@ const API = {
   'GET /api/calibration': () => [200, calibrationView()],
   'POST /api/calibration': calibrate,
   'POST /api/stow': () => { stow(); return [202, {}]; },
-  'GET /api/wifi/status': () => [200, { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1',
-    host: 'catwandconnect.local' }],
+  // HOTSPOT=1 simulates a robot on its setup hotspot, with no internet on the phone.
+  'GET /api/wifi/status': () => [200, process.env.HOTSPOT === '1' ? { mode: 'hotspot', failed: false }
+    : { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1', host: 'catwandconnect.local' }],
+  'GET /api/diagnostics/pending': () => [200, pendingReport ? { pending: true, ...pendingReport } : { pending: false }],
+  'PUT /api/diagnostics/pending': body => {
+    if (!body.description) return [400, { error: 'invalid_request' }];
+    pendingReport = { description: String(body.description).slice(0, 600), report: diagnostics(false) };
+    return [200, { pending: true }];
+  },
+  'DELETE /api/diagnostics/pending': () => { pendingReport = null; return [200, { pending: false }]; },
   'GET /api/wifi/networks': () => {
     // Answers "scanning" once in two, like the robot's background scan.
     scanToggle = !scanToggle;
