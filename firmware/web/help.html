@@ -53,6 +53,16 @@
       <p class="note" data-i18n="help.bug.public"></p>
       <pre id="summary" class="report" tabindex="0"></pre>
       <p class="hint" id="trimmed" hidden data-i18n="help.bug.trimmed"></p>
+      <div id="relay" hidden>
+        <label class="stacked">
+          <span data-i18n="help.send.contact"></span>
+          <input id="contact" type="text" maxlength="100" autocomplete="off">
+        </label>
+        <p class="hint" data-i18n="help.send.contact.hint"></p>
+        <button id="send" class="primary" data-i18n="help.send"></button>
+        <p class="hint" data-i18n="help.send.hint"></p>
+      </div>
+      <p class="message" role="status" id="sent" hidden></p>
       <div class="actions">
         <button id="open-issue" class="primary" data-i18n="help.bug.open"></button>
         <button id="download" class="secondary" data-i18n="help.bug.download"></button>

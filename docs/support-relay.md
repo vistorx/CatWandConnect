@@ -55,7 +55,7 @@ The agent never sees the secrets. They are pasted only into the repository's Act
 
    Then delete the downloaded `.pem`. A new one can be generated at any time.
 4. **Deploy.** Run the *Support relay* workflow (Actions tab → Run workflow). Its log ends with the relay's URL and `{"available":true}`.
-5. **Wire it.** Put the relay URL in `firmware/web/links.js` (`relay`), so the next release offers "Send to support".
+5. **Wire it.** Put the relay URL in `firmware/web/links.js` (`relay`). The Help page then checks `GET /status` and offers "Send to support" next to the prefilled issue. With `relay` empty, the relay unreachable or the kill switch on, the Help page offers only the prefilled issue.
 
 ## Operating it
 

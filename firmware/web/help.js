@@ -143,8 +143,73 @@ async function checkNetwork() {
   } catch { /* leave it hidden */ }
 }
 
+// --- Send to support through the Support relay ------------------------------
+
+let relayUp = false;
+
+async function checkRelay() {
+  if (!Links.relay) return;
+  try {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 5000);
+    const status = await (await fetch(`${Links.relay}/status`, { signal: controller.signal })).json();
+    relayUp = status.available === true;
+  } catch {
+    relayUp = false;  // no internet (hotspot) or relay down: prefilled issue only
+  }
+  showRelay();
+}
+
+function showRelay() {
+  $('relay').hidden = !relayUp;
+  $('open-issue').className = relayUp ? 'secondary' : 'primary';
+}
+
+// The relay gets the whole redacted report; the prefilled issue stays the
+// fallback whenever it cannot take it.
+async function send() {
+  const what = $('what').value.trim();
+  if (!what || !report) return;
+  $('send').disabled = true;
+  say('', I18n.t('help.send.sending'));
+  let answer = null;
+  try {
+    const response = await fetch(`${Links.relay}/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: what, report, contact: $('contact').value.trim() }),
+    });
+    answer = { ok: response.ok, data: await response.json() };
+  } catch { /* network error: fall back below */ }
+  $('send').disabled = false;
+  if (answer && answer.ok && answer.data.url) {
+    say('ok', I18n.t('help.send.done', { number: answer.data.number }));
+    const link = document.createElement('a');
+    link.href = answer.data.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = answer.data.url;
+    $('sent').replaceChildren(I18n.t('help.send.follow'), ' ', link);
+    $('sent').hidden = false;
+    $('relay').hidden = true;
+    if (pending && pending.pending && pending.description === what) {
+      await fetch('/api/diagnostics/pending', { method: 'DELETE' });
+      loadPending();
+    }
+    return;
+  }
+  relayUp = false;
+  showRelay();
+  const code = answer && answer.data && answer.data.error;
+  say('error', I18n.t(code === 'rate_limited' || code === 'daily_cap' ? 'help.send.busy' : 'help.send.failed'));
+}
+
+$('send').addEventListener('click', send);
+$('what').addEventListener('input', () => { $('sent').hidden = true; showRelay(); });
+
 I18n.load().then(() => {
   loadPending();
+  checkRelay();
   checkNetwork();
   $('discord').href = Links.discord;
   $('troubleshooting').href = Links.troubleshooting;

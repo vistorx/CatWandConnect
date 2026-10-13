@@ -8,7 +8,7 @@ CatWandConnect is a free project maintained in spare time. Help is public and be
 |---|---|
 | A question, a build problem, or you want to show your robot | The [Discord server](https://discord.gg/Rbqge3v9dk): post in `#support` (one post per problem) or `📸・showroom`. No GitHub account needed. |
 | A bug, with a GitHub account | [Open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose) and pick the form that matches. |
-| A bug, without a GitHub account | Post it in `#support` on [Discord](https://discord.gg/Rbqge3v9dk). Confirmed bugs are turned into GitHub issues for you. |
+| A bug, without a GitHub account | On your robot: Settings → Robot → Help → Report a problem → **Send to support**. The robot's redacted Diagnostic report becomes a public GitHub issue for you. Or post it in `#support` on [Discord](https://discord.gg/Rbqge3v9dk): confirmed bugs are turned into GitHub issues for you. |
 | A security vulnerability | **Never in public.** Report it privately: see [SECURITY.md](SECURITY.md). |
 
 Before asking, the [Troubleshooting guide](docs/troubleshooting.md) answers the common problems: the board doesn't show up when installing, Wi-Fi setup, Motion, updates and the settings PIN.
