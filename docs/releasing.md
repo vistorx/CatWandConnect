@@ -15,7 +15,7 @@ A version normally goes through one or more betas (`v0.2.0-beta.1`, `v0.2.0-beta
 
 The web flasher offers both channels: **Stable** is the newest non-pre-release, **Beta** the newest release of any kind. Publishing a beta never replaces the stable install. Before the first stable release, the flasher offers Beta only.
 
-To update a robot that is already installed, on either channel, download the `-ota.bin` file of the release you want and upload it in **Settings → Firmware update**. Settings and Calibration are kept.
+To update a robot that is already installed, on either channel, download the `-ota.bin` file of the release you want and upload it in **Settings → Robot → Firmware update**. Settings and Calibration are kept.
 
 ## What a release does
 
@@ -25,7 +25,7 @@ Pushing a `vX.Y.Z` or `vX.Y.Z-beta.N` tag runs `.github/workflows/release.yml`:
 2. Builds the three chips with `CWC_VERSION` set from the tag (`0.1.0` or `0.1.0-beta.1`).
 3. Publishes a GitHub release with two files per chip, marked as a pre-release for a beta tag:
    - `catwandconnect-<chip>-factory.bin`: the full flash image, written at offset 0 by `esptool`. It also covers the settings partition (NVS) with blank bytes, so writing it whole wipes the robot's settings;
-   - `catwandconnect-<chip>-ota.bin`: the app only, for **Settings → Firmware update**.
+   - `catwandconnect-<chip>-ota.bin`: the app only, for **Settings → Robot → Firmware update**.
 4. Rebuilds the web flasher from all published releases (`firmware/tools/flasher_site.py`): `flasher/index.html`, then `stable/` and `beta/` folders with each channel's images and manifest, and `channels.json`. Each factory image is split into a `-boot.bin` (offset 0, up to the settings partition) and an `-app.bin` (after it), and the manifest lists those two parts, so installing without "Erase device" keeps the robot's settings (`firmware/tools/flasher_manifest.py`). It is published to GitHub Pages. This step only runs once the repository is public.
 
 Running the workflow by hand (**Actions → Release → Run workflow**) is a dry run: it builds everything and keeps a flasher preview as an artifact, but publishes nothing. Ticking **Republish the web flasher** skips the build and only rebuilds the flasher from the existing releases, for example after deleting a bad release.

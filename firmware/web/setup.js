@@ -77,7 +77,7 @@ $('skip').addEventListener('click', () => {
   sessionStorage.setItem(SKIP_KEY, '1');
   location.href = '/index.html';
 });
-// Coming here on purpose (Settings → Wi-Fi) brings the setup back to "/".
+// Coming here on purpose (Settings → Network) brings the setup back to "/".
 if (location.pathname !== '/') sessionStorage.removeItem(SKIP_KEY);
 
 // While the robot tries a network its radio leaves the hotspot's channel, so

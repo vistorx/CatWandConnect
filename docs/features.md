@@ -22,13 +22,14 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 ## Setup
 
 - **Web flasher.** Install the firmware from Chrome or Edge on a computer in one click, with no tools to install. The right file for your chip is picked automatically. Choose the Stable or Beta channel. Reinstalling over a robot keeps its Wi-Fi and settings unless you tick "Erase device".
-- **Wi-Fi in two ways.** Enter your Wi-Fi in the web flasher right after installing, or join the robot's own `CatWandConnect-XXXX` hotspot, whose setup page opens by itself and lists nearby networks, strongest first. Or tap "Continue without Wi-Fi" and use the robot from its hotspot; connect it later from Settings → Wi-Fi.
+- **Wi-Fi in two ways.** Enter your Wi-Fi in the web flasher right after installing, or join the robot's own `CatWandConnect-XXXX` hotspot, whose setup page opens by itself and lists nearby networks, strongest first. Or tap "Continue without Wi-Fi" and use the robot from its hotspot; connect it later from Settings → Network → Wi-Fi.
 - **Self-healing Wi-Fi.** If your router disappears, the hotspot comes back; the robot keeps retrying your network and leaves the hotspot as soon as it returns.
 - **Calibration wizard.** A step-by-step guide to set the Travel limits and Stow position for your build: each step brings the wand to the current value, nudge it to the right end, pick the rest position (the wizard recalls what you have marked and the allowed range), then watch a slow test sweep before saving. Cancel at any time to keep the previous values.
 - **Your wiring.** Choose which GPIO drives each servo (only the pins that are safe on your chip are offered), reverse an axis and, under Servo travel (advanced), set each servo's pulse range: how far it turns, with a reset to the defaults.
 
 ## Everyday use
 
+- **Settings in tabs.** Motion (limits, Calibration, speed), Hardware (wiring), Network (Wi-Fi, Home Assistant) and Robot (name, language, PIN, firmware update, Info). Links can open a tab directly, e.g. `settings.html#network`.
 - **Name your robot.** "CatWandConnect salon" becomes `http://catwandconnect-salon.local/` and names its hotspot and its Home Assistant device.
 - **English and French.** The interface follows your phone's language, or the one you choose in Settings.
 - **Home-screen icon.** Add the interface to your phone's home screen; it opens full screen like an app.

@@ -179,9 +179,16 @@
   "settings.pulse.default": "Default: {min} – {max} µs.",
   "settings.pulse.reset": "Reset to default",
   "setup.skip": "Continue without Wi-Fi",
-  "setup.skip.hint": "Use the robot from this hotspot for now. You can connect it to your Wi-Fi later in Settings.",
+  "setup.skip.hint": "Use the robot from this hotspot for now. You can connect it to your Wi-Fi later in Settings → Network.",
   "settings.wifi": "Wi-Fi",
   "settings.wifi.connected": "Connected to {ssid}.",
   "settings.wifi.hotspot": "Not on your Wi-Fi: you are using the robot through its own hotspot.",
-  "settings.wifi.setup": "Connect to Wi-Fi"
+  "settings.wifi.setup": "Connect to Wi-Fi",
+  "settings.tab.motion": "Motion",
+  "settings.tab.hardware": "Hardware",
+  "settings.tab.network": "Network",
+  "settings.tab.robot": "Robot",
+  "settings.about": "About this robot",
+  "settings.about.hint": "Firmware, chip, memory, Wi-Fi state and the Diagnostic report for bug reports.",
+  "settings.about.open": "Open Info"
 }

@@ -21,7 +21,7 @@ Start each section from a board with no saved Wi-Fi: erase it with `pio run -e <
 - [ ] With no saved Wi-Fi, a `CatWandConnect-XXXX` network appears within a few seconds of power-up.
 - [ ] Joining it from a phone opens the setup page automatically, on both iOS and Android. If not, `http://192.168.4.1/` opens it.
 - [ ] The setup page lists nearby networks, strongest first and preselected, with a lock on secured ones. Tapping one fills the network name; "Rescan" searches again; a hidden network can still be typed.
-- [ ] On the setup page, "Continue without Wi-Fi" opens the main screen through the hotspot; the joystick and Settings work, and Settings → Wi-Fi → "Connect to Wi-Fi" brings the setup page back.
+- [ ] On the setup page, "Continue without Wi-Fi" opens the main screen through the hotspot; the joystick and Settings work, and Settings → Network → Wi-Fi → "Connect to Wi-Fi" brings the setup page back.
 - [ ] A wrong password shows "Could not connect" and the hotspot stays up.
 - [ ] The right password shows "Connected" with the robot's address. The hotspot disappears about 30 s later.
 - [ ] Rebooting reconnects to that network without the hotspot.
@@ -91,7 +91,8 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 
 ## Hardware configuration
 
-- [ ] Settings → Wiring lists only pins allowed on the board's chip, and shows the current wiring.
+- [ ] Settings opens on the Motion tab and has four tabs (Motion, Hardware, Network, Robot) that fit a phone screen; each section is in one tab, and reloading keeps the tab.
+- [ ] Settings → Hardware → Wiring lists only pins allowed on the board's chip, and shows the current wiring.
 - [ ] Choosing the same pin for both servos shows an error and saves nothing.
 - [ ] Rewire the Horizontal servo to another allowed pin, select it and save: the robot restarts, and after boot the servo works on the new pin.
 - [ ] Ticking "Reverse direction" on an axis and saving: the robot restarts, the joystick moves that axis the other way, and the "Not calibrated yet" banner is back.
@@ -118,7 +119,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 
 ## Settings PIN
 
-- [ ] On a fresh robot, Settings → Settings PIN says "Off", and every setting can be changed without a PIN.
+- [ ] On a fresh robot, Settings → Robot → Settings PIN says "Off", and every setting can be changed without a PIN.
 - [ ] Set a PIN of 4 digits. You stay signed in on that phone.
 - [ ] On a second phone (or a private window), the joystick, the speed slider and Stow work without a PIN.
 - [ ] On that second phone, saving any setting (limits, speed and acceleration, wiring, name), starting Calibration or changing Wi-Fi from the hotspot asks for the PIN. With the right PIN the change goes through.
@@ -131,7 +132,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 
 Build two versions that differ visibly (for example change `CWC_VERSION` in `platformio.ini`) and use the `firmware.bin` of the second.
 
-- [ ] Settings → Firmware update shows the installed version.
+- [ ] Settings → Robot → Firmware update shows the installed version.
 - [ ] Uploading the new file shows progress, then "Installed". The robot restarts, the page reloads and the Info page shows the new version.
 - [ ] Wi-Fi, name, Calibration, speed, wiring and PIN are unchanged after the update.
 - [ ] Uploading a file built for another chip is refused with "for another chip", and nothing changes.
@@ -143,7 +144,7 @@ Build two versions that differ visibly (for example change `CWC_VERSION` in `pla
 
 Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup](home-assistant.md)).
 
-- [ ] On a fresh robot, Settings → Home Assistant is off and the robot makes no MQTT connection.
+- [ ] On a fresh robot, Settings → Network → Home Assistant is off and the robot makes no MQTT connection.
 - [ ] Enabling it with the broker address, user and password shows "Connected" within a few seconds.
 - [ ] A wrong password shows "refused the user or password"; a wrong address shows "Can't reach the broker". The joystick stays smooth while the robot keeps retrying.
 - [ ] The device appears in Home Assistant under the robot's name, with Stow, Horizontal/Vertical position, Horizontal/Vertical maximum speed and Activity.
