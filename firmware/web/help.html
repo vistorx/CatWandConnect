@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CatWandConnect</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#111113">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 data-i18n="help.title"></h1>
+  <a href="settings.html#robot" class="nav" data-i18n="nav.back"></a>
+</header>
+
+<main class="form-page">
+  <section>
+    <h2 data-i18n="help.question.title"></h2>
+    <p class="hint" data-i18n="help.question.hint"></p>
+    <a id="discord" class="link-button" target="_blank" rel="noopener" data-i18n="help.question.open"></a>
+    <p class="hint"><a id="troubleshooting" target="_blank" rel="noopener" data-i18n="help.troubleshooting"></a></p>
+  </section>
+
+  <section>
+    <h2 data-i18n="help.bug.title"></h2>
+    <p class="hint" data-i18n="help.bug.hint"></p>
+    <label class="stacked">
+      <span data-i18n="help.bug.what"></span>
+      <textarea id="what" rows="4"></textarea>
+    </label>
+    <button id="preview" class="primary" data-i18n="help.bug.preview"></button>
+
+    <div id="publish" hidden>
+      <p class="note" data-i18n="help.bug.public"></p>
+      <pre id="summary" class="report" tabindex="0"></pre>
+      <p class="hint" id="trimmed" hidden data-i18n="help.bug.trimmed"></p>
+      <div class="actions">
+        <button id="open-issue" class="primary" data-i18n="help.bug.open"></button>
+        <button id="download" class="secondary" data-i18n="help.bug.download"></button>
+      </div>
+      <p class="hint" data-i18n="help.bug.account"></p>
+    </div>
+    <p class="message" role="status" id="message"></p>
+  </section>
+
+  <p class="hint"><span data-i18n="help.security"></span> <a id="security" target="_blank" rel="noopener" data-i18n="help.security.link"></a></p>
+</main>
+
+<script src="i18n.js"></script>
+<script src="links.js"></script>
+<script src="help.js"></script>
+</body>
+</html>
