@@ -34,3 +34,10 @@ void PwmServoDriver::release(cwc::Axis axis) {
   // Without pulses the servo stops holding and rests.
   ledcWrite(channel(axis), 0);
 }
+
+void PwmServoDriver::reverse(cwc::Axis axis) {
+  // Flips the direction from the next pulse on; the Robot core mirrors its
+  // angles at the same time, so the same pulse keeps going out.
+  cwc::ServoHardware& servo = config_.axis(axis);
+  servo.inverted = !servo.inverted;
+}

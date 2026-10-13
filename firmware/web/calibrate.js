@@ -14,6 +14,8 @@ const STEPS = {
   confirm: { axes: [], number: 6 },
 };
 const NUDGES = [-5, -1, 1, 5];
+// Steps where the axis can be reversed (minimum and maximum of each axis).
+const REVERSIBLE = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max'];
 
 let step = null;
 let position = { horizontal: null, vertical: null };
@@ -83,6 +85,8 @@ function show(next) {
       <div class="nudge-row">
         ${NUDGES.map(d => `<button type="button" class="secondary" data-axis="${axis}" data-degrees="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)}°</button>`).join('')}
       </div>
+      ${REVERSIBLE.includes(step) ? `<p class="hint">${I18n.t(`calibration.reverse.${axis}`)}</p>
+      <button type="button" class="secondary" data-reverse="${axis}">${I18n.t('calibration.reverse.button')}</button>` : ''}
     </fieldset>`).join('');
   renderPositions();
 
@@ -125,6 +129,13 @@ function renderPositions() {
 }
 
 $('nudges').addEventListener('click', event => {
+  const reverse = event.target.closest('button[data-reverse]');
+  if (reverse) {
+    call('reverse', { axis: reverse.dataset.reverse }).then(() => {
+      if ($('message').dataset.kind !== 'error') say('ok', I18n.t('calibration.reverse.done'));
+    });
+    return;
+  }
   const button = event.target.closest('button[data-axis]');
   if (button) call('nudge', { axis: button.dataset.axis, degrees: Number(button.dataset.degrees) });
 });

@@ -20,9 +20,11 @@ class FakeMotorDriver : public MotorDriver {
 
   void moveTo(Axis axis, float degrees) override { moves.push_back({axis, degrees}); }
   void release(Axis axis) override { releases.push_back(axis); }
+  void reverse(Axis axis) override { reversals.push_back(axis); }
 
   std::vector<Move> moves;
   std::vector<Axis> releases;
+  std::vector<Axis> reversals;
 };
 
 class FakeClock : public Clock {

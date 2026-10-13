@@ -288,6 +288,76 @@ void test_a_first_calibration_starts_at_the_default_limits() {
   TEST_ASSERT_FLOAT_WITHIN(0.01, 90, rig.robot.position(Axis::Vertical));  // other axis untouched
 }
 
+// Reversing an axis during Calibration mirrors every angle (a -> 180 - a) so
+// the wand stays put physically, and starts that axis over at its minimum.
+void test_reversing_an_axis_keeps_the_wand_still_and_mirrors_the_values() {
+  Rig rig;
+  rig.calibrate(30, 150, 40, 140, 100, 60);
+  rig.robot.confirmCalibration();
+  rig.run(15000);
+  rig.robot.startCalibration();
+  rig.run(15000);                                   // at Horizontal minimum, 30
+  rig.robot.nudge(Axis::Horizontal, -5);
+  rig.run(2000);                                    // 25
+  size_t sent = rig.motors.moves.size();
+
+  TEST_ASSERT_TRUE(rig.robot.reverseAxis(Axis::Horizontal));
+
+  TEST_ASSERT_EQUAL(1, rig.motors.reversals.size());
+  TEST_ASSERT_TRUE(rig.motors.reversals[0] == Axis::Horizontal);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 155, rig.robot.position(Axis::Horizontal));
+  TEST_ASSERT_EQUAL(sent, rig.motors.moves.size());  // no new pulse: same physical spot
+  const AxisSettings& draft = rig.robot.calibrationDraft().axis(Axis::Horizontal);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 30, draft.travel.min);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 150, draft.travel.max);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 80, draft.stow);
+  const AxisSettings& saved = rig.robot.settings().axis(Axis::Horizontal);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 30, saved.travel.min);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 150, saved.travel.max);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 80, saved.stow);
+  TEST_ASSERT_TRUE(rig.robot.settings().calibrated);
+  TEST_ASSERT_TRUE(rig.robot.calibrationStep() == CalibrationStep::HorizontalMin);
+  rig.run(15000);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 30, rig.robot.position(Axis::Horizontal));  // new minimum
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 40, rig.robot.calibrationDraft().axis(Axis::Vertical).travel.min);
+}
+
+void test_reversing_from_the_maximum_step_restarts_at_the_minimum() {
+  Rig rig;
+  rig.robot.startCalibration();
+  rig.nudgeTo(Axis::Horizontal, 50);
+  TEST_ASSERT_TRUE(rig.robot.markCalibration().ok());
+
+  TEST_ASSERT_TRUE(rig.robot.reverseAxis(Axis::Horizontal));
+
+  TEST_ASSERT_TRUE(rig.robot.calibrationStep() == CalibrationStep::HorizontalMin);
+}
+
+void test_reversing_is_only_offered_on_the_axis_limit_steps() {
+  Rig rig;
+  TEST_ASSERT_FALSE(rig.robot.reverseAxis(Axis::Horizontal));  // not calibrating
+  rig.robot.startCalibration();
+  TEST_ASSERT_FALSE(rig.robot.reverseAxis(Axis::Vertical));    // horizontal step
+  rig.calibrate(30, 150, 40, 140, 100, 60);                    // up to Confirm
+  TEST_ASSERT_FALSE(rig.robot.reverseAxis(Axis::Horizontal));
+  TEST_ASSERT_EQUAL(0, rig.motors.reversals.size());
+}
+
+void test_reversing_mirrors_the_remembered_resting_position() {
+  Rig rig;
+  rig.robot.manualGoto(Axis::Horizontal, 70);
+  rig.run(15000);                                   // rests at 70, remembered
+  rig.robot.startCalibration();
+  rig.robot.reverseAxis(Axis::Horizontal);
+
+  FakeStorage copy = rig.storage;
+  FakeMotorDriver motors;
+  FakeClock clock;
+  Robot rebooted(motors, clock, copy);
+  rebooted.begin();
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 110, rebooted.position(Axis::Horizontal));
+}
+
 void test_confirm_outside_the_confirm_step_does_nothing() {
   Rig rig;
   rig.robot.startCalibration();
@@ -314,6 +384,10 @@ int main() {
   RUN_TEST(test_recalibration_starts_from_the_current_limits);
   RUN_TEST(test_each_step_starts_at_the_value_it_sets);
   RUN_TEST(test_a_first_calibration_starts_at_the_default_limits);
+  RUN_TEST(test_reversing_an_axis_keeps_the_wand_still_and_mirrors_the_values);
+  RUN_TEST(test_reversing_from_the_maximum_step_restarts_at_the_minimum);
+  RUN_TEST(test_reversing_is_only_offered_on_the_axis_limit_steps);
+  RUN_TEST(test_reversing_mirrors_the_remembered_resting_position);
   RUN_TEST(test_confirm_outside_the_confirm_step_does_nothing);
   return UNITY_END();
 }

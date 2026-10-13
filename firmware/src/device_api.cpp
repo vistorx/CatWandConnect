@@ -259,6 +259,16 @@ void DeviceApi::postCalibration(AsyncWebServerRequest* request, JsonVariant& bod
       robot_.confirmCalibration();
     } else if (strcmp(action, "cancel") == 0) {
       robot_.cancelCalibration();
+    } else if (strcmp(action, "reverse") == 0) {
+      cwc::Axis axis;
+      if (parseAxis(body["axis"] | "", axis) && robot_.reverseAxis(axis)) {
+        // The servo driver already flipped; save the wiring to match.
+        cwc::ServoHardware& servo = hardware_.axis(axis);
+        servo.inverted = !servo.inverted;
+        cwc::saveHardware(storage_, hardware_, chip_);
+      } else {
+        known = false;
+      }
     } else {
       known = false;
     }

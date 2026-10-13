@@ -136,6 +136,20 @@ function calibrate(body) {
   } else if (body.action === 'cancel') {
     c.step = 'none';
     stow();
+  } else if (body.action === 'reverse') {
+    // Like the Robot core: mirror every angle of the axis so the wand stays put,
+    // flip the wiring, and start the axis over at its minimum.
+    const axis = body.axis;
+    if (!['horizontal', 'vertical'].includes(axis) || !c.step.startsWith(axis + '_')) return [400, { error: 'invalid_request' }];
+    const mirror = a => round(180 - a);
+    for (const values of [c.draft[axis], robot.settings.axes[axis]]) {
+      const { min, max, stow } = values;
+      Object.assign(values, { min: mirror(max), max: mirror(min), stow: mirror(stow) });
+    }
+    robot.position[axis] = mirror(robot.position[axis]);
+    c.target[axis] = robot.position[axis];
+    hardware.axes[axis].inverted = !hardware.axes[axis].inverted;
+    enterStep(axis + '_min');
   }
   return [200, calibrationView()];
 }

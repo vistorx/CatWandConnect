@@ -43,13 +43,13 @@
   "calibration.none.title": "Calibrez votre robot",
   "calibration.none.text": "Vous allez régler jusqu'où chaque axe peut aller et où la baguette se range. Restez à côté du robot : pendant la calibration, il peut dépasser ses limites habituelles, lentement. Retirez le jouet de la baguette s'il risque de heurter quelque chose.",
   "calibration.horizontal_min.title": "Horizontal minimum",
-  "calibration.horizontal_min.text": "Le bras va d'abord au minimum horizontal actuel. Déplacez-le vers le plus petit angle autorisé (−), arrêtez-vous juste avant que quelque chose ne touche ou ne force, puis validez. Selon le montage du servo, ce peut être à gauche ou à droite.",
+  "calibration.horizontal_min.text": "Minimum horizontal = le plus petit angle = la position du bras avec le joystick tout à GAUCHE. Le bras va d'abord au minimum actuel. Baissez la valeur (−) jusqu'à ce que le bras soit aussi à gauche que possible, arrêtez-vous juste avant que quelque chose ne touche ou ne force, puis validez.",
   "calibration.horizontal_max.title": "Horizontal maximum",
-  "calibration.horizontal_max.text": "Le bras va au maximum horizontal actuel. Déplacez-le vers le plus grand angle autorisé (+), arrêtez-vous juste avant le contact, puis validez. Il doit être au-dessus du minimum.",
+  "calibration.horizontal_max.text": "Maximum horizontal = le plus grand angle = joystick tout à DROITE. Montez la valeur (+) jusqu'à ce que le bras soit aussi à droite que possible, arrêtez-vous juste avant le contact, puis validez. Il doit être au-dessus du minimum.",
   "calibration.vertical_min.title": "Vertical minimum",
-  "calibration.vertical_min.text": "Le bras va au minimum vertical actuel. Déplacez-le vers le plus petit angle autorisé (−), arrêtez-vous juste avant que quelque chose ne touche ou ne force, puis validez. Selon le montage du servo, ce peut être en haut ou en bas.",
+  "calibration.vertical_min.text": "Minimum vertical = le plus petit angle = la position du bras avec le joystick tout en BAS. Le bras va d'abord au minimum actuel. Baissez la valeur (−) jusqu'à ce que le bras soit aussi bas que possible, arrêtez-vous juste avant que quelque chose ne touche ou ne force, puis validez.",
   "calibration.vertical_max.title": "Vertical maximum",
-  "calibration.vertical_max.text": "Le bras va au maximum vertical actuel. Déplacez-le vers le plus grand angle autorisé (+), puis validez. Il doit être au-dessus du minimum.",
+  "calibration.vertical_max.text": "Maximum vertical = le plus grand angle = joystick tout en HAUT. Montez la valeur (+) jusqu'à ce que le bras soit aussi haut que possible, arrêtez-vous juste avant le contact, puis validez. Il doit être au-dessus du minimum.",
   "calibration.stow.title": "Position de repos",
   "calibration.stow.text": "Le bras va à la position de repos actuelle. Placez les deux axes là où la baguette doit se ranger, dans les limites affichées. Les servos y sont relâchés : choisissez une position où le bras tient seul.",
   "calibration.sweep.title": "Vérification de la course",
@@ -190,5 +190,9 @@
   "settings.tab.robot": "Robot",
   "settings.about": "À propos de ce robot",
   "settings.about.hint": "Firmware, puce, mémoire, état du Wi-Fi et rapport de diagnostic pour signaler un bug.",
-  "settings.about.open": "Ouvrir Info"
+  "settings.about.open": "Ouvrir Info",
+  "calibration.reverse.horizontal": "Le bouton − envoie le bras à DROITE au lieu de la gauche ? Inversez l'axe : le bras ne bouge pas, les valeurs sont inversées et cet axe reprend à son minimum.",
+  "calibration.reverse.vertical": "Le bouton − envoie le bras vers le HAUT au lieu du bas ? Inversez l'axe : le bras ne bouge pas, les valeurs sont inversées et cet axe reprend à son minimum.",
+  "calibration.reverse.button": "Inverser cet axe",
+  "calibration.reverse.done": "Axe inversé. Baisser la valeur déplace maintenant le bras dans l'autre sens."
 }

@@ -79,6 +79,7 @@ Stow beats every other command and cannot be interrupted. Manual control, from a
 | `{"action":"mark"}` | Records the current position for the step and moves to the next. Returns `400` with `travel_order` or `stow_out_of_travel` (and `axis`) when the position is not acceptable. |
 | `{"action":"confirm"}` | In the `confirm` step, saves the new limits and Stow position, marks the robot calibrated and Stows. |
 | `{"action":"cancel"}` | Abandons Calibration, keeping the previous settings, and Stows. |
+| `{"action":"reverse","axis":"horizontal"}` | Only on that axis's minimum or maximum step. Reverses the axis's direction without moving the wand or restarting: every angle of the axis (draft, saved limits and Stow position) is mirrored (`a` → `180 − a`), the wiring is saved with the new direction, and the axis starts over at its minimum step. `400 invalid_request` on any other step. |
 
 The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `vertical_max`, `stow`, then `sweep` (the robot visits the four corners of the new envelope and returns to Stow by itself), then `confirm`. Stow and Manual control abandon Calibration too.
 

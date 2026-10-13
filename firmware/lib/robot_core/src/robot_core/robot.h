@@ -94,6 +94,13 @@ class Robot {
   // Abandons Calibration, keeping the previous settings, and Stows.
   void cancelCalibration();
 
+  // On the axis's minimum or maximum step: reverses the axis's direction
+  // without moving the wand. Every angle of that axis is mirrored
+  // (a -> 180 - a): position, draft, saved settings and resting position;
+  // Calibration is kept, and the axis starts over at its minimum step. The
+  // caller saves the wiring's new direction. False when not offered.
+  bool reverseAxis(Axis axis);
+
   CalibrationStep calibrationStep() const { return calibrationStep_; }
 
   // Travel limits and Stow position recorded so far.
