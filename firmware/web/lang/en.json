@@ -228,7 +228,7 @@
   "help.send.thread": "Open the Discord thread",
   "help.send.sending": "Sending…",
   "help.send.done": "Sent: issue #{number} was created.",
-  "help.send.follow": "Follow it here:",
+  "help.send.open_issue": "Open issue #{number} on GitHub",
   "help.send.failed": "The support service is not available right now. Open the issue on GitHub instead, or try again later.",
   "help.send.busy": "Too many reports were sent recently. Open the issue on GitHub instead, or try again later.",
   "help.security": "Found a security problem? Never report it in public:",

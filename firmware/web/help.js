@@ -184,21 +184,20 @@ async function send() {
   $('send').disabled = false;
   if (answer && answer.ok && answer.data.url) {
     say('ok', I18n.t('help.send.done', { number: answer.data.number }));
-    const link = document.createElement('a');
-    link.href = answer.data.url;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.textContent = answer.data.url;
-    $('sent').replaceChildren(I18n.t('help.send.follow'), ' ', link);
-    if (answer.data.thread) {
-      const thread = document.createElement('a');
-      thread.href = answer.data.thread;
-      thread.target = '_blank';
-      thread.rel = 'noopener';
-      thread.textContent = I18n.t('help.send.thread');
-      $('sent').append(document.createElement('br'), thread);
-    }
+    // The issue exists: offer only the links to follow it, never a second issue.
+    const links = [[answer.data.url, I18n.t('help.send.open_issue', { number: answer.data.number })]];
+    if (answer.data.thread) links.push([answer.data.thread, I18n.t('help.send.thread')]);
+    $('sent').replaceChildren(...links.map(([href, text]) => {
+      const link = document.createElement('a');
+      link.href = href;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.className = 'link-button';
+      link.textContent = text;
+      return link;
+    }));
     $('sent').hidden = false;
+    $('fallback').hidden = true;
     $('relay').hidden = true;
     if (pending && pending.pending && pending.description === what) {
       await fetch('/api/diagnostics/pending', { method: 'DELETE' });
@@ -213,7 +212,7 @@ async function send() {
 }
 
 $('send').addEventListener('click', send);
-$('what').addEventListener('input', () => { $('sent').hidden = true; showRelay(); });
+$('what').addEventListener('input', () => { $('sent').hidden = true; $('fallback').hidden = false; showRelay(); });
 
 I18n.load().then(() => {
   loadPending();
