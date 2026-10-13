@@ -102,7 +102,8 @@ async function watch() {
     $('connect').disabled = false;
   } else if (Date.now() > watchUntil) {
     say('setup.lost', { host });
-    $('setup-help').hidden = false;
+    // The phone may have left the hotspot: the robot's Help page is out of reach.
+    $('setup-help-offline').hidden = false;
     $('connect').disabled = false;
   } else {
     setTimeout(watch, 2000);

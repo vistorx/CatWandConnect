@@ -89,6 +89,17 @@ It can't be recovered over the network. Erase and reflash the robot (`pio run -e
 **"Too many wrong PINs".**
 After 5 wrong PINs the robot refuses new tries for 30 s, then longer after each further failure, up to 15 minutes. Wait and try again. Playing and Stow still work meanwhile.
 
+## The robot stopped responding
+
+**The page says "Offline" or "Need help?" and nothing opens.**
+Your phone can no longer reach the robot, so its own Help page can't open either.
+
+- Check the robot is powered: a USB charger or computer port that gives enough current, and a cable that carries power.
+- Check your phone is on the same Wi-Fi as the robot, not on mobile data or a guest network.
+- If the robot lost your Wi-Fi, it starts its `CatWandConnect-XXXX` hotspot: join it and open `http://192.168.4.1/` (see [Wi-Fi](#wi-fi)).
+- Unplug the robot for a few seconds and plug it back in. The page reconnects by itself.
+- Still nothing: connect it to a computer and open "Logs & Console" on the [web flasher](https://vistorx.github.io/CatWandConnect/) to read what it says, then ask on [Discord](https://discord.gg/Rbqge3v9dk) or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose) with that log.
+
 ## Still stuck?
 
 See [Getting help](../SUPPORT.md): ask on the [Discord server](https://discord.gg/Rbqge3v9dk), no GitHub account needed, or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose). Include the **Diagnostic report** from the Info page (Settings → Robot → Open Info → Copy the report): it already holds the robot's recent log, with your Wi-Fi name and addresses hidden. Security problems go [privately](../SECURITY.md), never in public.
