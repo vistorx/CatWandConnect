@@ -407,3 +407,8 @@ a.button-link {
 }
 a.button-link.secondary { background: var(--surface); color: var(--fg); border: 1px solid var(--line); }
 [data-reverse] { margin-top: .5rem; }
+
+/* Help page */
+.stacked { display: grid; gap: .35rem; margin-top: .75rem; }
+.stacked textarea { width: 100%; box-sizing: border-box; font: inherit; padding: .6rem; border: 1px solid var(--line); border-radius: .6rem; background: var(--card, transparent); color: inherit; }
+#publish .report { max-height: 16rem; }
