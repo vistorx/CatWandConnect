@@ -1,0 +1,88 @@
+name: Pages
+
+# Builds the project website (MkDocs, from README.md and docs/) and the web
+# flasher (under /flasher/, from the published releases), and deploys both to
+# GitHub Pages. It is the only workflow that deploys Pages.
+# Runs on doc or flasher changes to main, by hand, and after each release: the
+# Release workflow starts it on main once the GitHub release exists. Pull
+# requests only build the site, so a broken link fails the PR.
+on:
+  push:
+    branches: [main]
+    paths:
+      - README.md
+      - SUPPORT.md
+      - SECURITY.md
+      - CONTEXT.md
+      - docs/**
+      - media/**
+      - flasher/**
+      - website/**
+      - firmware/tools/flasher_*
+      - .github/workflows/pages.yml
+  pull_request:
+    paths:
+      - README.md
+      - SUPPORT.md
+      - SECURITY.md
+      - CONTEXT.md
+      - docs/**
+      - media/**
+      - flasher/**
+      - website/**
+      - firmware/tools/flasher_*
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer run waits instead of cancelling a deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: website/requirements.txt
+      - run: pip install -r website/requirements.txt
+      - name: Website staging tests
+        run: python website/test_prepare_docs.py
+      - name: Stage the pages
+        run: python website/prepare_docs.py
+      # --strict fails on any broken internal link or anchor.
+      - run: mkdocs build --strict -f website/mkdocs.yml
+      - name: Add the web flasher under /flasher/
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --limit 100 --json tagName,isPrerelease,isDraft,publishedAt > releases.json
+          python firmware/tools/flasher_site.py releases.json website/build/site
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: website/build/site/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request' && !github.event.repository.private
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
