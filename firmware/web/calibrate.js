@@ -20,6 +20,7 @@ const REVERSIBLE = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertica
 let step = null;
 let position = { horizontal: null, vertical: null };
 let draft = null;  // values recorded so far, from /api/calibration
+let calibrated = false;  // a Calibration is already saved (from the state over /ws)
 
 // Steps already marked in this Calibration, before `step`.
 const ORDER = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max', 'stow'];
@@ -96,9 +97,10 @@ function show(next) {
   primary.disabled = false;
   secondary.hidden = true;
   $('cancel').hidden = step === 'none';
+  $('cancel').textContent = I18n.t(calibrated ? 'calibration.cancel_new' : 'calibration.cancel');
 
   if (step === 'none') {
-    primary.textContent = I18n.t('calibration.start');
+    primary.textContent = I18n.t(calibrated ? 'calibration.recalibrate' : 'calibration.start');
     primary.onclick = () => call('start');
   } else if (step === 'sweep') {
     primary.textContent = I18n.t('calibration.sweeping');
@@ -139,7 +141,12 @@ $('nudges').addEventListener('click', event => {
   const button = event.target.closest('button[data-axis]');
   if (button) call('nudge', { axis: button.dataset.axis, degrees: Number(button.dataset.degrees) });
 });
-$('cancel').addEventListener('click', () => call('cancel'));
+// With a Calibration already saved, cancelling the new one goes back home.
+$('cancel').addEventListener('click', async () => {
+  const leave = calibrated;
+  await call('cancel');
+  if (leave) location.href = '/';
+});
 
 function connect() {
   const socket = new WebSocket(`ws://${location.host}/ws`);
@@ -147,6 +154,12 @@ function connect() {
     const state = JSON.parse(event.data);
     if (state.t !== 'state') return;
     position = { horizontal: state.h, vertical: state.v };
+    if (state.calibrated !== calibrated) {
+      calibrated = state.calibrated;
+      const current = step;
+      step = null;  // redraw the buttons with the new wording
+      show(current);
+    }
     renderPositions();
     if (state.calibration !== step) {
       show(state.calibration);
@@ -159,6 +172,9 @@ function connect() {
 I18n.load().then(async () => {
   const calibration = await (await fetch('/api/calibration')).json();
   draft = calibration.draft;
+  try {
+    calibrated = (await (await fetch('/api/settings')).json()).calibrated === true;
+  } catch { /* the state over /ws will tell */ }
   show(calibration.step);
   renderMarked();
   connect();
