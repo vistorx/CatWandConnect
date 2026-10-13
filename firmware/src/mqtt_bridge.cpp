@@ -215,7 +215,11 @@ void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsign
         break;
       case home_assistant::CommandKind::MaxSpeed: {
         cwc::RobotSettings settings = robot.settings();
-        settings.axis(command.axis).maxSpeed = command.value;
+        cwc::AxisSettings& a = settings.axis(command.axis);
+        a.maxSpeed = command.value;
+        // Home Assistant knows only the maximum: a lower maximum takes the
+        // minimum speed down with it rather than being refused.
+        if (a.minSpeed >= a.maxSpeed) a.minSpeed = cwc::defaultMinSpeed(a.maxSpeed);
         if (!robot.applySettings(settings).ok()) logLine("[mqtt] rejected maximum speed %s", text.c_str());
         break;
       }

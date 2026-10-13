@@ -51,6 +51,7 @@ async function save(form, body, fields) {
 
 const MOTION = [
   { key: 'maxSpeed', unit: '°/s', step: 1, min: 10, max: 360 },
+  { key: 'minSpeed', unit: '°/s', step: 1, min: 1, max: 359 },
   { key: 'maxAccel', unit: '°/s²', step: 10, min: 20, max: 2000 },
 ];
 

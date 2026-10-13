@@ -52,7 +52,7 @@ class Robot {
   void tick();
 
   // Manual control with joystick deflections in [-1, 1] per Axis: the wand
-  // moves at that fraction of its maximum speed. Repeat at least every
+  // moves at that fraction of the speed slider's speed (manualSpeed()). Repeat at least every
   // kManualTimeoutMs while the joystick is held. Ignored while stowing.
   void manualMove(float horizontal, float vertical);
 

@@ -63,6 +63,60 @@ void test_rejects_non_numbers() {
   TEST_ASSERT_FALSE(validate(s).ok());
 }
 
+void test_default_minimum_speed_is_a_tenth_of_the_maximum() {
+  RobotSettings s = defaultSettings();
+  TEST_ASSERT_EQUAL_FLOAT(9, s.axis(Axis::Horizontal).minSpeed);  // maximum 90 °/s
+  TEST_ASSERT_EQUAL_FLOAT(9, s.axis(Axis::Vertical).minSpeed);
+}
+
+void test_rejects_minimum_speed_not_below_maximum() {
+  RobotSettings s = defaultSettings();
+  s.axis(Axis::Vertical).minSpeed = s.axis(Axis::Vertical).maxSpeed;
+  assertRejected(s, SettingsError::MinSpeedOutOfRange, Axis::Vertical);
+
+  s = defaultSettings();
+  s.axis(Axis::Horizontal).minSpeed = kSlowestSpeed - 0.5f;
+  assertRejected(s, SettingsError::MinSpeedOutOfRange, Axis::Horizontal);
+}
+
+// The on-flash record written by firmware 0.1.0, before the minimum speed.
+struct AxisV1 {
+  TravelLimits travel;
+  float stow, maxSpeed, maxAccel;
+};
+struct SettingsV1 {
+  AxisV1 axes[2];
+  float playSpeed;
+  bool calibrated;
+};
+struct RecordV1 {
+  uint32_t magic;
+  uint16_t version;
+  uint16_t size;
+  SettingsV1 settings;
+};
+
+void test_settings_from_0_1_0_are_kept_with_default_minimum_speeds() {
+  RecordV1 old{0x43574331, 1, sizeof(SettingsV1),
+               {{{{30, 150}, 100, 120, 500}, {{40, 140}, 70, 60, 300}}, 0.4f, true}};
+  FakeStorage storage;
+  storage.write("robot", &old, sizeof(old));
+
+  RobotSettings s = loadSettings(storage);
+
+  TEST_ASSERT_TRUE(s.calibrated);
+  TEST_ASSERT_EQUAL_FLOAT(0.4f, s.playSpeed);
+  TEST_ASSERT_EQUAL_FLOAT(30, s.axis(Axis::Horizontal).travel.min);
+  TEST_ASSERT_EQUAL_FLOAT(150, s.axis(Axis::Horizontal).travel.max);
+  TEST_ASSERT_EQUAL_FLOAT(100, s.axis(Axis::Horizontal).stow);
+  TEST_ASSERT_EQUAL_FLOAT(120, s.axis(Axis::Horizontal).maxSpeed);
+  TEST_ASSERT_EQUAL_FLOAT(500, s.axis(Axis::Horizontal).maxAccel);
+  TEST_ASSERT_EQUAL_FLOAT(12, s.axis(Axis::Horizontal).minSpeed);
+  TEST_ASSERT_EQUAL_FLOAT(70, s.axis(Axis::Vertical).stow);
+  TEST_ASSERT_EQUAL_FLOAT(60, s.axis(Axis::Vertical).maxSpeed);
+  TEST_ASSERT_EQUAL_FLOAT(6, s.axis(Axis::Vertical).minSpeed);
+}
+
 void test_first_boot_loads_defaults() {
   FakeStorage storage;
   RobotSettings s = loadSettings(storage);
@@ -74,12 +128,14 @@ void test_saved_settings_survive_a_reboot() {
   FakeStorage storage;
   RobotSettings s = defaultSettings();
   s.axis(Axis::Vertical).maxSpeed = 45;
+  s.axis(Axis::Vertical).minSpeed = 15;
   s.calibrated = true;
 
   TEST_ASSERT_TRUE(saveSettings(storage, s));
   RobotSettings loaded = loadSettings(storage);
 
   TEST_ASSERT_EQUAL_FLOAT(45, loaded.axis(Axis::Vertical).maxSpeed);
+  TEST_ASSERT_EQUAL_FLOAT(15, loaded.axis(Axis::Vertical).minSpeed);
   TEST_ASSERT_TRUE(loaded.calibrated);
 }
 
@@ -119,6 +175,9 @@ int main() {
   RUN_TEST(test_rejects_stow_outside_travel);
   RUN_TEST(test_rejects_speeds_out_of_range);
   RUN_TEST(test_rejects_non_numbers);
+  RUN_TEST(test_default_minimum_speed_is_a_tenth_of_the_maximum);
+  RUN_TEST(test_rejects_minimum_speed_not_below_maximum);
+  RUN_TEST(test_settings_from_0_1_0_are_kept_with_default_minimum_speeds);
   RUN_TEST(test_first_boot_loads_defaults);
   RUN_TEST(test_saved_settings_survive_a_reboot);
   RUN_TEST(test_unknown_version_falls_back_to_defaults);

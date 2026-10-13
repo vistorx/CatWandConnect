@@ -91,11 +91,12 @@ void Robot::tick() {
     switch (activity_) {
       case Activity::Manual:
         if (s.hasGoto) {
-          MotionLimits gotoLimits{limits.maxSpeed * settings_.playSpeed, limits.maxAccel};
+          MotionLimits gotoLimits{manualSpeed(settings_.axis(axis), settings_.playSpeed), limits.maxAccel};
           s.motion.stepToward(s.gotoTarget, dt, travelLimits(axis), gotoLimits);
           if (s.motion.atRest() && s.motion.position() == travelLimits(axis).clamp(s.gotoTarget)) s.hasGoto = false;
         } else {
-          s.motion.stepVelocity(s.command * limits.maxSpeed * settings_.playSpeed, dt, travelLimits(axis), limits);
+          s.motion.stepVelocity(s.command * manualSpeed(settings_.axis(axis), settings_.playSpeed), dt,
+                                travelLimits(axis), limits);
         }
         break;
       case Activity::Stowing:

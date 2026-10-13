@@ -137,6 +137,7 @@ void test_manual_speed_follows_settings() {
   Rig rig;
   RobotSettings s = rig.robot.settings();
   s.axis(Axis::Horizontal).maxSpeed = 20;
+  s.axis(Axis::Horizontal).minSpeed = 2;
   s.playSpeed = 0.5f;
   TEST_ASSERT_TRUE(rig.robot.applySettings(s).ok());
 
@@ -146,6 +147,31 @@ void test_manual_speed_follows_settings() {
   float travelled = rig.robot.position(Axis::Horizontal) - kDefaultStow;
   TEST_ASSERT_TRUE(travelled > 18);
   TEST_ASSERT_TRUE(travelled <= 20.01f);
+}
+
+// Runs the joystick fully right for 2 s and returns the distance travelled.
+float travelAtSlider(float playSpeed) {
+  Rig rig;
+  RobotSettings s = rig.robot.settings();
+  s.axis(Axis::Horizontal).travel = {0, 180};
+  s.axis(Axis::Horizontal).maxSpeed = 40;
+  s.axis(Axis::Horizontal).minSpeed = 4;
+  s.axis(Axis::Horizontal).maxAccel = kMaxAccel;
+  s.calibrated = true;
+  s.playSpeed = playSpeed;
+  TEST_ASSERT_TRUE(rig.robot.applySettings(s).ok());
+  rig.hold(1, 0, 2000);
+  return rig.robot.position(Axis::Horizontal) - kDefaultStow;
+}
+
+void test_speed_slider_runs_from_minimum_to_maximum_speed() {
+  // Slider at 10 %: the minimum speed, 4 °/s for 2 s.
+  float slowest = travelAtSlider(kMinPlaySpeed);
+  TEST_ASSERT_FLOAT_WITHIN(0.5f, 8, slowest);
+  // Slider at 100 %: the maximum speed, 40 °/s for 2 s.
+  TEST_ASSERT_FLOAT_WITHIN(1.0f, 80, travelAtSlider(1));
+  // Halfway along the slider (55 %): halfway between them, 22 °/s.
+  TEST_ASSERT_FLOAT_WITHIN(1.0f, 44, travelAtSlider(0.55f));
 }
 
 void test_invalid_settings_are_rejected_whole() {
@@ -313,6 +339,7 @@ void test_goto_does_not_time_out_like_the_joystick() {
   Rig rig;
   RobotSettings s = rig.robot.settings();
   s.axis(Axis::Horizontal).maxSpeed = 10;  // 6 °/s at the default play speed: a 3 s trip
+  s.axis(Axis::Horizontal).minSpeed = 1;
   rig.robot.applySettings(s);
 
   rig.robot.manualGoto(Axis::Horizontal, 108);
@@ -358,6 +385,7 @@ int main() {
   RUN_TEST(test_silent_controller_stops_the_wand);
   RUN_TEST(test_stalled_loop_does_not_leap);
   RUN_TEST(test_manual_speed_follows_settings);
+  RUN_TEST(test_speed_slider_runs_from_minimum_to_maximum_speed);
   RUN_TEST(test_invalid_settings_are_rejected_whole);
   RUN_TEST(test_settings_are_restored_at_power_up);
   RUN_TEST(test_default_travel_applies_until_calibrated);

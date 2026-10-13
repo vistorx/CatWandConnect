@@ -25,7 +25,7 @@ const robot = {
     playSpeed: 0.6,
     calibrated: false,
     axes: Object.fromEntries(['horizontal', 'vertical'].map(axis =>
-      [axis, { min: 60, max: 120, stow: 90, maxSpeed: 90, maxAccel: 360 }])),
+      [axis, { min: 60, max: 120, stow: 90, maxSpeed: 90, minSpeed: 9, maxAccel: 360 }])),
   },
   position: { horizontal: 90, vertical: 90 },
   command: { horizontal: 0, vertical: 0 },
@@ -190,7 +190,9 @@ setInterval(() => {
     return broadcast(state());
   }
   for (const axis of ['horizontal', 'vertical']) {
-    const speed = robot.settings.axes[axis].maxSpeed * robot.settings.playSpeed;
+    const a = robot.settings.axes[axis];
+    const along = (robot.settings.playSpeed - 0.1) / 0.9;
+    const speed = a.minSpeed + (a.maxSpeed - a.minSpeed) * along;
     const { min, max } = travel(axis);
     const next = robot.position[axis] + robot.command[axis] * speed * 0.05;
     robot.position[axis] = Math.min(max, Math.max(min, next));
@@ -238,6 +240,7 @@ function putSettings(body) {
     if (a.min >= a.max) return [400, { error: 'travel_order', axis }];
     if (a.stow < a.min || a.stow > a.max) return [400, { error: 'stow_out_of_travel', axis }];
     if (a.maxSpeed < 10 || a.maxSpeed > 360) return [400, { error: 'speed_out_of_range', axis }];
+    if (a.minSpeed < 1 || a.minSpeed >= a.maxSpeed) return [400, { error: 'min_speed_out_of_range', axis }];
   }
   robot.settings = next;
   return [200, robot.settings];
