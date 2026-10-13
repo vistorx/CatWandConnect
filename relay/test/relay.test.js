@@ -176,5 +176,5 @@ test('per-IP rate limit and global daily cap', async () => {
 test('a GitHub failure answers 502 so the browser falls back to the prefilled issue', async () => {
   const response = await handle(post(GOOD), ENV, { fetch: fakeGitHub({ fail: true }).fetcher });
   assert.equal(response.status, 502);
-  assert.deepEqual(await response.json(), { error: 'github_unavailable' });
+  assert.deepEqual(await response.json(), { error: 'github_unavailable', detail: 'repos/vistorx: 500' });
 });
