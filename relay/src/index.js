@@ -2,8 +2,10 @@
 // Diagnostic report sent by the owner's browser into a GitHub issue
 // (ADR 0009). The robot never calls it; the phone's browser does.
 
-import { LIMITS, buildIssue, validate } from './report.js';
-import { createIssue, installationToken, reportsToday } from './github.js';
+import { LIMITS, buildIssue, threadMessage, threadTitle, validate } from './report.js';
+import { createIssue, getIssue, installationToken, reportsToday, updateIssue } from './github.js';
+import { discord, findMember, threadUrl } from './discord.js';
+import { interactions } from './interactions.js';
 
 // The Device interface is served by the robot over plain HTTP, from its
 // mDNS name, its IP on the home network or its hotspot address.
@@ -40,6 +42,25 @@ function json(status, data, origin) {
   });
 }
 
+const discordReady = env => Boolean(env.DISCORD_BOT_TOKEN && env.DISCORD_SUPPORT_FORUM && env.DISCORD_GUILD_ID);
+
+// Opens a #support forum thread (tag bug) for the issue, and links both ways.
+async function openThread(env, token, report, issue, fetcher) {
+  const mentionId = report.contact ? await findMember(env, report.contact, fetcher) : null;
+  const thread = await discord(env, 'POST', `/channels/${env.DISCORD_SUPPORT_FORUM}/threads`, {
+    name: threadTitle(report.description),
+    applied_tags: env.DISCORD_BUG_TAG ? [env.DISCORD_BUG_TAG] : [],
+    message: {
+      content: threadMessage(report, issue.url, mentionId),
+      allowed_mentions: { parse: [], users: mentionId ? [mentionId] : [] },
+    },
+  }, fetcher);
+  const url = threadUrl(env.DISCORD_GUILD_ID, thread.id);
+  const current = await getIssue(env, token, issue.number, fetcher);
+  await updateIssue(env, token, issue.number, { body: `${current.body}\n\nDiscord thread: ${url}\n` }, fetcher);
+  return url;
+}
+
 const enabled = env => String(env.ENABLED ?? 'true').toLowerCase() !== 'false';
 
 export async function handle(request, env, deps = {}) {
@@ -47,6 +68,10 @@ export async function handle(request, env, deps = {}) {
   const url = new URL(request.url);
   const origin = request.headers.get('Origin');
 
+  // Discord calls this server to server, signed; no CORS involved.
+  if (url.pathname === '/discord/interactions' && request.method === 'POST') {
+    return interactions(request, env, { fetch: fetcher, waitUntil: deps.waitUntil });
+  }
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: allowedOrigin(origin) ? 204 : 403, headers: corsHeaders(origin) });
   }
@@ -84,6 +109,14 @@ export async function handle(request, env, deps = {}) {
       return json(429, { error: 'daily_cap' }, origin);
     }
     const issue = await createIssue(env, token, buildIssue(checked.value), fetcher);
+    if (checked.value.followOnDiscord && discordReady(env)) {
+      // The issue exists: a Discord failure must not turn it into an error.
+      try {
+        issue.thread = await openThread(env, token, checked.value, issue, fetcher);
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
     return json(201, issue, origin);
   } catch (error) {
     console.error(error.message);
@@ -92,4 +125,4 @@ export async function handle(request, env, deps = {}) {
   }
 }
 
-export default { fetch: (request, env) => handle(request, env) };
+export default { fetch: (request, env, ctx) => handle(request, env, { waitUntil: promise => ctx.waitUntil(promise) }) };
