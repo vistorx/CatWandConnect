@@ -221,5 +221,19 @@
   "help.bug.opened": "The report was downloaded: drag it into the issue before submitting it.",
   "help.security": "Found a security problem? Never report it in public:",
   "help.security.link": "report it privately",
-  "help.stuck": "Need help?"
+  "help.stuck": "Need help?",
+  "pending.banner": "A problem report saved on the hotspot is waiting.",
+  "pending.banner.open": "Send or discard it",
+  "pending.title": "Saved report",
+  "pending.hint": "You described a problem while the robot was on its hotspot. Send it now that you are back online, or discard it. It is never sent by itself.",
+  "pending.use": "Review and send",
+  "pending.discard": "Discard",
+  "pending.discarded": "Saved report discarded.",
+  "pending.offline": "No internet on the robot's hotspot? Save the report on the robot and send it once it is on your Wi-Fi.",
+  "pending.save": "Save for later",
+  "pending.saved": "Saved on the robot. Once it is on your Wi-Fi, the main screen will offer to send it.",
+  "pending.failed": "The report could not be saved.",
+  "setup.problem": "A problem?",
+  "setup.problem.hint": "Download the robot's Diagnostic report (your Wi-Fi name and addresses are hidden), or describe the problem and save it for later. Questions: discord.gg/Rbqge3v9dk",
+  "setup.problem.save": "Describe it and save for later"
 }

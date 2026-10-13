@@ -60,6 +60,10 @@ _Avoid_: Nightly, dev build, preview (a dev build is an untagged local or CI bui
 The text the robot generates about itself to diagnose a problem: firmware version, chip, last reset reason, settings, Calibration, Wi-Fi and MQTT state, and recent log lines. Redacted (Wi-Fi name, IP and MAC addresses, broker address and credentials) whenever it is sent to support.
 _Avoid_: Crash report, dump, telemetry (the robot never sends anything by itself)
 
+**Pending report**:
+A problem described while the phone had no internet (on the hotspot), kept in the robot's flash with its redacted Diagnostic report until the owner sends or discards it once the robot is on their network. One at a time; never sent by itself.
+_Avoid_: Queued report, outbox, offline report
+
 **Support relay**:
 A small online service that receives a Diagnostic report from the user's browser and creates the GitHub issue, so people without a GitHub account can report bugs. It holds the secrets the open-source firmware cannot.
 _Avoid_: Backend, cloud, server (the robot has none)

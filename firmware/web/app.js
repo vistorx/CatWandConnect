@@ -132,3 +132,15 @@ I18n.load().then(() => {
   setLink('offline');
   connect();
 });
+
+// A report saved on the hotspot waits for the owner, never sent by itself.
+async function checkPending() {
+  try {
+    const [pending, wifi] = await Promise.all([
+      fetch('/api/diagnostics/pending').then(r => r.json()),
+      fetch('/api/wifi/status').then(r => r.json()),
+    ]);
+    $('pending-banner').hidden = !(pending.pending && wifi.mode === 'connected');
+  } catch { /* older firmware or offline */ }
+}
+checkPending();
