@@ -45,7 +45,7 @@ The signal is too weak or the router changed. Move the robot closer, or enter th
 
 **The servos don't move at all.**
 - Check the common ground between the board and the servo supply.
-- Check that the signal wires use the pins shown in Settings → Wiring (the defaults are in [Electronics](electronics.md#default-pins)).
+- Check that the signal wires use the pins shown in Settings → Hardware → Wiring (the defaults are in [Electronics](electronics.md#default-pins)).
 - At power-up the robot crawls very slowly (10 °/s) to its Stow position, then releases the servos. That is expected.
 
 **The servos jitter or the board resets when they move.**
@@ -62,10 +62,10 @@ Until Calibration has been completed, movement is limited to 60°–120° on eac
 The maximum of an axis must be above its minimum, and the Stow position must be inside the limits you just set. Nudge further and mark again.
 
 **The wand moves the wrong way.**
-Tick **Reverse direction** for that axis in Settings → Wiring, then run Calibration again.
+Tick **Reverse direction** for that axis in Settings → Hardware → Wiring, then run Calibration again.
 
 **I chose the wrong pins and the servos don't move.**
-Rewire to the pins shown in Settings → Wiring, or pick the pins you wired. If you can no longer open the interface, erase and reflash the board (`pio run -e <chip> -t erase`, then upload) to return to the defaults.
+Rewire to the pins shown in Settings → Hardware → Wiring, or pick the pins you wired. If you can no longer open the interface, erase and reflash the board (`pio run -e <chip> -t erase`, then upload) to return to the defaults.
 
 ## Firmware updates
 
@@ -88,4 +88,4 @@ After 5 wrong PINs the robot refuses new tries for 30 s, then longer after each 
 
 ## Still stuck?
 
-See [Getting help](../SUPPORT.md): ask on the [Discord server](https://discord.gg/Rbqge3v9dk), no GitHub account needed, or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose). Include the **Diagnostic report** from the Info page (Settings → Info → Copy the report): it already holds the robot's recent log, with your Wi-Fi name and addresses hidden. Security problems go [privately](../SECURITY.md), never in public.
+See [Getting help](../SUPPORT.md): ask on the [Discord server](https://discord.gg/Rbqge3v9dk), no GitHub account needed, or [open an issue](https://github.com/vistorx/CatWandConnect/issues/new/choose). Include the **Diagnostic report** from the Info page (Settings → Robot → Open Info → Copy the report): it already holds the robot's recent log, with your Wi-Fi name and addresses hidden. Security problems go [privately](../SECURITY.md), never in public.

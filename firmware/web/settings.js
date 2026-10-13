@@ -297,10 +297,56 @@ async function wifiSection() {
   }
 }
 
+// --- Tabs: one entry per tab, the open one is in the URL hash -----------------
+
+const TABS = [
+  { id: 'motion', label: 'settings.tab.motion' },
+  { id: 'hardware', label: 'settings.tab.hardware' },
+  { id: 'network', label: 'settings.tab.network' },
+  { id: 'robot', label: 'settings.tab.robot' },
+];
+
+function showTab(id, focus = false) {
+  const tab = TABS.find(t => t.id === id) || TABS[0];
+  for (const t of TABS) {
+    const button = $(`tab-button-${t.id}`);
+    const selected = t === tab;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+    $(`tab-${t.id}`).hidden = !selected;
+  }
+  if (focus) $(`tab-button-${tab.id}`).focus();
+  // Some tab ids are also form ids (#motion, #hardware): don't let the hash
+  // scroll the page to them, start each tab at the top.
+  window.scrollTo(0, 0);
+  if (location.hash.slice(1) !== tab.id) history.replaceState(null, '', `#${tab.id}`);
+}
+
+function tabs() {
+  const bar = $('tabs');
+  bar.innerHTML = TABS.map(t => `
+    <button type="button" role="tab" id="tab-button-${t.id}" aria-controls="tab-${t.id}">${I18n.t(t.label)}</button>`).join('');
+  for (const t of TABS) {
+    $(`tab-${t.id}`).setAttribute('aria-labelledby', `tab-button-${t.id}`);
+    $(`tab-button-${t.id}`).addEventListener('click', () => showTab(t.id));
+  }
+  bar.addEventListener('keydown', event => {
+    const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+    if (!step) return;
+    const current = TABS.findIndex(t => $(`tab-button-${t.id}`).getAttribute('aria-selected') === 'true');
+    showTab(TABS[(current + step + TABS.length) % TABS.length].id, true);
+    event.preventDefault();
+  });
+  window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+  showTab(location.hash.slice(1));
+  requestAnimationFrame(() => window.scrollTo(0, 0));  // after the browser's own jump to the hash
+}
+
 async function start() {
   axisFields($('limits-axes'), LIMITS);
   axisFields($('motion-axes'), MOTION);
   await I18n.load();
+  tabs();
   const info = await (await fetch('/api/info')).json();
   deviceSection(info);
   wifiSection();
