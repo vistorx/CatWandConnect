@@ -5,7 +5,7 @@ CatWandConnect is fully open. Each kind of file has the licence that fits it, an
 | What | Where | Licence |
 |------|-------|---------|
 | Firmware and tools | `firmware/` | [GPL-3.0-or-later](LICENSES/GPL-3.0-or-later.txt) |
-| Hardware designs (STL, 3MF and CAD sources) | `stls/`, `cads/`, `archive/` | [CERN-OHL-S-2.0](LICENSES/CERN-OHL-S-2.0.txt) |
+| Hardware designs (STL, 3MF and CAD sources) | `stls/`, `cads/` | [CERN-OHL-S-2.0](LICENSES/CERN-OHL-S-2.0.txt) |
 | Documentation, images and everything else | `docs/`, `media/`, the READMEs and other text | [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt) |
 
 Copyright © 2026 vistorx and the CatWandConnect contributors.

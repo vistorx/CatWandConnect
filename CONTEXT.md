@@ -43,7 +43,7 @@ A printed mechanical design of the robot, identified by a Mark number (Mk1, Mk2â
 _Avoid_: Version, V1, V2 (reserved for firmware releases)
 
 **Mk1**:
-The first Mechanism, retired because its vertical servo overheated under load.
+The first Mechanism, retired because its vertical servo overheated under load. Its files were removed from the repo; they remain in the Git history.
 
 **Mk2**:
 The current reference Mechanism, reinforced with a 608 skateboard bearing and a 4 mm steel-ball track. The only one the firmware targets.
