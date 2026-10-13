@@ -80,6 +80,8 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] From the second step on, "Marked so far" shows the values already marked; the Stow step shows each axis's allowed range; a maximum below the minimum names the minimum in the error.
 - [ ] The ±1° and ±5° buttons move only the step's axis, slowly, and the position on screen follows.
 - [ ] The nudges can go beyond 60°–120°.
+- [ ] Each minimum/maximum step says which joystick position it matches (Horizontal minimum = fully left, maximum = fully right; Vertical minimum = fully down, maximum = fully up).
+- [ ] On the Horizontal minimum step, if − moves the arm right, "Reverse this axis" keeps the arm where it is, restarts the axis at its minimum, and − now moves it left. The robot does not restart; Settings → Hardware → Wiring shows the axis as reversed, still after a power cycle, and the joystick moves that axis the right way.
 - [ ] Marking a maximum at or below its minimum shows an error and stays on the step.
 - [ ] Marking a Stow position outside the new limits shows an error and stays on the step.
 - [ ] The sweep visits the four corners of the new envelope slowly and ends at the Stow position, without touching anything.

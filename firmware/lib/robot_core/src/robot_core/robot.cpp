@@ -203,6 +203,45 @@ void Robot::enterCalibrationStep(CalibrationStep step) {
   }
 }
 
+bool Robot::reverseAxis(Axis axis) {
+  if (activity_ != Activity::Calibrating) return false;
+  bool horizontal = calibrationStep_ == CalibrationStep::HorizontalMin ||
+                    calibrationStep_ == CalibrationStep::HorizontalMax;
+  bool vertical = calibrationStep_ == CalibrationStep::VerticalMin ||
+                  calibrationStep_ == CalibrationStep::VerticalMax;
+  if (!(axis == Axis::Horizontal ? horizontal : vertical)) return false;
+
+  auto mirror = [](float degrees) { return kServoRange.max - degrees; };
+  auto mirrorAxis = [&](AxisSettings& a) {
+    TravelLimits travel{mirror(a.travel.max), mirror(a.travel.min)};
+    a.travel = travel;
+    a.stow = mirror(a.stow);
+  };
+
+  motors_.reverse(axis);
+  AxisState& s = state(axis);
+  float position = mirror(s.motion.position());
+  s.motion.reset(position);
+  s.lastSent = position;  // same pulse as before: nothing to send
+  size_t i = static_cast<size_t>(axis);
+  nudgeTarget_[i] = position;
+
+  mirrorAxis(draft_.axis(axis));
+  RobotSettings saved = settings_;
+  mirrorAxis(saved.axis(axis));
+  applySettings(saved);
+
+  if (savedRest_[i] >= 0) {
+    RestRecord rest{kRestMagic, {}};
+    for (size_t j = 0; j < kAxisCount; ++j) rest.position[j] = savedRest_[j];
+    rest.position[i] = mirror(savedRest_[i]);
+    if (storage_.write(kRestKey, &rest, sizeof(rest))) savedRest_[i] = rest.position[i];
+  }
+
+  enterCalibrationStep(axis == Axis::Horizontal ? CalibrationStep::HorizontalMin : CalibrationStep::VerticalMin);
+  return true;
+}
+
 void Robot::nudge(Axis axis, float degrees) {
   if (activity_ != Activity::Calibrating || !nudgeable(calibrationStep_, axis)) return;
   float& target = nudgeTarget_[static_cast<size_t>(axis)];

@@ -43,13 +43,13 @@
   "calibration.none.title": "Calibrate your robot",
   "calibration.none.text": "You will set how far each axis may travel and where the wand rests. Stay next to the robot: during Calibration it can go beyond its usual limits, slowly. Remove the wand's toy if it could hit something.",
   "calibration.horizontal_min.title": "Horizontal minimum",
-  "calibration.horizontal_min.text": "The arm first moves to the current horizontal minimum. Nudge it toward the smallest angle it may reach (−), stopping just before anything touches or strains, then mark it. Depending on how the servo is mounted, this may be left or right.",
+  "calibration.horizontal_min.text": "Horizontal minimum = the smallest angle = where the arm goes with the joystick fully LEFT. The arm first moves to the current minimum. Lower the value (−) until the arm is as far left as it may go, stopping just before anything touches or strains, then mark it.",
   "calibration.horizontal_max.title": "Horizontal maximum",
-  "calibration.horizontal_max.text": "The arm moves to the current horizontal maximum. Nudge it toward the largest angle it may reach (+), stopping just before anything touches, then mark it. It must be above the minimum.",
+  "calibration.horizontal_max.text": "Horizontal maximum = the largest angle = joystick fully RIGHT. Raise the value (+) until the arm is as far right as it may go, stopping just before anything touches, then mark it. It must be above the minimum.",
   "calibration.vertical_min.title": "Vertical minimum",
-  "calibration.vertical_min.text": "The arm moves to the current vertical minimum. Nudge it toward the smallest angle it may reach (−), stopping just before anything touches or strains, then mark it. Depending on how the servo is mounted, this may be up or down.",
+  "calibration.vertical_min.text": "Vertical minimum = the smallest angle = where the arm goes with the joystick fully DOWN. The arm first moves to the current minimum. Lower the value (−) until the arm is as low as it may go, stopping just before anything touches or strains, then mark it.",
   "calibration.vertical_max.title": "Vertical maximum",
-  "calibration.vertical_max.text": "The arm moves to the current vertical maximum. Nudge it toward the largest angle it may reach (+), then mark it. It must be above the minimum.",
+  "calibration.vertical_max.text": "Vertical maximum = the largest angle = joystick fully UP. Raise the value (+) until the arm is as high as it may go, stopping just before anything touches, then mark it. It must be above the minimum.",
   "calibration.stow.title": "Stow position",
   "calibration.stow.text": "The arm moves to the current Stow position. Nudge both axes to where the wand should rest when it is put away, within the limits shown. The servos are released there, so pick a position where the arm stays put on its own.",
   "calibration.sweep.title": "Checking the envelope",
@@ -190,5 +190,9 @@
   "settings.tab.robot": "Robot",
   "settings.about": "About this robot",
   "settings.about.hint": "Firmware, chip, memory, Wi-Fi state and the Diagnostic report for bug reports.",
-  "settings.about.open": "Open Info"
+  "settings.about.open": "Open Info",
+  "calibration.reverse.horizontal": "Does − move the arm RIGHT instead of left? Reverse the axis: the arm stays put, the values are mirrored, and this axis starts over at its minimum.",
+  "calibration.reverse.vertical": "Does − move the arm UP instead of down? Reverse the axis: the arm stays put, the values are mirrored, and this axis starts over at its minimum.",
+  "calibration.reverse.button": "Reverse this axis",
+  "calibration.reverse.done": "Axis reversed. Lowering the value now moves the arm the other way."
 }

@@ -22,6 +22,9 @@ class MotorDriver {
 
   // Stops driving the axis so the servo rests.
   virtual void release(Axis axis) = 0;
+
+  // Swaps the axis's direction from now on: `degrees` becomes 180 - `degrees`.
+  virtual void reverse(Axis axis) = 0;
 };
 
 class Clock {

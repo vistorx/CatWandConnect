@@ -403,3 +403,4 @@ a.button-link {
   font-weight: 600;
 }
 a.button-link.secondary { background: var(--surface); color: var(--fg); border: 1px solid var(--line); }
+[data-reverse] { margin-top: .5rem; }
