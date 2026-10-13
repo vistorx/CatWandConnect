@@ -228,7 +228,7 @@
   "help.send.thread": "Ouvrir le fil Discord",
   "help.send.sending": "Envoi…",
   "help.send.done": "Envoyé : le ticket n°{number} a été créé.",
-  "help.send.follow": "Suivez-le ici :",
+  "help.send.open_issue": "Ouvrir le ticket n°{number} sur GitHub",
   "help.send.failed": "Le service de support n'est pas disponible pour le moment. Ouvrez plutôt le ticket sur GitHub, ou réessayez plus tard.",
   "help.send.busy": "Trop de rapports ont été envoyés récemment. Ouvrez plutôt le ticket sur GitHub, ou réessayez plus tard.",
   "help.security": "Un problème de sécurité ? Ne le signalez jamais en public :",
