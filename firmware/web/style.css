@@ -283,6 +283,8 @@ p.banner { margin: 0; }
 .banner:not([hidden]) + .banner { margin-top: -.75rem; }
 
 .link-button { display: inline-block; margin: .25rem 0 1rem; font-weight: 600; }
+.link-stack { display: flex; flex-direction: column; align-items: flex-start; gap: .75rem; margin: .25rem 0 1rem; }
+.link-stack .link-button { margin: 0; }
 
 .field input[type="checkbox"] { justify-self: end; width: 1.4rem; height: 1.4rem; accent-color: var(--accent); }
 .field select { width: 100%; }
