@@ -78,6 +78,7 @@ ReportData sample() {
   d.minFreeHeap = 153600;
   d.temperature = 45.1f;
   d.pinEnabled = true;
+  d.deviceId = "3f9a12c4";
   d.wifiConnected = true;
   d.wifiNetwork = "Maison Dupont";
   d.ip = "192.168.1.20";
@@ -180,6 +181,17 @@ void test_values_are_only_replaced_as_whole_words() {
                            redactor.apply("Chip: ESP32, chatty chat \"C\"").c_str());
 }
 
+void test_report_carries_the_random_device_id_even_when_redacted() {
+  // Lets support group reports from one robot without its MAC address.
+  TEST_ASSERT_TRUE(contains(reportText(sample(), true), "Device ID: 3f9a12c4\n"));
+  TEST_ASSERT_TRUE(contains(reportText(sample(), false), "Device ID: 3f9a12c4\n"));
+}
+
+void test_device_id_is_eight_hex_digits_from_a_random_number() {
+  TEST_ASSERT_EQUAL_STRING("3f9a12c4", deviceIdFrom(0x3f9a12c4u).c_str());
+  TEST_ASSERT_EQUAL_STRING("0000002a", deviceIdFrom(42u).c_str());
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_log_lines_are_kept_in_order_with_their_uptime);
@@ -197,5 +209,7 @@ int main() {
   RUN_TEST(test_report_says_when_wifi_or_mqtt_are_not_in_use);
   RUN_TEST(test_personal_values_noted_while_logging_are_redacted);
   RUN_TEST(test_values_are_only_replaced_as_whole_words);
+  RUN_TEST(test_report_carries_the_random_device_id_even_when_redacted);
+  RUN_TEST(test_device_id_is_eight_hex_digits_from_a_random_number);
   return UNITY_END();
 }

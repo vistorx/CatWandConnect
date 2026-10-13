@@ -21,6 +21,10 @@ struct ReportData {
   uint32_t minFreeHeap = 0;
   float temperature = 0;
   bool pinEnabled = false;
+  // Random identifier drawn once and kept in flash, so support can group the
+  // reports of one robot without its MAC address. Not personal: kept when
+  // redacted.
+  std::string deviceId;
 
   bool wifiConnected = false;  // false: setup hotspot or connecting
   std::string wifiNetwork;     // saved network, connected or not
@@ -47,5 +51,8 @@ struct ReportData {
 // `redacted`: personal data replaced (see Redactor), for anything sent to
 // support. The MQTT password is never part of the report.
 std::string reportText(const ReportData& data, bool redacted);
+
+// The Device ID for a random 32-bit number: 8 lowercase hex digits.
+std::string deviceIdFrom(uint32_t random);
 
 }  // namespace diagnostics

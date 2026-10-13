@@ -4,6 +4,7 @@
 #include <AsyncJson.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include <esp_random.h>
 #include <diagnostics/pending.h>
 #include <diagnostics/report.h>
 
@@ -35,6 +36,19 @@ class NvsBlobs : public diagnostics::BlobStore {
 
 NvsBlobs blobs;
 
+// The Device ID, drawn once with the hardware RNG and kept in NVS.
+String deviceId() {
+  Preferences prefs;
+  prefs.begin("cwc", false);
+  String id = prefs.getString("deviceId", "");
+  if (id.length() != 8) {
+    id = diagnostics::deviceIdFrom(esp_random()).c_str();
+    prefs.putString("deviceId", id);
+  }
+  prefs.end();
+  return id;
+}
+
 }  // namespace
 
 void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, Network& network,
@@ -54,6 +68,7 @@ void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqt
     d.minFreeHeap = ESP.getMinFreeHeap();
     d.temperature = temperatureRead();
     d.pinEnabled = pin.enabled();
+    d.deviceId = deviceId().c_str();
 
     d.wifiConnected = WiFi.status() == WL_CONNECTED;
     d.wifiNetwork = network.savedNetwork().c_str();
