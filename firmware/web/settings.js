@@ -292,10 +292,24 @@ async function wifiSection() {
       ? I18n.t('settings.wifi.connected', { ssid: status.ssid })
       : I18n.t('settings.wifi.hotspot');
     $('wifi-setup').hidden = connected;
+    // Phones open hotspot pages in a sign-in window that cannot pick files.
+    $('firmware-hotspot').hidden = connected;
+    $('firmware-address').textContent = `http://${location.host}/settings.html#robot`;
   } catch {
     $('wifi-state').textContent = '';
   }
 }
+
+$('firmware-copy').addEventListener('click', async () => {
+  const text = $('firmware-address').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    // No clipboard in sign-in windows or over http: select the text instead.
+    getSelection().selectAllChildren($('firmware-address'));
+  }
+  $('firmware-copy').textContent = I18n.t('firmware.copied');
+});
 
 // --- Tabs: one entry per tab, the open one is in the URL hash -----------------
 

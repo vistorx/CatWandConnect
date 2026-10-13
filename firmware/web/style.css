@@ -246,6 +246,9 @@ button.secondary {
 .wizard h2 { font-size: 1.2rem; margin-top: .25rem; }
 .wizard .progress { color: var(--muted); font-size: .85rem; margin: 0; }
 .wizard legend output { margin-left: .5rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.note { margin: .5rem 0; padding: .5rem .75rem; border: 1px solid var(--line); border-radius: .75rem; font-size: .9rem; }
+.note p { margin: .25rem 0; }
+.note code { word-break: break-all; }
 .marked { margin-top: .75rem; padding: .5rem .75rem; border: 1px solid var(--line); border-radius: .75rem; font-size: .9rem; }
 .marked h3 { margin: 0 0 .25rem; font-size: .85rem; color: var(--muted); font-weight: 600; }
 .marked ul { margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }

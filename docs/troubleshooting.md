@@ -69,6 +69,9 @@ Rewire to the pins shown in Settings → Hardware → Wiring, or pick the pins y
 
 ## Firmware updates
 
+**On the robot's hotspot, I can't pick the file.**
+Phones open hotspot pages in a Wi-Fi sign-in window that has no file picker. Stay on the hotspot, open `http://192.168.4.1/settings.html#robot` in your regular browser (Chrome, Safari…), and upload from there. Over your home Wi-Fi this doesn't happen.
+
 **"This firmware is for another chip".**
 Each chip has its own file. The Info page shows your chip (ESP32, ESP32-S3 or ESP32-C3); download the `-ota.bin` file with that name.
 
