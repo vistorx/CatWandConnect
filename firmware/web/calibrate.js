@@ -21,6 +21,7 @@ let step = null;
 let position = { horizontal: null, vertical: null };
 let draft = null;  // values recorded so far, from /api/calibration
 let calibrated = false;  // a Calibration is already saved (from the state over /ws)
+let inverted = { horizontal: false, vertical: false };  // wiring, from /api/hardware
 
 // Steps already marked in this Calibration, before `step`.
 const ORDER = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max', 'stow'];
@@ -86,8 +87,11 @@ function show(next) {
       <div class="nudge-row">
         ${NUDGES.map(d => `<button type="button" class="secondary" data-axis="${axis}" data-degrees="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)}°</button>`).join('')}
       </div>
-      ${REVERSIBLE.includes(step) ? `<p class="hint">${I18n.t(`calibration.reverse.${axis}`)}</p>
-      <button type="button" class="secondary" data-reverse="${axis}">${I18n.t('calibration.reverse.button')}</button>` : ''}
+      ${REVERSIBLE.includes(step) ? `<div class="field">
+        <label for="reverse-${axis}">${I18n.t('calibration.reverse.button')}</label>
+        <input id="reverse-${axis}" type="checkbox" data-reverse="${axis}"${inverted[axis] ? ' checked' : ''}>
+      </div>
+      <p class="hint">${I18n.t(`calibration.reverse.${axis}`)}</p>` : ''}
     </fieldset>`).join('');
   renderPositions();
 
@@ -130,14 +134,31 @@ function renderPositions() {
   }
 }
 
-$('nudges').addEventListener('click', event => {
-  const reverse = event.target.closest('button[data-reverse]');
-  if (reverse) {
-    call('reverse', { axis: reverse.dataset.reverse }).then(() => {
-      if ($('message').dataset.kind !== 'error') say('ok', I18n.t('calibration.reverse.done'));
-    });
-    return;
+// Ticking or unticking "Reverse this axis" reverses it in place (the arm stays
+// put); the box then shows the wiring the robot reports.
+$('nudges').addEventListener('change', async event => {
+  const box = event.target.closest('input[data-reverse]');
+  if (!box) return;
+  const axis = box.dataset.reverse;
+  box.disabled = true;
+  await call('reverse', { axis });
+  await loadWiring();
+  const current = $(`reverse-${axis}`);
+  if (current) {
+    current.checked = inverted[axis];
+    current.disabled = false;
   }
+  if ($('message').dataset.kind !== 'error') say('ok', I18n.t('calibration.reverse.done'));
+});
+
+async function loadWiring() {
+  try {
+    const hardware = await (await fetch('/api/hardware')).json();
+    for (const axis of ['horizontal', 'vertical']) inverted[axis] = hardware.axes[axis].inverted === true;
+  } catch { /* keep the last known wiring */ }
+}
+
+$('nudges').addEventListener('click', event => {
   const button = event.target.closest('button[data-axis]');
   if (button) call('nudge', { axis: button.dataset.axis, degrees: Number(button.dataset.degrees) });
 });
@@ -172,6 +193,7 @@ function connect() {
 I18n.load().then(async () => {
   const calibration = await (await fetch('/api/calibration')).json();
   draft = calibration.draft;
+  await loadWiring();
   try {
     calibrated = (await (await fetch('/api/settings')).json()).calibrated === true;
   } catch { /* the state over /ws will tell */ }
