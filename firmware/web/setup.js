@@ -98,9 +98,11 @@ async function watch() {
     say('setup.connected', { ssid: status.ssid, host: status.host, ip: status.ip });
   } else if (status && status.failed) {
     say('setup.failed');
+    $('setup-help').hidden = false;
     $('connect').disabled = false;
   } else if (Date.now() > watchUntil) {
     say('setup.lost', { host });
+    $('setup-help').hidden = false;
     $('connect').disabled = false;
   } else {
     setTimeout(watch, 2000);

@@ -113,6 +113,8 @@ jobs:
         with:
           files: dist/*.bin
           generate_release_notes: true
+          body: |
+            **Found a problem?** On the robot, open Settings → Robot → Help to report it with the Diagnostic report, ask on [Discord](https://discord.gg/Rbqge3v9dk), or see [Getting help](https://github.com/vistorx/CatWandConnect/blob/main/SUPPORT.md).
           prerelease: ${{ contains(github.ref_name, '-') }}
           make_latest: ${{ !contains(github.ref_name, '-') }}
 
