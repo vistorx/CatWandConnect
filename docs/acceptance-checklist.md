@@ -139,6 +139,7 @@ Build two versions that differ visibly (for example change `CWC_VERSION` in `pla
 - [ ] Wi-Fi, name, Calibration, speed, wiring and PIN are unchanged after the update.
 - [ ] Uploading a file built for another chip is refused with "for another chip", and nothing changes.
 - [ ] Uploading a non-firmware file (a photo) is refused with "not an ESP32 firmware".
+- [ ] From the hotspot (Continue without Wi-Fi), Settings → Robot → Firmware update explains to open `http://192.168.4.1/settings.html#robot` in the regular browser; from there, the update works.
 - [ ] Unplugging the robot's Wi-Fi (or closing the tab) halfway through: the robot keeps running its old firmware, and a new upload then works.
 - [ ] With a PIN set, uploading from a phone that hasn't entered it asks for it.
 
