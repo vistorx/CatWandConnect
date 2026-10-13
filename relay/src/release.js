@@ -40,7 +40,7 @@ export function releaseMessage(tag, issue, prerelease) {
   return [
     `🎉 The fix for [#${issue.number}](<${issue.url}>) ships in **${tag}** (${channel} channel).`,
     `Update from your robot: Settings → Robot → Firmware update, with the \`-ota.bin\` file of the release: <https://github.com/vistorx/CatWandConnect/releases/tag/${tag}>`,
-    'Or reinstall it with the web flasher: <https://vistorx.github.io/CatWandConnect/>',
+    'Or reinstall it with the web flasher: <https://vistorx.github.io/CatWandConnect/flasher/>',
     `-# ${marker(tag)}`,
   ].join('\n');
 }

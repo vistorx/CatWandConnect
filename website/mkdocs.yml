@@ -1,0 +1,118 @@
+# The project website. Its pages are the repository's own Markdown, staged by
+# prepare_docs.py into build/docs (never edit build/). Build it with:
+#   python website/prepare_docs.py
+#   mkdocs build --strict -f website/mkdocs.yml
+# The web flasher is not part of this build: the Pages workflow adds it under
+# site/flasher/ (see docs/releasing.md).
+site_name: CatWandConnect
+site_description: An open-hardware robot that plays with your cat.
+site_url: https://vistorx.github.io/CatWandConnect/
+repo_url: https://github.com/vistorx/CatWandConnect
+repo_name: vistorx/CatWandConnect
+edit_uri: ""
+copyright: Firmware GPL-3.0-or-later · Hardware CERN-OHL-S-2.0 · Documentation CC BY-SA 4.0
+
+docs_dir: build/docs
+site_dir: build/site
+
+theme:
+  name: material
+  logo: media/logo/logo-64.png
+  favicon: media/logo/logo-64.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+  # Suffix layout: page.md (English) and page.fr.md (French, ticket #130).
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+
+# Broken links and anchors fail `mkdocs build --strict`.
+validation:
+  omitted_files: warn
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Home: index.md
+  - Install: https://vistorx.github.io/CatWandConnect/flasher/
+  - Firmware:
+      - install.md
+      - api.md
+  - Electronics:
+      - electronics.md
+  - Hardware:
+      - hardware.md
+      - assembly.md
+  - Use:
+      - features.md
+      - home-assistant.md
+      - troubleshooting.md
+  - Community:
+      - support.md
+      - security.md
+      - glossary.md
+      - Contributing:
+          - getting-started.md
+          - acceptance-checklist.md
+          - releasing.md
+          - support-relay.md
+          - discord.md
+          - Design decisions:
+              - adr/index.md
+              - adr/0001-everything-open-sell-kits.md
+              - adr/0002-standalone-first-home-assistant-optional.md
+              - adr/0003-dedicated-firmware-replaces-esphome.md
+              - adr/0004-arduino-platformio-servo-only-v1.md
+              - adr/0005-home-assistant-via-mqtt-first.md
+              - adr/0006-open-licences-reserved-name.md
+              - adr/0007-plain-web-interface-no-pwa.md
+              - adr/0008-no-esp8266-support.md
+              - adr/0009-support-flows-end-in-github-issues.md
+          - Agent conventions:
+              - agents/index.md
+              - agents/domain.md
+              - agents/issue-tracker.md
+              - agents/triage-labels.md

@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 from flasher_manifest import CHIPS, split_image
-from flasher_site import build, pick_channels
+from flasher_site import build, copy_page, pick_channels
 
 NVS = (0x9000, 0x5000)
 
@@ -76,17 +76,18 @@ class SplitImage(unittest.TestCase):
 
 
 class Build(unittest.TestCase):
-    def test_writes_a_manifest_per_channel_and_the_channel_list(self):
+    def test_writes_a_manifest_per_channel_and_the_channel_list_under_flasher(self):
         releases = [release("v0.1.0-beta.1", 12, pre=True)]
         downloaded = []
-        with tempfile.TemporaryDirectory() as site:
+        with tempfile.TemporaryDirectory() as root:
+            site = os.path.join(root, "flasher")
             def download(tag, folder):
                 downloaded.append((tag, folder))
                 for env in CHIPS:
                     with open(os.path.join(folder, f"catwandconnect-{env}-factory.bin"), "wb") as f:
                         f.write(factory_image())
 
-            channels = build(releases, site, download)
+            channels = build(releases, root, download)
             self.assertEqual(channels, {"beta": {"version": "0.1.0-beta.1", "tag": "v0.1.0-beta.1"}})
             self.assertEqual(downloaded, [("v0.1.0-beta.1", os.path.join(site, "beta"))])
             with open(os.path.join(site, "beta", "manifest.json")) as f:
@@ -99,6 +100,18 @@ class Build(unittest.TestCase):
             with open(os.path.join(site, "channels.json")) as f:
                 self.assertEqual(json.load(f), channels)
             self.assertFalse(os.path.exists(os.path.join(site, "stable")))
+            self.assertFalse(os.path.exists(os.path.join(root, "channels.json")))
+
+    def test_copies_the_page_and_the_files_it_loads_under_flasher(self):
+        with tempfile.TemporaryDirectory() as root:
+            copy_page(root)
+            page = os.path.join(root, "flasher", "index.html")
+            with open(page) as f:
+                html = f.read()
+            for ref in ("media/logo/logo-64.png", "media/logo/logo-320.png"):
+                self.assertIn(f'"{ref}"', html)
+                self.assertTrue(os.path.exists(os.path.join(root, "flasher", ref)), ref)
+            self.assertIn("fetch('channels.json')", html)
 
 
 if __name__ == "__main__":
