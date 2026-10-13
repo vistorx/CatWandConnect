@@ -90,6 +90,7 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Pressing Cancel at any step, or Stow on the main screen, keeps the previous limits and Stows.
 - [ ] After a power cycle the robot is still calibrated, with the same limits.
 - [ ] Running Calibration again starts from the current limits.
+- [ ] Once a Calibration is saved (including right after confirming one), the wizard's button reads "Recalibrate"; during a new Calibration the cancel button reads "Cancel the new Calibration", keeps the saved limits, Stows and goes back to the main screen.
 
 ## Hardware configuration
 

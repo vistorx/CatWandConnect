@@ -198,5 +198,7 @@
   "firmware.hotspot": "You are on the robot's hotspot. If this page opened in your phone's Wi-Fi sign-in window, it cannot pick a file: open this address in your regular browser (Chrome, Safari…) while still on the hotspot, then upload from there.",
   "firmware.copy": "Copy",
   "firmware.copied": "Copied",
-  "setup.skip.browser": "To update the firmware from the hotspot, open the robot in your regular browser rather than this sign-in window: http://192.168.4.1/"
+  "setup.skip.browser": "To update the firmware from the hotspot, open the robot in your regular browser rather than this sign-in window: http://192.168.4.1/",
+  "calibration.recalibrate": "Recalibrate",
+  "calibration.cancel_new": "Cancel the new Calibration"
 }
