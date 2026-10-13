@@ -282,12 +282,28 @@ async function updateFirmware() {
   }
 }
 
+// --- Wi-Fi: state, and the setup page while the hotspot is up -------------------
+
+async function wifiSection() {
+  try {
+    const status = await (await fetch('/api/wifi/status')).json();
+    const connected = status.mode === 'connected';
+    $('wifi-state').textContent = connected
+      ? I18n.t('settings.wifi.connected', { ssid: status.ssid })
+      : I18n.t('settings.wifi.hotspot');
+    $('wifi-setup').hidden = connected;
+  } catch {
+    $('wifi-state').textContent = '';
+  }
+}
+
 async function start() {
   axisFields($('limits-axes'), LIMITS);
   axisFields($('motion-axes'), MOTION);
   await I18n.load();
   const info = await (await fetch('/api/info')).json();
   deviceSection(info);
+  wifiSection();
   $('firmware-version').textContent = info.version;
   $('firmware').addEventListener('submit', event => {
     event.preventDefault();

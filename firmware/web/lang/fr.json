@@ -177,5 +177,11 @@
   "settings.pulse.title": "Course du servo (avancé)",
   "settings.pulse.hint": "La largeur d'impulsion envoyée au servo à 0° et à 180°. Elle règle jusqu'où le servo tourne, pas sa vitesse : la vitesse se règle plus haut, dans Vitesse et accélération. Élargissez la plage si le servo fait moins d'un demi-tour d'une extrémité à l'autre ; resserrez-la s'il grésille ou force en bout de course. La plupart des servos fonctionnent avec les valeurs par défaut.",
   "settings.pulse.default": "Par défaut : {min} – {max} µs.",
-  "settings.pulse.reset": "Revenir aux valeurs par défaut"
+  "settings.pulse.reset": "Revenir aux valeurs par défaut",
+  "setup.skip": "Continuer sans Wi-Fi",
+  "setup.skip.hint": "Utilisez le robot depuis ce hotspot pour l'instant. Vous pourrez le connecter à votre Wi-Fi plus tard, dans Réglages.",
+  "settings.wifi": "Wi-Fi",
+  "settings.wifi.connected": "Connecté à {ssid}.",
+  "settings.wifi.hotspot": "Pas sur votre Wi-Fi : vous utilisez le robot via son propre hotspot.",
+  "settings.wifi.setup": "Connecter au Wi-Fi"
 }

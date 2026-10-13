@@ -138,6 +138,7 @@ button.primary {
 }
 
 button:disabled { opacity: .5; }
+#skip { margin-top: 1.5rem; }
 
 button.text-button {
   padding: .25rem 0;
