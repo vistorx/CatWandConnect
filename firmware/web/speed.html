@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CatWandConnect</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#111113">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 data-i18n="tuning.title"></h1>
+  <a href="settings.html#motion" class="nav" data-i18n="nav.back"></a>
+</header>
+
+<main class="form-page wizard">
+  <!-- Choosing what to tune -->
+  <section id="choose">
+    <p data-i18n="tuning.intro"></p>
+    <p class="hint" id="not-calibrated" data-i18n="tuning.not_calibrated" hidden></p>
+    <div id="choices"></div>
+  </section>
+
+  <!-- Tuning one speed -->
+  <section id="tune" hidden>
+    <h2 id="tune-title"></h2>
+    <p id="tune-text"></p>
+    <p class="speed-readout"><output id="speed"></output> <span class="unit">°/s</span></p>
+    <p class="hint speed-position" id="position"></p>
+    <div class="nudge-row speed-buttons">
+      <button type="button" id="slower" class="secondary" data-i18n="tuning.slower"></button>
+      <button type="button" id="faster" class="secondary" data-i18n="tuning.faster"></button>
+    </div>
+  </section>
+
+  <p class="message" role="status" id="message"></p>
+
+  <div class="actions" id="tune-actions" hidden>
+    <button id="keep" class="primary" data-i18n="tuning.keep"></button>
+    <button id="cancel" class="secondary" data-i18n="tuning.cancel"></button>
+  </div>
+</main>
+
+<script src="i18n.js"></script>
+<script src="api.js"></script>
+<script src="speed.js"></script>
+</body>
+</html>

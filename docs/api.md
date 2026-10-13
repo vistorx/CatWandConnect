@@ -43,11 +43,12 @@ JSON text messages, one per frame, each with a type in `t`.
 | Field | Meaning |
 |-------|---------|
 | `h`, `v` | Current position of each Axis. |
-| `activity` | `idle`, `manual`, `stowing` or `calibrating`. |
+| `activity` | `idle`, `manual`, `stowing`, `calibrating` or `tuning_speed`. |
 | `held` | Whether the servos are being driven. They are released only once the wand rests at the Stow position. |
 | `playSpeed` | The speed slider's value, so every open interface stays in sync. |
 | `calibrated` | Whether Calibration has been completed. |
 | `calibration` | The current Calibration step, `none` when not calibrating (see below). |
+| `tuning` | Only while `activity` is `tuning_speed`: the Speed tuning object (see below). |
 | `name` | The robot's name. |
 
 ## HTTP
@@ -82,6 +83,25 @@ Stow beats every other command and cannot be interrupted. Manual control, from a
 | `{"action":"reverse","axis":"horizontal"}` | Only on that axis's minimum or maximum step. Reverses the axis's direction without moving the wand or restarting: every angle of the axis (draft, saved limits and Stow position) is mirrored (`a` → `180 − a`), the wiring is saved with the new direction, and the axis starts over at its minimum step. `400 invalid_request` on any other step. |
 
 The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `vertical_max`, `stow`, then `sweep` (the robot visits the four corners of the new envelope and returns to Stow by itself), then `confirm`. Stow and Manual control abandon Calibration too.
+
+### Speed tuning
+
+`GET /api/speed-tuning` returns `{"active":false}`, or while tuning:
+
+```json
+{"active":true,"axis":"horizontal","bound":"max","speed":110}
+```
+
+🔒 `POST /api/speed-tuning` with `{"action": …}` drives it and returns the same object:
+
+| Action | Effect |
+|--------|--------|
+| `{"action":"start","axis":"horizontal","bound":"max"}` | Starts sweeping the axis between its Travel limits at its current maximum (`max`) or minimum (`min`) speed; the other axis holds still. `400 invalid_request` before Calibration, while stowing or calibrating. |
+| `{"action":"faster"}` / `{"action":"slower"}` | One step: 2 °/s below 30 °/s, 5 °/s up to 90 °/s, 10 °/s above. A maximum stays within 10–360 °/s, a minimum within 1–360 °/s. |
+| `{"action":"keep"}` | Saves the trial speed and Stows. Keeping a maximum at or below the minimum resets the minimum to a tenth of the new maximum. A minimum not below the maximum returns `400 min_speed_out_of_range` and the tuning goes on. |
+| `{"action":"cancel"}` | Keeps the previous value and Stows. |
+
+Stow and Manual control end Speed tuning too, without saving.
 
 ### Identity and info
 

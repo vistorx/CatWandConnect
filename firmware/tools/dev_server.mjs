@@ -32,6 +32,7 @@ const robot = {
   activity: 'idle',
   lastCommand: 0,
   calibration: { step: 'none', draft: null, target: null, sweep: [] },
+  tuning: null,  // { axis, bound, speed, towardMax } while tuning a speed
 };
 
 let deviceName = 'CatWandConnect';
@@ -50,7 +51,7 @@ function authorized(request) {
   return tokens.has(header.replace(/^Bearer /, ''));
 }
 
-const PROTECTED = new Set(['POST /api/calibration', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
+const PROTECTED = new Set(['POST /api/calibration', 'POST /api/speed-tuning', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
   'POST /api/wifi', 'PUT /api/mqtt']);
 const startedAt = Date.now();
 
@@ -155,6 +156,60 @@ function calibrate(body) {
   return [200, calibrationView()];
 }
 
+// --- Speed tuning (lib/robot_core Robot::startSpeedTuning and friends) ------------
+
+function tuningView() {
+  const t = robot.tuning;
+  return robot.activity === 'tuning_speed' && t
+    ? { active: true, axis: t.axis, bound: t.bound, speed: t.speed } : { active: false };
+}
+
+function tuningStep(speed, faster) {
+  if (faster ? speed < 30 : speed <= 30) return 2;
+  if (faster ? speed < 90 : speed <= 90) return 5;
+  return 10;
+}
+
+function speedTuning(body) {
+  const t = robot.tuning;
+  const tuning = robot.activity === 'tuning_speed';
+  if (body.action === 'start') {
+    if (!['horizontal', 'vertical'].includes(body.axis) || !['min', 'max'].includes(body.bound)
+        || !robot.settings.calibrated || robot.activity === 'stowing' || robot.activity === 'calibrating') {
+      return [400, { error: 'invalid_request' }];
+    }
+    const a = robot.settings.axes[body.axis];
+    robot.command = { horizontal: 0, vertical: 0 };
+    robot.tuning = { axis: body.axis, bound: body.bound, speed: body.bound === 'max' ? a.maxSpeed : a.minSpeed, towardMax: true };
+    robot.activity = 'tuning_speed';
+  } else if (body.action === 'faster' || body.action === 'slower') {
+    if (tuning) {
+      const faster = body.action === 'faster';
+      const lowest = t.bound === 'max' ? 10 : 1;
+      const next = t.speed + (faster ? 1 : -1) * tuningStep(t.speed, faster);
+      t.speed = Math.max(lowest, Math.min(360, next));
+    }
+  } else if (body.action === 'keep') {
+    if (tuning) {
+      const a = { ...robot.settings.axes[t.axis] };
+      if (t.bound === 'max') {
+        a.maxSpeed = t.speed;
+        if (a.minSpeed >= a.maxSpeed) a.minSpeed = Math.max(1, a.maxSpeed / 10);
+      } else {
+        if (t.speed >= a.maxSpeed) return [400, { error: 'min_speed_out_of_range', axis: t.axis }];
+        a.minSpeed = t.speed;
+      }
+      robot.settings.axes[t.axis] = a;
+      stow();
+    }
+  } else if (body.action === 'cancel') {
+    if (tuning) stow();
+  } else {
+    return [400, { error: 'invalid_request' }];
+  }
+  return [200, tuningView()];
+}
+
 // Moves `value` toward `target` by at most `step`.
 const approach = (value, target, step) => value + Math.max(-step, Math.min(step, target - value));
 
@@ -175,6 +230,14 @@ setInterval(() => {
     } else {
       for (const axis of ['horizontal', 'vertical']) robot.position[axis] = approach(robot.position[axis], c.target[axis], 1);
     }
+    return broadcast(state());
+  }
+  if (robot.activity === 'tuning_speed') {
+    const t = robot.tuning;
+    const { min, max } = travel(t.axis);
+    const target = t.towardMax ? max : min;
+    robot.position[t.axis] = approach(robot.position[t.axis], target, t.speed * 0.05);
+    if (robot.position[t.axis] === target) t.towardMax = !t.towardMax;
     return broadcast(state());
   }
   if (robot.activity === 'stowing') {
@@ -204,7 +267,8 @@ setInterval(() => {
 function state() {
   return { t: 'state', h: round(robot.position.horizontal), v: round(robot.position.vertical),
     activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed,
-    calibrated: robot.settings.calibrated, calibration: robot.calibration.step, name: deviceName };
+    calibrated: robot.settings.calibrated, calibration: robot.calibration.step, name: deviceName,
+    ...(robot.activity === 'tuning_speed' ? { tuning: tuningView() } : {}) };
 }
 
 const round = value => Math.round(value * 10) / 10;
@@ -300,6 +364,8 @@ const API = {
   'PUT /api/hardware': putHardware,
   'GET /api/calibration': () => [200, calibrationView()],
   'POST /api/calibration': calibrate,
+  'GET /api/speed-tuning': () => [200, tuningView()],
+  'POST /api/speed-tuning': speedTuning,
   'POST /api/stow': () => { stow(); return [202, {}]; },
   // HOTSPOT=1 simulates a robot on its setup hotspot, with no internet on the phone.
   'GET /api/wifi/status': () => [200, process.env.HOTSPOT === '1' ? { mode: 'hotspot', failed: false }

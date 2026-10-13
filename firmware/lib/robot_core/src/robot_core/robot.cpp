@@ -46,6 +46,13 @@ bool nudgeable(CalibrationStep step, Axis axis) {
   }
 }
 
+// Speed tuning's step for the next change from `speed`: finer at low speeds.
+float tuningStep(float speed, bool faster) {
+  if (faster ? speed < 30 : speed <= 30) return 2;
+  if (faster ? speed < 90 : speed <= 90) return 5;
+  return 10;
+}
+
 }  // namespace
 
 Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage)
@@ -105,6 +112,9 @@ void Robot::tick() {
         break;
       case Activity::Calibrating:
         stepCalibration(axis, dt);
+        break;
+      case Activity::TuningSpeed:
+        stepSpeedTuning(axis, dt);
         break;
       case Activity::Idle:
         break;
@@ -311,6 +321,55 @@ void Robot::stepCalibration(Axis axis, float dt) {
                      ? sweepTarget(draft_, axis, sweepPoint_)
                      : nudgeTarget_[static_cast<size_t>(axis)];
   state(axis).motion.stepToward(target, dt, kServoRange, limits);
+}
+
+bool Robot::startSpeedTuning(Axis axis, SpeedBound bound) {
+  if (!settings_.calibrated || activity_ == Activity::Stowing || activity_ == Activity::Calibrating) return false;
+  manualStop();
+  const AxisSettings& a = settings_.axis(axis);
+  tuningAxis_ = axis;
+  tuningBound_ = bound;
+  tuningSpeed_ = bound == SpeedBound::Maximum ? a.maxSpeed : a.minSpeed;
+  tuningTowardMax_ = true;
+  activity_ = Activity::TuningSpeed;
+  return true;
+}
+
+void Robot::adjustSpeedTuning(bool faster) {
+  if (activity_ != Activity::TuningSpeed) return;
+  float step = tuningStep(tuningSpeed_, faster);
+  float speed = tuningSpeed_ + (faster ? step : -step);
+  float lowest = tuningBound_ == SpeedBound::Maximum ? kMinSpeed : kSlowestSpeed;
+  tuningSpeed_ = speed < lowest ? lowest : speed > kMaxSpeed ? kMaxSpeed : speed;
+}
+
+SettingsCheck Robot::keepSpeedTuning() {
+  if (activity_ != Activity::TuningSpeed) return {};
+  RobotSettings kept = settings_;
+  AxisSettings& a = kept.axis(tuningAxis_);
+  if (tuningBound_ == SpeedBound::Maximum) {
+    a.maxSpeed = tuningSpeed_;
+    if (a.minSpeed >= a.maxSpeed) a.minSpeed = defaultMinSpeed(a.maxSpeed);
+  } else {
+    a.minSpeed = tuningSpeed_;
+  }
+  SettingsCheck check = applySettings(kept);
+  if (check.ok()) stow();
+  return check;
+}
+
+void Robot::cancelSpeedTuning() {
+  if (activity_ != Activity::TuningSpeed) return;
+  stow();
+}
+
+void Robot::stepSpeedTuning(Axis axis, float dt) {
+  if (axis != tuningAxis_) return;  // the other axis holds its position
+  AxisMotion& motion = state(axis).motion;
+  TravelLimits travel = travelLimits(axis);
+  float target = tuningTowardMax_ ? travel.max : travel.min;
+  motion.stepToward(target, dt, travel, {tuningSpeed_, settings_.axis(axis).maxAccel});
+  if (motion.atRest() && motion.position() == target) tuningTowardMax_ = !tuningTowardMax_;
 }
 
 float Robot::position(Axis axis) const { return state(axis).motion.position(); }

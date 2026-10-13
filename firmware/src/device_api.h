@@ -65,6 +65,9 @@ class DeviceApi {
   void getCalibration(AsyncWebServerRequest* request);
   void postCalibration(AsyncWebServerRequest* request, JsonVariant& body);
   void writeCalibration(JsonObject out);  // caller holds robotLock_
+  void getSpeedTuning(AsyncWebServerRequest* request);
+  void postSpeedTuning(AsyncWebServerRequest* request, JsonVariant& body);
+  void writeSpeedTuning(JsonObject out);  // caller holds robotLock_
   void getHardware(AsyncWebServerRequest* request);
   void putHardware(AsyncWebServerRequest* request, JsonVariant& body);
   void writeHardware(JsonObject out, const cwc::HardwareConfig& hardware);
