@@ -1,5 +1,10 @@
 // Wi-Fi setup page, served on the CatWandConnect-XXXX hotspot (docs/api.md).
 const $ = id => document.getElementById(id);
+
+// "Continue without Wi-Fi" holds for this tab: while the robot is in setup,
+// "/" serves this page, so links back to "/" come here and move on.
+const SKIP_KEY = 'cwc.skipSetup';
+if (location.pathname === '/' && sessionStorage.getItem(SKIP_KEY)) location.replace('/index.html');
 const say = (key, vars) => { $('status').textContent = I18n.t(key, vars); };
 
 // Signal bars from RSSI: -55 dBm and above is excellent, -85 and below weak.
@@ -68,6 +73,12 @@ async function scan() {
 }
 
 $('rescan').addEventListener('click', scan);
+$('skip').addEventListener('click', () => {
+  sessionStorage.setItem(SKIP_KEY, '1');
+  location.href = '/index.html';
+});
+// Coming here on purpose (Settings → Wi-Fi) brings the setup back to "/".
+if (location.pathname !== '/') sessionStorage.removeItem(SKIP_KEY);
 
 // While the robot tries a network its radio leaves the hotspot's channel, so
 // some status requests fail: keep asking until an answer or the deadline.
