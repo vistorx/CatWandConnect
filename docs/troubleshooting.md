@@ -62,7 +62,7 @@ Until Calibration has been completed, movement is limited to 60°–120° on eac
 The maximum of an axis must be above its minimum, and the Stow position must be inside the limits you just set. Nudge further and mark again.
 
 **The wand moves the wrong way.**
-Easiest: start Calibration and press **Reverse this axis** on that axis's minimum step; the arm stays put and nothing restarts. Or tick **Reverse direction** in Settings → Hardware → Wiring, then run Calibration again.
+Easiest: start Calibration and tick **Reverse this axis** on that axis's minimum step; the arm stays put and nothing restarts. Or tick **Reverse direction** in Settings → Hardware → Wiring, then run Calibration again.
 
 **I chose the wrong pins and the servos don't move.**
 Rewire to the pins shown in Settings → Hardware → Wiring, or pick the pins you wired. If you can no longer open the interface, erase and reflash the board (`pio run -e <chip> -t erase`, then upload) to return to the defaults.
