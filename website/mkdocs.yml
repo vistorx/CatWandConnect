@@ -158,6 +158,7 @@ nav:
               - adr/0007-plain-web-interface-no-pwa.md
               - adr/0008-no-esp8266-support.md
               - adr/0009-support-flows-end-in-github-issues.md
+              - adr/0010-native-integration-in-its-own-repo-mqtt-kept.md
           - Agent conventions:
               - agents/index.md
               - agents/domain.md
