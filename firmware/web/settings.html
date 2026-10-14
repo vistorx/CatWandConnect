@@ -58,7 +58,30 @@
     <section id="wifi">
       <h2 data-i18n="settings.wifi"></h2>
       <p id="wifi-state" class="hint"></p>
+      <fieldset id="wifi-details" hidden>
+        <div class="field wide">
+          <span data-i18n="settings.wifi.network"></span>
+          <output id="wifi-ssid"></output>
+        </div>
+        <div class="field wide">
+          <span data-i18n="settings.wifi.ip"></span>
+          <output id="wifi-ip"></output>
+        </div>
+        <div class="field wide">
+          <span data-i18n="settings.address"></span>
+          <output id="wifi-host" class="unit"></output>
+        </div>
+      </fieldset>
       <a id="wifi-setup" href="/setup.html" class="link-button" data-i18n="settings.wifi.setup" hidden></a>
+      <button id="wifi-change" type="button" class="secondary" data-i18n="settings.wifi.change" hidden></button>
+      <div id="wifi-confirm" class="note" role="alertdialog" aria-labelledby="wifi-confirm-text" hidden>
+        <p id="wifi-confirm-text" data-i18n="settings.wifi.change.explain"></p>
+        <p data-i18n="settings.wifi.change.fallback"></p>
+        <div class="actions">
+          <a id="wifi-confirm-go" href="/setup.html" class="link-button" data-i18n="settings.wifi.change.go"></a>
+          <button id="wifi-confirm-cancel" type="button" class="secondary" data-i18n="settings.wifi.change.cancel"></button>
+        </div>
+      </div>
     </section>
     <form id="mqtt">
       <h2 data-i18n="mqtt.title"></h2>

@@ -1,7 +1,10 @@
 #pragma once
 
 // Gets the robot onto the owner's Wi-Fi and keeps it reachable:
-// - credentials from Improv over serial (web flasher) or from the setup page;
+// - credentials from Improv over serial (web flasher) or from the setup page,
+//   from the hotspot or, to change network, from the current Wi-Fi;
+// - a failed change made from the current Wi-Fi rejoins that network
+//   (lib/wifi_fallback, ADR 0011);
 // - a CatWandConnect-XXXX hotspot with a captive setup page whenever no known
 //   network is reachable, retrying the home network in the background;
 // - mDNS at <hostname>.local once connected.
@@ -13,6 +16,7 @@
 #include <atomic>
 #include <auth/pin_guard.h>
 #include <improv/improv.h>
+#include <wifi_fallback/wifi_fallback.h>
 
 class Network {
  public:
@@ -31,7 +35,7 @@ class Network {
 
  private:
   enum class Mode { Connecting, Connected, Hotspot };
-  enum class Source { Saved, Improv, SetupPage };
+  using Source = wifi_fallback::Source;
 
   void startAttempt(const String& ssid, const String& password, Source source);
   void onConnected();
@@ -68,9 +72,14 @@ class Network {
   String attemptPassword_;
   Source attemptSource_ = Source::Saved;
   bool lastAttemptFailed_ = false;
+  // The network a failed change tried, while the robot rejoins the saved one.
+  String failedSsid_;
 
   // A setup-page request waiting for loop(), since web handlers must not block.
   std::atomic<bool> setupRequested_{false};
+  // When to start it: a little later off the hotspot, so the 202 reaches the
+  // phone before the radio leaves the current network.
+  uint32_t setupAt_ = 0;
   String setupSsid_;
   String setupPassword_;
 

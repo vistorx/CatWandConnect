@@ -26,6 +26,19 @@ Start each section from a board with no saved Wi-Fi: erase it with `pio run -e <
 - [ ] The right password shows "Connected" with the robot's address. The hotspot disappears about 30 s later.
 - [ ] Rebooting reconnects to that network without the hotspot.
 
+### Change Wi-Fi network (from Settings)
+
+Needs a second 2.4 GHz network (a phone's personal hotspot works).
+
+- [ ] On the home Wi-Fi, Settings → Network → Wi-Fi shows the network name, the IP address (same as the Info page) and `http://<hostname>.local/`, with **Change Wi-Fi network**. "Connect to Wi-Fi" is not shown.
+- [ ] **Change Wi-Fi network** shows the warning (address may change, falls back to the current network, then the hotspot) with Continue and Cancel; Cancel hides it.
+- [ ] With a settings PIN set, connecting from the setup page asks for the PIN first; Cancel leaves the robot on its network.
+- [ ] Continue opens the setup page saying which network the robot is on, without "Continue without Wi-Fi", preselecting the strongest other network, with "Back to Settings".
+- [ ] A wrong password for the second network: the page says it is going back, then "back on <home network>, nothing changed" within about a minute; the serial log shows `back to the saved network`; the robot answers at its usual address and no hotspot appears.
+- [ ] The right password: the robot joins the second network (serial log `connected`); after joining that network the phone opens it at the IP shown and at `<hostname>.local`. Home Assistant (MQTT or Native) reconnects there if reachable.
+- [ ] Rebooting keeps the second network. Changing back to the home network the same way works.
+- [ ] With the home router switched off right after a wrong password, the robot opens its `CatWandConnect-XXXX` hotspot after the rejoin attempt (about 40 s), and joining it brings back the setup page.
+
 ### Name and recovery
 
 - [ ] From a computer or phone on the home network, `http://catwandconnect.local/` opens the robot's page.

@@ -35,7 +35,7 @@ No tools to install: the firmware goes on the board straight from your browser. 
 3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page).
 4. **Calibrate.** The main screen invites you to. The wizard has you nudge each axis to the ends of its safe travel and pick the Stow position, then sweeps the new envelope slowly so you can check nothing touches. Once the limits are saved, it sweeps each axis while you set its minimum and maximum speed (Skip keeps a speed as it is). Until then, movement stays within a conservative 60°–120° range on each axis.
 5. **Play.** Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
-6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. Use your browser's "Add to Home Screen" for an app-like icon.
+6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. Use your browser's "Add to Home Screen" for an app-like icon. Settings → Network shows the robot's IP address, and **Change Wi-Fi network** moves it to another network later (new router, new home).
 
 Something wrong? See [Troubleshooting](troubleshooting.md), then [Getting help](../SUPPORT.md).
 

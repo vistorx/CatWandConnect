@@ -1,0 +1,6 @@
+{
+  "name": "wifi_fallback",
+  "version": "0.0.0",
+  "description": "What the robot does after a failed Wi-Fi attempt: rejoin the previous network or open its hotspot. Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

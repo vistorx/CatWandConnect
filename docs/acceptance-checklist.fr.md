@@ -28,6 +28,19 @@ Commence chaque section avec une carte sans Wi-Fi enregistré : efface-la avec `
 - [ ] Le bon mot de passe affiche « Connected » avec l'adresse du robot. Le hotspot disparaît environ 30 s plus tard.
 - [ ] Un redémarrage reconnecte à ce réseau sans hotspot.
 
+### Changer de réseau Wi-Fi (depuis les Réglages)
+
+Il faut un second réseau 2,4 GHz (le partage de connexion d'un téléphone convient).
+
+- [ ] Sur le Wi-Fi habituel, Réglages → Réseau → Wi-Fi affiche le nom du réseau, l'adresse IP (la même que sur la page Infos) et `http://<hostname>.local/`, avec « Change Wi-Fi network ». « Connect to Wi-Fi » n'apparaît pas.
+- [ ] « Change Wi-Fi network » affiche l'avertissement (l'adresse peut changer, retour au réseau actuel, puis hotspot) avec Continuer et Annuler ; Annuler le masque.
+- [ ] Avec un code PIN de réglages, se connecter depuis la page de configuration demande d'abord le PIN ; Annuler laisse le robot sur son réseau.
+- [ ] Continuer ouvre la page de configuration qui dit sur quel réseau est le robot, sans « Continue without Wi-Fi », avec le réseau le plus fort autre que l'actuel présélectionné, et « Back to Settings ».
+- [ ] Un mauvais mot de passe pour le second réseau : la page indique le retour, puis « back on <réseau habituel>, nothing changed » en une minute environ ; le journal série affiche `back to the saved network` ; le robot répond à son adresse habituelle et aucun hotspot n'apparaît.
+- [ ] Le bon mot de passe : le robot rejoint le second réseau (journal série `connected`) ; une fois sur ce réseau, le téléphone l'ouvre à l'IP affichée et à `<hostname>.local`. Home Assistant (MQTT ou intégration native) s'y reconnecte s'il est joignable.
+- [ ] Un redémarrage garde le second réseau. Revenir au réseau habituel de la même façon fonctionne.
+- [ ] Box éteinte juste après un mauvais mot de passe : le robot ouvre son hotspot `CatWandConnect-XXXX` après la tentative de retour (environ 40 s), et s'y connecter ramène la page de configuration.
+
 ### Nom et reprise
 
 - [ ] Depuis un ordinateur ou un téléphone sur le réseau de la maison, `http://catwandconnect.local/` ouvre la page du robot.
