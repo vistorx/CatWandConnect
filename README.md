@@ -8,6 +8,11 @@
 
 Everything is free and open: the printable parts, the firmware and the docs.
 
+<!-- github-only -->
+> [!TIP]
+> **New to this?** The same guides are easier to read on the **[CatWandConnect website →](https://vistorx.github.io/CatWandConnect/)** (also [in French](https://vistorx.github.io/CatWandConnect/fr/)).
+<!-- /github-only -->
+
 <p align="center">
   <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
   <br>
@@ -31,10 +36,9 @@ Everything is free and open: the printable parts, the firmware and the docs.
 
 ## See it
 
-<p align="center">
-  <a href="media/video/mk2-presentation.mp4"><img src="media/video/mk2-presentation-poster.jpg" alt="The Mk2 Mechanism clamped to a table edge, holding the wand: click to watch the 50-second presentation" width="375"></a><br>
-  <em>▶ <a href="media/video/mk2-presentation.mp4">Watch the 50-second presentation</a>: print it, assemble it, add your cat's favourite toy, play.</em>
-</p>
+https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+<p align="center"><em>The Mk2 in 50 seconds: print it, assemble it, add your cat's favourite toy, play.</em></p>
 
 *Photos of the real robot are coming.*
 

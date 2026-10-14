@@ -2,10 +2,9 @@
 
 What to print and what to buy for the Mk2, the current Mechanism. The electronic parts (board, servos, supply) are in [Electronics](electronics.md); putting it together is in the [assembly guide](assembly.md).
 
-<p align="center">
-  <a href="../media/video/mk2-presentation.mp4"><img src="../media/video/mk2-presentation-poster.jpg" alt="The Mk2 Mechanism clamped to a table edge, holding the wand: click to watch the 50-second presentation" width="320"></a><br>
-  <em>▶ <a href="../media/video/mk2-presentation.mp4">Watch the Mk2 presentation</a> (50 s, 3D animation).</em>
-</p>
+https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+<p align="center"><em>The Mk2 presentation (50 s, 3D animation).</em></p>
 
 ## Printed parts
 

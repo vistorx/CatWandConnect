@@ -8,6 +8,11 @@
 
 Tout est libre et ouvert : les pièces à imprimer, le firmware et la documentation.
 
+<!-- github-only -->
+> [!TIP]
+> **Tu débutes ?** Les mêmes guides sont plus faciles à lire sur le **[site de CatWandConnect →](https://vistorx.github.io/CatWandConnect/fr/)**.
+<!-- /github-only -->
+
 <p align="center">
   <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Installer depuis le navigateur" width="340"></a>
   <br>
@@ -31,10 +36,9 @@ Tout est libre et ouvert : les pièces à imprimer, le firmware et la documentat
 
 ## En images
 
-<p align="center">
-  <a href="media/video/mk2-presentation.mp4"><img src="media/video/mk2-presentation-poster.jpg" alt="Le mécanisme Mk2 fixé au bord d'une table, qui tient la canne : clique pour regarder la présentation de 50 secondes" width="375"></a><br>
-  <em>▶ <a href="media/video/mk2-presentation.mp4">Regarde la présentation de 50 secondes</a> : imprime-le, assemble-le, ajoute le jouet préféré de ton chat, joue.</em>
-</p>
+https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+<p align="center"><em>Le Mk2 en 50 secondes : imprime-le, assemble-le, ajoute le jouet préféré de ton chat, joue.</em></p>
 
 *Des photos du vrai robot arrivent bientôt.*
 
