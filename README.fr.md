@@ -31,7 +31,7 @@ Tout est libre et ouvert : les pièces à imprimer, le firmware et la documentat
 - **Sûr par conception.** Des limites de course qu'il ne dépasse jamais, un bouton Ranger que rien ne peut interrompre, des mouvements doux, et un arrêt dès que ton téléphone se déconnecte.
 - **Facile à installer.** Installe-le depuis le navigateur, saisis ton Wi-Fi (ou passe cette étape et utilise le hotspot du robot), puis laisse l'assistant de calibration adapter le robot à ton montage.
 - **À toi de l'adapter.** Tes broches et tes servos, le nom de ton robot, l'anglais ou le français, un code PIN facultatif et des mises à jour par Wi-Fi.
-- **Home Assistant si tu veux**, via MQTT, et une API ouverte pour tout le reste.
+- **Home Assistant si tu veux**, avec son intégration native ou via MQTT, et une API ouverte pour tout le reste.
 
 **Spécifications :** [toutes les fonctionnalités en détail](docs/features.fr.md) · [spec V1](https://github.com/vistorx/CatWandConnect/issues/1) · [spec Support](https://github.com/vistorx/CatWandConnect/issues/47) · [prévu pour plus tard](https://github.com/vistorx/CatWandConnect/issues?q=is%3Aopen+label%3Afuture) · [décisions de conception](docs/adr/) · [glossaire](CONTEXT.md) (en anglais)
 
@@ -92,7 +92,7 @@ Le mécanisme est imprimé en 3D : six pièces, toutes dans [`stls/mk2/`](stls/m
 | [2. Assembler le mécanisme](docs/assembly.fr.md) | Pièces à acheter (roulement, billes, vis) et ordre de montage (photos bientôt) |
 | [3. Câbler l'électronique](docs/wiring.fr.md) | Carte, servos, alimentation, schéma de câblage, broches par défaut selon la puce |
 | [4. Installer le logiciel](docs/install.fr.md) | Flasher depuis le navigateur, Wi-Fi, calibration, mises à jour |
-| [5. Configurer Home Assistant](docs/home-assistant.fr.md) | Facultatif : broker, utilisateur, intégration MQTT, connexion du robot, tableau de bord, automatisations |
+| [5. Configurer Home Assistant](docs/home-assistant.fr.md) | Facultatif : deux façons de le connecter, l'intégration native (HACS) ou la connexion MQTT, un tableau de bord pour chacune, automatisations |
 | [Fonctionnalités](docs/features.fr.md) | Tout ce que fait le robot, en détail |
 | [Dépannage](docs/troubleshooting.fr.md) | Installation, Wi-Fi, mouvements, mises à jour, code PIN |
 
