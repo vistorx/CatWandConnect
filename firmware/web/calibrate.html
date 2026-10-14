@@ -16,7 +16,7 @@
 <body>
 <header>
   <h1 data-i18n="calibration.title"></h1>
-  <a href="/" class="nav" data-i18n="nav.back"></a>
+  <a href="/" class="nav" id="back" data-i18n="nav.back"></a>
 </header>
 
 <main class="form-page wizard">
@@ -26,6 +26,16 @@
 
   <section id="marked" class="marked" hidden></section>
   <section id="nudges"></section>
+
+  <!-- Speed tuning steps, after the limits are saved -->
+  <section id="speed" hidden>
+    <p class="speed-readout"><output id="speed-value"></output> <span class="unit">°/s</span></p>
+    <p class="hint speed-position" id="speed-position"></p>
+    <div class="nudge-row speed-buttons" id="speed-buttons" hidden>
+      <button type="button" id="slower" class="secondary" data-i18n="tuning.slower"></button>
+      <button type="button" id="faster" class="secondary" data-i18n="tuning.faster"></button>
+    </div>
+  </section>
 
   <p class="message" role="status" id="message"></p>
 

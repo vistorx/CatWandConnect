@@ -70,7 +70,7 @@
   "calibration.confirm": "Rien n'a touché : enregistrer",
   "calibration.restart": "Quelque chose a touché : recommencer",
   "calibration.cancel": "Annuler",
-  "calibration.done": "Calibration enregistrée. Le robot utilise maintenant ses nouvelles limites.",
+  "calibration.done": "Limites enregistrées : le robot les utilise maintenant. Place aux vitesses ; Passer garde une vitesse telle quelle.",
   "banner.uncalibrated": "Pas encore calibré : les mouvements sont limités à une petite zone sûre.",
   "banner.calibrate": "Calibrer",
   "settings.limits": "Limites de course et position de repos",
@@ -283,5 +283,14 @@
   "play.remaining": "Temps restant",
   "play.hint": "La baguette joue toute seule dans tes limites, puis se range. Touche le joystick pour reprendre la main.",
   "settings.pauseMin": "Plage de pause, min",
-  "settings.pauseMax": "Plage de pause, max"
+  "settings.pauseMax": "Plage de pause, max",
+  "calibration.speed.waiting": "Le robot se range d'abord, puis commence le balayage.",
+  "calibration.speed.stopped": "Le balayage s'est arrêté. Relance-le, ou passe cette vitesse.",
+  "calibration.speed.start": "Relancer le balayage",
+  "calibration.speed.skip": "Passer (garder {speed} °/s)",
+  "calibration.finished.title": "Ton robot est prêt",
+  "calibration.finished.text": "Limites, position de repos et vitesses sont enregistrées. Tu peux régler à nouveau une vitesse plus tard dans Réglages → Mouvement → Régler les vitesses.",
+  "calibration.finished.button": "Terminé",
+  "calibration.speeds": "Vitesses",
+  "calibration.speed_range": "{min} à {max} °/s"
 }

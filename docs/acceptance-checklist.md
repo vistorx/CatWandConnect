@@ -95,7 +95,7 @@ Use the Play session block under the speed slider on the main screen.
 ## Calibration
 
 - [ ] On a robot that was never calibrated, the main screen shows the "Not calibrated yet" banner, and the joystick is limited to 60°–120°.
-- [ ] The wizard walks through Horizontal minimum, Horizontal maximum, Vertical minimum, Vertical maximum, Stow, sweep, confirm, showing "Step n of 6".
+- [ ] The wizard walks through Horizontal minimum, Horizontal maximum, Vertical minimum, Vertical maximum, Stow, sweep, confirm, then Horizontal minimum speed, Horizontal maximum speed, Vertical minimum speed, Vertical maximum speed and "Your robot is ready", showing "Step n of 10".
 - [ ] From the second step on, "Marked so far" shows the values already marked; the Stow step shows each axis's allowed range; a maximum below the minimum names the minimum in the error.
 - [ ] The ±1° and ±5° buttons move only the step's axis, slowly, and the position on screen follows.
 - [ ] The nudges can go beyond 60°–120°.
@@ -105,11 +105,17 @@ Use the Play session block under the speed slider on the main screen.
 - [ ] Marking a Stow position outside the new limits shows an error and stays on the step.
 - [ ] The sweep visits the four corners of the new envelope slowly and ends at the Stow position, without touching anything.
 - [ ] "Nothing touched: save" saves; the banner disappears and the joystick now reaches the new limits but not beyond.
+- [ ] After saving, the robot Stows, then the Horizontal minimum speed step sweeps that axis by itself between the new limits; Faster/Slower change the speed and "Keep this speed" saves it and moves on to the next speed.
+- [ ] On a speed step, "Skip (keep N °/s)" keeps that speed unchanged (Settings → Motion shows the same value) and moves on.
+- [ ] The maximum speed steps start the sweep from the current maximum speed.
+- [ ] Stow from the main screen during a speed step stops the sweep without saving; "Sweep again" restarts it.
+- [ ] Leaving the wizard with Back during a speed step stops the sweep; the new limits stay saved, and the speeds already kept stay too.
+- [ ] "Your robot is ready" lists each axis's Speed range; Done goes back to the main screen.
 - [ ] Settings shows the new limits and Stow position. Changing them there is validated the same way.
 - [ ] Pressing Cancel at any step, or Stow on the main screen, keeps the previous limits and Stows.
 - [ ] After a power cycle the robot is still calibrated, with the same limits.
 - [ ] Running Calibration again starts from the current limits.
-- [ ] Once a Calibration is saved (including right after confirming one), the wizard's button reads "Recalibrate"; during a new Calibration the cancel button reads "Cancel the new Calibration", keeps the saved limits, Stows and goes back to the main screen.
+- [ ] Once a Calibration is saved (including when reopening the wizard right after one), the wizard's button reads "Recalibrate"; during a new Calibration the cancel button reads "Cancel the new Calibration", keeps the saved limits, Stows and goes back to the main screen.
 
 ## Hardware configuration
 

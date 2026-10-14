@@ -1,5 +1,6 @@
-// Calibration wizard: drives /api/calibration and follows the robot over /ws
-// (docs/api.md).
+// Calibration wizard: drives /api/calibration, then Speed tuning
+// (/api/speed-tuning) once the limits are saved, and follows the robot over
+// /ws (docs/api.md).
 const $ = id => document.getElementById(id);
 
 // Which axes each step can nudge, and its number in the progress line.
@@ -14,6 +15,14 @@ const STEPS = {
   confirm: { axes: [], number: 6 },
 };
 const NUDGES = [-5, -1, 1, 5];
+// Speed tuning steps, after the limits are saved, numbered after the confirm step.
+const SPEED_STEPS = [
+  { axis: 'horizontal', bound: 'min' },
+  { axis: 'horizontal', bound: 'max' },
+  { axis: 'vertical', bound: 'min' },
+  { axis: 'vertical', bound: 'max' },
+];
+const TOTAL = 6 + SPEED_STEPS.length;
 // Steps where the axis can be reversed (minimum and maximum of each axis).
 const REVERSIBLE = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max'];
 
@@ -23,12 +32,20 @@ let draft = null;  // values recorded so far, from /api/calibration
 let calibrated = false;  // a Calibration is already saved (from the state over /ws)
 let inverted = { horizontal: false, vertical: false };  // wiring, from /api/hardware
 
+// Speed tuning part of the wizard. Page-only: the limits are already saved,
+// so leaving keeps a valid Calibration and the speeds kept so far.
+let speedIndex = null;  // index in SPEED_STEPS, SPEED_STEPS.length = Done, null = limits part
+let speedStarted = false;  // the sweep of this step was started once
+let activity = 'idle';  // from the state over /ws
+let tuning = { active: false };  // from /api/speed-tuning and the state over /ws
+let settings = null;  // current speeds, from /api/settings
+
 // Steps already marked in this Calibration, before `step`.
 const ORDER = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max', 'stow'];
 
 async function call(action, extra = {}) {
   const { ok, data: result } = await Api.call('POST', '/api/calibration', { action, ...extra });
-  if (result.error === 'pin_required') return;
+  if (result.error === 'pin_required') return false;
   if (!ok) {
     const axis = result.axis ? I18n.t(`axis.${result.axis}`) : '';
     if (result.error === 'travel_order' && draft && result.axis) {
@@ -36,13 +53,155 @@ async function call(action, extra = {}) {
     } else {
       say('error', I18n.t(`error.${result.error}`, { axis }));
     }
-    return;
+    return false;
   }
   say('', '');
   if (result.draft) draft = result.draft;
+  if (action === 'confirm') {
+    await startSpeeds();
+    return true;
+  }
   show(result.step);
   renderMarked();
+  return true;
 }
+
+// --- Speed tuning steps -----------------------------------------------------
+
+async function tune(action, extra = {}) {
+  const { ok, data: result } = await Api.call('POST', '/api/speed-tuning', { action, ...extra });
+  if (result.error === 'pin_required') return false;
+  if (!ok) {
+    const axis = result.axis ? I18n.t(`axis.${result.axis}`) : '';
+    say('error', I18n.t(`error.${result.error}`, { axis }));
+    return false;
+  }
+  tuning = result;
+  return true;
+}
+
+async function loadSettings() {
+  try {
+    settings = await (await fetch('/api/settings')).json();
+  } catch { /* keep the last known values */ }
+}
+
+function currentSpeed({ axis, bound }) {
+  if (!settings) return '';
+  const a = settings.axes[axis];
+  return Math.round(bound === 'max' ? a.maxSpeed : a.minSpeed);
+}
+
+// The limits are saved and the robot Stows: on to the speeds.
+async function startSpeeds() {
+  step = null;
+  activity = 'stowing';
+  $('marked').hidden = true;
+  say('ok', I18n.t('calibration.done'));
+  await goSpeed(0);
+}
+
+async function goSpeed(index) {
+  speedIndex = index;
+  speedStarted = false;
+  renderSpeed();
+  await loadSettings();
+  renderSpeed();
+  maybeStartSweep();
+}
+
+// Starts this step's sweep once the robot is free (it Stows after each step).
+async function maybeStartSweep() {
+  const info = SPEED_STEPS[speedIndex];
+  if (!info || speedStarted || tuning.active || !['idle', 'manual'].includes(activity)) return;
+  speedStarted = true;
+  if (await tune('start', info)) renderSpeed();
+  else speedStarted = false;
+}
+
+// Keep and Skip Stow the robot; the next sweep starts once it rests.
+function nextSpeed() {
+  activity = 'stowing';
+  return goSpeed(speedIndex + 1);
+}
+
+function renderSpeed() {
+  const info = SPEED_STEPS[speedIndex];
+  const primary = $('primary');
+  const secondary = $('secondary');
+  $('cancel').hidden = true;
+  $('nudges').innerHTML = '';
+  primary.hidden = false;
+  primary.disabled = false;
+  secondary.hidden = true;
+
+  if (!info) {  // Done
+    $('speed').hidden = true;
+    $('progress').textContent = '';
+    $('step-title').textContent = I18n.t('calibration.finished.title');
+    $('step-text').textContent = I18n.t('calibration.finished.text');
+    renderSpeeds();
+    primary.textContent = I18n.t('calibration.finished.button');
+    primary.onclick = () => { location.href = '/'; };
+    return;
+  }
+
+  const axis = I18n.t(`axis.${info.axis}`);
+  const active = tuning.active && tuning.axis === info.axis && tuning.bound === info.bound;
+  $('progress').textContent = I18n.t('calibration.progress', { n: 7 + speedIndex, total: TOTAL });
+  $('step-title').textContent = I18n.t(`tuning.${info.bound}.title`, { axis });
+  $('step-text').textContent = I18n.t(`tuning.${info.bound}.text`);
+  $('speed').hidden = false;
+  $('speed-value').textContent = active ? Math.round(tuning.speed) : currentSpeed(info);
+  $('speed-buttons').hidden = !active;
+  if (!active) {
+    $('speed-position').textContent = I18n.t(speedStarted ? 'calibration.speed.stopped' : 'calibration.speed.waiting');
+  }
+
+  if (active) {
+    primary.textContent = I18n.t('tuning.keep');
+    primary.onclick = async () => {
+      const speed = Math.round(tuning.speed);
+      primary.disabled = true;
+      if (await tune('keep')) {
+        say('ok', I18n.t('tuning.kept', { speed }));
+        await nextSpeed();
+      } else {
+        primary.disabled = false;
+      }
+    };
+  } else {
+    primary.textContent = I18n.t('calibration.speed.start');
+    primary.disabled = !speedStarted || !['idle', 'manual'].includes(activity);
+    primary.onclick = () => { speedStarted = false; maybeStartSweep(); };
+  }
+  secondary.hidden = false;
+  secondary.textContent = I18n.t('calibration.speed.skip', { speed: currentSpeed(info) });
+  secondary.onclick = async () => {
+    if (tuning.active) await tune('cancel');
+    say('', '');
+    await nextSpeed();
+  };
+}
+
+// The speeds the robot now uses, on the Done step.
+function renderSpeeds() {
+  if (!settings) return;
+  const items = ['horizontal', 'vertical'].map(axis => `<li><strong>${I18n.t(`axis.${axis}`)}</strong> ${
+    I18n.t('calibration.speed_range', { min: Math.round(settings.axes[axis].minSpeed), max: Math.round(settings.axes[axis].maxSpeed) })}</li>`);
+  $('marked').innerHTML = `<h3>${I18n.t('calibration.speeds')}</h3><ul>${items.join('')}</ul>`;
+  $('marked').hidden = false;
+}
+
+$('faster').addEventListener('click', async () => { if (await tune('faster')) renderSpeed(); });
+$('slower').addEventListener('click', async () => { if (await tune('slower')) renderSpeed(); });
+// Leaving during a sweep stops it: the speed keeps its previous value.
+$('back').addEventListener('click', async event => {
+  if (speedIndex === null || !tuning.active) return;
+  event.preventDefault();
+  await tune('cancel');
+  location.href = '/';
+});
 
 // Recalls the values marked at earlier steps, and the limits on the Stow step.
 function renderMarked() {
@@ -75,8 +234,9 @@ function show(next) {
   if (next === step) return;
   step = next;
   const info = STEPS[step] || STEPS.none;
+  $('speed').hidden = true;
 
-  $('progress').textContent = info.number ? I18n.t('calibration.progress', { n: info.number, total: 6 }) : '';
+  $('progress').textContent = info.number ? I18n.t('calibration.progress', { n: info.number, total: TOTAL }) : '';
   $('step-title').textContent = I18n.t(`calibration.${step}.title`);
   $('step-text').textContent = I18n.t(`calibration.${step}.text`);
 
@@ -111,10 +271,7 @@ function show(next) {
     primary.disabled = true;
   } else if (step === 'confirm') {
     primary.textContent = I18n.t('calibration.confirm');
-    primary.onclick = async () => {
-      await call('confirm');
-      say('ok', I18n.t('calibration.done'));
-    };
+    primary.onclick = () => call('confirm');
     secondary.hidden = false;
     secondary.textContent = I18n.t('calibration.restart');
     secondary.onclick = async () => {
@@ -169,12 +326,36 @@ $('cancel').addEventListener('click', async () => {
   if (leave) location.href = '/';
 });
 
+// During the speed steps: follow the sweep, and notice when Stow, the joystick
+// or another phone ended it.
+function followSpeed(state) {
+  calibrated = state.calibrated;
+  const next = state.activity === 'tuning_speed' && state.tuning ? state.tuning : { active: false };
+  const info = SPEED_STEPS[speedIndex];
+  if (next.active && info && next.axis === info.axis && next.bound === info.bound) {
+    const degrees = Math.round(next.axis === 'horizontal' ? state.h : state.v);
+    $('speed-position').textContent = I18n.t('tuning.position', { degrees });
+  }
+  const changed = next.active !== tuning.active || next.speed !== tuning.speed;
+  tuning = next;
+  if (speedIndex < SPEED_STEPS.length) {
+    if (changed || !next.active) renderSpeed();
+    maybeStartSweep();
+  }
+}
+
 function connect() {
   const socket = new WebSocket(`ws://${location.host}/ws`);
   socket.onmessage = event => {
     const state = JSON.parse(event.data);
     if (state.t !== 'state') return;
     position = { horizontal: state.h, vertical: state.v };
+    activity = state.activity;
+    if (speedIndex !== null && state.calibration === 'none') {
+      followSpeed(state);
+      return;
+    }
+    speedIndex = null;  // a new Calibration started, from here or another phone
     if (state.calibrated !== calibrated) {
       calibrated = state.calibrated;
       const current = step;

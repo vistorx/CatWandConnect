@@ -41,7 +41,7 @@ An axis's speeds from its Minimum speed to its maximum speed. The main screen's 
 _Avoid_: Speed limits (Travel limits are positions, not speeds)
 
 **Speed tuning**:
-The guided process in which the robot sweeps one axis between its Travel limits while the owner makes it faster or slower, then keeps that speed as the axis's Minimum speed or maximum speed. Distinct from Calibration, which sets positions.
+The guided process in which the robot sweeps one axis between its Travel limits while the owner makes it faster or slower, then keeps that speed as the axis's Minimum speed or maximum speed. Distinct from Calibration, which sets positions: the Calibration wizard goes on with Speed tuning steps once the Travel limits are saved, but skipping or leaving them does not undo the Calibration.
 _Avoid_: Speed calibration
 
 **Play session**:

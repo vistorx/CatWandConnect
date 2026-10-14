@@ -97,7 +97,7 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 ## Calibration
 
 - [ ] Sur un robot jamais calibré, l'écran principal affiche le bandeau « Not calibrated yet », et le joystick est limité à 60°–120°.
-- [ ] L'assistant enchaîne minimum horizontal, maximum horizontal, minimum vertical, maximum vertical, position de repos, balayage, confirmation, en affichant « Step n of 6 ».
+- [ ] L'assistant enchaîne minimum horizontal, maximum horizontal, minimum vertical, maximum vertical, position de repos, balayage, confirmation, puis vitesse minimale horizontale, vitesse maximale horizontale, vitesse minimale verticale, vitesse maximale verticale et « Your robot is ready », en affichant « Step n of 10 ».
 - [ ] À partir de la deuxième étape, « Marked so far » affiche les valeurs déjà validées ; l'étape de la position de repos affiche la plage autorisée de chaque axe ; un maximum en dessous du minimum cite le minimum dans l'erreur.
 - [ ] Les boutons ±1° et ±5° ne déplacent que l'axe de l'étape, lentement, et la position à l'écran suit.
 - [ ] Les ajustements peuvent dépasser 60°–120°.
@@ -107,11 +107,17 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 - [ ] Valider une position de repos en dehors des nouvelles limites affiche une erreur et reste sur l'étape.
 - [ ] Le balayage parcourt lentement les quatre coins des nouvelles limites et se termine à la position de repos, sans rien toucher.
 - [ ] « Nothing touched: save » enregistre ; le bandeau disparaît et le joystick atteint maintenant les nouvelles limites, mais pas au-delà.
+- [ ] Après l'enregistrement, le robot se range, puis l'étape de vitesse minimale horizontale balaie cet axe tout seul entre les nouvelles limites ; Plus vite / Plus lent changent la vitesse et « Keep this speed » l'enregistre et passe à la vitesse suivante.
+- [ ] Sur une étape de vitesse, « Skip (keep N °/s) » garde cette vitesse telle quelle (Réglages → Mouvement affiche la même valeur) et passe à la suite.
+- [ ] Les étapes de vitesse maximale démarrent le balayage à la vitesse maximale actuelle.
+- [ ] Ranger depuis l'écran principal pendant une étape de vitesse arrête le balayage sans enregistrer ; « Sweep again » le relance.
+- [ ] Quitter l'assistant avec Retour pendant une étape de vitesse arrête le balayage ; les nouvelles limites restent enregistrées, ainsi que les vitesses déjà gardées.
+- [ ] « Your robot is ready » affiche la plage de vitesses de chaque axe ; Done ramène à l'écran principal.
 - [ ] Les Réglages affichent les nouvelles limites et la position de repos. Les y modifier est validé de la même façon.
 - [ ] Appuyer sur Annuler à n'importe quelle étape, ou sur Ranger sur l'écran principal, garde les limites précédentes et range le robot.
 - [ ] Après une coupure d'alimentation, le robot est toujours calibré, avec les mêmes limites.
 - [ ] Relancer la calibration part des limites actuelles.
-- [ ] Une fois une calibration enregistrée (y compris juste après en avoir confirmé une), le bouton de l'assistant indique « Recalibrate » ; pendant une nouvelle calibration, le bouton d'annulation indique « Cancel the new Calibration », garde les limites enregistrées, range le robot et revient à l'écran principal.
+- [ ] Une fois une calibration enregistrée (y compris en rouvrant l'assistant juste après en avoir terminé une), le bouton de l'assistant indique « Recalibrate » ; pendant une nouvelle calibration, le bouton d'annulation indique « Cancel the new Calibration », garde les limites enregistrées, range le robot et revient à l'écran principal.
 
 ## Configuration matérielle
 
