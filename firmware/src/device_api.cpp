@@ -21,6 +21,7 @@ const char* activityName(cwc::Activity activity) {
     case cwc::Activity::Stowing: return "stowing";
     case cwc::Activity::Calibrating: return "calibrating";
     case cwc::Activity::TuningSpeed: return "tuning_speed";
+    case cwc::Activity::Playing: return "playing";
     case cwc::Activity::Idle: return "idle";
   }
   return "idle";
@@ -65,7 +66,10 @@ void writeSettings(JsonObject out, const cwc::RobotSettings& settings) {
     o["maxSpeed"] = tenths(a.maxSpeed);
     o["minSpeed"] = tenths(a.minSpeed);
     o["maxAccel"] = tenths(a.maxAccel);
+    o["pauseMin"] = tenths(a.pauseMin);
+    o["pauseMax"] = tenths(a.pauseMax);
   }
+  out["sessionMinutes"] = settings.sessionMinutes;
 }
 
 // Overlays the fields present in `in` onto `settings`. `calibrated` is owned
@@ -83,7 +87,18 @@ void readSettings(JsonObjectConst in, cwc::RobotSettings& settings) {
     if (o["maxSpeed"].is<float>()) a.maxSpeed = o["maxSpeed"];
     if (o["minSpeed"].is<float>()) a.minSpeed = o["minSpeed"];
     if (o["maxAccel"].is<float>()) a.maxAccel = o["maxAccel"];
+    if (o["pauseMin"].is<float>()) a.pauseMin = o["pauseMin"];
+    if (o["pauseMax"].is<float>()) a.pauseMax = o["pauseMax"];
   }
+}
+
+// The Session duration from a request body: false when absent, and
+// `minutes` = 0 (out of range) when not a whole number of minutes.
+bool readSessionMinutes(JsonObjectConst in, uint8_t& minutes) {
+  JsonVariantConst value = in["sessionMinutes"];
+  if (value.isNull()) return false;
+  minutes = value.is<int>() && value.as<int>() >= 0 && value.as<int>() <= 255 ? value.as<int>() : 0;
+  return true;
 }
 
 const char* chipName(cwc::Chip chip) {
@@ -159,6 +174,12 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
   tune->setMethod(HTTP_POST);
   server.addHandler(tune);
 
+  server.on("/api/play", HTTP_GET, [this](AsyncWebServerRequest* request) { getPlay(request); });
+  auto* play = new AsyncCallbackJsonWebHandler(
+      "/api/play", [this](AsyncWebServerRequest* request, JsonVariant& body) { postPlay(request, body); });
+  play->setMethod(HTTP_POST);
+  server.addHandler(play);
+
   server.on("/api/settings", HTTP_GET, [this](AsyncWebServerRequest* request) { getSettings(request); });
   auto* put = new AsyncCallbackJsonWebHandler(
       "/api/settings", [this](AsyncWebServerRequest* request, JsonVariant& body) { putSettings(request, body); });
@@ -204,28 +225,93 @@ void DeviceApi::putSettings(AsyncWebServerRequest* request, JsonVariant& body) {
     request->send(400, "application/json", "{\"error\":\"invalid_json\"}");
     return;
   }
-  // The speed slider is part of play; everything else needs the PIN.
-  bool onlyPlaySpeed = body.size() == 1 && body["playSpeed"].is<float>();
-  if (!onlyPlaySpeed && !requirePin(pin_, request)) return;
+  // The speed slider and the Session duration are part of play; everything
+  // else needs the PIN.
+  JsonObjectConst in = body.as<JsonObjectConst>();
+  size_t playFields = in["playSpeed"].is<float>() + !in["sessionMinutes"].isNull();
+  bool onlyPlay = in.size() > 0 && in.size() == playFields;
+  if (!onlyPlay && !requirePin(pin_, request)) return;
 
   JsonDocument doc;
   cwc::SettingsCheck check;
   {
     std::lock_guard<std::mutex> guard(robotLock_);
-    cwc::RobotSettings settings = robot_.settings();
-    readSettings(body.as<JsonObjectConst>(), settings);
-    check = robot_.applySettings(settings);
+    uint8_t minutes = 0;
+    bool hasMinutes = readSessionMinutes(in, minutes);
+    if (hasMinutes && (minutes < cwc::kMinSessionMinutes || minutes > cwc::kMaxSessionMinutes)) {
+      check = {cwc::SettingsError::SessionDurationOutOfRange, cwc::Axis::Horizontal};
+    }
+    if (check.ok() && in.size() > (hasMinutes ? 1u : 0u)) {
+      cwc::RobotSettings settings = robot_.settings();
+      readSettings(in, settings);
+      check = robot_.applySettings(settings);
+    }
+    // Saved once the robot is idle, and only if it changed.
+    if (check.ok() && hasMinutes) robot_.setSessionMinutes(minutes);
     if (check.ok()) writeSettings(doc.to<JsonObject>(), robot_.settings());
   }
 
   if (!check.ok()) {
     doc["error"] = cwc::settingsErrorName(check.error);
-    if (check.error != cwc::SettingsError::PlaySpeedOutOfRange) doc["axis"] = axisName(check.axis);
+    if (check.error != cwc::SettingsError::PlaySpeedOutOfRange &&
+        check.error != cwc::SettingsError::SessionDurationOutOfRange) {
+      doc["axis"] = axisName(check.axis);
+    }
     sendJson(request, 400, doc);
     return;
   }
   sendJson(request, 200, doc);
-  newClient_ = true;  // push the new speed to every open interface
+  newClient_ = true;  // push the new speed and duration to every open interface
+}
+
+void DeviceApi::writePlay(JsonObject out) {
+  bool playing = robot_.activity() == cwc::Activity::Playing;
+  out["active"] = playing;
+  out["remaining"] = robot_.playRemainingS();
+  out["minutes"] = robot_.settings().sessionMinutes;
+}
+
+void DeviceApi::getPlay(AsyncWebServerRequest* request) {
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    writePlay(doc.to<JsonObject>());
+  }
+  sendJson(request, 200, doc);
+}
+
+// No PIN: starting and stopping a Play session is play, like the joystick.
+void DeviceApi::postPlay(AsyncWebServerRequest* request, JsonVariant& body) {
+  const char* action = body["action"] | "";
+  const char* error = nullptr;
+  JsonDocument doc;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    if (strcmp(action, "start") == 0) {
+      uint8_t minutes = robot_.settings().sessionMinutes;
+      if (readSessionMinutes(body.as<JsonObjectConst>(), minutes) &&
+          (minutes < cwc::kMinSessionMinutes || minutes > cwc::kMaxSessionMinutes)) {
+        error = "session_duration_out_of_range";
+      } else if (!robot_.settings().calibrated) {
+        error = "not_calibrated";
+      } else if (!robot_.startPlaySession(minutes)) {
+        error = "busy";
+      }
+    } else if (strcmp(action, "stop") == 0) {
+      robot_.stopPlaySession();
+    } else {
+      error = "invalid_request";
+    }
+    if (!error) writePlay(doc.to<JsonObject>());
+  }
+
+  if (error) {
+    doc["error"] = error;
+    sendJson(request, strcmp(error, "not_calibrated") == 0 || strcmp(error, "busy") == 0 ? 409 : 400, doc);
+    return;
+  }
+  sendJson(request, 200, doc);
+  newClient_ = true;  // push the new activity to every open interface
 }
 
 void DeviceApi::writeCalibration(JsonObject out) {
@@ -474,6 +560,7 @@ void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
 void DeviceApi::stopForUpdate() {
   std::lock_guard<std::mutex> guard(inboxLock_);
   inbox_.stop = true;
+  inbox_.stopPlay = true;
   inbox_.move = false;
 }
 
@@ -603,6 +690,7 @@ void DeviceApi::loop() {
   {
     std::lock_guard<std::mutex> guard(robotLock_);
     if (inbox.stop) robot_.manualStop();
+    if (inbox.stopPlay) robot_.stopPlaySession();
     if (inbox.stow) robot_.stow();
     if (inbox.move) robot_.manualMove(inbox.horizontal, inbox.vertical);
     robot_.tick();
@@ -633,7 +721,9 @@ void DeviceApi::broadcastState(bool force) {
     doc["playSpeed"] = tenths(robot_.settings().playSpeed * 100) / 100;
     doc["calibrated"] = robot_.settings().calibrated;
     doc["calibration"] = stepName(robot_.calibrationStep());
+    doc["sessionMinutes"] = robot_.settings().sessionMinutes;
     if (robot_.activity() == cwc::Activity::TuningSpeed) writeSpeedTuning(doc["tuning"].to<JsonObject>());
+    if (robot_.activity() == cwc::Activity::Playing) doc["play"]["remaining"] = robot_.playRemainingS();
   }
   doc["name"] = name_;
   String state;

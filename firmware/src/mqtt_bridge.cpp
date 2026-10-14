@@ -26,6 +26,7 @@ const char* activityName(cwc::Activity activity) {
     case cwc::Activity::Stowing: return "stowing";
     case cwc::Activity::Calibrating: return "calibrating";
     case cwc::Activity::TuningSpeed: return "tuning_speed";
+    case cwc::Activity::Playing: return "playing";
     case cwc::Activity::Idle: break;
   }
   return "idle";

@@ -8,7 +8,7 @@ Angles are in degrees, as sent to the servos (0–180).
 
 ## Settings PIN
 
-The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control, Stow, the speed slider (`playSpeed`) and every `GET` never need it.
+The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control, Stow, the speed slider (`playSpeed`), the Play session (`/api/play` and `sessionMinutes`) and every `GET` never need it.
 
 | Request | Response |
 |---------|----------|
@@ -37,18 +37,20 @@ JSON text messages, one per frame, each with a type in `t`.
 `state` is sent when a client connects, whenever something changes (at most every 100 ms), and every 2 s otherwise:
 
 ```json
-{"t":"state","h":92.5,"v":88.0,"activity":"manual","held":true,"playSpeed":0.6}
+{"t":"state","h":92.5,"v":88.0,"activity":"playing","held":true,"playSpeed":0.6,"sessionMinutes":10,"play":{"remaining":587}}
 ```
 
 | Field | Meaning |
 |-------|---------|
 | `h`, `v` | Current position of each Axis. |
-| `activity` | `idle`, `manual`, `stowing`, `calibrating` or `tuning_speed`. |
+| `activity` | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` or `playing`. |
 | `held` | Whether the servos are being driven. They are released only once the wand rests at the Stow position. |
 | `playSpeed` | The speed slider's value, so every open interface stays in sync. |
 | `calibrated` | Whether Calibration has been completed. |
 | `calibration` | The current Calibration step, `none` when not calibrating (see below). |
 | `tuning` | Only while `activity` is `tuning_speed`: the Speed tuning object (see below). |
+| `sessionMinutes` | The Session duration, in minutes, so every open interface stays in sync. |
+| `play` | Only while `activity` is `playing`: `{"remaining": <seconds>}`, the time left in the Play session, rounded up. |
 | `name` | The robot's name. |
 
 ## HTTP
@@ -61,7 +63,33 @@ JSON text messages, one per frame, each with a type in `t`.
 
 At power-up the robot commands the position where it last rested (clamped into the Travel limits) and then Stows at the slowest speed, 10 °/s; `activity` is `stowing` meanwhile.
 
-Stow beats every other command and cannot be interrupted. Manual control, from any source, cancels any other activity. Nothing resumes on its own afterwards.
+Stow beats every other command and cannot be interrupted. Manual control, from any source, cancels any other activity, a Play session included. Nothing resumes on its own afterwards.
+
+### Play session
+
+The wand plays on its own for the Session duration, then Stows. Each Axis loops on its own, never in step with the other: it moves to a random position anywhere within its Travel limits, at a random speed within its Speed range (`minSpeed`–`maxSpeed`), then rests for a random time within its Pause range (`pauseMin`–`pauseMax`), and starts again.
+
+`GET /api/play` returns:
+
+```json
+{"active":true,"remaining":587,"minutes":10}
+```
+
+`active` says whether a session runs, `remaining` is the time left in seconds (0 when none runs) and `minutes` the Session duration.
+
+`POST /api/play` (no PIN) with `{"action": …}` drives it and returns the same object:
+
+| Action | Effect |
+|--------|--------|
+| `{"action":"start"}` | Starts a session of the Session duration, from zero even if one is running. |
+| `{"action":"start","sessionMinutes":20}` | Same with that duration (1–60), which becomes the Session duration. |
+| `{"action":"stop"}` | Ends the session with Stow, without finishing the move in progress. Does nothing when no session runs. |
+
+Errors: `409 {"error":"not_calibrated"}` before Calibration, `409 {"error":"busy"}` while stowing, calibrating or tuning a speed, `400 session_duration_out_of_range`, `400 invalid_request` for an unknown action.
+
+A session ends with Stow when its time is up, on `stop` and on Stow from any source. Manual control (the joystick, or a position from Home Assistant) ends it at once, without Stow, leaving the wand to the person. Closing the page or losing the connection does not stop it. It never resumes, and it does not survive a restart.
+
+To change the Session duration without starting a session, send `PUT /api/settings` with only `{"sessionMinutes": 15}` (no PIN, like `playSpeed`). It is written to flash once the robot is idle, and only when it changed.
 
 ### Calibration
 
@@ -153,7 +181,7 @@ Recent log:
 - **Success:** `200 {"ok":true,"restart":true}`, and the robot restarts on the new firmware about a second later.
 - **Failure:** `400 {"error":"update_failed","detail":"…"}`. If the upload is interrupted, the robot keeps running its current firmware.
 
-Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. Example: `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. A Play session in progress ends when the update starts. Example: `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
 
 ### Home Assistant (MQTT) settings
 
@@ -195,9 +223,10 @@ Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. Example: `c
   "playSpeed": 0.6,
   "calibrated": false,
   "axes": {
-    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360},
-    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360}
-  }
+    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0.5, "pauseMax": 3},
+    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 1, "pauseMax": 5}
+  },
+  "sessionMinutes": 10
 }
 ```
 
@@ -210,11 +239,13 @@ Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. Example: `c
 | `maxSpeed` | Maximum speed, in °/s. | 10–360 |
 | `minSpeed` | Minimum speed, in °/s: Manual control's speed at the bottom of the speed slider. Defaults to a tenth of `maxSpeed`. | 1 to below `maxSpeed` |
 | `maxAccel` | Acceleration, in °/s². | 20–2000 |
+| `pauseMin`, `pauseMax` | Pause range, in seconds: how long the axis rests between two moves of a Play session. `0` means non-stop. | 0–60, `pauseMin` ≤ `pauseMax` |
+| `sessionMinutes` | Session duration: how long a Play session lasts, in minutes. Whole numbers. | 1–60 |
 
-🔒 `PUT /api/settings` (except a body containing only `playSpeed`) with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
+🔒 `PUT /api/settings` (except a body containing only `playSpeed` and/or `sessionMinutes`) with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
 
 - **Valid:** `200` with the full new settings. They are saved and survive reboots and firmware updates.
-- **Invalid:** `400` with `{"error":"<code>","axis":"horizontal"|"vertical"}`, and nothing changes. The codes are `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `accel_out_of_range`, `play_speed_out_of_range` (no `axis`) and `invalid_json`.
+- **Invalid:** `400` with `{"error":"<code>","axis":"horizontal"|"vertical"}`, and nothing changes. The codes are `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `min_speed_out_of_range`, `accel_out_of_range`, `pause_out_of_range`, `pause_order`, `play_speed_out_of_range` and `session_duration_out_of_range` (these two without `axis`), and `invalid_json`.
 
 Each successful `PUT` writes to flash, so send it when a value is settled, not on every slider step.
 
@@ -237,7 +268,7 @@ When enabled in Settings, the robot connects to an MQTT broker and announces its
 | Topic | Direction | Payload |
 |-------|-----------|---------|
 | `<base>/status` | robot → | `online` / `offline` (retained; `offline` is the last will) |
-| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle"}` (retained): positions in degrees, maximum speeds in °/s |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle"}` (retained): positions in degrees, maximum speeds in °/s; `activity` as in `/ws` (`playing` during a Play session) |
 | `<base>/stow/set` | → robot | `PRESS` |
 | `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | A number of degrees. The axis moves there at the Manual control speed, clamped into the Travel limits. |
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | A number of °/s. Validated like the Settings value. |

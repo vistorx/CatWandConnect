@@ -62,6 +62,18 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Tuning the minimum speed of an SG90 axis: at 2–4 °/s the motion visibly jerks; the kept value makes the speed slider's 10 % smooth.
 - [ ] After a power cycle, the slider and Settings values are kept.
 
+## Play session
+
+Until the main-screen controls arrive, drive it with `curl -X POST http://<robot>.local/api/play -d '{"action":"start","sessionMinutes":1}'` (and `"stop"`).
+
+- [ ] Before Calibration, starting a session returns `not_calibrated` and nothing moves.
+- [ ] Once calibrated, a session moves both axes on their own rhythm: they rarely start or stop together, small hops happen, and the wand never passes the Travel limits.
+- [ ] With both Pause ranges at 0–0 s, the wand never stops moving.
+- [ ] A 1-minute session Stows by itself after a minute; `stop` and the Stow button end it with Stow without finishing the current move.
+- [ ] Touching the joystick during a session gives control at once, without Stow.
+- [ ] Closing the page does not stop the session; a power cut during a session ends it, and the robot Stows gently at power-up instead of playing.
+- [ ] After updating from a build without Play session by OTA, settings and Calibration are kept, and `GET /api/settings` shows the default Pause ranges (Horizontal 0.5–3 s, Vertical 1–5 s).
+
 ## Stow, priority, hold and release
 
 - [ ] The Stow button stays visible at the bottom of the main screen, including on a small phone.
