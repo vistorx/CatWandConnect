@@ -45,4 +45,13 @@ class Storage {
   virtual bool write(const char* key, const void* data, size_t size) = 0;
 };
 
+// Source of randomness for the Play session's draws.
+class Random {
+ public:
+  virtual ~Random() = default;
+
+  // A uniformly distributed 32-bit value.
+  virtual uint32_t next() = 0;
+};
+
 }  // namespace cwc

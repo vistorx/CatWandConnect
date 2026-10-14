@@ -11,7 +11,7 @@ constexpr uint32_t kMagic = 0x43574331;  // "CWC1"
 
 // Bump when RobotSettings changes, and teach loadSettings() to migrate the
 // previous record into the new one.
-constexpr uint16_t kVersion = 2;
+constexpr uint16_t kVersion = 3;
 
 struct Record {
   uint32_t magic;
@@ -41,6 +41,52 @@ struct RecordV1 {
   RobotSettingsV1 settings;
 };
 
+// Version 2, up to the Play session: no Pause range nor Session duration.
+struct AxisSettingsV2 {
+  TravelLimits travel;
+  float stow;
+  float maxSpeed;
+  float maxAccel;
+  float minSpeed;
+};
+
+struct RobotSettingsV2 {
+  AxisSettingsV2 axes[kAxisCount];
+  float playSpeed;
+  bool calibrated;
+};
+
+struct RecordV2 {
+  uint32_t magic;
+  uint16_t version;
+  uint16_t size;
+  RobotSettingsV2 settings;
+};
+
+// Fills `out` from an older record, keeping the new fields at their defaults.
+void migrateAxis(AxisSettings& out, TravelLimits travel, float stow, float maxSpeed, float maxAccel,
+                 float minSpeed) {
+  out.travel = travel;
+  out.stow = stow;
+  out.maxSpeed = maxSpeed;
+  out.maxAccel = maxAccel;
+  out.minSpeed = minSpeed;
+}
+
+bool readV2(Storage& storage, RobotSettings& out) {
+  RecordV2 record;
+  if (!storage.read(kKey, &record, sizeof(record))) return false;
+  if (record.magic != kMagic || record.version != 2 || record.size != sizeof(RobotSettingsV2)) return false;
+  out = defaultSettings();
+  for (size_t i = 0; i < kAxisCount; ++i) {
+    const AxisSettingsV2& old = record.settings.axes[i];
+    migrateAxis(out.axes[i], old.travel, old.stow, old.maxSpeed, old.maxAccel, old.minSpeed);
+  }
+  out.playSpeed = record.settings.playSpeed;
+  out.calibrated = record.settings.calibrated;
+  return true;
+}
+
 bool readV1(Storage& storage, RobotSettings& out) {
   RecordV1 record;
   if (!storage.read(kKey, &record, sizeof(record))) return false;
@@ -48,7 +94,7 @@ bool readV1(Storage& storage, RobotSettings& out) {
   out = defaultSettings();
   for (size_t i = 0; i < kAxisCount; ++i) {
     const AxisSettingsV1& old = record.settings.axes[i];
-    out.axes[i] = {old.travel, old.stow, old.maxSpeed, old.maxAccel, defaultMinSpeed(old.maxSpeed)};
+    migrateAxis(out.axes[i], old.travel, old.stow, old.maxSpeed, old.maxAccel, defaultMinSpeed(old.maxSpeed));
   }
   out.playSpeed = record.settings.playSpeed;
   out.calibrated = record.settings.calibrated;
@@ -80,8 +126,13 @@ RobotSettings defaultSettings() {
     axis.maxAccel = 360;
     axis.minSpeed = defaultMinSpeed(axis.maxSpeed);
   }
+  settings.axis(Axis::Horizontal).pauseMin = 0.5f;
+  settings.axis(Axis::Horizontal).pauseMax = 3;
+  settings.axis(Axis::Vertical).pauseMin = 1;
+  settings.axis(Axis::Vertical).pauseMax = 5;
   settings.playSpeed = 0.6f;
   settings.calibrated = false;
+  settings.sessionMinutes = 10;
   return settings;
 }
 
@@ -101,8 +152,15 @@ SettingsCheck validate(const RobotSettings& settings) {
       return fail(SettingsError::MinSpeedOutOfRange);
     }
     if (!within(a.maxAccel, kMinAccel, kMaxAccel)) return fail(SettingsError::AccelOutOfRange);
+    if (!within(a.pauseMin, 0, kMaxPause) || !within(a.pauseMax, 0, kMaxPause)) {
+      return fail(SettingsError::PauseOutOfRange);
+    }
+    if (a.pauseMin > a.pauseMax) return fail(SettingsError::PauseOrder);
   }
   if (!within(settings.playSpeed, kMinPlaySpeed, 1)) return {SettingsError::PlaySpeedOutOfRange, Axis::Horizontal};
+  if (settings.sessionMinutes < kMinSessionMinutes || settings.sessionMinutes > kMaxSessionMinutes) {
+    return {SettingsError::SessionDurationOutOfRange, Axis::Horizontal};
+  }
   return {};
 }
 
@@ -116,6 +174,9 @@ const char* settingsErrorName(SettingsError error) {
     case SettingsError::MinSpeedOutOfRange: return "min_speed_out_of_range";
     case SettingsError::AccelOutOfRange: return "accel_out_of_range";
     case SettingsError::PlaySpeedOutOfRange: return "play_speed_out_of_range";
+    case SettingsError::PauseOutOfRange: return "pause_out_of_range";
+    case SettingsError::PauseOrder: return "pause_order";
+    case SettingsError::SessionDurationOutOfRange: return "session_duration_out_of_range";
   }
   return "unknown";
 }
@@ -128,7 +189,7 @@ RobotSettings loadSettings(Storage& storage) {
       return defaultSettings();
     }
     settings = record.settings;
-  } else if (!readV1(storage, settings)) {
+  } else if (!readV2(storage, settings) && !readV1(storage, settings)) {
     return defaultSettings();
   }
   if (!validate(settings).ok()) return defaultSettings();
