@@ -88,7 +88,7 @@ Use the Play session block under the speed slider on the main screen.
 - [x] A 1-minute session Stows by itself after a minute; Stop and the Stow button end it with Stow without finishing the current move, and the block goes back to Start.
 - [x] Touching the joystick during a session gives control at once, without Stow, and the block goes back to Start.
 - [x] Closing the page does not stop the session; reopening it shows Stop and the time left. A power cut during a session ends it, and the robot Stows gently at power-up instead of playing.
-- [ ] After updating from a build without Play session by OTA, settings and Calibration are kept, and Settings → Motion shows the default Pause ranges (0–2 s on both axes).
+- [x] After updating from a build without Play session by OTA, settings and Calibration are kept, and Settings → Motion shows the default Pause ranges (0–2 s on both axes).
 
 ## Stow, priority, hold and release
 
