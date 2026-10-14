@@ -60,6 +60,14 @@ _Avoid_: Timer, play time
 The guided process in which the user sets each axis's Travel limits and the Stow position, then confirms the robot can sweep that envelope without hitting anything.
 _Avoid_: Setup, homing
 
+**MQTT connection**:
+Connecting the robot to Home Assistant through an MQTT broker and MQTT discovery: the robot publishes its entities, Home Assistant's MQTT integration picks them up. Available since V1, kept alongside the Native integration.
+_Avoid_: MQTT mode, legacy integration
+
+**Native integration**:
+The CatWandConnect Home Assistant integration (V2, installed through HACS from `vistorx/ha-catwandconnect`), which finds the robot on the network and talks to it directly, with no broker. Support for it happens in this repository.
+_Avoid_: HACS integration, custom component, add-on, app (an add-on/app is something else in Home Assistant)
+
 ## Hardware
 
 **Mechanism**:
