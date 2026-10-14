@@ -152,7 +152,7 @@ When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
 ## Ready-made dashboards
 
-A control panel for the robot, made only of built-in cards (nothing to install from HACS): a big Play session button (tap to start, tap again to stop; hold for details) and its duration, Stow, the Activity, each axis's position and maximum speed. There is one for each connection; they look the same.
+A control panel for the robot: a big Play session button (tap to start, tap again to stop; hold for details) and its duration, Stow, the Activity, each axis's position and maximum speed. There is one for each connection. The Native integration's adds the joystick card that comes with the integration; the MQTT connection's uses only built-in cards.
 
 1. Go to **Settings → Dashboards → Add dashboard → New dashboard from scratch**, name it, for example "Cat wand", and open it.
 2. Click the pencil (**Edit dashboard**), then the three dots → **Raw configuration editor**.
@@ -213,6 +213,8 @@ views:
           - type: heading
             heading: Position
             icon: mdi:axis-arrow
+          - type: custom:catwandconnect-joystick-card
+            entity: sensor.catwandconnect_activity
           - type: tile
             entity: number.catwandconnect_horizontal_position
             name: Horizontal
@@ -246,7 +248,9 @@ views:
             features_position: inline
 ```
 
-The position sliders go from one Travel limit to the other.
+The joystick works like the one on the robot's page: hold and drag, the wand follows; let go, it stops. It comes with the integration (0.1.1 or later): nothing to add under *Resources*. If it shows "Custom element doesn't exist", reload the page (pull down in the app) after updating. The position sliders go from one Travel limit to the other.
+
+**Added the robot with integration 0.1.0, in another language than English?** Its ids are in that language (`switch.catwandconnect_session_de_jeu`) and the cards show "Entity not available". Either remove the robot from **Settings → Devices & services → CatWandConnect** and add it again (0.1.1 and later always use the English ids), or replace the ids in the YAML with yours from the device page.
 
 ### MQTT connection dashboard
 
@@ -332,7 +336,7 @@ views:
             features_position: inline
 ```
 
-The position sliders go from 0 to 180°; the robot stops at its Travel limits.
+The position sliders go from 0 to 180°; the robot stops at its Travel limits. The joystick card comes with the Native integration only; with the MQTT connection, move the wand with the sliders or from the robot's page.
 
 ## Automations
 

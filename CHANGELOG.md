@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Joystick in the Native integration's ready-made dashboard.** Move the wand with your finger right from Home Assistant (integration 0.1.1 or later).
+
 - **Bigger Play session control in the ready-made dashboards.** The Play session is now a large button: tap to start, tap again to stop.
 
 ## 0.2.0-beta.2 - 2026-10-14
