@@ -14,7 +14,7 @@ The API version goes up only when a change would break an existing integration: 
 
 | API version | First firmware | What it has |
 |-------------|----------------|-------------|
-| 1 | the release after 0.2.0-beta.1 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. |
+| 1 | 0.2.0-beta.2 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. |
 
 ## Discovery (mDNS)
 
