@@ -70,7 +70,7 @@
   "calibration.confirm": "Nothing touched: save",
   "calibration.restart": "Something touched: start over",
   "calibration.cancel": "Cancel",
-  "calibration.done": "Calibration saved. The robot now uses its new limits.",
+  "calibration.done": "Limits saved: the robot now uses them. Next, its speeds; Skip keeps a speed as it is.",
   "banner.uncalibrated": "Not calibrated yet: movement is limited to a small safe range.",
   "banner.calibrate": "Calibrate",
   "settings.limits": "Travel limits and Stow position",
@@ -283,5 +283,14 @@
   "play.remaining": "Time left",
   "play.hint": "The wand plays on its own within your limits, then Stows. Touch the joystick to take over.",
   "settings.pauseMin": "Pause range, min",
-  "settings.pauseMax": "Pause range, max"
+  "settings.pauseMax": "Pause range, max",
+  "calibration.speed.waiting": "The robot rests first, then starts sweeping.",
+  "calibration.speed.stopped": "The sweep stopped. Start it again, or skip this speed.",
+  "calibration.speed.start": "Sweep again",
+  "calibration.speed.skip": "Skip (keep {speed} °/s)",
+  "calibration.finished.title": "Your robot is ready",
+  "calibration.finished.text": "Limits, Stow position and speeds are saved. You can tune a speed again later in Settings → Motion → Tune speeds.",
+  "calibration.finished.button": "Done",
+  "calibration.speeds": "Speeds",
+  "calibration.speed_range": "{min} to {max} °/s"
 }
