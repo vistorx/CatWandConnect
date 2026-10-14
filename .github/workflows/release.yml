@@ -32,6 +32,7 @@ jobs:
       - run: pio test -e native
       - run: node tools/check_lang.mjs
       - run: python tools/test_flasher_site.py
+      - run: python tools/test_release_notes.py
 
   build:
     name: Build ${{ matrix.env }}
@@ -99,19 +100,45 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v7
         with:
           pattern: firmware-*
           merge-multiple: true
           path: dist/
+      # Notes come from the tag's CHANGELOG.md section (tools/release_notes.py);
+      # a tag without one fails here, before anything is published.
+      - name: Release notes from CHANGELOG.md
+        run: |
+          previous=$(git describe --tags --abbrev=0 --match 'v*' "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          python firmware/tools/release_notes.py notes "$GITHUB_REF_NAME" "$previous" > notes.md
       - uses: softprops/action-gh-release@v3
         with:
           files: dist/*.bin
-          generate_release_notes: true
-          body: |
-            **Found a problem?** On the robot, open Settings → Robot → Help to report it with the Diagnostic report, ask on [Discord](https://discord.gg/Rbqge3v9dk), or see [Getting help](https://github.com/vistorx/CatWandConnect/blob/main/SUPPORT.md).
+          body_path: notes.md
           prerelease: ${{ contains(github.ref_name, '-') }}
           make_latest: ${{ !contains(github.ref_name, '-') }}
+
+  announce-discord:
+    name: Announce on Discord
+    if: github.ref_type == 'tag'
+    needs: release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      # Pitch and highlights of the CHANGELOG.md section in #announcements.
+      # Never fails the release.
+      - name: Post to #announcements
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_ANNOUNCE_WEBHOOK }}
+        run: |
+          [ -n "$WEBHOOK" ] || { echo "No DISCORD_ANNOUNCE_WEBHOOK secret"; exit 0; }
+          url="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"
+          python firmware/tools/release_notes.py discord "$GITHUB_REF_NAME" "CatWandConnect firmware" "$url" > msg.txt
+          python -c "import json; print(json.dumps({'content': open('msg.txt').read(), 'allowed_mentions': {'parse': []}}))" > msg.json
+          curl -fsS -H 'Content-Type: application/json' --data @msg.json "$WEBHOOK" || echo "Discord post failed"
 
   notify-discord:
     name: Notify Discord threads

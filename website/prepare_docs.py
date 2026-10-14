@@ -40,6 +40,7 @@ ROOT_PAGES = {
     "SUPPORT.fr.md": "support.fr.md",
     "SECURITY.md": "security.md",
     "CONTEXT.md": "glossary.md",
+    "CHANGELOG.md": "changelog.md",
 }
 # Folders whose link opens a generated list of their pages.
 INDEXED_DIRS = {"docs/adr": "Design decisions", "docs/agents": "Agent conventions"}
