@@ -17,7 +17,8 @@
 <header><h1>CatWandConnect</h1></header>
 
 <main class="form-page">
-  <p data-i18n="setup.intro"></p>
+  <p id="intro" data-i18n="setup.intro"></p>
+  <p id="change-intro" class="hint" hidden></p>
   <form id="form">
     <div class="networks-head">
       <span data-i18n="setup.nearby"></span>
@@ -30,9 +31,12 @@
     <input id="password" name="password" type="password" autocomplete="off">
     <button id="connect" class="primary" data-i18n="setup.connect"></button>
   </form>
-  <button id="skip" type="button" class="secondary" data-i18n="setup.skip"></button>
-  <p class="hint" data-i18n="setup.skip.hint"></p>
-  <p class="hint" data-i18n="setup.skip.browser"></p>
+  <div id="skip-block">
+    <button id="skip" type="button" class="secondary" data-i18n="setup.skip"></button>
+    <p class="hint" data-i18n="setup.skip.hint"></p>
+    <p class="hint" data-i18n="setup.skip.browser"></p>
+  </div>
+  <a id="back" href="settings.html#network" class="link-button" data-i18n="setup.back" hidden></a>
   <p id="status" class="hint" role="status"></p>
   <p id="setup-help" class="hint" hidden><a href="help.html" data-i18n="help.stuck"></a></p>
   <p id="setup-help-offline" class="hint" hidden><a href="https://github.com/vistorx/CatWandConnect/blob/main/docs/troubleshooting.md#the-robot-stopped-responding" target="_blank" rel="noopener" data-i18n="help.stuck"></a></p>

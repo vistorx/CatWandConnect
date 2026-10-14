@@ -283,9 +283,9 @@ Chaque `PUT` réussi écrit en flash : envoie-le quand une valeur est fixée, pa
 
 | Requête | Réponse |
 |---------|---------|
-| `GET /api/wifi/status` | `{"mode":"hotspot"\|"connecting"\|"connected","failed":bool,"ssid":"…","ip":"…","host":"catwandconnect.local"}`. `failed` vaut true quand la dernière tentative a échoué. |
+| `GET /api/wifi/status` | `{"mode":"hotspot"\|"connecting"\|"connected","failed":bool,"ssid":"…","ip":"…","host":"catwandconnect.local","hotspot":bool,"failedSsid":"…"}`. `failed` vaut true quand la dernière tentative a échoué. `hotspot` vaut true tant que le hotspot `CatWandConnect-XXXX` est actif. `failedSsid` donne le réseau qu'un changement depuis le réseau habituel n'a pas pu rejoindre, pendant que le robot revient (puis est revenu) sur le réseau précédent ; vide sinon. |
 | `GET /api/wifi/networks` | `{"scanning":true}` pendant une recherche (interroge à nouveau), puis `{"scanning":false,"networks":[{"ssid":"…","rssi":-60,"secure":true}]}`. |
-| 🔒 `POST /api/wifi` | Champs de formulaire `ssid` et `password`. Renvoie 202 et se connecte en arrière-plan ; suis la progression avec `/api/wifi/status`. Accepté seulement quand le hotspot est actif (409 sinon). |
+| 🔒 `POST /api/wifi` | Champs de formulaire `ssid` et `password`. Renvoie 202 et se connecte en arrière-plan (environ 1 s plus tard quand la demande vient du réseau habituel, pour que la réponse parte) ; suis la progression avec `/api/wifi/status`. Accepté depuis le hotspot et depuis le réseau habituel. Le nouveau réseau n'est enregistré qu'une fois rejoint ; si un changement demandé depuis le réseau habituel échoue, le robot revient sur le réseau précédent, puis ouvre son hotspot si ça échoue aussi ([ADR 0011](adr/0011-wifi-change-falls-back-to-the-previous-network.md), en anglais). |
 
 ### Fichiers de l'interface
 

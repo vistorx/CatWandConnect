@@ -48,6 +48,35 @@ let pin = '';
 let wrongPins = 0;
 let lockedUntil = 0;  // simulated lockout: 30 s after 5 wrong PINs
 let scanToggle = false;
+// The simulated Wi-Fi: a change from the home network to any password but
+// "wrong" succeeds after 3 s; "wrong" fails, then rejoins the previous one.
+const wifi = { ssid: 'Simulated', target: '', failedSsid: '', mode: 'connected', until: 0 };
+
+function wifiStatus() {
+  const hotspot = process.env.HOTSPOT === '1';
+  if (hotspot) return { mode: 'hotspot', failed: false, ssid: '', ip: '', host: 'catwandconnect.local', hotspot: true, failedSsid: '' };
+  if (wifi.mode !== 'connected' && Date.now() >= wifi.until) {
+    if (wifi.mode === 'trying' && wifi.wrong) {
+      wifi.failedSsid = wifi.target;
+      wifi.mode = 'rejoining';
+      wifi.until = Date.now() + 3000;
+    } else {
+      if (wifi.mode === 'trying') wifi.ssid = wifi.target;
+      wifi.mode = 'connected';
+    }
+  }
+  const connected = wifi.mode === 'connected';
+  return { mode: connected ? 'connected' : 'connecting', failed: !!wifi.failedSsid,
+    ssid: connected ? wifi.ssid : wifi.mode === 'trying' ? wifi.target : wifi.ssid,
+    ip: connected ? '127.0.0.1' : '', host: 'catwandconnect.local', hotspot: false, failedSsid: wifi.failedSsid };
+}
+
+function changeWifi(form) {
+  const ssid = form.get('ssid');
+  if (!ssid) return [400, 'Missing network name'];
+  Object.assign(wifi, { target: ssid, wrong: form.get('password') === 'wrong', failedSsid: '', mode: 'trying', until: Date.now() + 3000 });
+  return [202, {}];
+}
 const tokens = new Set();
 
 // Mirrors the robot's settings PIN: protected routes need a session token.
@@ -476,8 +505,7 @@ const API = {
   'GET /api/play': () => [200, playView()],
   'POST /api/play': play,
   // HOTSPOT=1 simulates a robot on its setup hotspot, with no internet on the phone.
-  'GET /api/wifi/status': () => [200, process.env.HOTSPOT === '1' ? { mode: 'hotspot', failed: false }
-    : { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1', host: 'catwandconnect.local' }],
+  'GET /api/wifi/status': () => [200, wifiStatus()],
   'GET /api/diagnostics/pending': () => [200, pendingReport ? { pending: true, ...pendingReport } : { pending: false }],
   'PUT /api/diagnostics/pending': body => {
     if (!body.description) return [400, { error: 'invalid_request' }];
@@ -502,6 +530,15 @@ const server = createServer(async (request, response) => {
     for await (const chunk of request) void chunk;  // pretend to flash it
     if (!authorized(request)) return send(response, 401, { error: 'pin_required' });
     return send(response, 200, { ok: true, restart: true });
+  }
+  if (request.method === 'POST' && url.pathname === '/api/wifi') {
+    // Form-encoded, like the robot's.
+    let body = '';
+    for await (const chunk of request) body += chunk;
+    if (!authorized(request)) return send(response, 401, { error: 'pin_required' });
+    const [code, result] = changeWifi(new URLSearchParams(body));
+    if (typeof result === 'string') { response.writeHead(code, { 'Content-Type': 'text/plain' }); return response.end(result); }
+    return send(response, code, result);
   }
   if (request.method === 'GET' && url.pathname === '/api/diagnostics') {
     response.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });

@@ -34,9 +34,12 @@ Browse to `http://192.168.4.1/`. Some phones also ask whether to "stay connected
 **"Could not connect" on the setup page.**
 Check the network name and password. The ESP32 only supports **2.4 GHz** Wi-Fi; if your router has separate 2.4 GHz and 5 GHz networks, pick the 2.4 GHz one.
 
+**How do I move the robot to another Wi-Fi network?**
+Open **Settings → Network**: the Wi-Fi block shows the current network, the robot's IP address and its `.local` address. Tap **Change Wi-Fi network**, read the warning, then pick the new network and enter its password. Once it joins, put your phone on that network and open the address shown. If it can't join (wrong password, 5 GHz network, out of range), it goes back to the current network within about a minute and nothing changes; if that fails too, its `CatWandConnect-XXXX` hotspot opens, as at first setup. With a settings PIN, the change asks for it.
+
 **`catwandconnect.local` doesn't open.**
 If you renamed the robot, its address changed too: it is shown in Settings and on the Info page, for example `catwandconnect-salon.local`.
-Some Android phones and older Windows PCs don't resolve `.local` names. Use the IP address shown at the end of setup, or find it in your router's device list or the serial monitor. Also check that your phone is on the same Wi-Fi as the robot, not on mobile data or a guest network.
+Some Android phones and older Windows PCs don't resolve `.local` names. Use the IP address shown at the end of setup or in Settings → Network, or find it in your router's device list or the serial monitor. Also check that your phone is on the same Wi-Fi as the robot, not on mobile data or a guest network.
 
 **The robot keeps falling back to its hotspot.**
 The signal is too weak or the router changed. Move the robot closer, or enter the new password on the hotspot's setup page. While nobody is connected to the hotspot, the robot retries your network every 2 minutes.
