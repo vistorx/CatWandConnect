@@ -37,7 +37,8 @@ class DeviceApi {
   String settingsJson();
   String hardwareJson();
 
-  // Stops Manual control before a firmware update; safe from any task.
+  // Stops Manual control and any Play session before a firmware update;
+  // safe from any task.
   void stopForUpdate();
 
   // Restarts the board shortly, after the current response has gone out.
@@ -54,6 +55,7 @@ class DeviceApi {
     float vertical = 0;
     bool stop = false;
     bool stow = false;
+    bool stopPlay = false;
   };
 
   void onEvent(AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len);
@@ -68,6 +70,9 @@ class DeviceApi {
   void getSpeedTuning(AsyncWebServerRequest* request);
   void postSpeedTuning(AsyncWebServerRequest* request, JsonVariant& body);
   void writeSpeedTuning(JsonObject out);  // caller holds robotLock_
+  void getPlay(AsyncWebServerRequest* request);
+  void postPlay(AsyncWebServerRequest* request, JsonVariant& body);
+  void writePlay(JsonObject out);  // caller holds robotLock_
   void getHardware(AsyncWebServerRequest* request);
   void putHardware(AsyncWebServerRequest* request, JsonVariant& body);
   void writeHardware(JsonObject out, const cwc::HardwareConfig& hardware);

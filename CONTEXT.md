@@ -44,6 +44,18 @@ _Avoid_: Speed limits (Travel limits are positions, not speeds)
 The guided process in which the robot sweeps one axis between its Travel limits while the owner makes it faster or slower, then keeps that speed as the axis's Minimum speed or maximum speed. Distinct from Calibration, which sets positions.
 _Avoid_: Speed calibration
 
+**Play session**:
+The robot playing on its own for the Session duration: each Axis loops, independently of the other, through a move to a random position within its Travel limits at a random speed within its Speed range, then a pause within its Pause range. Ends with Stow when time is up, on Stop or on Stow; Manual control ends it at once, without Stow. Never resumes and does not survive a restart.
+_Avoid_: Auto mode, automatic play, program, routine
+
+**Pause range**:
+How long an axis rests between two moves of a Play session: a minimum and a maximum in seconds (0–60), set per axis. 0 means non-stop.
+_Avoid_: Delay, wait time, idle time
+
+**Session duration**:
+How long a Play session lasts, in minutes (1–60). Remembered for the next session.
+_Avoid_: Timer, play time
+
 **Calibration**:
 The guided process in which the user sets each axis's Travel limits and the Stow position, then confirms the robot can sweep that envelope without hitting anything.
 _Avoid_: Setup, homing

@@ -12,7 +12,8 @@ struct Rig {
   FakeMotorDriver motors;
   FakeClock clock;
   FakeStorage storage;
-  Robot robot{motors, clock, storage};
+  FakeRandom random;
+  Robot robot{motors, clock, storage, random};
 
   // Powers up and lets the robot settle at Stow.
   Rig() {
@@ -197,7 +198,8 @@ void test_settings_are_restored_at_power_up() {
   s.axis(Axis::Vertical).maxAccel = 100;
   saveSettings(storage, s);
 
-  Robot robot(motors, clock, storage);
+  FakeRandom random;
+  Robot robot(motors, clock, storage, random);
   robot.begin();
 
   TEST_ASSERT_EQUAL_FLOAT(100, robot.settings().axis(Axis::Vertical).maxAccel);

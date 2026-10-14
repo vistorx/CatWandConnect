@@ -17,6 +17,10 @@ struct AxisSettings {
   // Bottom of the Speed range: Manual control's speed at the lowest speed
   // slider setting. Strictly below maxSpeed.
   float minSpeed;       // °/s
+  // Pause range: how long the axis rests between two moves of a Play
+  // session, drawn uniformly in [pauseMin, pauseMax]. 0 means non-stop.
+  float pauseMin;       // s
+  float pauseMax;       // s, at least pauseMin
 };
 
 struct RobotSettings {
@@ -27,6 +31,8 @@ struct RobotSettings {
   // True once Calibration has been completed; until then movement stays
   // within kDefaultTravel whatever `travel` says.
   bool calibrated;
+  // Session duration: how long a Play session lasts, in minutes.
+  uint8_t sessionMinutes;
 
   AxisSettings& axis(Axis a) { return axes[static_cast<size_t>(a)]; }
   const AxisSettings& axis(Axis a) const { return axes[static_cast<size_t>(a)]; }
@@ -44,6 +50,9 @@ constexpr float kMinAccel = 20;  // °/s²
 constexpr float kMaxAccel = 2000;
 constexpr float kMinPlaySpeed = 0.1f;
 constexpr float kSlowestSpeed = 1;  // °/s, lowest allowed minimum speed
+constexpr float kMaxPause = 60;     // s, longest Pause range bound
+constexpr uint8_t kMinSessionMinutes = 1;
+constexpr uint8_t kMaxSessionMinutes = 60;
 
 // Default minimum speed for a maximum speed: a tenth of it, as the speed
 // slider's bottom was before the minimum speed existed.
@@ -63,6 +72,9 @@ enum class SettingsError : uint8_t {
   MinSpeedOutOfRange,  // below kSlowestSpeed or not below the maximum speed
   AccelOutOfRange,
   PlaySpeedOutOfRange,
+  PauseOutOfRange,            // a Pause range bound outside 0–60 s
+  PauseOrder,                 // Pause range minimum above its maximum
+  SessionDurationOutOfRange,  // outside 1–60 min
 };
 
 struct SettingsCheck {

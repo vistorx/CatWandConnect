@@ -12,6 +12,7 @@ enum class Activity : uint8_t {
   Stowing,  // moving to the Stow position, then releasing the servos
   Calibrating,
   TuningSpeed,  // sweeping one axis while the owner adjusts its speed
+  Playing,      // a Play session: each axis moves and pauses on its own
 };
 
 // Which end of an axis's Speed range Speed tuning adjusts.
@@ -44,7 +45,7 @@ class Robot {
   // Manual control stops when no command refreshes it for this long.
   static constexpr uint32_t kManualTimeoutMs = 500;
 
-  Robot(MotorDriver& motors, Clock& clock, Storage& storage);
+  Robot(MotorDriver& motors, Clock& clock, Storage& storage, Random& random);
 
   // Power-up: loads the settings, commands the remembered resting position
   // (clamped into the Travel limits) so the servos don't jump, then Stows at
@@ -138,6 +139,29 @@ class Robot {
   SpeedBound tuningBound() const { return tuningBound_; }
   float tuningSpeed() const { return tuningSpeed_; }
 
+  // --- Play session ------------------------------------------------------------
+  // Each Axis loops on its own, never synchronised with the other: move to a
+  // random position within its Travel limits at a random speed within its
+  // Speed range, pause for a random time within its Pause range, repeat.
+  // Time up, stopPlaySession() and Stow end it with Stow; Manual control ends
+  // it at once, without Stow. It never resumes and is not kept across restarts.
+
+  // Starts a session of `minutes` (from kMinSessionMinutes to
+  // kMaxSessionMinutes), from zero even if one is running. Refused before
+  // Calibration and while stowing, calibrating or tuning a speed.
+  bool startPlaySession(uint8_t minutes);
+
+  // Sets the Session duration (kMinSessionMinutes to kMaxSessionMinutes)
+  // without starting a session. Like startPlaySession(), it is written to
+  // flash only once the robot is idle, and only when it changed.
+  bool setSessionMinutes(uint8_t minutes);
+
+  // Ends the session with Stow. Ignored when no session runs.
+  void stopPlaySession();
+
+  // Seconds left in the session, rounded up; 0 when no session runs.
+  uint32_t playRemainingS() const;
+
   // Validates, stores and applies new settings as a whole. Invalid settings
   // are rejected and the current ones stay in effect.
   SettingsCheck applySettings(const RobotSettings& settings);
@@ -163,6 +187,11 @@ class Robot {
     float gotoTarget = 0;
     float lastSent = -1;    // last position sent to the motor driver
     bool held = false;      // the servo is being driven
+    // Play session
+    bool pausing = false;
+    float playTarget = 0;
+    float playMoveSpeed = 0;
+    uint32_t pauseEndMs = 0;
   };
 
   AxisState& state(Axis axis) { return axes_[static_cast<size_t>(axis)]; }
@@ -177,10 +206,15 @@ class Robot {
   void enterCalibrationStep(CalibrationStep step);
   void endCalibration();
   void stepSpeedTuning(Axis axis, float dt);
+  void stepPlay(Axis axis, float dt, uint32_t now);
+  void drawMove(Axis axis);
+  float draw(float low, float high);
+  void save();
 
   MotorDriver& motors_;
   Clock& clock_;
   Storage& storage_;
+  Random& random_;
 
   RobotSettings settings_ = defaultSettings();
   AxisState axes_[kAxisCount];
@@ -197,6 +231,8 @@ class Robot {
   SpeedBound tuningBound_ = SpeedBound::Maximum;
   float tuningSpeed_ = 0;
   bool tuningTowardMax_ = true;
+  uint32_t playEndMs_ = 0;
+  uint8_t savedSessionMinutes_ = 0;  // as last written to flash
   uint32_t lastTickMs_ = 0;
   uint32_t lastManualMs_ = 0;
 };
