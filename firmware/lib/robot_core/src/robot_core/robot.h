@@ -123,7 +123,9 @@ class Robot {
   bool startSpeedTuning(Axis axis, SpeedBound bound);
 
   // One step faster or slower: 2 °/s below 30 °/s, 5 °/s up to 90 °/s,
-  // 10 °/s above, within the range allowed for the bound.
+  // 10 °/s above, within the range allowed for the bound. In Acceleration
+  // tuning, one step snappier or softer: 20 °/s² below 200 °/s², 50 °/s² up
+  // to 500 °/s², 100 °/s² above, within kMinAccel..kMaxAccel.
   void adjustSpeedTuning(bool faster);
 
   // Saves the trial speed through the settings validation, then Stows.
@@ -138,6 +140,22 @@ class Robot {
   Axis tuningAxis() const { return tuningAxis_; }
   SpeedBound tuningBound() const { return tuningBound_; }
   float tuningSpeed() const { return tuningSpeed_; }
+
+  // --- Acceleration tuning -----------------------------------------------------
+  // The Speed tuning variant for an axis's maximum acceleration: the axis
+  // makes short back-and-forth moves across the middle half of its Travel
+  // limits, each starting from a stop and run at the axis's maximum speed, so
+  // the owner feels the start and the stop. adjustSpeedTuning() makes it
+  // snappier or softer, keepSpeedTuning() saves it as maxAccel, and cancel,
+  // Stow or Manual control keep the previous value, as for Speed tuning.
+
+  // Starts from the axis's current maxAccel. Refused when startSpeedTuning()
+  // would be.
+  bool startAccelTuning(Axis axis);
+
+  // True while the running Speed tuning adjusts the acceleration.
+  bool tuningAccel() const { return tuningAccel_; }
+  float tuningAccelValue() const { return tuningAccelValue_; }
 
   // --- Play session ------------------------------------------------------------
   // Each Axis loops on its own, never synchronised with the other: move to a
@@ -231,6 +249,9 @@ class Robot {
   SpeedBound tuningBound_ = SpeedBound::Maximum;
   float tuningSpeed_ = 0;
   bool tuningTowardMax_ = true;
+  bool tuningAccel_ = false;
+  float tuningAccelValue_ = 0;
+  float tuningHoldS_ = 0;  // Acceleration tuning: pause left at each end
   uint32_t playEndMs_ = 0;
   uint8_t savedSessionMinutes_ = 0;  // as last written to flash
   uint32_t lastTickMs_ = 0;

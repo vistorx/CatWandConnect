@@ -36,7 +36,7 @@ const robot = {
   activity: 'idle',
   lastCommand: 0,
   calibration: { step: 'none', draft: null, target: null, sweep: [] },
-  tuning: null,  // { axis, bound, speed, towardMax } while tuning a speed
+  tuning: null,  // { target, axis, bound, speed, accel, towardMax, velocity, holdUntil } while tuning a speed or acceleration
   goto: {},      // { horizontal: degrees } while moving to a position (POST /api/position)
   play: null,    // { endsAt, axes: { horizontal: { target, speed, pauseUntil } } } during a Play session
 };
@@ -200,8 +200,15 @@ function calibrate(body) {
 
 function tuningView() {
   const t = robot.tuning;
-  return robot.activity === 'tuning_speed' && t
-    ? { active: true, axis: t.axis, bound: t.bound, speed: t.speed } : { active: false };
+  if (robot.activity !== 'tuning_speed' || !t) return { active: false };
+  return { active: true, target: t.target, axis: t.axis, bound: t.bound, speed: t.speed,
+    ...(t.target === 'accel' ? { accel: t.accel } : {}) };
+}
+
+function accelStep(accel, faster) {
+  if (faster ? accel < 200 : accel <= 200) return 20;
+  if (faster ? accel < 500 : accel <= 500) return 50;
+  return 100;
 }
 
 function tuningStep(speed, faster) {
@@ -214,16 +221,24 @@ function speedTuning(body) {
   const t = robot.tuning;
   const tuning = robot.activity === 'tuning_speed';
   if (body.action === 'start') {
-    if (!['horizontal', 'vertical'].includes(body.axis) || !['min', 'max'].includes(body.bound)
+    const target = body.target ?? 'speed';
+    const accel = target === 'accel';
+    if (!['speed', 'accel'].includes(target) || !['horizontal', 'vertical'].includes(body.axis)
+        || (!accel && !['min', 'max'].includes(body.bound))
         || !robot.settings.calibrated || robot.activity === 'stowing' || robot.activity === 'calibrating') {
       return [400, { error: 'invalid_request' }];
     }
     const a = robot.settings.axes[body.axis];
+    const bound = accel ? 'max' : body.bound;
     robot.command = { horizontal: 0, vertical: 0 };
-    robot.tuning = { axis: body.axis, bound: body.bound, speed: body.bound === 'max' ? a.maxSpeed : a.minSpeed, towardMax: true };
+    robot.tuning = { target, axis: body.axis, bound, speed: bound === 'max' ? a.maxSpeed : a.minSpeed,
+      accel: a.maxAccel, towardMax: true, velocity: 0, holdUntil: 0 };
     robot.activity = 'tuning_speed';
   } else if (body.action === 'faster' || body.action === 'slower') {
-    if (tuning) {
+    if (tuning && t.target === 'accel') {
+      const faster = body.action === 'faster';
+      t.accel = Math.max(20, Math.min(2000, t.accel + (faster ? 1 : -1) * accelStep(t.accel, faster)));
+    } else if (tuning) {
       const faster = body.action === 'faster';
       const lowest = t.bound === 'max' ? 10 : 1;
       const next = t.speed + (faster ? 1 : -1) * tuningStep(t.speed, faster);
@@ -232,7 +247,9 @@ function speedTuning(body) {
   } else if (body.action === 'keep') {
     if (tuning) {
       const a = { ...robot.settings.axes[t.axis] };
-      if (t.bound === 'max') {
+      if (t.target === 'accel') {
+        a.maxAccel = t.accel;
+      } else if (t.bound === 'max') {
         a.maxSpeed = t.speed;
         if (a.minSpeed >= a.maxSpeed) a.minSpeed = Math.max(1, a.maxSpeed / 10);
       } else {
@@ -314,6 +331,22 @@ setInterval(() => {
   if (robot.activity === 'tuning_speed') {
     const t = robot.tuning;
     const { min, max } = travel(t.axis);
+    if (t.target === 'accel') {
+      // Short moves across the middle half, each from a stop (Robot::stepSpeedTuning).
+      if (Date.now() < t.holdUntil) return broadcast(state());
+      const quarter = (max - min) / 4;
+      const goal = t.towardMax ? max - quarter : min + quarter;
+      const left = Math.abs(goal - robot.position[t.axis]);
+      const dt = 0.05;
+      t.velocity = Math.min(t.speed, t.velocity + t.accel * dt, Math.sqrt(2 * t.accel * left));
+      robot.position[t.axis] = approach(robot.position[t.axis], goal, Math.max(t.velocity * dt, 0.01));
+      if (robot.position[t.axis] === goal) {
+        t.towardMax = !t.towardMax;
+        t.velocity = 0;
+        t.holdUntil = Date.now() + 600;
+      }
+      return broadcast(state());
+    }
     const target = t.towardMax ? max : min;
     robot.position[t.axis] = approach(robot.position[t.axis], target, t.speed * 0.05);
     if (robot.position[t.axis] === target) t.towardMax = !t.towardMax;

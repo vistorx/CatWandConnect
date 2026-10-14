@@ -70,9 +70,10 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 - [ ] Entering 5 °/s as the maximum speed shows an error and keeps the previous value.
 - [ ] Setting the Horizontal minimum speed to 20 °/s makes the slider's 10 % move the wand noticeably faster than before; a minimum equal to the maximum shows an error.
 - [ ] After updating from 0.1.0 by OTA, settings and Calibration are kept, and each minimum speed is a tenth of its maximum.
-- [ ] Settings → Motion → Tune speeds, Horizontal maximum: the wand sweeps smoothly between the Travel limits and the vertical axis stays still. Faster/Slower change the sweep speed within a second; the number shown matches what you see.
+- [ ] Settings → Motion → Tune speeds and acceleration, Horizontal maximum: the wand sweeps smoothly between the Travel limits and the vertical axis stays still. Faster/Slower change the sweep speed within a second; the number shown matches what you see.
 - [ ] Keep this speed saves it (Settings → Motion shows it) and Stows; Cancel, Stow from another phone or Home Assistant, and touching the joystick all end the tuning and keep the previous value.
 - [ ] Tuning the minimum speed of an SG90 axis: at 2–4 °/s the motion visibly jerks; the kept value makes the speed slider's 10 % smooth.
+- [ ] Settings → Motion → Tune speeds and acceleration, Horizontal acceleration: the wand makes short back-and-forth moves around the middle of its travel, pausing at each end, and the vertical axis stays still. Snappier makes starts and stops visibly sharper, Softer visibly gentler; Keep this acceleration saves it (Settings → Motion → Acceleration shows it) and Stows; Cancel, Stow and the joystick keep the previous value.
 - [ ] After a power cycle, the slider and Settings values are kept.
 
 ## Play session
@@ -108,7 +109,7 @@ Use the Play session block under the speed slider on the main screen.
 ## Calibration
 
 - [ ] On a robot that was never calibrated, the main screen shows the "Not calibrated yet" banner, and the joystick is limited to 60°–120°.
-- [ ] The wizard walks through Horizontal minimum, Horizontal maximum, Vertical minimum, Vertical maximum, Stow, sweep, confirm, then Horizontal minimum speed, Horizontal maximum speed, Vertical minimum speed, Vertical maximum speed and "Your robot is ready", showing "Step n of 10".
+- [ ] The wizard walks through Horizontal minimum, Horizontal maximum, Vertical minimum, Vertical maximum, Stow, sweep, confirm, then Horizontal minimum speed, Horizontal maximum speed, Horizontal acceleration, Vertical minimum speed, Vertical maximum speed, Vertical acceleration and "Your robot is ready", showing "Step n of 12".
 - [ ] From the second step on, "Marked so far" shows the values already marked; the Stow step shows each axis's allowed range; a maximum below the minimum names the minimum in the error.
 - [ ] The ±1° and ±5° buttons move only the step's axis, slowly, and the position on screen follows.
 - [ ] The nudges can go beyond 60°–120°.
@@ -121,9 +122,10 @@ Use the Play session block under the speed slider on the main screen.
 - [ ] After saving, the robot Stows, then the Horizontal minimum speed step sweeps that axis by itself between the new limits; Faster/Slower change the speed and "Keep this speed" saves it and moves on to the next speed.
 - [ ] On a speed step, "Skip (keep N °/s)" keeps that speed unchanged (Settings → Motion shows the same value) and moves on.
 - [ ] The maximum speed steps start the sweep from the current maximum speed.
+- [ ] Each acceleration step makes short moves at the maximum speed just kept; Snappier / Softer visibly change the starts and stops; "Keep this acceleration" saves it and moves on; "Skip (keep N °/s²)" keeps it unchanged.
 - [ ] Stow from the main screen during a speed step stops the sweep without saving; "Sweep again" restarts it.
 - [ ] Leaving the wizard with Back during a speed step stops the sweep; the new limits stay saved, and the speeds already kept stay too.
-- [ ] "Your robot is ready" lists each axis's Speed range; Done goes back to the main screen.
+- [ ] "Your robot is ready" lists each axis's Speed range and acceleration; Done goes back to the main screen.
 - [ ] Settings shows the new limits and Stow position. Changing them there is validated the same way.
 - [ ] Pressing Cancel at any step, or Stow on the main screen, keeps the previous limits and Stows.
 - [ ] After a power cycle the robot is still calibrated, with the same limits.

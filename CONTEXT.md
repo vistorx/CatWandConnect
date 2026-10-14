@@ -44,6 +44,10 @@ _Avoid_: Speed limits (Travel limits are positions, not speeds)
 The guided process in which the robot sweeps one axis between its Travel limits while the owner makes it faster or slower, then keeps that speed as the axis's Minimum speed or maximum speed. Distinct from Calibration, which sets positions: the Calibration wizard goes on with Speed tuning steps once the Travel limits are saved, but skipping or leaving them does not undo the Calibration.
 _Avoid_: Speed calibration
 
+**Acceleration tuning**:
+The Speed tuning variant for an axis's maximum acceleration: the robot makes short back-and-forth moves at the axis's maximum speed, each from a stop, while the owner makes them snappier or softer, then keeps the value. The Calibration wizard runs it right after each axis's maximum speed.
+_Avoid_: Accel calibration, ramp tuning
+
 **Play session**:
 The robot playing on its own for the Session duration: each Axis loops, independently of the other, through a move to a random position within its Travel limits at a random speed within its Speed range, then a pause within its Pause range. Ends with Stow when time is up, on Stop or on Stow; Manual control ends it at once, without Stow. Never resumes and does not survive a restart.
 _Avoid_: Auto mode, automatic play, program, routine
