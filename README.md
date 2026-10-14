@@ -29,9 +29,12 @@ Everything is free and open: the printable parts, the firmware and the docs.
 
 ## See it
 
-<!-- Photos and a demo video go here. Put the files in media/photos/ (see media/README.md). -->
+<p align="center">
+  <a href="media/video/mk2-presentation.mp4"><img src="media/video/mk2-presentation-poster.jpg" alt="The Mk2 Mechanism clamped to a table edge, holding the wand: click to watch the 50-second presentation" width="375"></a><br>
+  <em>▶ <a href="media/video/mk2-presentation.mp4">Watch the 50-second presentation</a>: print it, assemble it, add your cat's favourite toy, play.</em>
+</p>
 
-*Photos of the robot and a demo video are coming.*
+*Photos of the real robot are coming.*
 
 ## Build your own
 
