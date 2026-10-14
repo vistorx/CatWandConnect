@@ -152,7 +152,7 @@ Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme ind
 
 ## Tableaux de bord tout prêts
 
-Un panneau de contrôle pour le robot, fait uniquement de cartes intégrées (rien à installer depuis HACS) : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter ; appui long pour les détails) et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe. Il y en a un pour chaque connexion ; ils se ressemblent.
+Un panneau de contrôle pour le robot : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter ; appui long pour les détails) et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe. Il y en a un pour chaque connexion. Celui de l'intégration native ajoute la carte joystick fournie par l'intégration ; celui de la connexion MQTT n'utilise que des cartes intégrées à Home Assistant.
 
 1. Va dans **Paramètres → Tableaux de bord → Ajouter un tableau de bord → Nouveau tableau de bord à partir de zéro**, nomme-le, par exemple « Canne à chat », et ouvre-le.
 2. Clique sur le crayon (**Modifier le tableau de bord**), puis sur les trois points → **Éditeur de configuration brute**.
@@ -213,6 +213,8 @@ views:
           - type: heading
             heading: Position
             icon: mdi:axis-arrow
+          - type: custom:catwandconnect-joystick-card
+            entity: sensor.catwandconnect_activity
           - type: tile
             entity: number.catwandconnect_horizontal_position
             name: Horizontal
@@ -246,7 +248,9 @@ views:
             features_position: inline
 ```
 
-Les curseurs de position vont d'une limite de course à l'autre.
+Le joystick marche comme celui de la page du robot : maintiens et fais glisser, la baguette suit ; lâche, elle s'arrête. Il est fourni par l'intégration (0.1.1 ou plus récente) : rien à ajouter dans *Ressources*. S'il affiche « Custom element doesn't exist », recharge la page (tire vers le bas dans l'appli) après la mise à jour. Les curseurs de position vont d'une limite de course à l'autre.
+
+**Tu as ajouté le robot avec l'intégration 0.1.0, avec Home Assistant dans une autre langue que l'anglais ?** Ses identifiants sont dans cette langue (`switch.catwandconnect_session_de_jeu`) et les cartes affichent « Entité non disponible ». Supprime le robot dans **Paramètres → Appareils et services → CatWandConnect** et ajoute-le de nouveau (à partir de la 0.1.1, les identifiants sont toujours en anglais), ou remplace les identifiants du YAML par les tiens, visibles sur la page de l'appareil.
 
 ### Tableau de bord pour la connexion MQTT
 
@@ -332,7 +336,7 @@ views:
             features_position: inline
 ```
 
-Les curseurs de position vont de 0 à 180° ; le robot s'arrête à ses limites de course.
+Les curseurs de position vont de 0 à 180° ; le robot s'arrête à ses limites de course. La carte joystick n'existe qu'avec l'intégration native ; avec la connexion MQTT, déplace la baguette avec les curseurs ou depuis la page du robot.
 
 ## Automatisations
 
