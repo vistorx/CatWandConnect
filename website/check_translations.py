@@ -24,6 +24,7 @@ PAGES = ["README.md", "SUPPORT.md", "SECURITY.md", "CONTEXT.md", "docs/**.md"]
 # Contributor docs: English only, the French site shows the English page.
 EXEMPT = [
     "CONTEXT.md",            # Glossary: the project's words, for contributors
+    "CHANGELOG.md",          # Release notes, published as written (GitHub, Discord)
     "SECURITY.md",           # Security policy
     "docs/adr/**",           # Design decisions
     "docs/agents/**",        # Agent conventions

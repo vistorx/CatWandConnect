@@ -16,6 +16,7 @@ CatWandConnect is an open-hardware cat toy robot: an ESP32 drives a wand on two 
 - When you settle a new term or decision, update `CONTEXT.md` or add an ADR in the same PR.
 - Target the ESP32 family only (ESP32, ESP32-S3, ESP32-C3). ESP8266 support is out of scope (ADR 0008); close requests for it with a link to that ADR.
 - When a ticket adds or changes a feature, update `docs/features.md`, the README summary if needed, and the user docs in the same PR.
+- When a PR changes something owners notice, add a line under `## Unreleased` in `CHANGELOG.md`, written for owners (what they gain), not as a PR title. See `docs/releasing.md#changelog`.
 - The website is in English and French. A PR that changes an English user page (`README.md`, `SUPPORT.md`, `docs/<page>.md`) updates its French page (`README.fr.md`, `SUPPORT.fr.md`, `docs/<page>.fr.md`) in the same PR, in natural French with *tu*, using the Device interface's terms from `firmware/web/lang/fr.json`. Contributor docs are exempt; the list is `EXEMPT` in `website/check_translations.py`, which CI runs.
 
 ## Agent skills

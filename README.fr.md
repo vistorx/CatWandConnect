@@ -51,7 +51,7 @@ Trois parties : installer le firmware, câbler l'électronique, imprimer et asse
 
 Le firmware s'installe depuis ton navigateur, sans rien télécharger : ouvre le flasher web dans Chrome ou Edge, branche la carte en USB et appuie sur **Connecter et installer**. La bonne version pour ta puce est choisie pour toi. Les mises à jour suivantes passent par le Wi-Fi, depuis la page Réglages du robot.
 
-**[Ouvrir le flasher web →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Installer le logiciel](docs/install.fr.md) · [Canaux de publication](docs/releasing.md#channels) (en anglais)
+**[Ouvrir le flasher web →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Installer le logiciel](docs/install.fr.md) · [Nouveautés](CHANGELOG.md) (en anglais) · [Canaux de publication](docs/releasing.md#channels) (en anglais)
 
 ### 2. Électronique
 

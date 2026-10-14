@@ -51,7 +51,7 @@ Three parts: install the firmware, wire the electronics, print and assemble the 
 
 The firmware installs from your browser, with nothing to download: open the web flasher in Chrome or Edge, plug the board in over USB and press **Connect and install**. The right build for your chip is picked for you. Later updates go over Wi-Fi, from the robot's own Settings page.
 
-**[Open the web flasher →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Install the software](docs/install.md) · [Release channels](docs/releasing.md#channels)
+**[Open the web flasher →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Install the software](docs/install.md) · [What's new](CHANGELOG.md) · [Release channels](docs/releasing.md#channels)
 
 ### 2. Electronics
 

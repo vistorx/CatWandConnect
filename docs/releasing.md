@@ -48,11 +48,23 @@ python website/prepare_docs.py
 uvx --with-requirements website/requirements.txt mkdocs serve -f website/mkdocs.yml
 ```
 
+## Changelog
+
+`CHANGELOG.md` is what owners read before updating, so it sells the update: what they can now do and why it is worth it, in plain words, not a list of PRs.
+
+- A PR with a change owners notice adds a line under `## Unreleased` (feature, visible fix, new requirement). Internal work (CI, refactors, contributor docs) doesn't.
+- Before tagging, rename `## Unreleased` to `## X.Y.Z[-beta.N] - YYYY-MM-DD`, add a fresh empty `## Unreleased` above it, and shape the section:
+  1. a one-paragraph **pitch**: the headline in bold, then what it means for the owner and their cat;
+  2. `### Highlights`: one bullet per change, **bold name**, then the benefit; link the guide;
+  3. optional `### Update` (requirements, steps, anything to do after updating) and `### Fixes`.
+- A stable version that follows betas gets one section summing up all of them since the last stable.
+- The release workflow publishes that section as the GitHub release notes (`firmware/tools/release_notes.py`), with the support footer and the compare link, and posts the pitch and highlights in Discord `#announcements`. **A tag without a section fails the release before anything is published.**
+
 ## Checklist
 
 ### Beta
 
-1. Make sure `main` is green.
+1. Make sure `main` is green, and that `CHANGELOG.md` has the version's section (see [Changelog](#changelog)), merged.
 2. Tag the next beta and push it:
 
    ```sh
@@ -60,12 +72,12 @@ uvx --with-requirements website/requirements.txt mkdocs serve -f website/mkdocs.
    git push origin v0.1.0-beta.1
    ```
 
-3. Check that the release is marked as a pre-release, that the Pages workflow ran, and that the web flasher's Beta channel shows the new version.
+3. Check that the release is marked as a pre-release with the changelog as its notes, the Discord announcement, that the Pages workflow ran, and that the web flasher's Beta channel shows the new version.
 4. Install it (web flasher, or OTA from Settings) and run the [acceptance checklist](acceptance-checklist.md). Each fix gets a new beta.
 
 ### Stable
 
-1. The acceptance checklist passed on the last beta, and `main` is green.
+1. The acceptance checklist passed on the last beta, `main` is green, and `CHANGELOG.md` has the stable version's section.
 2. Tag and push:
 
    ```sh
@@ -73,7 +85,7 @@ uvx --with-requirements website/requirements.txt mkdocs serve -f website/mkdocs.
    git push origin v0.1.0
    ```
 
-3. Check the release page, and edit its notes if needed (they are generated from merged PRs).
+3. Check the release page and the Discord announcement.
 4. Open the web flasher: Stable is selected by default and shows the new version. Install on a board to check it.
 
 ## One-time setup for GitHub Pages

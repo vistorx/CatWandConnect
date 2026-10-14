@@ -29,6 +29,8 @@ jobs:
         run: node tools/check_lang.mjs
       - name: Flasher channel rules
         run: python tools/test_flasher_site.py
+      - name: Release notes from CHANGELOG.md
+        run: python tools/test_release_notes.py
       - name: Support relay tests
         working-directory: relay
         run: node --test
