@@ -52,6 +52,13 @@ void test_every_entity_shares_device_and_availability() {
   }
 }
 
+// The bridge's MQTT buffer is 1024 bytes for topic, payload and header.
+void test_every_discovery_message_fits_the_mqtt_buffer() {
+  for (const auto& message : discovery(device())) {
+    TEST_ASSERT_LESS_THAN(1000, message.topic.size() + message.payload.size());
+  }
+}
+
 void test_position_entity_reads_state_and_takes_commands() {
   auto messages = discovery(device());
   JsonDocument doc;
@@ -179,6 +186,7 @@ int main() {
   RUN_TEST(test_topics_live_under_the_hostname);
   RUN_TEST(test_discovery_announces_the_required_entities);
   RUN_TEST(test_every_entity_shares_device_and_availability);
+  RUN_TEST(test_every_discovery_message_fits_the_mqtt_buffer);
   RUN_TEST(test_position_entity_reads_state_and_takes_commands);
   RUN_TEST(test_state_payload);
   RUN_TEST(test_play_session_switch_follows_the_activity_and_takes_on_off);
