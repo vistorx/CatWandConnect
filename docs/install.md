@@ -14,7 +14,7 @@ No tools to install: the firmware goes on the board straight from your browser. 
 4. **Connect:** enter your Wi-Fi when asked, then choose **Visit device**.
 
 > [!NOTE]
-> Until the first stable release, the web flasher installs the **beta**, which gets new changes first and may still have bugs. See [release channels](releasing.md#channels).
+> The web flasher installs the **Stable** version by default. The **Beta** channel gets new changes first and may still have bugs. See [release channels](releasing.md#channels).
 
 ## Updating, building from source
 

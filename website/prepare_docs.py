@@ -4,10 +4,11 @@ The website is built from the repository's own Markdown, so the repo and the
 site never drift. This script copies it into <out-dir> (default
 website/build/docs, the `docs_dir` of website/mkdocs.yml):
 
-- README.md becomes the home page (index.md);
-- docs/** is copied as is (pages, diagrams);
+- README.md becomes the home page (index.md), README.fr.md the French one
+  (index.fr.md);
+- docs/** is copied as is (pages, diagrams, French pages `page.fr.md`);
 - SUPPORT.md, SECURITY.md and CONTEXT.md become support.md, security.md and
-  glossary.md;
+  glossary.md (SUPPORT.fr.md becomes support.fr.md);
 - media/** (logo, banners, photos) is copied for the images.
 
 Links are rewritten so they work on the site the way they work on GitHub:
@@ -29,14 +30,19 @@ GITHUB = "https://github.com/vistorx/CatWandConnect"
 # Repository file -> staged page, for the pages that live outside docs/.
 ROOT_PAGES = {
     "README.md": "index.md",
+    "README.fr.md": "index.fr.md",
     "SUPPORT.md": "support.md",
+    "SUPPORT.fr.md": "support.fr.md",
     "SECURITY.md": "security.md",
     "CONTEXT.md": "glossary.md",
 }
 # Folders whose link opens a generated list of their pages.
 INDEXED_DIRS = {"docs/adr": "Design decisions", "docs/agents": "Agent conventions"}
 # Extra front matter per staged page.
-FRONT_MATTER = {"index.md": "hide:\n  - navigation\n  - toc\n"}
+HOME_FRONT_MATTER = "hide:\n  - navigation\n  - toc\n"
+FRONT_MATTER = {"index.md": HOME_FRONT_MATTER, "index.fr.md": HOME_FRONT_MATTER}
+# French pages (`page.fr.md`) are built under fr/ by the i18n plugin.
+FR_SUFFIX = ".fr.md"
 
 MD_LINK = re.compile(r"(\]\()([^)\s]+)(\))")
 HTML_LINK = re.compile(r"""((?:href|src)=")([^"]+)(")""")
@@ -57,6 +63,8 @@ def staged_path(repo_path):
 
 def page_url(staged):
     """The site URL of a staged page, relative to the site root (use_directory_urls)."""
+    if staged.endswith(FR_SUFFIX):
+        return "fr/" + page_url(staged[:-len(FR_SUFFIX)] + ".md")
     if staged == "index.md":
         return ""
     if staged.endswith("/index.md"):
@@ -86,7 +94,8 @@ def rewrite_target(target, src_repo, dst_staged, html):
         # Raw HTML is not rewritten by MkDocs: link to the built URL instead.
         here, there = page_url(dst_staged), page_url(staged)
         rel = posixpath.relpath(there or ".", here or ".")
-        return (rel + "/" if there.endswith("/") and rel != "." else "./" if rel == "." else rel) + anchor
+        is_page = there == "" or there.endswith("/")
+        return (rel + "/" if is_page and rel != "." else "./" if rel == "." else rel) + anchor
     rel = os.path.relpath(staged, os.path.dirname(dst_staged) or ".").replace(os.sep, "/")
     return rel + anchor
 
@@ -131,7 +140,7 @@ def write_index(out, repo_dir, title):
         return
     lines = [f"# {title}", ""]
     for name in sorted(os.listdir(os.path.join(REPO, repo_dir))):
-        if name.endswith(".md"):
+        if name.endswith(".md") and not name.endswith(FR_SUFFIX):
             lines.append(f"- [{first_heading(os.path.join(REPO, repo_dir, name))}]({name})")
     with open(os.path.join(out, staged_dir, "index.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
@@ -140,7 +149,7 @@ def write_index(out, repo_dir, title):
 def stage(out):
     if os.path.exists(out):
         shutil.rmtree(out)
-    files = list(ROOT_PAGES)
+    files = [p for p in ROOT_PAGES if os.path.exists(os.path.join(REPO, p))]
     for top in ("docs", "media"):
         for root, _, names in os.walk(os.path.join(REPO, top)):
             files += [os.path.relpath(os.path.join(root, n), REPO).replace(os.sep, "/") for n in names if not n.startswith(".")]

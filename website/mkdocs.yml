@@ -17,6 +17,8 @@ site_dir: build/site
 
 theme:
   name: material
+  # Set per language by the i18n plugin (search and UI texts follow it).
+  language: en
   logo: media/logo/logo-64.png
   favicon: media/logo/logo-64.png
   palette:
@@ -45,15 +47,52 @@ theme:
 
 plugins:
   - search
-  # Suffix layout: page.md (English) and page.fr.md (French, ticket #130).
+  # Suffix layout: page.md (English) and page.fr.md (French, built under /fr/).
+  # Pages without a French version (contributor docs, see EXEMPT in
+  # website/check_translations.py) fall back to English on the French site.
+  # The header's language switch keeps the reader on the same page.
   - i18n:
       docs_structure: suffix
       fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
       languages:
         - locale: en
           name: English
           default: true
           build: true
+        - locale: fr
+          name: Français
+          build: true
+          site_description: Un robot open-hardware qui joue avec ton chat.
+          copyright: Firmware GPL-3.0-or-later · Matériel CERN-OHL-S-2.0 · Documentation CC BY-SA 4.0
+          theme:
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: indigo
+                accent: amber
+                toggle:
+                  icon: material/weather-night
+                  name: Mode sombre
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: indigo
+                accent: amber
+                toggle:
+                  icon: material/weather-sunny
+                  name: Mode clair
+          nav_translations:
+            Home: Accueil
+            Install: Installer
+            Firmware: Firmware
+            Electronics: Électronique
+            Hardware: Matériel
+            Use: Utilisation
+            Community: Communauté
+            Contributing: Contribuer
+            Design decisions: Décisions de conception
+            Agent conventions: Conventions des agents
 
 markdown_extensions:
   - admonition
@@ -67,6 +106,10 @@ markdown_extensions:
       custom_checkbox: true
   - toc:
       permalink: true
+      # GitHub-style anchors (accents kept), so #links work on GitHub and on the site.
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
 
 # Broken links and anchors fail `mkdocs build --strict`.
 validation:

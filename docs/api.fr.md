@@ -1,0 +1,246 @@
+# API du robot
+
+L'API HTTP et WebSocket du robot, servie sur le port 80 à `http://<device-name>.local/`. L'interface du robot n'utilise que cette API, et elle est ouverte aux tiers : scripts, tableaux de bord et une future intégration Home Assistant.
+
+Chaque commande passe par le Robot core : les limites de course, les limites de vitesse et les priorités s'appliquent quelle que soit la source.
+
+Les angles sont en degrés, tels qu'envoyés aux servos (0–180).
+
+## Code PIN des réglages
+
+Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel, le rangement, le curseur de vitesse (`playSpeed`) et tous les `GET` n'en ont jamais besoin.
+
+| Requête | Réponse |
+|---------|---------|
+| `GET /api/auth` | `{"enabled":true,"authorized":false,"lockedFor":0}`. `authorized` indique si le jeton envoyé, s'il y en a un, est valide. |
+| `POST /api/auth/unlock` avec `{"pin":"2468"}` | `200 {"token":"…"}`. Un code faux renvoie `401 {"error":"wrong_pin"}`. Après 5 codes faux, le déverrouillage est refusé pendant 30 s, durée doublée à chaque nouvel échec jusqu'à 15 min : `429 {"error":"locked_out","retryAfter":30}`. |
+| 🔒 `PUT /api/auth/pin` avec `{"pin":"2468"}` | Définit ou change le code (4 à 8 chiffres) et renvoie `{"enabled":true,"token":"…"}`, un nouveau jeton pour l'appelant. `{"pin":""}` le supprime. Un code invalide renvoie `400 invalid_pin`. |
+
+Les jetons vivent dans la mémoire du robot. Ils expirent après 12 h sans utilisation, quand le code change, ou quand le robot redémarre. Un code oublié ne peut être effacé qu'en effaçant et reflashant le robot. En HTTP simple, le code et les jetons ne sont pas chiffrés : le code empêche les invités de modifier la configuration, mais ne protège pas contre quelqu'un qui espionne ton Wi-Fi.
+
+## WebSocket : `/ws`
+
+Messages texte JSON, un par trame, chacun avec un type dans `t`.
+
+### Client → robot
+
+| Message | Effet |
+|---------|-------|
+| `{"t":"move","h":0.5,"v":-1}` | Pilotage manuel. `h` et `v` sont les déplacements du joystick dans [-1, 1] pour l'axe horizontal et l'axe vertical, en fraction de la vitesse maximale. Les valeurs hors plage sont plafonnées. |
+| `{"t":"stop"}` | Termine le pilotage manuel. La baguette ralentit et s'arrête. |
+| `{"t":"stow"}` | Ranger : arrête tout le reste, amène la baguette à la position de repos et y relâche les servos. `move` est ignoré jusqu'à la fin du rangement. |
+
+**Règle de l'homme mort :** pendant un mouvement, renvoie `move` au moins toutes les 500 ms ; l'interface l'envoie toutes les 100 ms. Si aucun `move` n'arrive pendant 500 ms, ou si un client se déconnecte, le robot s'arrête.
+
+### Robot → client
+
+`state` est envoyé à la connexion d'un client, à chaque changement (au plus toutes les 100 ms), et toutes les 2 s sinon :
+
+```json
+{"t":"state","h":92.5,"v":88.0,"activity":"manual","held":true,"playSpeed":0.6}
+```
+
+| Champ | Signification |
+|-------|---------------|
+| `h`, `v` | Position actuelle de chaque axe. |
+| `activity` | `idle`, `manual`, `stowing`, `calibrating` ou `tuning_speed`. |
+| `held` | Si les servos sont pilotés. Ils ne sont relâchés qu'une fois la baguette au repos à la position de repos. |
+| `playSpeed` | La valeur du curseur de vitesse, pour que toutes les interfaces ouvertes restent synchronisées. |
+| `calibrated` | Si la calibration a été faite. |
+| `calibration` | L'étape de calibration en cours, `none` hors calibration (voir plus bas). |
+| `tuning` | Seulement quand `activity` vaut `tuning_speed` : l'objet du réglage des vitesses (voir plus bas). |
+| `name` | Le nom du robot. |
+
+## HTTP
+
+### Ranger
+
+`POST /api/stow` (sans corps) fait la même chose que le message WebSocket `stow` et renvoie `202`.
+
+### Priorités
+
+Au démarrage, le robot commande la position où il s'est arrêté en dernier (ramenée dans les limites de course), puis se range à la vitesse la plus lente, 10 °/s ; `activity` vaut `stowing` pendant ce temps.
+
+Le rangement passe avant toute autre commande et ne peut pas être interrompu. Le pilotage manuel, quelle que soit sa source, annule toute autre activité. Rien ne reprend tout seul ensuite.
+
+### Calibration
+
+`GET /api/calibration` renvoie l'étape en cours et les valeurs enregistrées jusque-là :
+
+```json
+{"step":"horizontal_max","draft":{"horizontal":{"min":32,"max":120,"stow":90},"vertical":{"min":60,"max":120,"stow":90}}}
+```
+
+🔒 `POST /api/calibration` avec `{"action": …}` la pilote et renvoie le même objet :
+
+| Action | Effet |
+|--------|-------|
+| `{"action":"start"}` | Lance la calibration à partir des limites de course actuelles. |
+| `{"action":"nudge","axis":"horizontal","degrees":-5}` | Déplace l'axe de l'étape (les deux axes à l'étape `stow`) de ce nombre de degrés, à 20 °/s, n'importe où entre 0 et 180°. |
+| `{"action":"mark"}` | Enregistre la position actuelle pour l'étape et passe à la suivante. Renvoie `400` avec `travel_order` ou `stow_out_of_travel` (et `axis`) si la position n'est pas acceptable. |
+| `{"action":"confirm"}` | À l'étape `confirm`, enregistre les nouvelles limites et la position de repos, marque le robot comme calibré et le range. |
+| `{"action":"cancel"}` | Abandonne la calibration en gardant les réglages précédents, et range le robot. |
+| `{"action":"reverse","axis":"horizontal"}` | Seulement à l'étape du minimum ou du maximum de cet axe. Inverse le sens de l'axe sans bouger la baguette ni redémarrer : chaque angle de l'axe (brouillon, limites enregistrées et position de repos) est inversé (`a` → `180 − a`), le câblage est enregistré avec le nouveau sens, et l'axe reprend à son étape de minimum. `400 invalid_request` à toute autre étape. |
+
+Les étapes sont, dans l'ordre : `horizontal_min`, `horizontal_max`, `vertical_min`, `vertical_max`, `stow`, puis `sweep` (le robot parcourt les quatre coins des nouvelles limites et revient seul à la position de repos), puis `confirm`. Le rangement et le pilotage manuel abandonnent aussi la calibration.
+
+### Réglage des vitesses
+
+`GET /api/speed-tuning` renvoie `{"active":false}`, ou pendant le réglage :
+
+```json
+{"active":true,"axis":"horizontal","bound":"max","speed":110}
+```
+
+🔒 `POST /api/speed-tuning` avec `{"action": …}` le pilote et renvoie le même objet :
+
+| Action | Effet |
+|--------|-------|
+| `{"action":"start","axis":"horizontal","bound":"max"}` | Commence à balayer l'axe entre ses limites de course à sa vitesse maximale (`max`) ou minimale (`min`) actuelle ; l'autre axe reste immobile. `400 invalid_request` avant la calibration, pendant un rangement ou une calibration. |
+| `{"action":"faster"}` / `{"action":"slower"}` | Un cran : 2 °/s en dessous de 30 °/s, 5 °/s jusqu'à 90 °/s, 10 °/s au-delà. Une vitesse maximale reste entre 10 et 360 °/s, une minimale entre 1 et 360 °/s. |
+| `{"action":"keep"}` | Enregistre la vitesse essayée et range le robot. Garder une vitesse maximale inférieure ou égale à la minimale ramène la minimale au dixième de la nouvelle maximale. Une vitesse minimale qui n'est pas inférieure à la maximale renvoie `400 min_speed_out_of_range` et le réglage continue. |
+| `{"action":"cancel"}` | Garde la valeur précédente et range le robot. |
+
+Le rangement et le pilotage manuel terminent aussi le réglage des vitesses, sans enregistrer.
+
+### Identité et infos
+
+`GET /api/info` renvoie ce qu'affiche la page Infos :
+
+```json
+{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.1.0","chip":"ESP32-D0WD-V3",
+ "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
+ "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
+```
+
+`uptime` est en secondes, `rssi` en dBm et `temperature` en °C. Le capteur interne est approximatif : regarde-le comme une tendance.
+
+`GET /api/diagnostics` renvoie le rapport de diagnostic en texte brut (`text/plain`) : version du firmware, puce, un identifiant d'appareil aléatoire (tiré une fois, gardé en flash, non personnel, pour que le support puisse regrouper les rapports d'un même robot sans son adresse MAC), raison du dernier redémarrage, durée de fonctionnement, mémoire, état du code PIN, état du Wi-Fi et de Home Assistant (MQTT), réglages, câblage et les 200 dernières lignes de log (12 Ko au plus). Il est anonymisé par défaut : le nom du robot et son nom d'hôte (sauf s'ils sont ceux par défaut), le réseau Wi-Fi, les adresses IP et MAC, l'adresse du broker et l'utilisateur MQTT sont remplacés par des marqueurs comme `<wifi-network>`, y compris dans les lignes de log. `GET /api/diagnostics?full=1` les garde, pour un usage local uniquement. Le mot de passe MQTT n'est jamais inclus.
+
+`/api/diagnostics/pending` contient le rapport en attente, un problème décrit sur le hotspot et envoyé plus tard :
+
+| Méthode | Corps | Réponse |
+|---|---|---|
+| `GET` | | `{"pending": true, "description": "...", "report": "..."}` ou `{"pending": false}` |
+| `PUT` | `{"description": "..."}` | Enregistre la description (600 caractères au plus) avec le rapport anonymisé que le robot construit lui-même, en remplaçant le précédent. Le rapport garde son résumé et ses lignes de log les plus récentes dans la limite de 3 Ko. `400` sans description. |
+| `DELETE` | | Le supprime. |
+
+Le robot ne l'envoie jamais : l'interface du robot le propose sur l'écran principal une fois le robot sur le réseau de son propriétaire.
+
+```text
+CatWandConnect diagnostic report
+Redacted: yes
+
+Firmware: 0.1.0-beta.2
+Last reset: power-on
+Wi-Fi network: <wifi-network>
+...
+Recent log:
+[    1.204] [wifi] connecting to "<wifi-network>"
+```
+
+🔒 `PUT /api/device` avec `{"name":"CatWandConnect salon"}` renomme le robot et renvoie `{"name":…,"hostname":"catwandconnect-salon.local","restart":true}`. Le robot redémarre environ une seconde plus tard.
+
+- **Noms valides :** 1 à 32 octets, sans caractère de contrôle, avec au moins une lettre ou un chiffre. Sinon la requête renvoie `400` avec `invalid_name`.
+- **Noms dérivés :** le nom d'hôte est le nom en ASCII minuscule, sans accents, les autres caractères étant remplacés par des tirets. Le hotspot s'appelle `<name>-XXXX`.
+
+### Mise à jour du firmware
+
+🔒 `POST /api/update` avec un corps `multipart/form-data` contenant l'image de l'application (`firmware.bin`, le fichier `-ota.bin` d'une version publiée).
+
+- **Avant d'écrire**, le robot vérifie que le fichier est une image ESP compilée pour sa puce. Il refuse `not_firmware` et `wrong_chip` avec `400`.
+- **Pendant l'écriture**, il arrête le pilotage manuel et écrit l'image dans l'emplacement OTA inactif. Seule une image complète et vérifiée est marquée comme démarrable.
+- **Succès :** `200 {"ok":true,"restart":true}`, et le robot redémarre sur le nouveau firmware environ une seconde plus tard.
+- **Échec :** `400 {"error":"update_failed","detail":"…"}`. Si l'envoi est interrompu, le robot continue avec son firmware actuel.
+
+Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et sont conservés. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+
+### Réglages Home Assistant (MQTT)
+
+`GET /api/mqtt` renvoie `{"enabled":false,"host":"","port":1883,"user":"","passwordSet":false,"connected":false,"error":"","baseTopic":"catwandconnect/catwandconnect"}`. Le mot de passe n'est jamais renvoyé.
+
+🔒 `PUT /api/mqtt` avec n'importe lesquels de `enabled`, `host`, `port`, `user` et `password` les enregistre et se reconnecte ; sans `password`, le mot de passe actuel est gardé. Renvoie le même objet que `GET`.
+
+- **Invalide :** `400` avec `mqtt_host_required` (activation sans broker) ou `mqtt_port_invalid`.
+- **`error`** indique le dernier échec de connexion : `unreachable`, `bad_credentials` ou `refused`.
+
+### Matériel
+
+`GET /api/hardware` renvoie le câblage et les broches autorisées sur cette puce :
+
+```json
+{
+  "chip": "ESP32",
+  "allowedPins": [4, 13, 14, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
+  "axes": {
+    "horizontal": {"pin": 18, "inverted": false, "minPulse": 400, "maxPulse": 2200},
+    "vertical":   {"pin": 19, "inverted": false, "minPulse": 600, "maxPulse": 2400}
+  }
+}
+```
+
+🔒 `PUT /api/hardware` avec n'importe quel sous-ensemble de `axes` le modifie.
+
+- **Les broches autorisées** sont celles que la puce peut utiliser sans danger. Les broches de la flash, de la PSRAM, de l'USB, de la console série, de configuration au démarrage (strapping) et celles en entrée seule sont exclues, et les deux servos ne peuvent pas partager une broche.
+- **Les impulsions** (`minPulse` à 0°, `maxPulse` à 180°) doivent être entre 300 et 2700 µs, avec au moins 500 µs d'écart.
+- **Valide :** `200` avec le nouveau câblage plus `"restart": true`, et le robot redémarre environ une seconde plus tard pour l'appliquer. `"calibrationReset": true` signifie que le changement de sens ou de plage d'impulsions a rendu les anciennes limites de course sans objet : la calibration est oubliée et les mouvements reviennent à 60°–120°.
+- **Invalide :** `400` avec `pin_not_allowed`, `pin_duplicate` ou `pulse_out_of_range`, plus `axis`.
+
+### Réglages
+
+`GET /api/settings` renvoie les réglages du Robot core :
+
+```json
+{
+  "playSpeed": 0.6,
+  "calibrated": false,
+  "axes": {
+    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360},
+    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360}
+  }
+}
+```
+
+| Champ | Signification | Plage valide |
+|-------|---------------|--------------|
+| `playSpeed` | Le curseur de vitesse de l'écran principal : le pilotage manuel va à `minSpeed` à 0,1 et à `maxSpeed` à 1, linéairement entre les deux. | 0.1–1 |
+| `calibrated` | Si la calibration a été faite. D'ici là, les mouvements restent dans 60°–120° quoi que disent `min` et `max`. Lecture seule : seule la calibration le définit. | |
+| `min`, `max` | Limites de course, en degrés. | 0–180, `min` < `max` |
+| `stow` | Position de repos, en degrés. | entre `min` et `max` |
+| `maxSpeed` | Vitesse maximale, en °/s. | 10–360 |
+| `minSpeed` | Vitesse minimale, en °/s : la vitesse du pilotage manuel en bas du curseur de vitesse. Par défaut, le dixième de `maxSpeed`. | de 1 à moins que `maxSpeed` |
+| `maxAccel` | Accélération, en °/s². | 20–2000 |
+
+🔒 `PUT /api/settings` (sauf un corps ne contenant que `playSpeed`) avec un corps JSON contenant n'importe quel sous-ensemble de ces champs les modifie ; les champs absents gardent leur valeur. Les réglages sont validés comme un tout :
+
+- **Valide :** `200` avec l'ensemble des nouveaux réglages. Ils sont enregistrés et survivent aux redémarrages et aux mises à jour du firmware.
+- **Invalide :** `400` avec `{"error":"<code>","axis":"horizontal"|"vertical"}`, et rien ne change. Les codes sont `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `accel_out_of_range`, `play_speed_out_of_range` (sans `axis`) et `invalid_json`.
+
+Chaque `PUT` réussi écrit en flash : envoie-le quand une valeur est fixée, pas à chaque cran du curseur.
+
+### Wi-Fi
+
+| Requête | Réponse |
+|---------|---------|
+| `GET /api/wifi/status` | `{"mode":"hotspot"\|"connecting"\|"connected","failed":bool,"ssid":"…","ip":"…","host":"catwandconnect.local"}`. `failed` vaut true quand la dernière tentative a échoué. |
+| `GET /api/wifi/networks` | `{"scanning":true}` pendant une recherche (interroge à nouveau), puis `{"scanning":false,"networks":[{"ssid":"…","rssi":-60,"secure":true}]}`. |
+| 🔒 `POST /api/wifi` | Champs de formulaire `ssid` et `password`. Renvoie 202 et se connecte en arrière-plan ; suis la progression avec `/api/wifi/status`. Accepté seulement quand le hotspot est actif (409 sinon). |
+
+### Fichiers de l'interface
+
+`/` sert la page de configuration du Wi-Fi tant que le robot n'est pas sur un réseau Wi-Fi, et l'écran principal ensuite. Les fichiers de l'interface (`/app.js`, `/lang/en.json`, `/manifest.webmanifest`, …) sont servis compressés en gzip.
+
+## Home Assistant (MQTT)
+
+Quand c'est activé dans les Réglages, le robot se connecte à un broker MQTT et s'annonce avec la découverte MQTT de Home Assistant. La configuration est décrite dans [Home Assistant](home-assistant.fr.md). Les topics utilisent le nom d'hôte du robot, par exemple `catwandconnect/catwandconnect-salon`, noté `<base>` ci-dessous.
+
+| Topic | Sens | Contenu |
+|-------|------|---------|
+| `<base>/status` | robot → | `online` / `offline` (retenu ; `offline` est le dernier message, « last will ») |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle"}` (retenu) : positions en degrés, vitesses maximales en °/s |
+| `<base>/stow/set` | → robot | `PRESS` |
+| `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | Un nombre de degrés. L'axe s'y déplace à la vitesse du pilotage manuel, ramené dans les limites de course. |
+| `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | Un nombre de °/s. Validé comme la valeur des Réglages. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les quatre nombres et le capteur d'activité. |
+
+Les commandes passent par le Robot core comme le pilotage manuel : les limites de course, les limites de vitesse et les priorités s'appliquent, et le rangement passe avant tout.
