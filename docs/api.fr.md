@@ -14,7 +14,7 @@ La version de l'API n'augmente que quand un changement casserait une intégratio
 
 | Version de l'API | Premier firmware | Ce qu'elle contient |
 |------------------|------------------|---------------------|
-| 1 | la version qui suit 0.2.0-beta.1 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. |
+| 1 | 0.2.0-beta.2 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. |
 
 ## Découverte (mDNS)
 
