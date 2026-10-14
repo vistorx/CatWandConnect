@@ -82,14 +82,14 @@ Câble les servos sur les broches par défaut : GPIO 18 (horizontal) et 19 (vert
 
 Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 
-- [ ] Avant la calibration, Démarrer affiche « Lance d'abord la Calibration » avec un lien Calibrer, et rien ne bouge.
-- [ ] − et + changent la durée d'une minute, entre 1 et 60. Après un rechargement de la page, et sur un second téléphone, la dernière durée choisie s'affiche.
-- [ ] Une fois le robot calibré, Démarrer fait bouger les deux axes chacun à son rythme : ils démarrent ou s'arrêtent rarement ensemble, de petits sauts arrivent, et la baguette ne dépasse jamais les limites de course.
-- [ ] Pendant la session, le bouton affiche Arrêter et le temps restant décompte sans à-coups, seconde par seconde ; un second téléphone affiche la même session et le même temps restant.
-- [ ] Dans Réglages → Mouvement, règle les deux plages de pause à 0–0 s et enregistre : pendant une session, la baguette ne s'arrête jamais. Un minimum au-dessus du maximum affiche une erreur et garde les valeurs précédentes.
-- [ ] Une session d'une minute se range toute seule au bout d'une minute ; Arrêter et le bouton Ranger y mettent fin avec un rangement, sans finir le mouvement en cours, et le bloc revient à Démarrer.
-- [ ] Toucher le joystick pendant une session donne la main aussitôt, sans rangement, et le bloc revient à Démarrer.
-- [ ] Fermer la page n'arrête pas la session ; la rouvrir affiche Arrêter et le temps restant. Une coupure de courant pendant une session y met fin, et le robot se range doucement au démarrage au lieu de jouer.
+- [x] Avant la calibration, Démarrer affiche « Lance d'abord la Calibration » avec un lien Calibrer, et rien ne bouge.
+- [x] − et + changent la durée d'une minute, entre 1 et 60. Après un rechargement de la page, et sur un second téléphone, la dernière durée choisie s'affiche.
+- [x] Une fois le robot calibré, Démarrer fait bouger les deux axes chacun à son rythme : ils démarrent ou s'arrêtent rarement ensemble, de petits sauts arrivent, et la baguette ne dépasse jamais les limites de course.
+- [x] Pendant la session, le bouton affiche Arrêter et le temps restant décompte sans à-coups, seconde par seconde ; un second téléphone affiche la même session et le même temps restant.
+- [x] Dans Réglages → Mouvement, règle les deux plages de pause à 0–0 s et enregistre : pendant une session, la baguette ne s'arrête jamais. Un minimum au-dessus du maximum affiche une erreur et garde les valeurs précédentes.
+- [x] Une session d'une minute se range toute seule au bout d'une minute ; Arrêter et le bouton Ranger y mettent fin avec un rangement, sans finir le mouvement en cours, et le bloc revient à Démarrer.
+- [x] Toucher le joystick pendant une session donne la main aussitôt, sans rangement, et le bloc revient à Démarrer.
+- [x] Fermer la page n'arrête pas la session ; la rouvrir affiche Arrêter et le temps restant. Une coupure de courant pendant une session y met fin, et le robot se range doucement au démarrage au lieu de jouer.
 - [ ] Après une mise à jour OTA depuis une version sans session de jeu, les réglages et la calibration sont conservés, et Réglages → Mouvement affiche les plages de pause par défaut (0–2 s sur les deux axes).
 
 ## Rangement, priorité, maintien et relâchement
