@@ -135,6 +135,7 @@ nav:
       - home-assistant.md
   - Use:
       - features.md
+      - changelog.md
       - troubleshooting.md
   - Community:
       - support.md
