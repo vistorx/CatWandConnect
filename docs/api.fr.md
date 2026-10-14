@@ -8,7 +8,7 @@ Les angles sont en degrés, tels qu'envoyés aux servos (0–180).
 
 ## Code PIN des réglages
 
-Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel, le rangement, le curseur de vitesse (`playSpeed`) et tous les `GET` n'en ont jamais besoin.
+Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel, le rangement, le curseur de vitesse (`playSpeed`), la session de jeu (`/api/play` et `sessionMinutes`) et tous les `GET` n'en ont jamais besoin.
 
 | Requête | Réponse |
 |---------|---------|
@@ -37,18 +37,20 @@ Messages texte JSON, un par trame, chacun avec un type dans `t`.
 `state` est envoyé à la connexion d'un client, à chaque changement (au plus toutes les 100 ms), et toutes les 2 s sinon :
 
 ```json
-{"t":"state","h":92.5,"v":88.0,"activity":"manual","held":true,"playSpeed":0.6}
+{"t":"state","h":92.5,"v":88.0,"activity":"playing","held":true,"playSpeed":0.6,"sessionMinutes":10,"play":{"remaining":587}}
 ```
 
 | Champ | Signification |
 |-------|---------------|
 | `h`, `v` | Position actuelle de chaque axe. |
-| `activity` | `idle`, `manual`, `stowing`, `calibrating` ou `tuning_speed`. |
+| `activity` | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` ou `playing`. |
 | `held` | Si les servos sont pilotés. Ils ne sont relâchés qu'une fois la baguette au repos à la position de repos. |
 | `playSpeed` | La valeur du curseur de vitesse, pour que toutes les interfaces ouvertes restent synchronisées. |
 | `calibrated` | Si la calibration a été faite. |
 | `calibration` | L'étape de calibration en cours, `none` hors calibration (voir plus bas). |
 | `tuning` | Seulement quand `activity` vaut `tuning_speed` : l'objet du réglage des vitesses (voir plus bas). |
+| `sessionMinutes` | La durée de session, en minutes, pour que toutes les interfaces ouvertes restent synchronisées. |
+| `play` | Seulement quand `activity` vaut `playing` : `{"remaining": <secondes>}`, le temps restant de la session de jeu, arrondi au-dessus. |
 | `name` | Le nom du robot. |
 
 ## HTTP
@@ -61,7 +63,33 @@ Messages texte JSON, un par trame, chacun avec un type dans `t`.
 
 Au démarrage, le robot commande la position où il s'est arrêté en dernier (ramenée dans les limites de course), puis se range à la vitesse la plus lente, 10 °/s ; `activity` vaut `stowing` pendant ce temps.
 
-Le rangement passe avant toute autre commande et ne peut pas être interrompu. Le pilotage manuel, quelle que soit sa source, annule toute autre activité. Rien ne reprend tout seul ensuite.
+Le rangement passe avant toute autre commande et ne peut pas être interrompu. Le pilotage manuel, quelle que soit sa source, annule toute autre activité, y compris une session de jeu. Rien ne reprend tout seul ensuite.
+
+### Session de jeu
+
+La baguette joue toute seule pendant la durée de session, puis se range. Chaque axe tourne en boucle de son côté, jamais au même rythme que l'autre : il va à une position au hasard n'importe où dans ses limites de course, à une vitesse au hasard entre sa vitesse minimale et sa vitesse maximale (`minSpeed`–`maxSpeed`), puis se repose un temps au hasard dans sa plage de pause (`pauseMin`–`pauseMax`), et recommence.
+
+`GET /api/play` renvoie :
+
+```json
+{"active":true,"remaining":587,"minutes":10}
+```
+
+`active` indique si une session est en cours, `remaining` est le temps restant en secondes (0 sans session) et `minutes` la durée de session.
+
+`POST /api/play` (sans code PIN) avec `{"action": …}` la pilote et renvoie le même objet :
+
+| Action | Effet |
+|--------|-------|
+| `{"action":"start"}` | Lance une session de la durée de session, depuis zéro même si une session est en cours. |
+| `{"action":"start","sessionMinutes":20}` | Pareil avec cette durée (1–60), qui devient la durée de session. |
+| `{"action":"stop"}` | Termine la session par un rangement, sans finir le mouvement en cours. Ne fait rien sans session en cours. |
+
+Erreurs : `409 {"error":"not_calibrated"}` avant la calibration, `409 {"error":"busy"}` pendant un rangement, une calibration ou un réglage de vitesse, `400 session_duration_out_of_range`, `400 invalid_request` pour une action inconnue.
+
+Une session se termine par un rangement quand son temps est écoulé, sur `stop` et sur un rangement venu de n'importe quelle source. Le pilotage manuel (le joystick, ou une position envoyée par Home Assistant) y met fin aussitôt, sans rangement, et laisse la baguette à la personne. Fermer la page ou perdre la connexion ne l'arrête pas. Elle ne reprend jamais et ne survit pas à un redémarrage.
+
+Pour changer la durée de session sans lancer de session, envoie `PUT /api/settings` avec seulement `{"sessionMinutes": 15}` (sans code PIN, comme `playSpeed`). Elle est écrite en flash une fois le robot au repos, et seulement si elle a changé.
 
 ### Calibration
 
@@ -153,7 +181,7 @@ Recent log:
 - **Succès :** `200 {"ok":true,"restart":true}`, et le robot redémarre sur le nouveau firmware environ une seconde plus tard.
 - **Échec :** `400 {"error":"update_failed","detail":"…"}`. Si l'envoi est interrompu, le robot continue avec son firmware actuel.
 
-Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et sont conservés. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et sont conservés. Une session de jeu en cours se termine au début de la mise à jour. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
 
 ### Réglages Home Assistant (MQTT)
 
@@ -195,9 +223,10 @@ Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et so
   "playSpeed": 0.6,
   "calibrated": false,
   "axes": {
-    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360},
-    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360}
-  }
+    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0.5, "pauseMax": 3},
+    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 1, "pauseMax": 5}
+  },
+  "sessionMinutes": 10
 }
 ```
 
@@ -210,11 +239,13 @@ Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et so
 | `maxSpeed` | Vitesse maximale, en °/s. | 10–360 |
 | `minSpeed` | Vitesse minimale, en °/s : la vitesse du pilotage manuel en bas du curseur de vitesse. Par défaut, le dixième de `maxSpeed`. | de 1 à moins que `maxSpeed` |
 | `maxAccel` | Accélération, en °/s². | 20–2000 |
+| `pauseMin`, `pauseMax` | Plage de pause, en secondes : combien de temps l'axe se repose entre deux mouvements d'une session de jeu. `0` signifie sans arrêt. | 0–60, `pauseMin` ≤ `pauseMax` |
+| `sessionMinutes` | Durée de session : combien de temps dure une session de jeu, en minutes. Nombres entiers. | 1–60 |
 
-🔒 `PUT /api/settings` (sauf un corps ne contenant que `playSpeed`) avec un corps JSON contenant n'importe quel sous-ensemble de ces champs les modifie ; les champs absents gardent leur valeur. Les réglages sont validés comme un tout :
+🔒 `PUT /api/settings` (sauf un corps ne contenant que `playSpeed` et/ou `sessionMinutes`) avec un corps JSON contenant n'importe quel sous-ensemble de ces champs les modifie ; les champs absents gardent leur valeur. Les réglages sont validés comme un tout :
 
 - **Valide :** `200` avec l'ensemble des nouveaux réglages. Ils sont enregistrés et survivent aux redémarrages et aux mises à jour du firmware.
-- **Invalide :** `400` avec `{"error":"<code>","axis":"horizontal"|"vertical"}`, et rien ne change. Les codes sont `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `accel_out_of_range`, `play_speed_out_of_range` (sans `axis`) et `invalid_json`.
+- **Invalide :** `400` avec `{"error":"<code>","axis":"horizontal"|"vertical"}`, et rien ne change. Les codes sont `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `min_speed_out_of_range`, `accel_out_of_range`, `pause_out_of_range`, `pause_order`, `play_speed_out_of_range` et `session_duration_out_of_range` (ces deux-là sans `axis`), et `invalid_json`.
 
 Chaque `PUT` réussi écrit en flash : envoie-le quand une valeur est fixée, pas à chaque cran du curseur.
 

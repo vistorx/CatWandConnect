@@ -64,15 +64,17 @@ Wire the servos to the default pins: GPIO 18 (Horizontal) and 19 (Vertical) on E
 
 ## Play session
 
-Until the main-screen controls arrive, drive it with `curl -X POST http://<robot>.local/api/play -d '{"action":"start","sessionMinutes":1}'` (and `"stop"`).
+Use the Play session block under the speed slider on the main screen.
 
-- [ ] Before Calibration, starting a session returns `not_calibrated` and nothing moves.
-- [ ] Once calibrated, a session moves both axes on their own rhythm: they rarely start or stop together, small hops happen, and the wand never passes the Travel limits.
-- [ ] With both Pause ranges at 0–0 s, the wand never stops moving.
-- [ ] A 1-minute session Stows by itself after a minute; `stop` and the Stow button end it with Stow without finishing the current move.
-- [ ] Touching the joystick during a session gives control at once, without Stow.
-- [ ] Closing the page does not stop the session; a power cut during a session ends it, and the robot Stows gently at power-up instead of playing.
-- [ ] After updating from a build without Play session by OTA, settings and Calibration are kept, and `GET /api/settings` shows the default Pause ranges (Horizontal 0.5–3 s, Vertical 1–5 s).
+- [ ] Before Calibration, Start shows "Run Calibration first" with a Calibrate link, and nothing moves.
+- [ ] − and + change the duration by one minute, within 1–60. After a page reload, and on a second phone, the last duration chosen is shown.
+- [ ] Once calibrated, Start moves both axes on their own rhythm: they rarely start or stop together, small hops happen, and the wand never passes the Travel limits.
+- [ ] While it plays, the button reads Stop and the time left counts down smoothly, second by second; a second phone shows the same session and time left.
+- [ ] In Settings → Motion, set both Pause ranges to 0–0 s and save: the wand never stops moving during a session. A minimum above the maximum shows an error and keeps the previous values.
+- [ ] A 1-minute session Stows by itself after a minute; Stop and the Stow button end it with Stow without finishing the current move, and the block goes back to Start.
+- [ ] Touching the joystick during a session gives control at once, without Stow, and the block goes back to Start.
+- [ ] Closing the page does not stop the session; reopening it shows Stop and the time left. A power cut during a session ends it, and the robot Stows gently at power-up instead of playing.
+- [ ] After updating from a build without Play session by OTA, settings and Calibration are kept, and Settings → Motion shows the default Pause ranges (Horizontal 0.5–3 s, Vertical 1–5 s).
 
 ## Stow, priority, hold and release
 

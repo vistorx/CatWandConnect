@@ -6,6 +6,7 @@ Tout ce que fait le firmware CatWandConnect, regroupé par usage. Tout est dans 
 
 - **Joystick sur le téléphone.** Ouvre `http://catwandconnect.local/` dans n'importe quel navigateur sur ton Wi-Fi et fais glisser le joystick : la baguette suit en temps réel. Un petit mouvement la déplace lentement ; un mouvement complet la déplace à pleine vitesse. Relâche et elle s'arrête. Fonctionne avec le téléphone en portrait ou en paysage.
 - **Curseur de vitesse.** Règle la vivacité de la baguette, de la vitesse minimale à la vitesse maximale de chaque axe, directement sur l'écran principal. Tous les téléphones ouverts restent synchronisés.
+- **Session de jeu.** Le robot joue tout seul avec ton chat pendant une durée choisie (1 à 60 min, 10 par défaut, retenue pour la fois suivante), puis se range. Chaque axe va à des positions au hasard dans tes limites de course, à des vitesses au hasard entre sa vitesse minimale et sa vitesse maximale, et fait des pauses de durée aléatoire dans sa plage de pause (0 à 60 s, réglée par axe), jamais en même temps que l'autre axe : la baguette bouge comme une proie. Toucher le joystick reprend la main aussitôt ; Arrêter ou Ranger y mettent fin. La session continue quand tu fermes la page, et ne redémarre jamais toute seule après une coupure de courant. Sur l'écran principal, le bloc Session de jeu règle la durée avec − et + (ou en la tapant) et la démarre ; pendant la session, le bouton devient Arrêter et le bloc décompte le temps restant. Tous les téléphones ouverts affichent la session, peu importe qui l'a lancée. Disponible une fois le robot calibré : sinon, le bloc te le dit, avec un lien vers la calibration. [Home Assistant](home-assistant.fr.md) et les scripts, par l'[API du robot](api.fr.md#session-de-jeu), peuvent aussi la piloter.
 - **Position en direct.** L'écran principal montre où se trouve chaque axe.
 - **Plusieurs téléphones à la fois.** Tout le monde sur ton Wi-Fi peut ouvrir l'interface pour regarder ou jouer.
 
@@ -30,7 +31,7 @@ Tout ce que fait le firmware CatWandConnect, regroupé par usage. Tout est dans 
 
 ## Au quotidien
 
-- **Réglages en onglets.** Mouvement (limites, calibration, vitesse), Matériel (câblage), Réseau (Wi-Fi, Home Assistant) et Robot (nom, langue, code PIN, mise à jour du firmware, Infos). Un lien peut ouvrir directement un onglet, par exemple `settings.html#network`.
+- **Réglages en onglets.** Mouvement (limites, calibration, vitesse, plage de pause), Matériel (câblage), Réseau (Wi-Fi, Home Assistant) et Robot (nom, langue, code PIN, mise à jour du firmware, Infos). Un lien peut ouvrir directement un onglet, par exemple `settings.html#network`.
 - **Donne un nom à ton robot.** « CatWandConnect salon » devient `http://catwandconnect-salon.local/` et nomme aussi son hotspot et son appareil Home Assistant.
 - **Anglais et français.** L'interface suit la langue de ton téléphone, ou celle que tu choisis dans les Réglages.
 - **Icône sur l'écran d'accueil.** Ajoute l'interface à l'écran d'accueil de ton téléphone ; elle s'ouvre en plein écran, comme une appli.

@@ -430,3 +430,34 @@ a.button-link.secondary { background: var(--surface); color: var(--fg); border: 
 .speed-position { text-align: center; }
 .speed-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 .speed-buttons button { padding: 1rem; font-size: 1.1rem; }
+
+/* Main screen: Play session block. */
+.play {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: .75rem 1rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+}
+.play h2 { margin: 0; }
+.play .primary { margin-top: 0; }
+.play .primary.stop { background: var(--fg); color: var(--bg); }
+.play .message { margin: 0; min-height: 0; }
+.play .message:empty { display: none; }
+.play .hint { text-align: left; font-size: .85rem; }
+.play-duration { display: grid; grid-template-columns: 3.25rem 1fr 3.25rem; gap: .5rem; align-items: center; }
+.play-duration button { padding: .6rem 0; font-size: 1.4rem; line-height: 1; }
+.play-minutes { margin: 0; display: flex; align-items: center; gap: .4rem; }
+.play-minutes input { flex: 1; min-width: 0; text-align: center; font-size: 1.2rem; font-variant-numeric: tabular-nums; padding: .55rem; }
+.play-remaining { margin: 0; display: flex; justify-content: space-between; align-items: baseline; color: var(--muted); }
+.play-remaining output { font-size: 1.8rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--fg); }
+
+/* Phone held sideways: a compact block, scrollable clear of the Stow button. */
+@media (orientation: landscape) and (max-height: 500px) {
+  main { padding-bottom: 5rem; }
+  .play { gap: .5rem; padding: .5rem .75rem .75rem; }
+  .play .hint { display: none; }
+}

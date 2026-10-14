@@ -46,6 +46,25 @@
     <input id="speed" type="range" min="10" max="100" step="5">
     <output id="speed-value"></output>
   </label>
+
+  <section id="play" class="play" aria-labelledby="play-title">
+    <h2 id="play-title" data-i18n="play.title"></h2>
+    <div id="play-setup" class="play-duration">
+      <button id="play-less" type="button" class="secondary" data-i18n-aria="play.less">−</button>
+      <label class="play-minutes">
+        <input id="play-minutes" type="number" min="1" max="60" step="1" inputmode="numeric" data-i18n-aria="play.duration">
+        <span class="unit" data-i18n="play.minutes"></span>
+      </label>
+      <button id="play-more" type="button" class="secondary" data-i18n-aria="play.more">+</button>
+    </div>
+    <p id="play-running" class="play-remaining" hidden>
+      <span data-i18n="play.remaining"></span>
+      <output id="play-remaining">–</output>
+    </p>
+    <button id="play-toggle" type="button" class="primary" data-i18n="play.start"></button>
+    <p id="play-message" class="message" data-kind="error" role="status"></p>
+    <p class="hint" data-i18n="play.hint"></p>
+  </section>
 </main>
 
 <footer class="stow-bar">
