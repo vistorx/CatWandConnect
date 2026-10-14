@@ -200,6 +200,32 @@ Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup]
 - [ ] `GET /api/info` contains `"api":1` and `"id"` equal to the Device ID of the Diagnostic report.
 - [ ] `curl -X POST -H 'Content-Type: application/json' -d '{"axis":"horizontal","degrees":90}' http://<name>.local/api/position` moves the wand there smoothly and answers `202`. A value beyond the Travel limits stops at the limit; during a Play session it ends the session without Stow; `{"axis":"up","degrees":90}` answers `400`.
 
+## Native integration (Home Assistant)
+
+Use a Home Assistant 2026.10 or later with HACS, on the robot's network, and a robot without the MQTT connection ([setup](home-assistant.md#native-integration)). Check the entities on the device page under Settings → Devices & services → CatWandConnect.
+
+- [ ] HACS → Custom repositories accepts `https://github.com/vistorx/ha-catwandconnect` as an Integration; CatWandConnect downloads, and after a restart it is in Add integration.
+- [ ] The robot shows under Discovered with its name. Without a Settings PIN, Add then Submit creates the device with no PIN asked: name, manufacturer CatWandConnect, model, chip, firmware version, and a Visit link that opens the robot's interface.
+- [ ] Discovering the robot again (restart Home Assistant or the robot) creates no second device.
+- [ ] Add integration → CatWandConnect with the robot's IP address, then with its `.local` name, adds it (remove it in between).
+- [ ] With a Settings PIN set, adding the robot asks for it: a wrong PIN shows "Wrong PIN" and lets you retry; enough wrong PINs show the wait in seconds; the right PIN adds it.
+- [ ] A robot on a firmware older than 0.2.0-beta.2 is refused with "firmware is too old", the minimum version and a link to the update steps.
+- [ ] The device has 8 entities with the default ids (`sensor.catwandconnect_activity`, `switch.catwandconnect_play_session`, `number.catwandconnect_session_duration`, `button.catwandconnect_stow`, `number.catwandconnect_horizontal_position`, `number.catwandconnect_vertical_position`, `number.catwandconnect_horizontal_maximum_speed`, `number.catwandconnect_vertical_maximum_speed`), named in French when Home Assistant is in French.
+- [ ] Activity follows the robot within a second: `manual` with the joystick, `stowing`, `calibrating`, `tuning_speed`, `playing`, then `idle`.
+- [ ] Moving the wand with the joystick updates both positions within a second. Setting a position in Home Assistant moves the axis there smoothly; the slider only spans the Travel limits.
+- [ ] Changing a maximum speed in Home Assistant shows in the robot's Settings → Motion; a change in the robot's Settings shows in Home Assistant after a reload of the device page.
+- [ ] Session duration matches the main screen; changing it in Home Assistant updates the main screen, and 0 or 61 is refused.
+- [ ] On a calibrated robot, Play session on starts a session for the Session duration; off Stows and the switch stays off. A session started from the main screen turns the switch on, and it turns off by itself when the session ends.
+- [ ] Before Calibration, Play session on shows an error saying the robot isn't calibrated, and the switch stays off.
+- [ ] Stow in Home Assistant stows, even while someone is using the joystick.
+- [ ] Unplugging the robot makes every entity unavailable within a few seconds; plugging it back makes them available again by themselves, with current values.
+- [ ] Restarting Home Assistant with the robot on brings the entities back without any action.
+- [ ] Renaming the robot: after its restart, the device name in Home Assistant follows.
+- [ ] Changing the robot's Settings PIN: the next command that needs it (a maximum speed) fails and Home Assistant asks to Reconfigure; typing the new PIN makes the commands work again.
+- [ ] Download diagnostics on the device page: the file has the firmware, settings and state, with the Wi-Fi name, IP and MAC addresses, broker address and MQTT credentials redacted, and no PIN.
+- [ ] With the MQTT connection also on, a second device appears with ids ending in `_2`, as the guide warns; turning MQTT off in the robot and deleting the MQTT device leaves one.
+- [ ] The ready-made Native integration dashboard from the guide, pasted as is, shows every card with no "Entity not available".
+
 ## Web flasher and releases
 
 - [ ] The release page has a `-factory.bin` and an `-ota.bin` per chip, and the version in the Info page matches the tag.
