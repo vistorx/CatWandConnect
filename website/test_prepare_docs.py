@@ -18,6 +18,11 @@ class GithubOnlyContent(unittest.TestCase):
         self.assertIn('src="media/video/mk2-presentation.mp4"', page)
         self.assertIn('poster="media/video/mk2-presentation-poster.jpg"', page)
 
+    def test_video_player_is_half_the_page_width_and_centred(self):
+        page = rewrite_page(VIDEO_URL + "\n", "README.md", "index.md")
+        self.assertIn('style="display:block;margin:0 auto;width:50%;min-width:280px;max-width:100%"', page)
+        self.assertNotIn('width="100%"', page)
+
     def test_github_video_in_a_french_docs_page_points_at_the_built_media(self):
         # fr/hardware/ -> media/ at the site root
         page = rewrite_page(VIDEO_URL + "\n", "docs/hardware.fr.md", "hardware.fr.md")
