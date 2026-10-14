@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Bigger Play session control in the ready-made dashboards.** The Play session is now a large button: tap to start, tap again to stop.
+
 ## 0.2.0-beta.2 - 2026-10-14
 
 **Home Assistant without MQTT.** The new CatWandConnect integration for Home Assistant finds your robot on the network by itself: click **Add**, and the Play session, Stow, positions and speeds are on your dashboard. No broker, no extra user, live updates within a second.

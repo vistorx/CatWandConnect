@@ -152,7 +152,7 @@ When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
 ## Ready-made dashboards
 
-A control panel for the robot, made only of built-in cards (nothing to install from HACS): the Play session switch and its duration, Stow, the Activity, each axis's position and maximum speed. There is one for each connection; they look the same.
+A control panel for the robot, made only of built-in cards (nothing to install from HACS): a big Play session button (tap to start, tap again to stop; hold for details) and its duration, Stow, the Activity, each axis's position and maximum speed. There is one for each connection; they look the same.
 
 1. Go to **Settings → Dashboards → Add dashboard → New dashboard from scratch**, name it, for example "Cat wand", and open it.
 2. Click the pencil (**Edit dashboard**), then the three dots → **Raw configuration editor**.
@@ -182,13 +182,16 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
-          - type: tile
+          - type: button
             entity: switch.catwandconnect_play_session
             name: Play session
             icon: mdi:play-circle-outline
-            features:
-              - type: toggle
-            features_position: inline
+            show_state: false
+            icon_height: 64px
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Session duration
@@ -265,13 +268,16 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
-          - type: tile
+          - type: button
             entity: switch.catwandconnect_play_session
             name: Play session
             icon: mdi:play-circle-outline
-            features:
-              - type: toggle
-            features_position: inline
+            show_state: false
+            icon_height: 64px
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Session duration
