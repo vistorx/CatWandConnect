@@ -2,6 +2,8 @@
   <img src="media/banner/banner-robot-cat-wand.jpg" alt="CatWandConnect: a robot holding a toy wand with a fish, and a kitten jumping for it" width="100%">
 </h1>
 
+<p align="right"><b>English</b> · <a href="README.fr.md">Français</a></p>
+
 **An open-hardware robot that plays with your cat.** An ESP32 swings a toy wand on two servos. You drive it from your phone through a web page served by the robot itself, with no app, no cloud and no account. Home Assistant is optional.
 
 Everything is free and open: the printable parts, the firmware and the docs.
@@ -15,7 +17,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
   <a href="https://discord.gg/Rbqge3v9dk"><img src="https://img.shields.io/badge/chat-Discord-5865F2" alt="Discord"></a>
 </p>
 
-> **Status: V1 in beta.** Every V1 feature is implemented and tested automatically. The firmware is now being validated on the real robot as beta releases, against the [acceptance checklist](docs/acceptance-checklist.md). The first stable release follows once it passes.
+> **Status: V1 stable.** [v0.1.0](https://github.com/vistorx/CatWandConnect/releases/tag/v0.1.0), the first stable release, passed the full [acceptance checklist](docs/acceptance-checklist.md) on a classic ESP32. The ESP32-S3 and ESP32-C3 builds are tested automatically, not yet on real hardware.
 
 ## What it is
 

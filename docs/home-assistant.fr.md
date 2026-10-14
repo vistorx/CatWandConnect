@@ -1,0 +1,72 @@
+# Home Assistant
+
+CatWandConnect fonctionne sans Home Assistant. Si tu l'utilises, le robot peut y apparaître tout seul grâce à la **découverte MQTT** : tu obtiens un appareil avec un bouton Ranger, la position et la vitesse maximale de chaque axe, et son activité, prêt pour tes tableaux de bord et tes automatisations.
+
+## Ce qu'il te faut
+
+- Home Assistant avec un **broker MQTT**. Le plus simple est le module complémentaire officiel **Mosquitto broker**.
+- L'**intégration MQTT** de Home Assistant, connectée à ce broker.
+- Le robot sur le même réseau.
+
+## 1. Installer le broker
+
+Si tu utilises déjà MQTT, passe à l'étape 2.
+
+1. Dans Home Assistant, va dans **Paramètres → Modules complémentaires → Boutique des modules complémentaires**, installe **Mosquitto broker** et démarre-le.
+2. Crée un utilisateur pour le robot : **Paramètres → Personnes → Utilisateurs → Ajouter un utilisateur**, par exemple `catwandconnect`, avec un mot de passe. Active le mode avancé dans ton profil si l'onglet Utilisateurs n'apparaît pas. Mosquitto accepte les utilisateurs de Home Assistant.
+3. Home Assistant découvre généralement le broker : accepte l'intégration **MQTT** qu'il propose dans **Paramètres → Appareils et services**.
+
+## 2. Connecter le robot
+
+1. Ouvre l'interface du robot, puis **Réglages → Réseau → Home Assistant**.
+2. Coche **Activé**, et saisis :
+   - **Broker** : l'adresse de ton Home Assistant, par exemple `homeassistant.local` ou son IP ;
+   - **Port** : `1883` ;
+   - **Utilisateur** et **Mot de passe** : l'utilisateur de l'étape 1.
+3. Enregistre. En quelques secondes, l'état doit indiquer **Connecté**.
+
+Si un code PIN des réglages est défini, l'enregistrement le demande.
+
+## 3. Le retrouver dans Home Assistant
+
+Va dans **Paramètres → Appareils et services → MQTT → Appareils**. Le robot apparaît sous son nom, avec :
+
+| Entité | Type | Rôle |
+|--------|------|------|
+| Stow | Bouton | Range la baguette et relâche les servos. Passe avant toute autre commande. |
+| Horizontal position, Vertical position | Nombre (0–180°) | Indique où se trouve chaque axe. Changer la valeur déplace l'axe à cet endroit, à la vitesse du pilotage manuel, dans les limites de course. |
+| Horizontal maximum speed, Vertical maximum speed | Nombre (10–360 °/s) | Le même réglage que dans les Réglages du robot. Une vitesse maximale inférieure ou égale à la vitesse minimale ramène la minimale au dixième de la nouvelle maximale. |
+| Activity | Capteur | `idle`, `manual`, `stowing`, `calibrating` ou `tuning_speed`. |
+
+Les noms des entités restent en anglais. Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme indisponibles.
+
+Les commandes venant de Home Assistant suivent les mêmes règles de sécurité que le téléphone : limites de course, limites de vitesse et priorités. Rien depuis Home Assistant ne peut pousser la baguette au-delà de ses limites, et le rangement ne peut pas être interrompu.
+
+## Exemple d'automatisation
+
+Ranger la baguette tous les soirs à 22 h :
+
+```yaml
+alias: Ranger la canne à chat le soir
+triggers:
+  - trigger: time
+    at: "22:00:00"
+actions:
+  - action: button.press
+    target:
+      entity_id: button.catwandconnect_stow
+```
+
+Les identifiants des entités suivent le nom du robot : `button.catwandconnect_stow` par défaut, `button.catwandconnect_salon_stow` pour un robot nommé « CatWandConnect salon ».
+
+## Dépannage
+
+| État dans les Réglages du robot | À vérifier |
+|---------------------------------|------------|
+| Broker injoignable | L'adresse et le port du broker, et que le module Mosquitto tourne. Essaie l'IP au lieu de `homeassistant.local`. |
+| Le broker a refusé l'utilisateur ou le mot de passe | L'utilisateur et le mot de passe ; l'utilisateur doit exister dans Home Assistant (ou dans les identifiants propres à Mosquitto). |
+| Connecté, mais aucun appareil dans Home Assistant | L'intégration MQTT est installée et utilise le préfixe de découverte par défaut, `homeassistant`. |
+
+Les topics MQTT du robot sont documentés dans l'[API du robot](api.fr.md#home-assistant-mqtt). Toujours bloqué ? Voir [Obtenir de l'aide](../SUPPORT.fr.md), ou ouvre **Aide** dans Réglages → Robot : la page de l'appareil dans Home Assistant a un lien **Visiter** vers l'interface du robot (la découverte MQTT n'autorise qu'un lien par appareil, il ne peut donc pas pointer directement vers la page Aide).
+
+Une intégration Home Assistant dédiée pourra venir plus tard ([ADR 0005](adr/0005-home-assistant-via-mqtt-first.md), en anglais).
