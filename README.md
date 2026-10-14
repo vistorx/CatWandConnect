@@ -22,6 +22,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 ## What it is
 
 - **Play from your phone.** A joystick and a speed slider in any browser on your Wi-Fi, with no app to install.
+- **Play sessions.** Pick a duration and tap Start: the wand plays with your cat on its own, within your limits, then Stows.
 - **Safe by design.** Travel limits it never exceeds, a Stow button nothing can interrupt, smooth motion, and a stop as soon as your phone disconnects.
 - **Easy to set up.** Install from the browser, enter your Wi-Fi (or skip it and use the robot's hotspot), and let the Calibration wizard fit the robot to your build.
 - **Yours to adapt.** Your pins and servos, your robot's name, English or French, an optional PIN, and updates over Wi-Fi.

@@ -53,6 +53,8 @@ const MOTION = [
   { key: 'maxSpeed', unit: '°/s', step: 1, min: 10, max: 360 },
   { key: 'minSpeed', unit: '°/s', step: 1, min: 1, max: 359 },
   { key: 'maxAccel', unit: '°/s²', step: 10, min: 20, max: 2000 },
+  { key: 'pauseMin', unit: 's', step: 0.1, min: 0, max: 60 },
+  { key: 'pauseMax', unit: 's', step: 0.1, min: 0, max: 60 },
 ];
 
 const LIMITS = [

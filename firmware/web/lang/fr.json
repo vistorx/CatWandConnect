@@ -23,8 +23,8 @@
   "nav.back": "Retour",
   "speed.label": "Vitesse",
   "settings.title": "Réglages",
-  "settings.motion": "Vitesse et accélération",
-  "settings.motion.hint": "Le curseur de vitesse de l'écran principal va de la vitesse minimale à la vitesse maximale.",
+  "settings.motion": "Vitesse, accélération et pauses",
+  "settings.motion.hint": "Le curseur de vitesse de l'écran principal va de la vitesse minimale à la vitesse maximale. Pendant une Session de jeu, chaque axe bouge à une vitesse au hasard dans cette plage, puis se repose un temps au hasard dans sa Plage de pause (0 s = sans arrêt).",
   "settings.maxSpeed": "Vitesse maximale",
   "settings.minSpeed": "Vitesse minimale",
   "settings.maxAccel": "Accélération",
@@ -271,5 +271,16 @@
   "tuning.keep": "Garder cette vitesse",
   "tuning.cancel": "Annuler",
   "tuning.kept": "Enregistré : {speed} °/s.",
-  "tuning.position": "Position : {degrees}°"
+  "tuning.position": "Position : {degrees}°",
+  "play.title": "Session de jeu",
+  "play.duration": "Durée de session en minutes",
+  "play.less": "Une minute de moins",
+  "play.more": "Une minute de plus",
+  "play.minutes": "min",
+  "play.start": "Démarrer",
+  "play.stop": "Arrêter",
+  "play.remaining": "Temps restant",
+  "play.hint": "La baguette joue toute seule dans tes limites, puis se range. Touche le joystick pour reprendre la main.",
+  "settings.pauseMin": "Plage de pause, min",
+  "settings.pauseMax": "Plage de pause, max"
 }

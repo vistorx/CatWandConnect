@@ -6,7 +6,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 - **Phone joystick.** Open `http://catwandconnect.local/` in any browser on your Wi-Fi and drag the joystick: the wand follows in real time. A small drag moves it slowly; a full drag moves it at full speed. Let go and it stops. Works with the phone upright or sideways.
 - **Speed slider.** Set how lively the wand is, from each axis's minimum speed to its maximum speed, right on the main screen. Every open phone stays in sync.
-- **Play session.** The robot plays with your cat on its own for a set time (1–60 min, 10 by default, remembered), then Stows. Each axis moves to random spots within your Travel limits at random speeds within its Speed range, and pauses for a random time within its Pause range (0–60 s, set per axis), never in step with the other axis, so the wand moves like prey. Touching the joystick takes over at once; Stop or Stow end it. It keeps going when you close the page, and never restarts by itself after a power cut. Available once calibrated. *In this build it is driven through the [Device API](api.md#play-session) and [Home Assistant](home-assistant.md); the main-screen controls come next.*
+- **Play session.** The robot plays with your cat on its own for a set time (1–60 min, 10 by default, remembered), then Stows. Each axis moves to random spots within your Travel limits at random speeds within its Speed range, and pauses for a random time within its Pause range (0–60 s, set per axis), never in step with the other axis, so the wand moves like prey. Touching the joystick takes over at once; Stop or Stow end it. It keeps going when you close the page, and never restarts by itself after a power cut. On the main screen, the Play session block sets the duration with − and + (or by typing it) and starts it; while it plays, the button becomes Stop and the block counts the time left down. Every open phone shows the session, whoever started it. Available once calibrated: otherwise the block says so, with a link to Calibration. [Home Assistant](home-assistant.md) and scripts through the [Device API](api.md#play-session) can drive it too.
 - **Live position.** The main screen shows where each axis is.
 - **Several phones at once.** Anyone on your Wi-Fi can open the interface and watch or play.
 
@@ -31,7 +31,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 ## Everyday use
 
-- **Settings in tabs.** Motion (limits, Calibration, speed), Hardware (wiring), Network (Wi-Fi, Home Assistant) and Robot (name, language, PIN, firmware update, Info). Links can open a tab directly, e.g. `settings.html#network`.
+- **Settings in tabs.** Motion (limits, Calibration, speed, Pause range), Hardware (wiring), Network (Wi-Fi, Home Assistant) and Robot (name, language, PIN, firmware update, Info). Links can open a tab directly, e.g. `settings.html#network`.
 - **Name your robot.** "CatWandConnect salon" becomes `http://catwandconnect-salon.local/` and names its hotspot and its Home Assistant device.
 - **English and French.** The interface follows your phone's language, or the one you choose in Settings.
 - **Home-screen icon.** Add the interface to your phone's home screen; it opens full screen like an app.

@@ -22,6 +22,7 @@ Tout est libre et ouvert : les pièces à imprimer, le firmware et la documentat
 ## Ce que c'est
 
 - **Joue depuis ton téléphone.** Un joystick et un curseur de vitesse dans n'importe quel navigateur sur ton Wi-Fi, sans appli à installer.
+- **Sessions de jeu.** Choisis une durée et touche Démarrer : la baguette joue toute seule avec ton chat, dans tes limites, puis se range.
 - **Sûr par conception.** Des limites de course qu'il ne dépasse jamais, un bouton Ranger que rien ne peut interrompre, des mouvements doux, et un arrêt dès que ton téléphone se déconnecte.
 - **Facile à installer.** Installe-le depuis le navigateur, saisis ton Wi-Fi (ou passe cette étape et utilise le hotspot du robot), puis laisse l'assistant de calibration adapter le robot à ton montage.
 - **À toi de l'adapter.** Tes broches et tes servos, le nom de ton robot, l'anglais ou le français, un code PIN facultatif et des mises à jour par Wi-Fi.

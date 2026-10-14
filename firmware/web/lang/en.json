@@ -23,8 +23,8 @@
   "nav.back": "Back",
   "speed.label": "Speed",
   "settings.title": "Settings",
-  "settings.motion": "Speed and acceleration",
-  "settings.motion.hint": "The speed slider on the main screen goes from the minimum speed to the maximum speed.",
+  "settings.motion": "Speed, acceleration and pauses",
+  "settings.motion.hint": "The speed slider on the main screen goes from the minimum speed to the maximum speed. During a Play session, each axis moves at a random speed in that range, then rests for a random time within its Pause range (0 s = non-stop).",
   "settings.maxSpeed": "Maximum speed",
   "settings.minSpeed": "Minimum speed",
   "settings.maxAccel": "Acceleration",
@@ -271,5 +271,16 @@
   "tuning.keep": "Keep this speed",
   "tuning.cancel": "Cancel",
   "tuning.kept": "Saved: {speed} °/s.",
-  "tuning.position": "Position: {degrees}°"
+  "tuning.position": "Position: {degrees}°",
+  "play.title": "Play session",
+  "play.duration": "Session duration in minutes",
+  "play.less": "One minute less",
+  "play.more": "One minute more",
+  "play.minutes": "min",
+  "play.start": "Start",
+  "play.stop": "Stop",
+  "play.remaining": "Time left",
+  "play.hint": "The wand plays on its own within your limits, then Stows. Touch the joystick to take over.",
+  "settings.pauseMin": "Pause range, min",
+  "settings.pauseMax": "Pause range, max"
 }
