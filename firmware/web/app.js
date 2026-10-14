@@ -48,7 +48,131 @@ function render(state) {
   pad.classList.toggle('locked', stowing);
   $('stow').classList.toggle('busy', stowing);
   $('stow').textContent = I18n.t(stowing ? 'stow.busy' : 'stow.button');
+  renderPlay(state);
 }
+
+// --- Play session (POST /api/play) ---------------------------------------------
+
+const MINUTES_MIN = 1;
+const MINUTES_MAX = 60;
+const BUSY = ['stowing', 'calibrating', 'tuning_speed'];
+
+let playEndsAt = null;   // local estimate of the session's end, from /ws play.remaining
+let playTimer = null;
+let minutesSaveTimer = null;
+let minutesEditing = false;  // don't let /ws overwrite a value being chosen
+let playing = false;
+let playPending = false;     // a start/stop request is on its way
+let lastActivity = 'idle';
+
+const clampMinutes = value => Math.min(MINUTES_MAX, Math.max(MINUTES_MIN, Math.round(value) || MINUTES_MIN));
+
+function formatRemaining(seconds) {
+  const s = Math.max(0, seconds);
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function tickRemaining() {
+  if (playEndsAt === null) return;
+  $('play-remaining').textContent = formatRemaining(Math.ceil((playEndsAt - Date.now()) / 1000));
+}
+
+function playMessage(html) {
+  $('play-message').innerHTML = html;
+}
+
+function renderPlay(state) {
+  const wasPlaying = playing;
+  lastActivity = state.activity;
+  playing = state.activity === 'playing';
+  if (playing && state.play) {
+    // The robot rounds up: resync only when the local countdown drifts, so it ticks smoothly.
+    const local = playEndsAt === null ? null : Math.ceil((playEndsAt - Date.now()) / 1000);
+    if (local === null || Math.abs(local - state.play.remaining) > 1) playEndsAt = Date.now() + state.play.remaining * 1000;
+    if (!playTimer) playTimer = setInterval(tickRemaining, 250);
+    tickRemaining();
+  } else {
+    playEndsAt = null;
+    clearInterval(playTimer);
+    playTimer = null;
+  }
+  if (playing && !wasPlaying) playMessage('');
+  if (!minutesEditing && Number.isInteger(state.sessionMinutes) && document.activeElement !== $('play-minutes')) {
+    $('play-minutes').value = state.sessionMinutes;
+  }
+  $('play-setup').hidden = playing;
+  $('play-running').hidden = !playing;
+  const toggle = $('play-toggle');
+  toggle.textContent = I18n.t(playing ? 'play.stop' : 'play.start');
+  toggle.classList.toggle('stop', playing);
+  updateToggle();
+}
+
+function updateToggle() {
+  $('play-toggle').disabled = playPending || (!playing && BUSY.includes(lastActivity));
+}
+
+// The last choice is the robot's Session duration, saved without the PIN.
+function saveMinutesSoon() {
+  minutesEditing = true;
+  clearTimeout(minutesSaveTimer);
+  minutesSaveTimer = setTimeout(async () => {
+    minutesSaveTimer = null;
+    try {
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionMinutes: clampMinutes(Number($('play-minutes').value)) }),
+      });
+    } catch { /* offline: the next Start carries the duration anyway */ }
+    minutesEditing = false;
+  }, 800);
+}
+
+function stepMinutes(delta) {
+  $('play-minutes').value = clampMinutes(Number($('play-minutes').value) + delta);
+  saveMinutesSoon();
+}
+
+$('play-less').addEventListener('click', () => stepMinutes(-1));
+$('play-more').addEventListener('click', () => stepMinutes(1));
+$('play-minutes').addEventListener('input', () => { minutesEditing = true; });
+$('play-minutes').addEventListener('change', () => stepMinutes(0));
+
+async function playAction(body) {
+  playPending = true;
+  $('play-toggle').disabled = true;
+  playMessage('');
+  try {
+    const response = await fetch('/api/play', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      let error = 'invalid_request';
+      try { error = (await response.json()).error || error; } catch { /* empty body */ }
+      let text = I18n.t(`error.${error}`);
+      if (error === 'not_calibrated') text += ` <a href="calibrate.html">${I18n.t('banner.calibrate')}</a>`;
+      playMessage(text);
+    }
+  } catch {
+    playMessage(I18n.t('link.offline'));
+  }
+  playPending = false;
+  updateToggle();
+}
+
+$('play-toggle').addEventListener('click', () => {
+  if (playing) return playAction({ action: 'stop' });
+  // The duration rides with Start, which also makes it the Session duration.
+  clearTimeout(minutesSaveTimer);
+  minutesSaveTimer = null;
+  minutesEditing = false;
+  const minutes = clampMinutes(Number($('play-minutes').value));
+  $('play-minutes').value = minutes;
+  return playAction({ action: 'start', sessionMinutes: minutes });
+});
 
 // --- Stow ------------------------------------------------------------------------
 
