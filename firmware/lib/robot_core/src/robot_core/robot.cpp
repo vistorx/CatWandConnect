@@ -53,6 +53,16 @@ float tuningStep(float speed, bool faster) {
   return 10;
 }
 
+// Acceleration tuning's step for the next change from `accel`.
+float accelStep(float accel, bool faster) {
+  if (faster ? accel < 200 : accel <= 200) return 20;
+  if (faster ? accel < 500 : accel <= 500) return 50;
+  return 100;
+}
+
+// Acceleration tuning pauses this long at each end, so every move starts from a stop.
+constexpr float kAccelTuningHoldS = 0.6f;
+
 }  // namespace
 
 Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage, Random& random)
@@ -339,12 +349,26 @@ bool Robot::startSpeedTuning(Axis axis, SpeedBound bound) {
   tuningBound_ = bound;
   tuningSpeed_ = bound == SpeedBound::Maximum ? a.maxSpeed : a.minSpeed;
   tuningTowardMax_ = true;
+  tuningAccel_ = false;
   activity_ = Activity::TuningSpeed;
+  return true;
+}
+
+bool Robot::startAccelTuning(Axis axis) {
+  if (!startSpeedTuning(axis, SpeedBound::Maximum)) return false;
+  tuningAccel_ = true;
+  tuningAccelValue_ = settings_.axis(axis).maxAccel;
+  tuningHoldS_ = 0;
   return true;
 }
 
 void Robot::adjustSpeedTuning(bool faster) {
   if (activity_ != Activity::TuningSpeed) return;
+  if (tuningAccel_) {
+    float accel = tuningAccelValue_ + (faster ? 1 : -1) * accelStep(tuningAccelValue_, faster);
+    tuningAccelValue_ = accel < kMinAccel ? kMinAccel : accel > kMaxAccel ? kMaxAccel : accel;
+    return;
+  }
   float step = tuningStep(tuningSpeed_, faster);
   float speed = tuningSpeed_ + (faster ? step : -step);
   float lowest = tuningBound_ == SpeedBound::Maximum ? kMinSpeed : kSlowestSpeed;
@@ -355,7 +379,9 @@ SettingsCheck Robot::keepSpeedTuning() {
   if (activity_ != Activity::TuningSpeed) return {};
   RobotSettings kept = settings_;
   AxisSettings& a = kept.axis(tuningAxis_);
-  if (tuningBound_ == SpeedBound::Maximum) {
+  if (tuningAccel_) {
+    a.maxAccel = tuningAccelValue_;
+  } else if (tuningBound_ == SpeedBound::Maximum) {
     a.maxSpeed = tuningSpeed_;
     if (a.minSpeed >= a.maxSpeed) a.minSpeed = defaultMinSpeed(a.maxSpeed);
   } else {
@@ -375,6 +401,20 @@ void Robot::stepSpeedTuning(Axis axis, float dt) {
   if (axis != tuningAxis_) return;  // the other axis holds its position
   AxisMotion& motion = state(axis).motion;
   TravelLimits travel = travelLimits(axis);
+  if (tuningAccel_) {
+    if (tuningHoldS_ > 0) {
+      tuningHoldS_ -= dt;
+      return;
+    }
+    float quarter = (travel.max - travel.min) / 4;
+    float target = tuningTowardMax_ ? travel.max - quarter : travel.min + quarter;
+    motion.stepToward(target, dt, travel, {tuningSpeed_, tuningAccelValue_});
+    if (motion.atRest() && motion.position() == target) {
+      tuningTowardMax_ = !tuningTowardMax_;
+      tuningHoldS_ = kAccelTuningHoldS;
+    }
+    return;
+  }
   float target = tuningTowardMax_ ? travel.max : travel.min;
   motion.stepToward(target, dt, travel, {tuningSpeed_, settings_.axis(axis).maxAccel});
   if (motion.atRest() && motion.position() == target) tuningTowardMax_ = !tuningTowardMax_;

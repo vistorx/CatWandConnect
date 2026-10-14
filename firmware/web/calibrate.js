@@ -1,5 +1,5 @@
-// Calibration wizard: drives /api/calibration, then Speed tuning
-// (/api/speed-tuning) once the limits are saved, and follows the robot over
+// Calibration wizard: drives /api/calibration, then Speed tuning and
+// Acceleration tuning (/api/speed-tuning) once the limits are saved, and follows the robot over
 // /ws (docs/api.md).
 const $ = id => document.getElementById(id);
 
@@ -15,13 +15,20 @@ const STEPS = {
   confirm: { axes: [], number: 6 },
 };
 const NUDGES = [-5, -1, 1, 5];
-// Speed tuning steps, after the limits are saved, numbered after the confirm step.
+// Speed tuning steps, after the limits are saved, numbered after the confirm
+// step: minimum speed, maximum speed, then acceleration, for each axis.
 const SPEED_STEPS = [
   { axis: 'horizontal', bound: 'min' },
   { axis: 'horizontal', bound: 'max' },
+  { axis: 'horizontal', target: 'accel' },
   { axis: 'vertical', bound: 'min' },
   { axis: 'vertical', bound: 'max' },
+  { axis: 'vertical', target: 'accel' },
 ];
+const isAccel = info => info.target === 'accel';
+// The tuning the robot runs is this step's.
+const runs = (t, info) => t.active && t.axis === info.axis &&
+  (isAccel(info) ? t.target === 'accel' : t.target !== 'accel' && t.bound === info.bound);
 const TOTAL = 6 + SPEED_STEPS.length;
 // Steps where the axis can be reversed (minimum and maximum of each axis).
 const REVERSIBLE = ['horizontal_min', 'horizontal_max', 'vertical_min', 'vertical_max'];
@@ -86,10 +93,11 @@ async function loadSettings() {
   } catch { /* keep the last known values */ }
 }
 
-function currentSpeed({ axis, bound }) {
+// The value this step tunes, as saved: a speed, or the acceleration.
+function currentSpeed(info) {
   if (!settings) return '';
-  const a = settings.axes[axis];
-  return Math.round(bound === 'max' ? a.maxSpeed : a.minSpeed);
+  const a = settings.axes[info.axis];
+  return Math.round(isAccel(info) ? a.maxAccel : info.bound === 'max' ? a.maxSpeed : a.minSpeed);
 }
 
 // The limits are saved and the robot Stows: on to the speeds.
@@ -147,36 +155,42 @@ function renderSpeed() {
   }
 
   const axis = I18n.t(`axis.${info.axis}`);
-  const active = tuning.active && tuning.axis === info.axis && tuning.bound === info.bound;
+  const accel = isAccel(info);
+  const kind = accel ? 'accel' : info.bound;
+  const part = accel ? 'accel' : 'speed';  // wording of the calibration.* keys
+  const active = runs(tuning, info);
   $('progress').textContent = I18n.t('calibration.progress', { n: 7 + speedIndex, total: TOTAL });
-  $('step-title').textContent = I18n.t(`tuning.${info.bound}.title`, { axis });
-  $('step-text').textContent = I18n.t(`tuning.${info.bound}.text`);
+  $('step-title').textContent = I18n.t(`tuning.${kind}.title`, { axis });
+  $('step-text').textContent = I18n.t(`tuning.${kind}.text`);
   $('speed').hidden = false;
-  $('speed-value').textContent = active ? Math.round(tuning.speed) : currentSpeed(info);
+  $('speed-value').textContent = active ? Math.round(accel ? tuning.accel : tuning.speed) : currentSpeed(info);
+  $('speed-unit').textContent = accel ? '°/s²' : '°/s';
+  $('slower').textContent = I18n.t(accel ? 'tuning.softer' : 'tuning.slower');
+  $('faster').textContent = I18n.t(accel ? 'tuning.snappier' : 'tuning.faster');
   $('speed-buttons').hidden = !active;
   if (!active) {
-    $('speed-position').textContent = I18n.t(speedStarted ? 'calibration.speed.stopped' : 'calibration.speed.waiting');
+    $('speed-position').textContent = I18n.t(speedStarted ? `calibration.${part}.stopped` : `calibration.${part}.waiting`);
   }
 
   if (active) {
-    primary.textContent = I18n.t('tuning.keep');
+    primary.textContent = I18n.t(accel ? 'tuning.keep_accel' : 'tuning.keep');
     primary.onclick = async () => {
-      const speed = Math.round(tuning.speed);
+      const value = Math.round(accel ? tuning.accel : tuning.speed);
       primary.disabled = true;
       if (await tune('keep')) {
-        say('ok', I18n.t('tuning.kept', { speed }));
+        say('ok', I18n.t(accel ? 'tuning.kept_accel' : 'tuning.kept', { speed: value, accel: value }));
         await nextSpeed();
       } else {
         primary.disabled = false;
       }
     };
   } else {
-    primary.textContent = I18n.t('calibration.speed.start');
+    primary.textContent = I18n.t(`calibration.${part}.start`);
     primary.disabled = !speedStarted || !['idle', 'manual'].includes(activity);
     primary.onclick = () => { speedStarted = false; maybeStartSweep(); };
   }
   secondary.hidden = false;
-  secondary.textContent = I18n.t('calibration.speed.skip', { speed: currentSpeed(info) });
+  secondary.textContent = I18n.t(`calibration.${part}.skip`, { speed: currentSpeed(info), accel: currentSpeed(info) });
   secondary.onclick = async () => {
     if (tuning.active) await tune('cancel');
     say('', '');
@@ -184,11 +198,15 @@ function renderSpeed() {
   };
 }
 
-// The speeds the robot now uses, on the Done step.
+// The speeds and acceleration the robot now uses, on the Done step.
 function renderSpeeds() {
   if (!settings) return;
-  const items = ['horizontal', 'vertical'].map(axis => `<li><strong>${I18n.t(`axis.${axis}`)}</strong> ${
-    I18n.t('calibration.speed_range', { min: Math.round(settings.axes[axis].minSpeed), max: Math.round(settings.axes[axis].maxSpeed) })}</li>`);
+  const items = ['horizontal', 'vertical'].map(axis => {
+    const a = settings.axes[axis];
+    return `<li><strong>${I18n.t(`axis.${axis}`)}</strong> ${
+      I18n.t('calibration.speed_range', { min: Math.round(a.minSpeed), max: Math.round(a.maxSpeed) })}, ${
+      I18n.t('calibration.accel_value', { accel: Math.round(a.maxAccel) })}</li>`;
+  });
   $('marked').innerHTML = `<h3>${I18n.t('calibration.speeds')}</h3><ul>${items.join('')}</ul>`;
   $('marked').hidden = false;
 }
@@ -332,11 +350,12 @@ function followSpeed(state) {
   calibrated = state.calibrated;
   const next = state.activity === 'tuning_speed' && state.tuning ? state.tuning : { active: false };
   const info = SPEED_STEPS[speedIndex];
-  if (next.active && info && next.axis === info.axis && next.bound === info.bound) {
+  if (info && runs(next, info)) {
     const degrees = Math.round(next.axis === 'horizontal' ? state.h : state.v);
     $('speed-position').textContent = I18n.t('tuning.position', { degrees });
   }
-  const changed = next.active !== tuning.active || next.speed !== tuning.speed;
+  const changed = next.active !== tuning.active || next.speed !== tuning.speed || next.accel !== tuning.accel ||
+    next.target !== tuning.target;
   tuning = next;
   if (speedIndex < SPEED_STEPS.length) {
     if (changed || !next.active) renderSpeed();

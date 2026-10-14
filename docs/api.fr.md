@@ -74,7 +74,7 @@ Messages texte JSON, un par trame, chacun avec un type dans `t`.
 | `playSpeed` | La valeur du curseur de vitesse, pour que toutes les interfaces ouvertes restent synchronisées. |
 | `calibrated` | Si la calibration a été faite. |
 | `calibration` | L'étape de calibration en cours, `none` hors calibration (voir plus bas). |
-| `tuning` | Seulement quand `activity` vaut `tuning_speed` : l'objet du réglage des vitesses (voir plus bas). |
+| `tuning` | Seulement quand `activity` vaut `tuning_speed` : l'objet du réglage des vitesses (voir plus bas), réglage de l'accélération compris. |
 | `sessionMinutes` | La durée de session, en minutes, pour que toutes les interfaces ouvertes restent synchronisées. |
 | `play` | Seulement quand `activity` vaut `playing` : `{"remaining": <secondes>}`, le temps restant de la session de jeu, arrondi au-dessus. |
 | `name` | Le nom du robot. |
@@ -147,7 +147,13 @@ Les étapes sont, dans l'ordre : `horizontal_min`, `horizontal_max`, `vertical_m
 `GET /api/speed-tuning` renvoie `{"active":false}`, ou pendant le réglage :
 
 ```json
-{"active":true,"axis":"horizontal","bound":"max","speed":110}
+{"active":true,"target":"speed","axis":"horizontal","bound":"max","speed":110}
+```
+
+Pendant le réglage de l'accélération, `target` vaut `accel`, `speed` est la vitesse maximale de l'axe (celle des mouvements) et `accel` l'accélération essayée, en °/s² :
+
+```json
+{"active":true,"target":"accel","axis":"horizontal","bound":"max","speed":90,"accel":410}
 ```
 
 🔒 `POST /api/speed-tuning` avec `{"action": …}` le pilote et renvoie le même objet :
@@ -155,11 +161,12 @@ Les étapes sont, dans l'ordre : `horizontal_min`, `horizontal_max`, `vertical_m
 | Action | Effet |
 |--------|-------|
 | `{"action":"start","axis":"horizontal","bound":"max"}` | Commence à balayer l'axe entre ses limites de course à sa vitesse maximale (`max`) ou minimale (`min`) actuelle ; l'autre axe reste immobile. `400 invalid_request` avant la calibration, pendant un rangement ou une calibration. |
-| `{"action":"faster"}` / `{"action":"slower"}` | Un cran : 2 °/s en dessous de 30 °/s, 5 °/s jusqu'à 90 °/s, 10 °/s au-delà. Une vitesse maximale reste entre 10 et 360 °/s, une minimale entre 1 et 360 °/s. |
-| `{"action":"keep"}` | Enregistre la vitesse essayée et range le robot. Garder une vitesse maximale inférieure ou égale à la minimale ramène la minimale au dixième de la nouvelle maximale. Une vitesse minimale qui n'est pas inférieure à la maximale renvoie `400 min_speed_out_of_range` et le réglage continue. |
+| `{"action":"start","axis":"horizontal","target":"accel"}` | Réglage de l'accélération : lance de courts allers-retours sur la moitié centrale des limites de course de l'axe, chacun depuis l'arrêt avec une pause de 0,6 s à chaque bout, à la vitesse maximale de l'axe et à son accélération actuelle ; l'autre axe reste immobile. Refusé dans les mêmes cas qu'une vitesse. `target` vaut `speed` par défaut. |
+| `{"action":"faster"}` / `{"action":"slower"}` | Un cran : 2 °/s en dessous de 30 °/s, 5 °/s jusqu'à 90 °/s, 10 °/s au-delà. Une vitesse maximale reste entre 10 et 360 °/s, une minimale entre 1 et 360 °/s. Pendant le réglage de l'accélération, plus nerveux / plus doux : 20 °/s² en dessous de 200 °/s², 50 °/s² jusqu'à 500 °/s², 100 °/s² au-delà, entre 20 et 2000 °/s². |
+| `{"action":"keep"}` | Enregistre la vitesse (ou l'accélération, comme `maxAccel`) essayée et range le robot. Garder une vitesse maximale inférieure ou égale à la minimale ramène la minimale au dixième de la nouvelle maximale. Une vitesse minimale qui n'est pas inférieure à la maximale renvoie `400 min_speed_out_of_range` et le réglage continue. |
 | `{"action":"cancel"}` | Garde la valeur précédente et range le robot. |
 
-Le rangement et le pilotage manuel terminent aussi le réglage des vitesses, sans enregistrer.
+Le rangement et le pilotage manuel terminent aussi le réglage des vitesses et celui de l'accélération, sans enregistrer.
 
 ### Identité et infos
 

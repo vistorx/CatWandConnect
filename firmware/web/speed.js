@@ -1,8 +1,10 @@
 // Speed tuning: sweeps one axis while the owner adjusts its minimum or maximum
-// speed. Drives /api/speed-tuning and follows the robot over /ws (docs/api.md).
+// speed, or moves it back and forth while the owner adjusts its acceleration
+// (Acceleration tuning). Drives /api/speed-tuning and follows the robot over
+// /ws (docs/api.md).
 const $ = id => document.getElementById(id);
 const AXES = ['horizontal', 'vertical'];
-const BOUNDS = ['max', 'min'];
+const BOUNDS = ['max', 'min', 'accel'];  // 'accel': Acceleration tuning
 
 let settings = null;  // from /api/settings, for the current values
 let tuning = { active: false };
@@ -34,7 +36,7 @@ async function loadSettings() {
 function current(axis, bound) {
   if (!settings) return '';
   const a = settings.axes[axis];
-  return Math.round(bound === 'max' ? a.maxSpeed : a.minSpeed);
+  return Math.round(bound === 'accel' ? a.maxAccel : bound === 'max' ? a.maxSpeed : a.minSpeed);
 }
 
 function renderChoices() {
@@ -45,7 +47,7 @@ function renderChoices() {
       <legend>${I18n.t(`axis.${axis}`)}</legend>
       ${BOUNDS.map(bound => `
         <div class="field">
-          <span>${I18n.t(`tuning.${bound}`)} <span class="unit">${current(axis, bound)} °/s</span></span>
+          <span>${I18n.t(`tuning.${bound}`)} <span class="unit">${current(axis, bound)} ${bound === 'accel' ? '°/s²' : '°/s'}</span></span>
           <button type="button" class="secondary" data-axis="${axis}" data-bound="${bound}"${calibrated ? '' : ' disabled'}>
             ${I18n.t('tuning.start')}</button>
         </div>`).join('')}
@@ -60,9 +62,15 @@ function render(next) {
   $('tune-actions').hidden = !tuning.active;
   if (tuning.active) {
     const axis = I18n.t(`axis.${tuning.axis}`);
-    $('tune-title').textContent = I18n.t(`tuning.${tuning.bound}.title`, { axis });
-    $('tune-text').textContent = I18n.t(`tuning.${tuning.bound}.text`);
-    $('speed').textContent = Math.round(tuning.speed);
+    const accel = tuning.target === 'accel';
+    const kind = accel ? 'accel' : tuning.bound;
+    $('tune-title').textContent = I18n.t(`tuning.${kind}.title`, { axis });
+    $('tune-text').textContent = I18n.t(`tuning.${kind}.text`);
+    $('speed').textContent = Math.round(accel ? tuning.accel : tuning.speed);
+    $('unit').textContent = accel ? '°/s²' : '°/s';
+    $('slower').textContent = I18n.t(accel ? 'tuning.softer' : 'tuning.slower');
+    $('faster').textContent = I18n.t(accel ? 'tuning.snappier' : 'tuning.faster');
+    $('keep').textContent = I18n.t(accel ? 'tuning.keep_accel' : 'tuning.keep');
   } else if (wasActive) {
     loadSettings().then(renderChoices);
   }
@@ -70,13 +78,16 @@ function render(next) {
 
 $('choices').addEventListener('click', event => {
   const button = event.target.closest('button[data-axis]');
-  if (button) call('start', { axis: button.dataset.axis, bound: button.dataset.bound });
+  if (!button) return;
+  const { axis, bound } = button.dataset;
+  call('start', bound === 'accel' ? { axis, target: 'accel' } : { axis, bound });
 });
 $('faster').addEventListener('click', () => call('faster'));
 $('slower').addEventListener('click', () => call('slower'));
 $('keep').addEventListener('click', async () => {
-  const speed = Math.round(tuning.speed);
-  if (await call('keep')) say('ok', I18n.t('tuning.kept', { speed }));
+  const accel = tuning.target === 'accel';
+  const value = Math.round(accel ? tuning.accel : tuning.speed);
+  if (await call('keep')) say('ok', I18n.t(accel ? 'tuning.kept_accel' : 'tuning.kept', { speed: value, accel: value }));
 });
 $('cancel').addEventListener('click', () => call('cancel'));
 
@@ -91,7 +102,8 @@ function connect() {
       const position = next.axis === 'horizontal' ? state.h : state.v;
       $('position').textContent = I18n.t('tuning.position', { degrees: Math.round(position) });
     }
-    if (next.active !== tuning.active || next.speed !== tuning.speed) render(next);
+    if (next.active !== tuning.active || next.speed !== tuning.speed || next.accel !== tuning.accel ||
+        next.target !== tuning.target) render(next);
   };
   socket.onclose = () => setTimeout(connect, 2000);
 }

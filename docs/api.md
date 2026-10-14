@@ -74,7 +74,7 @@ JSON text messages, one per frame, each with a type in `t`.
 | `playSpeed` | The speed slider's value, so every open interface stays in sync. |
 | `calibrated` | Whether Calibration has been completed. |
 | `calibration` | The current Calibration step, `none` when not calibrating (see below). |
-| `tuning` | Only while `activity` is `tuning_speed`: the Speed tuning object (see below). |
+| `tuning` | Only while `activity` is `tuning_speed`: the Speed tuning object (see below), Acceleration tuning included. |
 | `sessionMinutes` | The Session duration, in minutes, so every open interface stays in sync. |
 | `play` | Only while `activity` is `playing`: `{"remaining": <seconds>}`, the time left in the Play session, rounded up. |
 | `name` | The robot's name. |
@@ -147,7 +147,13 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 `GET /api/speed-tuning` returns `{"active":false}`, or while tuning:
 
 ```json
-{"active":true,"axis":"horizontal","bound":"max","speed":110}
+{"active":true,"target":"speed","axis":"horizontal","bound":"max","speed":110}
+```
+
+During Acceleration tuning, `target` is `accel`, `speed` is the axis's maximum speed (the speed of the moves) and `accel` the trial acceleration in °/s²:
+
+```json
+{"active":true,"target":"accel","axis":"horizontal","bound":"max","speed":90,"accel":410}
 ```
 
 🔒 `POST /api/speed-tuning` with `{"action": …}` drives it and returns the same object:
@@ -155,11 +161,12 @@ The steps are, in order: `horizontal_min`, `horizontal_max`, `vertical_min`, `ve
 | Action | Effect |
 |--------|--------|
 | `{"action":"start","axis":"horizontal","bound":"max"}` | Starts sweeping the axis between its Travel limits at its current maximum (`max`) or minimum (`min`) speed; the other axis holds still. `400 invalid_request` before Calibration, while stowing or calibrating. |
-| `{"action":"faster"}` / `{"action":"slower"}` | One step: 2 °/s below 30 °/s, 5 °/s up to 90 °/s, 10 °/s above. A maximum stays within 10–360 °/s, a minimum within 1–360 °/s. |
-| `{"action":"keep"}` | Saves the trial speed and Stows. Keeping a maximum at or below the minimum resets the minimum to a tenth of the new maximum. A minimum not below the maximum returns `400 min_speed_out_of_range` and the tuning goes on. |
+| `{"action":"start","axis":"horizontal","target":"accel"}` | Acceleration tuning: starts short back-and-forth moves across the middle half of the axis's Travel limits, each from a stop with a 0.6 s pause at each end, at the axis's maximum speed and its current acceleration; the other axis holds still. Refused like a speed. `target` defaults to `speed`. |
+| `{"action":"faster"}` / `{"action":"slower"}` | One step: 2 °/s below 30 °/s, 5 °/s up to 90 °/s, 10 °/s above. A maximum stays within 10–360 °/s, a minimum within 1–360 °/s. During Acceleration tuning, snappier / softer: 20 °/s² below 200 °/s², 50 °/s² up to 500 °/s², 100 °/s² above, within 20–2000 °/s². |
+| `{"action":"keep"}` | Saves the trial speed (or acceleration, as `maxAccel`) and Stows. Keeping a maximum at or below the minimum resets the minimum to a tenth of the new maximum. A minimum not below the maximum returns `400 min_speed_out_of_range` and the tuning goes on. |
 | `{"action":"cancel"}` | Keeps the previous value and Stows. |
 
-Stow and Manual control end Speed tuning too, without saving.
+Stow and Manual control end Speed tuning and Acceleration tuning too, without saving.
 
 ### Identity and info
 
