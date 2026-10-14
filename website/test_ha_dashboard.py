@@ -4,8 +4,9 @@ python website/test_ha_dashboard.py
 docs/home-assistant.md and its French page have one dashboard per connection:
 the YAML block right after `<!-- ha-dashboard -->` (MQTT connection) and the
 one right after `<!-- ha-dashboard-native -->` (Native integration). Each must
-parse, use only built-in cards, and control every entity its connection
-creates, under the default ids.
+parse, use only built-in cards (plus, for the Native integration, the
+joystick card it ships), and control every entity its connection creates,
+under the default ids.
 """
 
 import os
@@ -45,6 +46,13 @@ NATIVE_ENTITIES = {
     "number.catwandconnect_vertical_position",         # vertical_position
     "number.catwandconnect_horizontal_maximum_speed",  # horizontal_max_speed
     "number.catwandconnect_vertical_maximum_speed",    # vertical_max_speed
+}
+
+# Custom cards a dashboard may use: the Native integration ships its joystick
+# card (vistorx/ha-catwandconnect, frontend/); the MQTT connection has none.
+CUSTOM_CARDS = {
+    "ha-dashboard": set(),
+    "ha-dashboard-native": {"custom:catwandconnect-joystick-card"},
 }
 
 # Marker before each dashboard's YAML block -> entities of its connection.
@@ -102,11 +110,17 @@ class ReadyMadeDashboards(unittest.TestCase):
             with self.subTest(page=page, dashboard=marker):
                 self.assertEqual(expected, entities(dashboard(page, marker)))
 
-    def test_uses_only_built_in_cards(self):
+    def test_uses_only_built_in_cards_and_its_connections_own(self):
         for page, marker, _ in every_dashboard():
             with self.subTest(page=page, dashboard=marker):
                 types = {d["type"] for d in walk(dashboard(page, marker)) if isinstance(d.get("type"), str)}
-                self.assertFalse([t for t in types if t.startswith("custom:")])
+                self.assertEqual(set(), {t for t in types if t.startswith("custom:")} - CUSTOM_CARDS[marker])
+
+    def test_native_dashboard_has_the_joystick(self):
+        for page in PAGES:
+            with self.subTest(page=page):
+                types = {d["type"] for d in walk(dashboard(page, "ha-dashboard-native")) if isinstance(d.get("type"), str)}
+                self.assertIn("custom:catwandconnect-joystick-card", types)
 
     def test_is_one_sections_view(self):
         for page, marker, _ in every_dashboard():
