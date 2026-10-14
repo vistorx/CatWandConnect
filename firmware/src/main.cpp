@@ -90,6 +90,7 @@ void setup() {
   Serial.begin(115200);
   logLine("CatWandConnect %s starting, last reset: %s", CWC_VERSION, resetReason());
   storage.begin();
+  logLine("Device ID %s", deviceId().c_str());
   cwc::HardwareConfig hardware = cwc::loadHardware(storage, kChip);
   String name = loadDeviceName();
   pin.setPin(loadPin().c_str());

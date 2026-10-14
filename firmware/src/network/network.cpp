@@ -1,7 +1,9 @@
 #include "network/network.h"
 
+#include <discovery/discovery.h>
 #include <identity/identity.h>
 
+#include "diagnostics_api.h"
 #include "pin_http.h"
 #include "log.h"
 
@@ -206,6 +208,12 @@ void Network::startMdns() {
   if (mdnsStarted_) return;
   if (MDNS.begin(hostname_.c_str())) {
     MDNS.addService("http", "tcp", 80);
+    // The Native integration's zeroconf matcher (docs/api.md).
+    MDNS.addService(discovery::kServiceName, discovery::kServiceProtocol, 80);
+    for (const discovery::TxtRecord& txt : discovery::txtRecords(deviceId().c_str(), CWC_VERSION, deviceName_.c_str())) {
+      MDNS.addServiceTxt(discovery::kServiceName, discovery::kServiceProtocol, txt.key.c_str(), txt.value.c_str());
+    }
+    logLine("[wifi] mDNS: %s.local, _%s._tcp", hostname_.c_str(), discovery::kServiceName);
     mdnsStarted_ = true;
   }
 }

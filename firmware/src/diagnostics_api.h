@@ -11,5 +11,9 @@ class DeviceApi;
 class MqttBridge;
 class Network;
 
+// The Device ID (CONTEXT.md), drawn once and kept in NVS. Call it once from
+// setup() before the server starts; later calls only read the cached value.
+const String& deviceId();
+
 void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, Network& network,
                          auth::PinGuard& pin, const String& name, const String& hostname);

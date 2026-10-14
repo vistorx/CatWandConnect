@@ -1,14 +1,40 @@
 # Device API
 
-The robot's HTTP and WebSocket API, served on port 80 at `http://<device-name>.local/`. The Device interface uses only this API, and it is open to third parties: scripts, dashboards and a future Home Assistant integration.
+The robot's HTTP and WebSocket API, served on port 80 at `http://<device-name>.local/`. The Device interface uses only this API, and it is open to third parties: scripts, dashboards and the Native integration for Home Assistant.
 
 Every command goes through the Robot core, so Travel limits, speed limits and priorities apply whatever the source.
 
 Angles are in degrees, as sent to the servos (0–180).
 
+## API version
+
+The current API version is **1**. `GET /api/info` returns it as `api`, and the robot announces it on the network (see [Discovery](#discovery-mdns)), so an integration can check it before using the robot.
+
+The API version goes up only when a change would break an existing integration: a route or field removed or renamed, a meaning or a unit changed. Additive changes (a new route, a new field, a new value) keep it; clients ignore fields they don't know.
+
+| API version | First firmware | What it has |
+|-------------|----------------|-------------|
+| 1 | the release after 0.2.0-beta.1 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. |
+
+## Discovery (mDNS)
+
+Once on Wi-Fi, the robot answers at `<hostname>.local` and advertises two services on port 80:
+
+- `_http._tcp`, for browsers and network tools;
+- `_catwandconnect._tcp`, which the Native integration looks for (Home Assistant's zeroconf), with these TXT records:
+
+| Key | Value | Example |
+|-----|-------|---------|
+| `id` | Device ID: 8 hex digits, drawn once and kept in flash. Stable across renames, IP changes and updates; use it to tell robots apart. | `3f9a12c4` |
+| `api` | API version. | `1` |
+| `version` | Firmware version. | `0.2.0` |
+| `name` | The robot's name, as the owner typed it (UTF-8). | `CatWandConnect` |
+
+The records are set at boot; renaming the robot restarts it, so `name` follows.
+
 ## Settings PIN
 
-The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control, Stow, the speed slider (`playSpeed`), the Play session (`/api/play` and `sessionMinutes`) and every `GET` never need it.
+The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control (including `/api/position`), Stow, the speed slider (`playSpeed`), the Play session (`/api/play` and `sessionMinutes`) and every `GET` never need it.
 
 | Request | Response |
 |---------|----------|
@@ -58,6 +84,10 @@ JSON text messages, one per frame, each with a type in `t`.
 ### Stow
 
 `POST /api/stow` (no body) does the same as the `stow` WebSocket message and returns `202`.
+
+### Position
+
+`POST /api/position` with `{"axis":"horizontal","degrees":90}` moves one Axis to a position and returns `202`: Manual control by position, the same as setting a position from Home Assistant over MQTT. The axis goes there at the Manual control speed and stops; the target is clamped into the Travel limits (before Calibration, into the default 60–120°). Like any Manual control, it ends a Play session without Stow, and it is ignored while the robot stows. `axis` is `horizontal` or `vertical`; any other axis, or a `degrees` that is not a number, returns `400 {"error":"invalid_request"}`. No PIN.
 
 ### Priorities
 
@@ -136,12 +166,12 @@ Stow and Manual control end Speed tuning too, without saving.
 `GET /api/info` returns what the Info page shows:
 
 ```json
-{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.1.0","chip":"ESP32-D0WD-V3",
+{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","chip":"ESP32-D0WD-V3",
  "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
  "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
 ```
 
-`uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
+`api` is the [API version](#api-version) and `id` the Device ID (the same as the `id` TXT record). `uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
 
 `GET /api/diagnostics` returns the Diagnostic report as plain text (`text/plain`): firmware version, chip, a random Device ID (drawn once, kept in flash, not personal, so support can group the reports of one robot without its MAC address), last reset reason, uptime, memory, settings PIN state, Wi-Fi and Home Assistant (MQTT) state, settings, wiring and the last 200 log lines (at most 12 KB). It is redacted by default: the robot's name and hostname (unless they are the default), the Wi-Fi network, IP and MAC addresses, the broker address and the MQTT user are replaced by placeholders such as `<wifi-network>`, in the log lines too. `GET /api/diagnostics?full=1` keeps them, for local use only. The MQTT password is never included.
 

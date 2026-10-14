@@ -194,6 +194,12 @@ Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup]
 - [ ] Before Calibration, turning Play session on does nothing: the switch flips back off and the robot's log shows "Play session refused: not calibrated".
 - [ ] Changing Session duration in Home Assistant updates the main screen's duration, and it is still there after a restart. A value of 0 or 61 is refused.
 
+## Native integration (discovery and API)
+
+- [ ] The robot is visible as `_catwandconnect._tcp` to Home Assistant's zeroconf: with the Native integration installed it shows under Settings → Devices & services → Discovered; without it, `avahi-browse -rt _catwandconnect._tcp` (Linux) or `dns-sd -B _catwandconnect._tcp` (macOS) on the same network lists it on port 80 with TXT records `id` (the Device ID of the Diagnostic report), `api=1`, `version` (the Info page's) and `name` (the robot's name).
+- [ ] `GET /api/info` contains `"api":1` and `"id"` equal to the Device ID of the Diagnostic report.
+- [ ] `curl -X POST -H 'Content-Type: application/json' -d '{"axis":"horizontal","degrees":90}' http://<name>.local/api/position` moves the wand there smoothly and answers `202`. A value beyond the Travel limits stops at the limit; during a Play session it ends the session without Stow; `{"axis":"up","degrees":90}` answers `400`.
+
 ## Web flasher and releases
 
 - [ ] The release page has a `-factory.bin` and an `-ota.bin` per chip, and the version in the Info page matches the tag.

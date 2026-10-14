@@ -1,14 +1,40 @@
 # API du robot
 
-L'API HTTP et WebSocket du robot, servie sur le port 80 à `http://<device-name>.local/`. L'interface du robot n'utilise que cette API, et elle est ouverte aux tiers : scripts, tableaux de bord et une future intégration Home Assistant.
+L'API HTTP et WebSocket du robot, servie sur le port 80 à `http://<device-name>.local/`. L'interface du robot n'utilise que cette API, et elle est ouverte aux tiers : scripts, tableaux de bord et l'intégration native pour Home Assistant.
 
 Chaque commande passe par le Robot core : les limites de course, les limites de vitesse et les priorités s'appliquent quelle que soit la source.
 
 Les angles sont en degrés, tels qu'envoyés aux servos (0–180).
 
+## Version de l'API
+
+La version actuelle de l'API est **1**. `GET /api/info` la renvoie dans `api`, et le robot l'annonce sur le réseau (voir [Découverte](#découverte-mdns)), pour qu'une intégration puisse la vérifier avant d'utiliser le robot.
+
+La version de l'API n'augmente que quand un changement casserait une intégration existante : une route ou un champ supprimé ou renommé, un sens ou une unité qui change. Les ajouts (une nouvelle route, un nouveau champ, une nouvelle valeur) la gardent ; les clients ignorent les champs qu'ils ne connaissent pas.
+
+| Version de l'API | Premier firmware | Ce qu'elle contient |
+|------------------|------------------|---------------------|
+| 1 | la version qui suit 0.2.0-beta.1 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. |
+
+## Découverte (mDNS)
+
+Une fois sur le Wi-Fi, le robot répond à `<hostname>.local` et annonce deux services sur le port 80 :
+
+- `_http._tcp`, pour les navigateurs et les outils réseau ;
+- `_catwandconnect._tcp`, que cherche l'intégration native (le zeroconf de Home Assistant), avec ces enregistrements TXT :
+
+| Clé | Valeur | Exemple |
+|-----|--------|---------|
+| `id` | Identifiant d'appareil : 8 chiffres hexadécimaux, tirés une fois et gardés en flash. Il ne change ni au renommage, ni avec l'adresse IP, ni avec les mises à jour ; sers-t'en pour distinguer les robots. | `3f9a12c4` |
+| `api` | Version de l'API. | `1` |
+| `version` | Version du firmware. | `0.2.0` |
+| `name` | Le nom du robot, tel que le propriétaire l'a saisi (UTF-8). | `CatWandConnect` |
+
+Les enregistrements sont fixés au démarrage ; renommer le robot le redémarre, donc `name` suit.
+
 ## Code PIN des réglages
 
-Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel, le rangement, le curseur de vitesse (`playSpeed`), la session de jeu (`/api/play` et `sessionMinutes`) et tous les `GET` n'en ont jamais besoin.
+Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel (y compris `/api/position`), le rangement, le curseur de vitesse (`playSpeed`), la session de jeu (`/api/play` et `sessionMinutes`) et tous les `GET` n'en ont jamais besoin.
 
 | Requête | Réponse |
 |---------|---------|
@@ -58,6 +84,10 @@ Messages texte JSON, un par trame, chacun avec un type dans `t`.
 ### Ranger
 
 `POST /api/stow` (sans corps) fait la même chose que le message WebSocket `stow` et renvoie `202`.
+
+### Position
+
+`POST /api/position` avec `{"axis":"horizontal","degrees":90}` amène un axe à une position et renvoie `202` : c'est le pilotage manuel par position, comme régler une position depuis Home Assistant en MQTT. L'axe y va à la vitesse du pilotage manuel puis s'arrête ; la cible est ramenée dans les limites de course (avant la calibration, dans la plage par défaut 60–120°). Comme tout pilotage manuel, elle termine une session de jeu sans ranger, et elle est ignorée pendant le rangement. `axis` vaut `horizontal` ou `vertical` ; tout autre axe, ou un `degrees` qui n'est pas un nombre, renvoie `400 {"error":"invalid_request"}`. Pas de code PIN.
 
 ### Priorités
 
@@ -136,12 +166,12 @@ Le rangement et le pilotage manuel terminent aussi le réglage des vitesses, san
 `GET /api/info` renvoie ce qu'affiche la page Infos :
 
 ```json
-{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.1.0","chip":"ESP32-D0WD-V3",
+{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","chip":"ESP32-D0WD-V3",
  "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
  "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
 ```
 
-`uptime` est en secondes, `rssi` en dBm et `temperature` en °C. Le capteur interne est approximatif : regarde-le comme une tendance.
+`api` est la [version de l'API](#version-de-lapi) et `id` l'identifiant d'appareil (le même que l'enregistrement TXT `id`). `uptime` est en secondes, `rssi` en dBm et `temperature` en °C. Le capteur interne est approximatif : regarde-le comme une tendance.
 
 `GET /api/diagnostics` renvoie le rapport de diagnostic en texte brut (`text/plain`) : version du firmware, puce, un identifiant d'appareil aléatoire (tiré une fois, gardé en flash, non personnel, pour que le support puisse regrouper les rapports d'un même robot sans son adresse MAC), raison du dernier redémarrage, durée de fonctionnement, mémoire, état du code PIN, état du Wi-Fi et de Home Assistant (MQTT), réglages, câblage et les 200 dernières lignes de log (12 Ko au plus). Il est anonymisé par défaut : le nom du robot et son nom d'hôte (sauf s'ils sont ceux par défaut), le réseau Wi-Fi, les adresses IP et MAC, l'adresse du broker et l'utilisateur MQTT sont remplacés par des marqueurs comme `<wifi-network>`, y compris dans les lignes de log. `GET /api/diagnostics?full=1` les garde, pour un usage local uniquement. Le mot de passe MQTT n'est jamais inclus.
 

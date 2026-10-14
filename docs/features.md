@@ -53,7 +53,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 ## Integrations
 
 - **Home Assistant (optional).** Enter your MQTT broker in Settings and the robot appears in Home Assistant by itself, with a Stow button, each axis's position and maximum speed, its activity, and a Play session switch with its Session duration. Commands follow the same safety rules as the phone. A ready-made dashboard is in the docs to copy and paste. See [Home Assistant](home-assistant.md).
-- **Open API.** Everything the interface does goes through a documented HTTP, WebSocket and MQTT API, for your own scripts and integrations. See [Device API](api.md).
+- **Open API.** Everything the interface does goes through a documented HTTP, WebSocket and MQTT API, for your own scripts and integrations. The API is versioned, and the robot announces itself on the network as `_catwandconnect._tcp` with its Device ID and API version, so the coming Native integration for Home Assistant can find it without MQTT. See [Device API](api.md).
 
 ## Hardware
 
