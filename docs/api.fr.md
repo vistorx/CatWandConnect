@@ -237,10 +237,12 @@ Quand c'est activé dans les Réglages, le robot se connecte à un broker MQTT e
 | Topic | Sens | Contenu |
 |-------|------|---------|
 | `<base>/status` | robot → | `online` / `offline` (retenu ; `offline` est le dernier message, « last will ») |
-| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle"}` (retenu) : positions en degrés, vitesses maximales en °/s |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle","play":"OFF","sm":10}` (retenu) : positions en degrés, vitesses maximales en °/s ; `activity` comme dans `/ws` (`playing` pendant une session de jeu) ; `play` vaut `ON` tant qu'une session de jeu tourne ; `sm` est la durée de session en minutes |
 | `<base>/stow/set` | → robot | `PRESS` |
 | `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | Un nombre de degrés. L'axe s'y déplace à la vitesse du pilotage manuel, ramené dans les limites de course. |
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | Un nombre de °/s. Validé comme la valeur des Réglages. |
-| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les quatre nombres et le capteur d'activité. |
+| `<base>/play_session/set` | → robot | `ON` lance une session de jeu pour la durée de session, `OFF` l'arrête (rangement). Un lancement refusé (pas calibré, occupé) est noté dans le log et l'état est republié avec `play` toujours à `OFF`. |
+| `<base>/session_duration/set` | → robot | Des minutes entières, de 1 à 60. Enregistrée dès que le robot est au repos ; les autres valeurs sont ignorées. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les cinq nombres, le capteur d'activité et l'interrupteur de session de jeu. |
 
 Les commandes passent par le Robot core comme le pilotage manuel : les limites de course, les limites de vitesse et les priorités s'appliquent, et le rangement passe avant tout.

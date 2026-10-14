@@ -40,17 +40,21 @@ struct Message {
 };
 
 // Retained discovery messages: a Stow button, a position and a maximum speed
-// number per Axis, and an activity sensor, all grouped under one device.
+// number per Axis, an activity sensor, a Play session switch and a Session
+// duration number, all grouped under one device.
 std::vector<Message> discovery(const Device& device, const std::string& prefix = kDefaultPrefix);
 
 struct State {
   float position[cwc::kAxisCount];
   float maxSpeed[cwc::kAxisCount];
   const char* activity;  // "idle", "manual", "stowing", "calibrating", "tuning_speed", "playing"
+  int sessionMinutes;    // the Session duration
 };
+// The Play session switch reads ON exactly while the activity is "playing",
+// whatever started the session.
 std::string statePayload(const State& state);
 
-enum class CommandKind { None, Stow, Position, MaxSpeed };
+enum class CommandKind { None, Stow, Position, MaxSpeed, StartPlay, StopPlay, SessionDuration };
 
 struct Command {
   CommandKind kind = CommandKind::None;

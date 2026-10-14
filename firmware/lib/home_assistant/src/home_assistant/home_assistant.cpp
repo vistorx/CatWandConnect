@@ -1,6 +1,7 @@
 #include "home_assistant/home_assistant.h"
 
 #include <ArduinoJson.h>
+#include <robot_core/settings.h>
 
 #include <cstdlib>
 
@@ -126,6 +127,37 @@ std::vector<Message> discovery(const Device& device, const std::string& prefix) 
     doc["value_template"] = "{{ value_json.activity }}";
     messages.push_back(config(prefix, "sensor", device, "activity", doc));
   }
+
+  {
+    JsonDocument doc;
+    common(doc.to<JsonObject>(), device, topics, "play_session");
+    doc["name"] = "Play session";
+    doc["icon"] = "mdi:play-circle-outline";
+    doc["state_topic"] = topics.state();
+    doc["value_template"] = "{{ value_json.play }}";
+    doc["command_topic"] = topics.base + "/play_session/set";
+    doc["payload_on"] = "ON";
+    doc["payload_off"] = "OFF";
+    doc["state_on"] = "ON";
+    doc["state_off"] = "OFF";
+    messages.push_back(config(prefix, "switch", device, "play_session", doc));
+  }
+
+  {
+    JsonDocument doc;
+    common(doc.to<JsonObject>(), device, topics, "session_duration");
+    doc["name"] = "Session duration";
+    doc["icon"] = "mdi:timer-outline";
+    doc["state_topic"] = topics.state();
+    doc["value_template"] = "{{ value_json.sm }}";
+    doc["command_topic"] = topics.base + "/session_duration/set";
+    doc["min"] = cwc::kMinSessionMinutes;
+    doc["max"] = cwc::kMaxSessionMinutes;
+    doc["step"] = 1;
+    doc["mode"] = "box";
+    doc["unit_of_measurement"] = "min";
+    messages.push_back(config(prefix, "number", device, "session_duration", doc));
+  }
   return messages;
 }
 
@@ -136,6 +168,8 @@ std::string statePayload(const State& state) {
     doc[kSpeedKeys[i]] = state.maxSpeed[i];
   }
   doc["activity"] = state.activity;
+  doc["play"] = std::string(state.activity) == "playing" ? "ON" : "OFF";
+  doc["sm"] = state.sessionMinutes;
   std::string payload;
   serializeJson(doc, payload);
   return payload;
@@ -145,6 +179,15 @@ Command parseCommand(const Topics& topics, const std::string& topic, const std::
   Command command;
   if (topic == topics.base + "/stow/set") {
     if (payload == "PRESS") command.kind = CommandKind::Stow;
+    return command;
+  }
+  if (topic == topics.base + "/play_session/set") {
+    if (payload == "ON") command.kind = CommandKind::StartPlay;
+    if (payload == "OFF") command.kind = CommandKind::StopPlay;
+    return command;
+  }
+  if (topic == topics.base + "/session_duration/set") {
+    if (parseNumber(payload, command.value)) command.kind = CommandKind::SessionDuration;
     return command;
   }
   for (size_t i = 0; i < cwc::kAxisCount; ++i) {
