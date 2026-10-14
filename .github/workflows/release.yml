@@ -19,13 +19,13 @@ permissions:
 jobs:
   test:
     name: Robot core tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: firmware
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install platformio
@@ -36,7 +36,7 @@ jobs:
   build:
     name: Build ${{ matrix.env }}
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         env: [esp32, esp32s3, esp32c3]
@@ -44,8 +44,8 @@ jobs:
       run:
         working-directory: firmware
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install platformio
@@ -59,7 +59,7 @@ jobs:
           mkdir -p ../dist
           cp .pio/build/${{ matrix.env }}/firmware.bin ../dist/catwandconnect-${{ matrix.env }}-ota.bin
           cp .pio/build/${{ matrix.env }}/factory.bin ../dist/catwandconnect-${{ matrix.env }}-factory.bin
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: firmware-${{ matrix.env }}
           path: dist/
@@ -69,10 +69,10 @@ jobs:
     # Dry run only: the flasher with this build as its Beta channel, kept as an artifact.
     if: github.ref_type != 'tag'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v7
         with:
           pattern: firmware-*
           merge-multiple: true
@@ -86,7 +86,7 @@ jobs:
           cp dist/*-factory.bin site/flasher/beta/
           python firmware/tools/flasher_manifest.py "$v" site/flasher/beta/manifest.json
           echo "{\"beta\": {\"version\": \"$v\", \"tag\": \"\"}}" > site/flasher/channels.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: flasher-preview
           path: site/
@@ -95,16 +95,16 @@ jobs:
     name: GitHub release
     if: github.ref_type == 'tag'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: firmware-*
           merge-multiple: true
           path: dist/
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: dist/*.bin
           generate_release_notes: true
@@ -117,14 +117,14 @@ jobs:
     name: Notify Discord threads
     if: github.ref_type == 'tag'
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       issues: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       # Posts in every #support thread linked to an issue this release closes
@@ -140,7 +140,7 @@ jobs:
     # The Pages workflow is the only one deploying GitHub Pages. It runs on main
     # and reads the releases, so it starts once this release exists.
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:
