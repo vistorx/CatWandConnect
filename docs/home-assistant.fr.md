@@ -152,7 +152,7 @@ Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme ind
 
 ## Tableaux de bord tout prêts
 
-Un panneau de contrôle pour le robot, fait uniquement de cartes intégrées (rien à installer depuis HACS) : l'interrupteur de session de jeu et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe. Il y en a un pour chaque connexion ; ils se ressemblent.
+Un panneau de contrôle pour le robot, fait uniquement de cartes intégrées (rien à installer depuis HACS) : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter ; appui long pour les détails) et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe. Il y en a un pour chaque connexion ; ils se ressemblent.
 
 1. Va dans **Paramètres → Tableaux de bord → Ajouter un tableau de bord → Nouveau tableau de bord à partir de zéro**, nomme-le, par exemple « Canne à chat », et ouvre-le.
 2. Clique sur le crayon (**Modifier le tableau de bord**), puis sur les trois points → **Éditeur de configuration brute**.
@@ -182,13 +182,16 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
-          - type: tile
+          - type: button
             entity: switch.catwandconnect_play_session
             name: Session de jeu
             icon: mdi:play-circle-outline
-            features:
-              - type: toggle
-            features_position: inline
+            show_state: false
+            icon_height: 64px
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Durée de session
@@ -265,13 +268,16 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
-          - type: tile
+          - type: button
             entity: switch.catwandconnect_play_session
             name: Session de jeu
             icon: mdi:play-circle-outline
-            features:
-              - type: toggle
-            features_position: inline
+            show_state: false
+            icon_height: 64px
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Durée de session
