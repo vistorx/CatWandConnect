@@ -1,9 +1,8 @@
 # Matériel : mécanisme Mk2
 
-<p align="center">
-  <a href="../media/video/mk2-presentation.mp4"><img src="../media/video/mk2-presentation-poster.jpg" alt="Le mécanisme Mk2 fixé au bord d'une table, qui tient la canne : clique pour regarder la présentation de 50 secondes" width="320"></a><br>
-  <em>▶ <a href="../media/video/mk2-presentation.mp4">Regarde la présentation du Mk2</a> (50 s, animation 3D).</em>
-</p>
+https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+<p align="center"><em>La présentation du Mk2 (50 s, animation 3D).</em></p>
 
 Ce qu'il faut imprimer et acheter pour le Mk2, le mécanisme actuel. Les composants électroniques (carte, servos, alimentation) sont dans [Électronique](electronics.fr.md) ; le montage est dans le [guide d'assemblage](assembly.fr.md).
 

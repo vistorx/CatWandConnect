@@ -7,6 +7,35 @@ import unittest
 from prepare_docs import convert_alerts, page_url, rewrite_page, rewrite_target, stage
 
 
+VIDEO_URL = "https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499"
+
+
+class GithubOnlyContent(unittest.TestCase):
+    def test_github_video_becomes_a_local_video_player(self):
+        page = rewrite_page(f"Intro\n\n{VIDEO_URL}\n\nMore", "README.md", "index.md")
+        self.assertNotIn(VIDEO_URL, page)
+        self.assertIn('<video controls preload="metadata" playsinline', page)
+        self.assertIn('src="media/video/mk2-presentation.mp4"', page)
+        self.assertIn('poster="media/video/mk2-presentation-poster.jpg"', page)
+
+    def test_github_video_in_a_french_docs_page_points_at_the_built_media(self):
+        # fr/hardware/ -> media/ at the site root
+        page = rewrite_page(VIDEO_URL + "\n", "docs/hardware.fr.md", "hardware.fr.md")
+        self.assertIn('src="../../media/video/mk2-presentation.mp4"', page)
+        self.assertIn('poster="../../media/video/mk2-presentation-poster.jpg"', page)
+
+    def test_unknown_attachment_stays_a_link(self):
+        url = "https://github.com/user-attachments/assets/00000000-0000-0000-0000-000000000000"
+        self.assertIn(f"[{url}]({url})", rewrite_page(url + "\n", "README.md", "index.md"))
+
+    def test_github_only_blocks_are_dropped_on_the_site(self):
+        text = "A\n<!-- github-only -->\n**[Read the docs on the website](https://x)**\n<!-- /github-only -->\nB"
+        page = rewrite_page(text, "README.md", "index.md")
+        self.assertNotIn("Read the docs", page)
+        self.assertIn("A", page)
+        self.assertIn("B", page)
+
+
 class RewriteTarget(unittest.TestCase):
     def md(self, target, src, dst):
         return rewrite_target(target, src, dst, False)
