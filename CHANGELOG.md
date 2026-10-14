@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Livelier Play sessions out of the box.** The default pauses are now 0 to 2 s on both axes (they were up to 3 s and 5 s), so the wand rests less. Pauses you already set are kept.
+
 - **Calibration now sets the speeds too.** After saving the limits, the wizard sweeps each axis so you pick its minimum and maximum speed with Faster and Slower, or skip to keep the current one: a new robot is set up in one go.
 
 - **Joystick in the Native integration's ready-made dashboard.** Move the wand with your finger right from Home Assistant (integration 0.1.1 or later).

@@ -97,6 +97,12 @@ void test_stays_within_travel_limits_and_speed_range() {
 
 void test_the_axes_pause_independently() {
   Rig rig;
+  RobotSettings s = rig.robot.settings();
+  s.axis(Axis::Horizontal).pauseMin = 0.5f;
+  s.axis(Axis::Horizontal).pauseMax = 3;
+  s.axis(Axis::Vertical).pauseMin = 1;
+  s.axis(Axis::Vertical).pauseMax = 5;
+  TEST_ASSERT_TRUE(rig.robot.applySettings(s).ok());
   // Horizontal to 40 and Vertical to 120, both fast. Vertical arrives first
   // and pauses 1 s; Horizontal arrives next and pauses 3 s. Vertical then
   // heads for 60 while Horizontal still rests.

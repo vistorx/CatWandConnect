@@ -76,7 +76,7 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 - [ ] Une session d'une minute se range toute seule au bout d'une minute ; Arrêter et le bouton Ranger y mettent fin avec un rangement, sans finir le mouvement en cours, et le bloc revient à Démarrer.
 - [ ] Toucher le joystick pendant une session donne la main aussitôt, sans rangement, et le bloc revient à Démarrer.
 - [ ] Fermer la page n'arrête pas la session ; la rouvrir affiche Arrêter et le temps restant. Une coupure de courant pendant une session y met fin, et le robot se range doucement au démarrage au lieu de jouer.
-- [ ] Après une mise à jour OTA depuis une version sans session de jeu, les réglages et la calibration sont conservés, et Réglages → Mouvement affiche les plages de pause par défaut (horizontal 0,5–3 s, vertical 1–5 s).
+- [ ] Après une mise à jour OTA depuis une version sans session de jeu, les réglages et la calibration sont conservés, et Réglages → Mouvement affiche les plages de pause par défaut (0–2 s sur les deux axes).
 
 ## Rangement, priorité, maintien et relâchement
 

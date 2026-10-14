@@ -71,10 +71,10 @@ void test_default_minimum_speed_is_a_tenth_of_the_maximum() {
 
 void test_default_pause_ranges_and_session_duration() {
   RobotSettings s = defaultSettings();
-  TEST_ASSERT_EQUAL_FLOAT(0.5f, s.axis(Axis::Horizontal).pauseMin);
-  TEST_ASSERT_EQUAL_FLOAT(3, s.axis(Axis::Horizontal).pauseMax);
-  TEST_ASSERT_EQUAL_FLOAT(1, s.axis(Axis::Vertical).pauseMin);
-  TEST_ASSERT_EQUAL_FLOAT(5, s.axis(Axis::Vertical).pauseMax);
+  TEST_ASSERT_EQUAL_FLOAT(0, s.axis(Axis::Horizontal).pauseMin);
+  TEST_ASSERT_EQUAL_FLOAT(2, s.axis(Axis::Horizontal).pauseMax);
+  TEST_ASSERT_EQUAL_FLOAT(0, s.axis(Axis::Vertical).pauseMin);
+  TEST_ASSERT_EQUAL_FLOAT(2, s.axis(Axis::Vertical).pauseMax);
   TEST_ASSERT_EQUAL_UINT8(10, s.sessionMinutes);
 }
 
@@ -161,10 +161,10 @@ void test_settings_from_v2_are_kept_with_default_pause_ranges() {
   TEST_ASSERT_EQUAL_FLOAT(500, s.axis(Axis::Horizontal).maxAccel);
   TEST_ASSERT_EQUAL_FLOAT(20, s.axis(Axis::Horizontal).minSpeed);
   TEST_ASSERT_EQUAL_FLOAT(15, s.axis(Axis::Vertical).minSpeed);
-  TEST_ASSERT_EQUAL_FLOAT(0.5f, s.axis(Axis::Horizontal).pauseMin);
-  TEST_ASSERT_EQUAL_FLOAT(3, s.axis(Axis::Horizontal).pauseMax);
-  TEST_ASSERT_EQUAL_FLOAT(1, s.axis(Axis::Vertical).pauseMin);
-  TEST_ASSERT_EQUAL_FLOAT(5, s.axis(Axis::Vertical).pauseMax);
+  TEST_ASSERT_EQUAL_FLOAT(0, s.axis(Axis::Horizontal).pauseMin);
+  TEST_ASSERT_EQUAL_FLOAT(2, s.axis(Axis::Horizontal).pauseMax);
+  TEST_ASSERT_EQUAL_FLOAT(0, s.axis(Axis::Vertical).pauseMin);
+  TEST_ASSERT_EQUAL_FLOAT(2, s.axis(Axis::Vertical).pauseMax);
   TEST_ASSERT_EQUAL_UINT8(10, s.sessionMinutes);
 }
 
