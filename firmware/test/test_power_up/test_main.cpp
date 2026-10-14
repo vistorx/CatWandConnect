@@ -15,7 +15,8 @@ struct Rig {
   FakeMotorDriver motors;
   FakeClock clock;
   FakeStorage storage;
-  Robot robot{motors, clock, storage};
+  FakeRandom random;
+  Robot robot{motors, clock, storage, random};
 
   void run(uint32_t ms) {
     for (uint32_t t = 0; t < ms; t += 10) {

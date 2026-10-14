@@ -32,6 +32,11 @@ class ArduinoClock : public cwc::Clock {
   uint32_t nowMs() const override { return millis(); }
 };
 
+class HardwareRandom : public cwc::Random {
+ public:
+  uint32_t next() override { return esp_random(); }
+};
+
 // Settings live in the "cwc" NVS namespace, which survives OTA updates.
 class NvsStorage : public cwc::Storage {
  public:
@@ -53,7 +58,8 @@ class NvsStorage : public cwc::Storage {
 ArduinoClock clock;
 NvsStorage storage;
 PwmServoDriver motors;
-cwc::Robot robot(motors, clock, storage);
+HardwareRandom random;
+cwc::Robot robot(motors, clock, storage, random);
 
 auth::PinGuard pin([] { return esp_random(); });
 AsyncWebServer server(80);

@@ -12,7 +12,8 @@ struct Rig {
   FakeMotorDriver motors;
   FakeClock clock;
   FakeStorage storage;
-  Robot robot{motors, clock, storage};
+  FakeRandom random;
+  Robot robot{motors, clock, storage, random};
 
   // A calibrated robot: Horizontal 40–140, Vertical 60–120, Stow 90/90,
   // maximum speeds 90 °/s, minimum speeds 9 °/s.

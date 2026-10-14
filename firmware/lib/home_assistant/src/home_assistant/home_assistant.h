@@ -46,7 +46,7 @@ std::vector<Message> discovery(const Device& device, const std::string& prefix =
 struct State {
   float position[cwc::kAxisCount];
   float maxSpeed[cwc::kAxisCount];
-  const char* activity;  // "idle", "manual", "stowing", "calibrating"
+  const char* activity;  // "idle", "manual", "stowing", "calibrating", "tuning_speed", "playing"
 };
 std::string statePayload(const State& state);
 

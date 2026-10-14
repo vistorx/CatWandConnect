@@ -55,11 +55,12 @@ float tuningStep(float speed, bool faster) {
 
 }  // namespace
 
-Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage)
-    : motors_(motors), clock_(clock), storage_(storage) {}
+Robot::Robot(MotorDriver& motors, Clock& clock, Storage& storage, Random& random)
+    : motors_(motors), clock_(clock), storage_(storage), random_(random) {}
 
 void Robot::begin() {
   settings_ = loadSettings(storage_);
+  savedSessionMinutes_ = settings_.sessionMinutes;
   lastTickMs_ = clock_.nowMs();
 
   RestRecord rest{};
@@ -87,6 +88,7 @@ void Robot::tick() {
   lastTickMs_ = now;
   if (dt <= 0) return;
 
+  if (activity_ == Activity::Playing && static_cast<int32_t>(now - playEndMs_) >= 0) stow();
   if (activity_ == Activity::Manual && now - lastManualMs_ > kManualTimeoutMs) {
     for (Axis axis : kAxes) state(axis).command = 0;
   }
@@ -116,6 +118,9 @@ void Robot::tick() {
       case Activity::TuningSpeed:
         stepSpeedTuning(axis, dt);
         break;
+      case Activity::Playing:
+        stepPlay(axis, dt, now);
+        break;
       case Activity::Idle:
         break;
     }
@@ -141,6 +146,9 @@ void Robot::tick() {
     gentleStow_ = false;
     rememberRestingPosition();
   }
+  // The Session duration changes from play, not from Settings: write it
+  // once the robot rests, to spare the flash.
+  if (activity_ == Activity::Idle && settings_.sessionMinutes != savedSessionMinutes_) save();
 }
 
 void Robot::manualMove(float horizontal, float vertical) {
@@ -372,20 +380,81 @@ void Robot::stepSpeedTuning(Axis axis, float dt) {
   if (motion.atRest() && motion.position() == target) tuningTowardMax_ = !tuningTowardMax_;
 }
 
+bool Robot::startPlaySession(uint8_t minutes) {
+  if (minutes < kMinSessionMinutes || minutes > kMaxSessionMinutes) return false;
+  if (!settings_.calibrated || activity_ == Activity::Stowing || activity_ == Activity::Calibrating ||
+      activity_ == Activity::TuningSpeed) {
+    return false;
+  }
+  manualStop();
+  settings_.sessionMinutes = minutes;
+  for (Axis axis : kAxes) drawMove(axis);
+  playEndMs_ = clock_.nowMs() + minutes * 60000u;
+  activity_ = Activity::Playing;
+  return true;
+}
+
+bool Robot::setSessionMinutes(uint8_t minutes) {
+  if (minutes < kMinSessionMinutes || minutes > kMaxSessionMinutes) return false;
+  settings_.sessionMinutes = minutes;
+  return true;
+}
+
+void Robot::stopPlaySession() {
+  if (activity_ == Activity::Playing) stow();
+}
+
+uint32_t Robot::playRemainingS() const {
+  if (activity_ != Activity::Playing) return 0;
+  int32_t left = static_cast<int32_t>(playEndMs_ - clock_.nowMs());
+  return left <= 0 ? 0 : (static_cast<uint32_t>(left) + 999) / 1000;
+}
+
+float Robot::draw(float low, float high) {
+  return low + (high - low) * static_cast<float>(random_.next() / 4294967295.0);
+}
+
+void Robot::drawMove(Axis axis) {
+  AxisState& s = state(axis);
+  const AxisSettings& a = settings_.axis(axis);
+  TravelLimits travel = travelLimits(axis);
+  s.playTarget = travel.clamp(draw(travel.min, travel.max));
+  s.playMoveSpeed = draw(a.minSpeed, a.maxSpeed);
+  s.pausing = false;
+}
+
+void Robot::stepPlay(Axis axis, float dt, uint32_t now) {
+  AxisState& s = state(axis);
+  if (s.pausing) {
+    if (static_cast<int32_t>(now - s.pauseEndMs) < 0) return;
+    drawMove(axis);
+  }
+  s.motion.stepToward(s.playTarget, dt, travelLimits(axis), {s.playMoveSpeed, settings_.axis(axis).maxAccel});
+  if (s.motion.atRest() && s.motion.position() == s.playTarget) {
+    const AxisSettings& a = settings_.axis(axis);
+    s.pauseEndMs = now + static_cast<uint32_t>(draw(a.pauseMin, a.pauseMax) * 1000 + 0.5f);
+    s.pausing = true;
+  }
+}
+
 float Robot::position(Axis axis) const { return state(axis).motion.position(); }
 
 SettingsCheck Robot::applySettings(const RobotSettings& settings) {
   SettingsCheck check = validate(settings);
   if (!check.ok()) return check;
   settings_ = settings;
-  saveSettings(storage_, settings_);
+  save();
   return check;
+}
+
+void Robot::save() {
+  if (saveSettings(storage_, settings_)) savedSessionMinutes_ = settings_.sessionMinutes;
 }
 
 void Robot::invalidateCalibration() {
   if (!settings_.calibrated) return;
   settings_.calibrated = false;
-  saveSettings(storage_, settings_);
+  save();
 }
 
 TravelLimits Robot::travelLimits(Axis axis) const {

@@ -20,12 +20,16 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
 // --- Simulated robot ----------------------------------------------------------
 
+const PAUSES = { horizontal: [0.5, 3], vertical: [1, 5] };  // default Pause ranges, s
+
 const robot = {
   settings: {
     playSpeed: 0.6,
     calibrated: false,
     axes: Object.fromEntries(['horizontal', 'vertical'].map(axis =>
-      [axis, { min: 60, max: 120, stow: 90, maxSpeed: 90, minSpeed: 9, maxAccel: 360 }])),
+      [axis, { min: 60, max: 120, stow: 90, maxSpeed: 90, minSpeed: 9, maxAccel: 360,
+        pauseMin: PAUSES[axis][0], pauseMax: PAUSES[axis][1] }])),
+    sessionMinutes: 10,
   },
   position: { horizontal: 90, vertical: 90 },
   command: { horizontal: 0, vertical: 0 },
@@ -33,6 +37,7 @@ const robot = {
   lastCommand: 0,
   calibration: { step: 'none', draft: null, target: null, sweep: [] },
   tuning: null,  // { axis, bound, speed, towardMax } while tuning a speed
+  play: null,    // { endsAt, axes: { horizontal: { target, speed, pauseUntil } } } during a Play session
 };
 
 let deviceName = 'CatWandConnect';
@@ -210,6 +215,45 @@ function speedTuning(body) {
   return [200, tuningView()];
 }
 
+// --- Play session (lib/robot_core Robot::startPlaySession and friends) ------------
+
+const uniform = (low, high) => low + (high - low) * Math.random();
+
+// One axis's next move: a target anywhere within the Travel limits, a speed
+// within the Speed range.
+function drawMove(axis) {
+  const a = robot.settings.axes[axis];
+  const { min, max } = travel(axis);
+  return { target: uniform(min, max), speed: uniform(a.minSpeed, a.maxSpeed), pauseUntil: 0 };
+}
+
+function playView() {
+  const playing = robot.activity === 'playing';
+  return { active: playing, remaining: playing ? Math.max(0, Math.ceil((robot.play.endsAt - Date.now()) / 1000)) : 0,
+    minutes: robot.settings.sessionMinutes };
+}
+
+const validMinutes = value => Number.isInteger(value) && value >= 1 && value <= 60;
+
+function play(body) {
+  if (body.action === 'start') {
+    const minutes = body.sessionMinutes ?? robot.settings.sessionMinutes;
+    if (!validMinutes(minutes)) return [400, { error: 'session_duration_out_of_range' }];
+    if (!robot.settings.calibrated) return [409, { error: 'not_calibrated' }];
+    if (['stowing', 'calibrating', 'tuning_speed'].includes(robot.activity)) return [409, { error: 'busy' }];
+    robot.command = { horizontal: 0, vertical: 0 };
+    robot.settings.sessionMinutes = minutes;
+    robot.play = { endsAt: Date.now() + minutes * 60000,
+      axes: { horizontal: drawMove('horizontal'), vertical: drawMove('vertical') } };
+    robot.activity = 'playing';
+  } else if (body.action === 'stop') {
+    if (robot.activity === 'playing') stow();
+  } else {
+    return [400, { error: 'invalid_request' }];
+  }
+  return [200, playView()];
+}
+
 // Moves `value` toward `target` by at most `step`.
 const approach = (value, target, step) => value + Math.max(-step, Math.min(step, target - value));
 
@@ -240,6 +284,26 @@ setInterval(() => {
     if (robot.position[t.axis] === target) t.towardMax = !t.towardMax;
     return broadcast(state());
   }
+  if (robot.activity === 'playing') {
+    if (Date.now() >= robot.play.endsAt) {
+      stow();
+      return broadcast(state());
+    }
+    for (const axis of ['horizontal', 'vertical']) {
+      const p = robot.play.axes[axis];
+      if (p.pauseUntil) {
+        if (Date.now() < p.pauseUntil) continue;
+        robot.play.axes[axis] = drawMove(axis);
+        continue;
+      }
+      robot.position[axis] = approach(robot.position[axis], p.target, p.speed * 0.05);
+      if (robot.position[axis] === p.target) {
+        const a = robot.settings.axes[axis];
+        p.pauseUntil = Date.now() + uniform(a.pauseMin, a.pauseMax) * 1000;
+      }
+    }
+    return broadcast(state());
+  }
   if (robot.activity === 'stowing') {
     let done = true;
     for (const axis of ['horizontal', 'vertical']) {
@@ -268,7 +332,9 @@ function state() {
   return { t: 'state', h: round(robot.position.horizontal), v: round(robot.position.vertical),
     activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed,
     calibrated: robot.settings.calibrated, calibration: robot.calibration.step, name: deviceName,
-    ...(robot.activity === 'tuning_speed' ? { tuning: tuningView() } : {}) };
+    sessionMinutes: robot.settings.sessionMinutes,
+    ...(robot.activity === 'tuning_speed' ? { tuning: tuningView() } : {}),
+    ...(robot.activity === 'playing' ? { play: { remaining: playView().remaining } } : {}) };
 }
 
 const round = value => Math.round(value * 10) / 10;
@@ -276,6 +342,7 @@ const round = value => Math.round(value * 10) / 10;
 function onMessage(message) {
   if (message.t === 'move' && robot.activity !== 'stowing') {
     robot.calibration.step = 'none';
+    robot.play = null;  // Manual control ends a Play session, without Stow
     robot.command = { horizontal: clampUnit(message.h), vertical: clampUnit(message.v) };
     robot.activity = 'manual';
     robot.lastCommand = Date.now();
@@ -287,6 +354,7 @@ function onMessage(message) {
 }
 
 function stow() {
+  robot.play = null;
   robot.calibration.step = 'none';
   robot.command = { horizontal: 0, vertical: 0 };
   robot.activity = 'stowing';
@@ -297,14 +365,20 @@ const clampUnit = value => Math.max(-1, Math.min(1, Number(value) || 0));
 function putSettings(body) {
   const next = structuredClone(robot.settings);
   if (typeof body.playSpeed === 'number') next.playSpeed = body.playSpeed;
+  if ('sessionMinutes' in body) next.sessionMinutes = body.sessionMinutes;
   for (const axis of ['horizontal', 'vertical']) Object.assign(next.axes[axis], body.axes?.[axis] ?? {});
   if (next.playSpeed < 0.1 || next.playSpeed > 1) return [400, { error: 'play_speed_out_of_range' }];
+  if (!validMinutes(next.sessionMinutes)) return [400, { error: 'session_duration_out_of_range' }];
   for (const axis of ['horizontal', 'vertical']) {
     const a = next.axes[axis];
     if (a.min >= a.max) return [400, { error: 'travel_order', axis }];
     if (a.stow < a.min || a.stow > a.max) return [400, { error: 'stow_out_of_travel', axis }];
     if (a.maxSpeed < 10 || a.maxSpeed > 360) return [400, { error: 'speed_out_of_range', axis }];
     if (a.minSpeed < 1 || a.minSpeed >= a.maxSpeed) return [400, { error: 'min_speed_out_of_range', axis }];
+    if (!(a.pauseMin >= 0 && a.pauseMin <= 60 && a.pauseMax >= 0 && a.pauseMax <= 60)) {
+      return [400, { error: 'pause_out_of_range', axis }];
+    }
+    if (a.pauseMin > a.pauseMax) return [400, { error: 'pause_order', axis }];
   }
   robot.settings = next;
   return [200, robot.settings];
@@ -367,6 +441,8 @@ const API = {
   'GET /api/speed-tuning': () => [200, tuningView()],
   'POST /api/speed-tuning': speedTuning,
   'POST /api/stow': () => { stow(); return [202, {}]; },
+  'GET /api/play': () => [200, playView()],
+  'POST /api/play': play,
   // HOTSPOT=1 simulates a robot on its setup hotspot, with no internet on the phone.
   'GET /api/wifi/status': () => [200, process.env.HOTSPOT === '1' ? { mode: 'hotspot', failed: false }
     : { mode: 'connected', failed: false, ssid: 'Simulated', ip: '127.0.0.1', host: 'catwandconnect.local' }],
@@ -406,7 +482,8 @@ const server = createServer(async (request, response) => {
     let parsed = {};
     try { parsed = body ? JSON.parse(body) : {}; } catch { return send(response, 400, { error: 'invalid_json' }); }
     const key = `${request.method} ${url.pathname}`;
-    const settingsChange = key === 'PUT /api/settings' && Object.keys(parsed).some(k => k !== 'playSpeed');
+    const settingsChange = key === 'PUT /api/settings'
+      && (!Object.keys(parsed).length || Object.keys(parsed).some(k => k !== 'playSpeed' && k !== 'sessionMinutes'));
     if ((PROTECTED.has(key) || settingsChange) && !authorized(request)) return send(response, 401, { error: 'pin_required' });
     const [code, result] = route(parsed, url, request);
     return send(response, code, result);

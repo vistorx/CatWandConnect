@@ -5,6 +5,7 @@
 #include <robot_core/ports.h>
 
 #include <cstring>
+#include <deque>
 #include <map>
 #include <string>
 #include <vector>
@@ -53,6 +54,26 @@ class FakeStorage : public Storage {
 
   std::map<std::string, std::vector<uint8_t>> blobs;
   int writes = 0;
+};
+
+// Plays back scripted draws, each a fraction of the drawn range (0 = its
+// low end, 1 = its high end), then a seeded pseudo-random sequence.
+class FakeRandom : public Random {
+ public:
+  uint32_t next() override {
+    ++draws;
+    if (!script.empty()) {
+      double fraction = script.front();
+      script.pop_front();
+      return static_cast<uint32_t>(fraction * 4294967295.0);
+    }
+    seed = seed * 1664525u + 1013904223u;
+    return seed;
+  }
+
+  std::deque<double> script;
+  uint32_t seed = 12345;
+  int draws = 0;
 };
 
 }  // namespace cwc::test

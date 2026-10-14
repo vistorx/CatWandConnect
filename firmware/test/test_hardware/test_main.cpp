@@ -107,7 +107,8 @@ void test_invalidating_calibration_restores_default_limits() {
   FakeMotorDriver motors;
   FakeClock clock;
   FakeStorage storage;
-  Robot robot(motors, clock, storage);
+  FakeRandom random;
+  Robot robot(motors, clock, storage, random);
   robot.begin();
   RobotSettings s = robot.settings();
   s.axis(Axis::Horizontal).travel = {20, 160};

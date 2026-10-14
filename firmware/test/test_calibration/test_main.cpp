@@ -14,7 +14,8 @@ struct Rig {
   FakeMotorDriver motors;
   FakeClock clock;
   FakeStorage storage;
-  Robot robot{motors, clock, storage};
+  FakeRandom random;
+  Robot robot{motors, clock, storage, random};
 
   Rig() {
     robot.begin();
@@ -353,7 +354,8 @@ void test_reversing_mirrors_the_remembered_resting_position() {
   FakeStorage copy = rig.storage;
   FakeMotorDriver motors;
   FakeClock clock;
-  Robot rebooted(motors, clock, copy);
+  FakeRandom random;
+  Robot rebooted(motors, clock, copy, random);
   rebooted.begin();
   TEST_ASSERT_FLOAT_WITHIN(0.01, 110, rebooted.position(Axis::Horizontal));
 }
