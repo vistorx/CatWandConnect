@@ -1,4 +1,4 @@
-# Install and first start
+# Install the software
 
 ## Install the firmware
 
@@ -38,3 +38,5 @@ No tools to install: the firmware goes on the board straight from your browser. 
 6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. Use your browser's "Add to Home Screen" for an app-like icon.
 
 Something wrong? See [Troubleshooting](troubleshooting.md), then [Getting help](../SUPPORT.md).
+
+Next, optional: [Set up Home Assistant](home-assistant.md).

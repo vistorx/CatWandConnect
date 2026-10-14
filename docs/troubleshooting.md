@@ -45,7 +45,7 @@ The signal is too weak or the router changed. Move the robot closer, or enter th
 
 **The servos don't move at all.**
 - Check the common ground between the board and the servo supply.
-- Check that the signal wires use the pins shown in Settings → Hardware → Wiring (the defaults are in [Electronics](electronics.md#default-pins)).
+- Check that the signal wires use the pins shown in Settings → Hardware → Wiring (the defaults are in [Wire the electronics](wiring.md#default-pins)).
 - At power-up the robot crawls very slowly (10 °/s) to its Stow position, then releases the servos. That is expected.
 
 **The servos jitter or the board resets when they move.**
