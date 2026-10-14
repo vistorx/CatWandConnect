@@ -9,6 +9,7 @@ The project's visual assets: logo, banners, photos and screenshots. Drop the sou
 | `photos/` | Photos of the robot, of the build steps and of cats playing with it | JPEG or WebP |
 | `screenshots/` | Screenshots of the Device interface, the flasher and Home Assistant | PNG |
 | `buttons/` | Call-to-action buttons used in the README, such as the install button | SVG |
+| `video/` | Short presentation and demo videos, each with a `-poster.jpg` still used as its clickable preview (GitHub does not play videos stored in the repository inline) | MP4 (H.264, `+faststart`), under about 5 MB |
 
 ## Naming
 
