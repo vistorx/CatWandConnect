@@ -164,6 +164,8 @@ Sur un téléphone, les sections s'empilent : la session de jeu d'abord, puis le
 
 ### Tableau de bord pour l'intégration native
 
+![Le tableau de bord de l'intégration native : session de jeu, durée et Ranger, la carte joystick, positions et vitesses maximales](../media/screenshots/ha-dashboard-native.png)
+
 <!-- ha-dashboard-native -->
 ```yaml
 title: Canne à chat
@@ -253,6 +255,8 @@ Le joystick marche comme celui de la page du robot : maintiens et fais glisser, 
 **Tu as ajouté le robot avec l'intégration 0.1.0, avec Home Assistant dans une autre langue que l'anglais ?** Ses identifiants sont dans cette langue (`switch.catwandconnect_session_de_jeu`) et les cartes affichent « Entité non disponible ». Supprime le robot dans **Paramètres → Appareils et services → CatWandConnect** et ajoute-le de nouveau (à partir de la 0.1.1, les identifiants sont toujours en anglais), ou remplace les identifiants du YAML par les tiens, visibles sur la page de l'appareil.
 
 ### Tableau de bord pour la connexion MQTT
+
+![Le tableau de bord de la connexion MQTT : session de jeu, durée et Ranger, positions et vitesses maximales](../media/screenshots/ha-dashboard-mqtt.png)
 
 <!-- ha-dashboard -->
 ```yaml

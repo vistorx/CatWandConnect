@@ -37,7 +37,15 @@ Everything is free and open: the printable parts, the firmware and the docs.
 
 ## See it
 
+<table><tr><td width="64%">
+
 https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+</td><td align="center">
+
+<img src="media/screenshots/ui-main-screen-phone.png" alt="The Device interface on a phone: joystick, Speed, Play session and Stow" width="260"><br><em>The Device interface on a phone</em>
+
+</td></tr></table>
 
 <p align="center"><em>The Mk2 in 50 seconds: print it, assemble it, add your cat's favourite toy, play.</em></p>
 
