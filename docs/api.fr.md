@@ -253,8 +253,8 @@ Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et so
   "playSpeed": 0.6,
   "calibrated": false,
   "axes": {
-    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0.5, "pauseMax": 3},
-    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 1, "pauseMax": 5}
+    "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0, "pauseMax": 2},
+    "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0, "pauseMax": 2}
   },
   "sessionMinutes": 10
 }

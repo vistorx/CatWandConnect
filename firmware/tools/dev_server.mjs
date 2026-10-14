@@ -20,7 +20,7 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
 // --- Simulated robot ----------------------------------------------------------
 
-const PAUSES = { horizontal: [0.5, 3], vertical: [1, 5] };  // default Pause ranges, s
+const PAUSES = { horizontal: [0, 2], vertical: [0, 2] };  // default Pause ranges, s
 
 const robot = {
   settings: {
