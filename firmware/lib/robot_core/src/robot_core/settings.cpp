@@ -126,10 +126,10 @@ RobotSettings defaultSettings() {
     axis.maxAccel = 360;
     axis.minSpeed = defaultMinSpeed(axis.maxSpeed);
   }
-  settings.axis(Axis::Horizontal).pauseMin = 0.5f;
-  settings.axis(Axis::Horizontal).pauseMax = 3;
-  settings.axis(Axis::Vertical).pauseMin = 1;
-  settings.axis(Axis::Vertical).pauseMax = 5;
+  for (AxisSettings& axis : settings.axes) {
+    axis.pauseMin = 0;
+    axis.pauseMax = 2;
+  }
   settings.playSpeed = 0.6f;
   settings.calibrated = false;
   settings.sessionMinutes = 10;
