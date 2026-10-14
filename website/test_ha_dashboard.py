@@ -1,9 +1,11 @@
-"""Checks the ready-made Home Assistant dashboard in the docs:
+"""Checks the ready-made Home Assistant dashboards in the docs:
 python website/test_ha_dashboard.py
 
-The YAML block right after the `<!-- ha-dashboard -->` marker in
-docs/home-assistant.md and its French page must parse, use only built-in
-cards, and control every entity the robot announces, under the default ids.
+docs/home-assistant.md and its French page have one dashboard per connection:
+the YAML block right after `<!-- ha-dashboard -->` (MQTT connection) and the
+one right after `<!-- ha-dashboard-native -->` (Native integration). Each must
+parse, use only built-in cards, and control every entity its connection
+creates, under the default ids.
 """
 
 import os
@@ -16,8 +18,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAGES = ["docs/home-assistant.md", "docs/home-assistant.fr.md"]
 
 # Entity ids Home Assistant gives a robot under its default name,
-# "CatWandConnect": device name + entity name.
-DEFAULT_ENTITIES = {
+# "CatWandConnect": device name + entity name, from MQTT discovery
+# (firmware/lib/home_assistant), which names entities in English.
+MQTT_ENTITIES = {
     "sensor.catwandconnect_activity",
     "button.catwandconnect_stow",
     "switch.catwandconnect_play_session",
@@ -28,15 +31,36 @@ DEFAULT_ENTITIES = {
     "number.catwandconnect_vertical_maximum_speed",
 }
 
-BLOCK = re.compile(r"<!-- ha-dashboard -->\s*```yaml\n(.*?)```", re.S)
+# The Native integration's 8 entities (vistorx/ha-catwandconnect, entity
+# translation keys in comments). Home Assistant builds their ids from the
+# device name + the English entity name, whatever the user's language. They
+# match the MQTT ones on purpose: with both connections, Home Assistant
+# appends `_2` to the second set.
+NATIVE_ENTITIES = {
+    "sensor.catwandconnect_activity",                  # activity
+    "button.catwandconnect_stow",                      # stow
+    "switch.catwandconnect_play_session",              # play_session
+    "number.catwandconnect_session_duration",          # session_duration
+    "number.catwandconnect_horizontal_position",       # horizontal_position
+    "number.catwandconnect_vertical_position",         # vertical_position
+    "number.catwandconnect_horizontal_maximum_speed",  # horizontal_max_speed
+    "number.catwandconnect_vertical_maximum_speed",    # vertical_max_speed
+}
+
+# Marker before each dashboard's YAML block -> entities of its connection.
+DASHBOARDS = {
+    "ha-dashboard": MQTT_ENTITIES,
+    "ha-dashboard-native": NATIVE_ENTITIES,
+}
 
 
-def dashboard(page):
+def dashboard(page, marker):
+    block = re.compile(rf"<!-- {re.escape(marker)} -->\s*```yaml\n(.*?)```", re.S)
     with open(os.path.join(ROOT, page), encoding="utf-8") as f:
-        match = BLOCK.search(f.read())
-    if not match:
-        raise AssertionError(f"{page}: no ```yaml block after <!-- ha-dashboard -->")
-    return yaml.safe_load(match.group(1))
+        found = block.findall(f.read())
+    if len(found) != 1:
+        raise AssertionError(f"{page}: expected one ```yaml block after <!-- {marker} -->, found {len(found)}")
+    return yaml.safe_load(found[0])
 
 
 def walk(node):
@@ -61,22 +85,33 @@ def entities(config):
     return found
 
 
-class ReadyMadeDashboard(unittest.TestCase):
-    def test_controls_every_announced_entity_by_its_default_id(self):
-        for page in PAGES:
-            with self.subTest(page=page):
-                self.assertEqual(DEFAULT_ENTITIES, entities(dashboard(page)))
+def every_dashboard():
+    for page in PAGES:
+        for marker, expected in DASHBOARDS.items():
+            yield page, marker, expected
+
+
+class ReadyMadeDashboards(unittest.TestCase):
+    def test_uses_only_entities_its_connection_creates(self):
+        for page, marker, expected in every_dashboard():
+            with self.subTest(page=page, dashboard=marker):
+                self.assertEqual(set(), entities(dashboard(page, marker)) - expected)
+
+    def test_controls_every_entity_of_its_connection_by_its_default_id(self):
+        for page, marker, expected in every_dashboard():
+            with self.subTest(page=page, dashboard=marker):
+                self.assertEqual(expected, entities(dashboard(page, marker)))
 
     def test_uses_only_built_in_cards(self):
-        for page in PAGES:
-            with self.subTest(page=page):
-                types = {d["type"] for d in walk(dashboard(page)) if isinstance(d.get("type"), str)}
+        for page, marker, _ in every_dashboard():
+            with self.subTest(page=page, dashboard=marker):
+                types = {d["type"] for d in walk(dashboard(page, marker)) if isinstance(d.get("type"), str)}
                 self.assertFalse([t for t in types if t.startswith("custom:")])
 
     def test_is_one_sections_view(self):
-        for page in PAGES:
-            with self.subTest(page=page):
-                config = dashboard(page)
+        for page, marker, _ in every_dashboard():
+            with self.subTest(page=page, dashboard=marker):
+                config = dashboard(page, marker)
                 self.assertEqual(1, len(config["views"]))
                 self.assertEqual("sections", config["views"][0]["type"])
 

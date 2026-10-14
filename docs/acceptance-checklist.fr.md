@@ -202,6 +202,32 @@ Utilise un Home Assistant avec le module Mosquitto et l'intégration MQTT ([conf
 - [ ] `GET /api/info` contient `"api":1` et un `"id"` égal à l'identifiant d'appareil du rapport de diagnostic.
 - [ ] `curl -X POST -H 'Content-Type: application/json' -d '{"axis":"horizontal","degrees":90}' http://<nom>.local/api/position` y déplace la baguette en douceur et répond `202`. Une valeur au-delà des limites de course s'arrête à la limite ; pendant une session de jeu, elle termine la session sans ranger ; `{"axis":"up","degrees":90}` répond `400`.
 
+## Intégration native (Home Assistant)
+
+Utilise un Home Assistant 2026.10 ou plus récent avec HACS, sur le réseau du robot, et un robot sans la connexion MQTT ([configuration](home-assistant.fr.md#intégration-native)). Vérifie les entités sur la page de l'appareil, dans Paramètres → Appareils et services → CatWandConnect.
+
+- [ ] HACS → Dépôts personnalisés accepte `https://github.com/vistorx/ha-catwandconnect` comme Intégration ; CatWandConnect se télécharge et, après un redémarrage, apparaît dans Ajouter une intégration.
+- [ ] Le robot apparaît sous Découverts avec son nom. Sans code PIN des réglages, Ajouter puis Valider crée l'appareil sans demander de code PIN : nom, fabricant CatWandConnect, modèle, puce, version du firmware, et un lien Visiter qui ouvre l'interface du robot.
+- [ ] Une nouvelle découverte du robot (redémarrer Home Assistant ou le robot) ne crée pas de second appareil.
+- [ ] Ajouter une intégration → CatWandConnect avec l'adresse IP du robot, puis avec son nom en `.local`, l'ajoute (supprime-le entre les deux).
+- [ ] Avec un code PIN des réglages défini, l'ajout du robot le demande : un mauvais code PIN affiche « Code PIN incorrect » et laisse réessayer ; assez de codes faux affichent l'attente en secondes ; le bon code PIN l'ajoute.
+- [ ] Un robot avec un firmware plus ancien que 0.2.0-beta.2 est refusé avec « firmware trop ancien », la version minimale et un lien vers la mise à jour.
+- [ ] L'appareil a 8 entités avec les identifiants par défaut (`sensor.catwandconnect_activity`, `switch.catwandconnect_play_session`, `number.catwandconnect_session_duration`, `button.catwandconnect_stow`, `number.catwandconnect_horizontal_position`, `number.catwandconnect_vertical_position`, `number.catwandconnect_horizontal_maximum_speed`, `number.catwandconnect_vertical_maximum_speed`), nommées en français quand Home Assistant est en français.
+- [ ] Activité suit le robot en moins d'une seconde : `manual` avec le joystick, `stowing`, `calibrating`, `tuning_speed`, `playing`, puis `idle`.
+- [ ] Déplacer la baguette avec le joystick met à jour les deux positions en moins d'une seconde. Régler une position dans Home Assistant y déplace l'axe en douceur ; le curseur ne couvre que les limites de course.
+- [ ] Changer une vitesse maximale dans Home Assistant se voit dans Réglages → Mouvement sur le robot ; un changement dans les Réglages du robot se voit dans Home Assistant après avoir rechargé la page de l'appareil.
+- [ ] Durée de session est égale à celle de l'écran principal ; la changer dans Home Assistant met à jour l'écran principal, et 0 ou 61 est refusé.
+- [ ] Sur un robot calibré, allumer Session de jeu lance une session pour la durée de session ; l'éteindre range la baguette et l'interrupteur reste éteint. Une session lancée depuis l'écran principal allume l'interrupteur, qui s'éteint tout seul à la fin de la session.
+- [ ] Avant la calibration, allumer Session de jeu affiche une erreur qui dit que le robot n'est pas calibré, et l'interrupteur reste éteint.
+- [ ] Ranger dans Home Assistant range le robot, même pendant que quelqu'un utilise le joystick.
+- [ ] Débrancher le robot rend toutes les entités indisponibles en quelques secondes ; le rebrancher les rend de nouveau disponibles toutes seules, avec les valeurs actuelles.
+- [ ] Redémarrer Home Assistant avec le robot allumé fait revenir les entités sans rien faire.
+- [ ] Renommer le robot : après son redémarrage, le nom de l'appareil dans Home Assistant suit.
+- [ ] Changer le code PIN des réglages du robot : la commande suivante qui en a besoin (une vitesse maximale) échoue et Home Assistant propose Reconfigurer ; saisir le nouveau code PIN refait marcher les commandes.
+- [ ] Télécharger les diagnostics sur la page de l'appareil : le fichier contient le firmware, les réglages et l'état, avec le nom du Wi-Fi, les adresses IP et MAC, l'adresse du broker et les identifiants MQTT masqués, et aucun code PIN.
+- [ ] Avec la connexion MQTT activée en plus, un second appareil apparaît avec des identifiants qui finissent par `_2`, comme le guide l'annonce ; désactiver MQTT sur le robot et supprimer l'appareil MQTT en laisse un seul.
+- [ ] Le tableau de bord tout prêt de l'intégration native, collé tel quel depuis le guide, affiche toutes les cartes sans « Entité non disponible ».
+
 ## Flasher web et versions publiées
 
 - [ ] La page de la version publiée contient un `-factory.bin` et un `-ota.bin` par puce, et la version de la page Infos correspond au tag.

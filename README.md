@@ -31,7 +31,7 @@ Everything is free and open: the printable parts, the firmware and the docs.
 - **Safe by design.** Travel limits it never exceeds, a Stow button nothing can interrupt, smooth motion, and a stop as soon as your phone disconnects.
 - **Easy to set up.** Install from the browser, enter your Wi-Fi (or skip it and use the robot's hotspot), and let the Calibration wizard fit the robot to your build.
 - **Yours to adapt.** Your pins and servos, your robot's name, English or French, an optional PIN, and updates over Wi-Fi.
-- **Home Assistant if you want it**, through MQTT, and an open API for everything else.
+- **Home Assistant if you want it**, through its Native integration or MQTT, and an open API for everything else.
 
 **Specs:** [every feature in detail](docs/features.md) · [V1 spec](https://github.com/vistorx/CatWandConnect/issues/1) · [Support spec](https://github.com/vistorx/CatWandConnect/issues/47) · [planned for later](https://github.com/vistorx/CatWandConnect/issues?q=is%3Aopen+label%3Afuture) · [design decisions](docs/adr/) · [glossary](CONTEXT.md)
 
@@ -92,7 +92,7 @@ The Mechanism is 3D printed: six parts, all in [`stls/mk2/`](stls/mk2/) or as on
 | [2. Assemble the Mechanism](docs/assembly.md) | Parts to buy (bearing, balls, screws) and assembly order (photos coming soon) |
 | [3. Wire the electronics](docs/wiring.md) | Board, servos, power supply, wiring diagram, default pins per chip |
 | [4. Install the software](docs/install.md) | Flashing from the browser, Wi-Fi, Calibration, updates |
-| [5. Set up Home Assistant](docs/home-assistant.md) | Optional: broker, user, MQTT integration, connecting the robot, dashboard, automations |
+| [5. Set up Home Assistant](docs/home-assistant.md) | Optional: two ways to connect, the Native integration (HACS) or the MQTT connection, a dashboard for each, automations |
 | [Features](docs/features.md) | Everything the robot does, in detail |
 | [Troubleshooting](docs/troubleshooting.md) | Installing, Wi-Fi, motion, updates, PIN |
 
