@@ -62,6 +62,10 @@ jobs:
         run: python website/test_prepare_docs.py
       - name: Translation check tests
         run: python website/test_check_translations.py
+      # The ready-made dashboard in docs/home-assistant(.fr).md parses and
+      # controls every entity the robot announces.
+      - name: Home Assistant dashboard check
+        run: python website/test_ha_dashboard.py
       # Fails when an English user page has no French page (page.fr.md).
       - name: Every user page has its French page
         run: python website/check_translations.py

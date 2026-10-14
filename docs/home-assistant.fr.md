@@ -44,6 +44,97 @@ Les noms des entités restent en anglais. Quand le robot est éteint ou perd le 
 
 Les commandes venant de Home Assistant suivent les mêmes règles de sécurité que le téléphone : limites de course, limites de vitesse et priorités. Rien depuis Home Assistant ne peut pousser la baguette au-delà de ses limites, et le rangement ne peut pas être interrompu.
 
+## Tableau de bord tout prêt
+
+Un panneau de contrôle pour le robot, fait uniquement de cartes intégrées (rien à installer depuis HACS) : l'interrupteur de session de jeu et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe.
+
+1. Va dans **Paramètres → Tableaux de bord → Ajouter un tableau de bord → Nouveau tableau de bord à partir de zéro**, nomme-le, par exemple « Canne à chat », et ouvre-le.
+2. Clique sur le crayon (**Modifier le tableau de bord**), puis sur les trois points → **Éditeur de configuration brute**.
+3. Remplace tout par le YAML ci-dessous et **Enregistre**.
+
+<!-- ha-dashboard -->
+```yaml
+title: Canne à chat
+views:
+  - title: Canne à chat
+    path: catwandconnect
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Session de jeu
+            icon: mdi:cat
+            badges:
+              - type: entity
+                entity: sensor.catwandconnect_activity
+                show_state: true
+          - type: tile
+            entity: switch.catwandconnect_play_session
+            name: Session de jeu
+            icon: mdi:play-circle-outline
+            features:
+              - type: toggle
+            features_position: inline
+          - type: tile
+            entity: number.catwandconnect_session_duration
+            name: Durée de session
+            features:
+              - type: numeric-input
+                style: buttons
+            features_position: inline
+          - type: tile
+            entity: button.catwandconnect_stow
+            name: Ranger
+            color: red
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.catwandconnect_stow
+      - type: grid
+        cards:
+          - type: heading
+            heading: Position
+            icon: mdi:axis-arrow
+          - type: tile
+            entity: number.catwandconnect_horizontal_position
+            name: Horizontal
+            features:
+              - type: numeric-input
+                style: slider
+          - type: tile
+            entity: number.catwandconnect_vertical_position
+            name: Vertical
+            features:
+              - type: numeric-input
+                style: slider
+      - type: grid
+        cards:
+          - type: heading
+            heading: Vitesse maximale
+            icon: mdi:speedometer
+          - type: tile
+            entity: number.catwandconnect_horizontal_maximum_speed
+            name: Horizontal
+            features:
+              - type: numeric-input
+                style: buttons
+            features_position: inline
+          - type: tile
+            entity: number.catwandconnect_vertical_maximum_speed
+            name: Vertical
+            features:
+              - type: numeric-input
+                style: buttons
+            features_position: inline
+```
+
+Sur un téléphone, les sections s'empilent : la session de jeu d'abord, puis les positions et les vitesses. Pour ajouter les cartes à un tableau de bord existant, copie seulement les trois sections `- type: grid` dans une de ses vues en sections.
+
+**Robot renommé ?** Les identifiants ci-dessus sont ceux d'un robot qui a le nom par défaut. Les identifiants des entités suivent le nom du robot : pour un robot nommé « CatWandConnect salon », remplace chaque `catwandconnect_` par `catwandconnect_salon_` (rechercher et remplacer dans l'éditeur). Les identifiants exacts sont sur la page de l'appareil, dans **Paramètres → Appareils et services → MQTT**.
+
 ## Exemple d'automatisation
 
 Ranger la baguette tous les soirs à 22 h :
