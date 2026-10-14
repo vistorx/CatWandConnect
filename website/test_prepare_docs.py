@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 
-from prepare_docs import convert_alerts, rewrite_page, rewrite_target, stage
+from prepare_docs import convert_alerts, page_url, rewrite_page, rewrite_target, stage
 
 
 class RewriteTarget(unittest.TestCase):
@@ -50,18 +50,38 @@ class RewriteTarget(unittest.TestCase):
                          "../media/buttons/install.svg")
 
 
+    def test_french_pages_link_to_french_pages(self):
+        self.assertEqual(self.md("docs/install.fr.md", "README.fr.md", "index.fr.md"), "install.fr.md")
+        self.assertEqual(self.md("SUPPORT.fr.md", "README.fr.md", "index.fr.md"), "support.fr.md")
+        self.assertEqual(self.md("../SUPPORT.fr.md", "docs/install.fr.md", "install.fr.md"), "support.fr.md")
+        self.assertEqual(self.md("media/banner/b.jpg", "README.fr.md", "index.fr.md"), "media/banner/b.jpg")
+
+    def test_raw_html_links_between_languages(self):
+        html = lambda t, src, dst: rewrite_target(t, src, dst, True)
+        self.assertEqual(html("README.fr.md", "README.md", "index.md"), "fr/")
+        self.assertEqual(html("README.md", "README.fr.md", "index.fr.md"), "../")
+        self.assertEqual(html("docs/install.fr.md", "README.fr.md", "index.fr.md"), "install/")
+        self.assertEqual(html("media/buttons/install.svg", "README.fr.md", "index.fr.md"), "../media/buttons/install.svg")
+
+
 class Pages(unittest.TestCase):
+    def test_french_page_urls_live_under_fr(self):
+        self.assertEqual(page_url("index.fr.md"), "fr/")
+        self.assertEqual(page_url("install.fr.md"), "fr/install/")
+
+
     def test_github_alerts_become_admonitions(self):
         self.assertEqual(convert_alerts("> [!NOTE]\n> Line one\n>\n> Line two\n\nAfter"),
                          "!!! note\n    Line one\n\n    Line two\n\nAfter")
 
     def test_home_page_hides_the_side_navigation(self):
         self.assertTrue(rewrite_page("# Hi\n", "README.md", "index.md").startswith("---\nhide:"))
+        self.assertTrue(rewrite_page("# Salut\n", "README.fr.md", "index.fr.md").startswith("---\nhide:"))
 
     def test_stage_builds_the_home_page_and_indexes(self):
         with tempfile.TemporaryDirectory() as out:
             stage(out)
-            for page in ("index.md", "support.md", "glossary.md", "install.md", "adr/index.md",
+            for page in ("index.md", "index.fr.md", "support.fr.md", "install.fr.md", "support.md", "glossary.md", "install.md", "adr/index.md",
                          "agents/index.md", "media/logo/logo-64.png", "images/wiring.svg"):
                 self.assertTrue(os.path.exists(os.path.join(out, page)), page)
             with open(os.path.join(out, "index.md")) as f:

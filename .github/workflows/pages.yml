@@ -11,7 +11,9 @@ on:
     branches: [main]
     paths:
       - README.md
+      - README.fr.md
       - SUPPORT.md
+      - SUPPORT.fr.md
       - SECURITY.md
       - CONTEXT.md
       - docs/**
@@ -23,7 +25,9 @@ on:
   pull_request:
     paths:
       - README.md
+      - README.fr.md
       - SUPPORT.md
+      - SUPPORT.fr.md
       - SECURITY.md
       - CONTEXT.md
       - docs/**
@@ -56,6 +60,11 @@ jobs:
       - run: pip install -r website/requirements.txt
       - name: Website staging tests
         run: python website/test_prepare_docs.py
+      - name: Translation check tests
+        run: python website/test_check_translations.py
+      # Fails when an English user page has no French page (page.fr.md).
+      - name: Every user page has its French page
+        run: python website/check_translations.py
       - name: Stage the pages
         run: python website/prepare_docs.py
       # --strict fails on any broken internal link or anchor.

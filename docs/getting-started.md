@@ -4,7 +4,7 @@ How to pick up CatWandConnect on a new machine, whether you are the maintainer o
 
 ## Where things stand
 
-The dedicated firmware in `firmware/` replaces the old ESPHome proof of concept. It already provides Wi-Fi provisioning, Manual control, speed settings, Stow, a gentle power-up and Calibration. The remaining V1 work is tracked under [issue #1](https://github.com/vistorx/CatWandConnect/issues/1). None of it has been run on real hardware yet; [`acceptance-checklist.md`](acceptance-checklist.md) lists what to verify.
+The dedicated firmware in `firmware/` replaces the old ESPHome proof of concept. V1 ([issue #1](https://github.com/vistorx/CatWandConnect/issues/1)) is complete: v0.1.0, the first stable release, passed the [acceptance checklist](acceptance-checklist.md) on a classic ESP32. The ESP32-S3 and ESP32-C3 builds are tested automatically, not yet on real hardware. Planned work carries the [`future`](https://github.com/vistorx/CatWandConnect/issues?q=is%3Aopen+label%3Afuture) label.
 
 ## What to read first
 
@@ -131,7 +131,7 @@ Code layout:
 
 The firmware uses the `min_spiffs` partition table: two 1.9 MB app slots for OTA updates, and a 4 MB layout on every chip so 8 MB boards work too. Boards flashed before this layout was adopted need one USB flash to switch; later updates can go over Wi-Fi.
 
-Each build also writes `factory.bin`, the full flash image (it wipes the settings; the web flasher writes it in two parts that skip them). Publishing a version is described in [Releasing](releasing.md); the flasher page is `flasher/index.html`, and the project website is built from the README and `docs/` (see [The website and the web flasher](releasing.md#the-website-and-the-web-flasher)).
+Each build also writes `factory.bin`, the full flash image (it wipes the settings; the web flasher writes it in two parts that skip them). Publishing a version is described in [Releasing](releasing.md); the flasher page is `flasher/index.html`, and the project website is built from the README and `docs/` (see [The website and the web flasher](releasing.md#the-website-and-the-web-flasher)). The website is in English and French: each user page `page.md` has its translation `page.fr.md` next to it, and `python website/check_translations.py` (run by CI) checks that none is missing.
 
 If your clone sits in a synced folder, set `PLATFORMIO_BUILD_DIR` to a folder outside it. Builds write hundreds of megabytes to `firmware/.pio/`.
 
@@ -151,10 +151,11 @@ The slash-command skills are specific to Claude Code. Agents without them follow
 
 ## How work flows
 
-1. Pick an open ticket under #1 that has no open blocker. Tickets labelled `ready-for-agent` are fully specified.
+1. Pick an open ticket that has no open blocker. Tickets labelled `ready-for-agent` are fully specified.
 2. Branch from `main`, implement test-first where the Robot core is involved, and open a PR that references the ticket.
-3. CI must pass. Behaviour that tests cannot cover goes in the physical acceptance checklist (from #3).
+3. CI must pass. Behaviour that tests cannot cover goes in the physical acceptance checklist.
 4. If you settle a new term or decision, update `CONTEXT.md` or add an ADR in the same PR.
+5. If you change an English user page, update its French page (`.fr.md`) in the same PR.
 
 Hardware you need to test on the robot: an ESP32, ESP32-S3 or ESP32-C3 board, two MG996R servos, a 5 V supply that can deliver several amps, and a printed Mk2 Mechanism.
 
