@@ -74,6 +74,7 @@ body:
         - Settings PIN
         - Firmware update
         - Home Assistant / MQTT
+        - Home Assistant integration (HACS)
         - Something else
     validations:
       required: true
