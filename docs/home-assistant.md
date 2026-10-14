@@ -44,6 +44,97 @@ When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
 Commands from Home Assistant go through the same safety rules as the phone: Travel limits, speed limits and priorities. Nothing from Home Assistant can push the wand beyond its limits, and Stow can't be interrupted.
 
+## Ready-made dashboard
+
+A control panel for the robot, made only of built-in cards (nothing to install from HACS): the Play session switch and its duration, Stow, the Activity, each axis's position and maximum speed.
+
+1. Go to **Settings → Dashboards → Add dashboard → New dashboard from scratch**, name it, for example "Cat wand", and open it.
+2. Click the pencil (**Edit dashboard**), then the three dots → **Raw configuration editor**.
+3. Replace everything with the YAML below and **Save**.
+
+<!-- ha-dashboard -->
+```yaml
+title: Cat wand
+views:
+  - title: Cat wand
+    path: catwandconnect
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Play session
+            icon: mdi:cat
+            badges:
+              - type: entity
+                entity: sensor.catwandconnect_activity
+                show_state: true
+          - type: tile
+            entity: switch.catwandconnect_play_session
+            name: Play session
+            icon: mdi:play-circle-outline
+            features:
+              - type: toggle
+            features_position: inline
+          - type: tile
+            entity: number.catwandconnect_session_duration
+            name: Session duration
+            features:
+              - type: numeric-input
+                style: buttons
+            features_position: inline
+          - type: tile
+            entity: button.catwandconnect_stow
+            name: Stow
+            color: red
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.catwandconnect_stow
+      - type: grid
+        cards:
+          - type: heading
+            heading: Position
+            icon: mdi:axis-arrow
+          - type: tile
+            entity: number.catwandconnect_horizontal_position
+            name: Horizontal
+            features:
+              - type: numeric-input
+                style: slider
+          - type: tile
+            entity: number.catwandconnect_vertical_position
+            name: Vertical
+            features:
+              - type: numeric-input
+                style: slider
+      - type: grid
+        cards:
+          - type: heading
+            heading: Maximum speed
+            icon: mdi:speedometer
+          - type: tile
+            entity: number.catwandconnect_horizontal_maximum_speed
+            name: Horizontal
+            features:
+              - type: numeric-input
+                style: buttons
+            features_position: inline
+          - type: tile
+            entity: number.catwandconnect_vertical_maximum_speed
+            name: Vertical
+            features:
+              - type: numeric-input
+                style: buttons
+            features_position: inline
+```
+
+On a phone, the sections stack: Play session first, then the positions and speeds. To add the cards to an existing dashboard instead, copy only the three `- type: grid` sections into one of its sections views.
+
+**Renamed robot?** The ids above are those of a robot with the default name. Entity ids follow the robot's name: for a robot named "CatWandConnect salon", replace every `catwandconnect_` with `catwandconnect_salon_` (find and replace in the editor). The exact ids are on the device page under **Settings → Devices & services → MQTT**.
+
 ## Example automation
 
 Stow the wand every evening at 22:00:
