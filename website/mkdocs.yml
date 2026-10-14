@@ -47,6 +47,13 @@ theme:
 
 plugins:
   - search
+  # Old page URLs, kept working after the docs were split one topic per page.
+  - redirects:
+      redirect_maps:
+        hardware.md: https://vistorx.github.io/CatWandConnect/print/
+        electronics.md: https://vistorx.github.io/CatWandConnect/wiring/
+        fr/hardware.md: https://vistorx.github.io/CatWandConnect/fr/print/
+        fr/electronics.md: https://vistorx.github.io/CatWandConnect/fr/wiring/
   # Suffix layout: page.md (English) and page.fr.md (French, built under /fr/).
   # Pages without a French version (contributor docs, see EXEMPT in
   # website/check_translations.py) fall back to English on the French site.
@@ -85,9 +92,7 @@ plugins:
           nav_translations:
             Home: Accueil
             Install: Installer
-            Firmware: Firmware
-            Electronics: Électronique
-            Hardware: Matériel
+            Build: Fabriquer
             Use: Utilisation
             Community: Communauté
             Contributing: Contribuer
@@ -121,17 +126,15 @@ validation:
 nav:
   - Home: index.md
   - Install: https://vistorx.github.io/CatWandConnect/flasher/
-  - Firmware:
-      - install.md
-      - api.md
-  - Electronics:
-      - electronics.md
-  - Hardware:
-      - hardware.md
+  - Build:
+      - print.md
       - assembly.md
+      - wiring.md
+      - install.md
+  - Home Assistant:
+      - home-assistant.md
   - Use:
       - features.md
-      - home-assistant.md
       - troubleshooting.md
   - Community:
       - support.md
@@ -139,6 +142,7 @@ nav:
       - glossary.md
       - Contributing:
           - getting-started.md
+          - api.md
           - acceptance-checklist.md
           - releasing.md
           - support-relay.md

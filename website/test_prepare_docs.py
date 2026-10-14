@@ -25,7 +25,7 @@ class GithubOnlyContent(unittest.TestCase):
 
     def test_github_video_in_a_french_docs_page_points_at_the_built_media(self):
         # fr/hardware/ -> media/ at the site root
-        page = rewrite_page(VIDEO_URL + "\n", "docs/hardware.fr.md", "hardware.fr.md")
+        page = rewrite_page(VIDEO_URL + "\n", "docs/print.fr.md", "print.fr.md")
         self.assertIn('src="../../media/video/mk2-presentation.mp4"', page)
         self.assertIn('poster="../../media/video/mk2-presentation-poster.jpg"', page)
 
@@ -56,10 +56,10 @@ class RewriteTarget(unittest.TestCase):
 
     def test_images_point_at_the_staged_copies(self):
         self.assertEqual(self.md("media/banner/b.jpg", "README.md", "index.md"), "media/banner/b.jpg")
-        self.assertEqual(self.md("images/wiring.svg", "docs/electronics.md", "electronics.md"), "images/wiring.svg")
+        self.assertEqual(self.md("images/wiring.svg", "docs/wiring.md", "wiring.md"), "images/wiring.svg")
 
     def test_files_outside_the_site_go_to_github(self):
-        self.assertEqual(self.md("../stls/mk2/a.stl", "docs/hardware.md", "hardware.md"),
+        self.assertEqual(self.md("../stls/mk2/a.stl", "docs/print.md", "print.md"),
                          "https://github.com/vistorx/CatWandConnect/blob/main/stls/mk2/a.stl")
         self.assertEqual(self.md("AGENTS.md", "README.md", "index.md"),
                          "https://github.com/vistorx/CatWandConnect/blob/main/AGENTS.md")

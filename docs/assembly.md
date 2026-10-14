@@ -1,15 +1,30 @@
-# Assembly guide: Mk2 Mechanism
+# Assemble the Mechanism
 
 > **Coming soon.** A step-by-step guide with photos will be written from the reference build. Until then, the draft below gives the order, reconstructed from the parts and screw list and not yet checked against a build. Corrections and photos are welcome.
 
-You need the printed and mechanical parts from [Hardware](hardware.md), and the wiring from [Electronics](electronics.md).
+You need the [printed parts](print.md) and the parts below. The servos are wired in [Wire the electronics](wiring.md).
+
+## Parts to buy
+
+| Qty | Part | Notes |
+|-----|------|-------|
+| 1 | 608 skateboard bearing | |
+| 16–24 | 4 mm steel balls | Adjust the count to your print's finish. |
+| 4 | M3×8 button-head screws | Horizontal servo mounting |
+| 2 | M3×25 button-head screws | Lower plate of the horizontal axis to the ball track |
+| 1 | M3×8 countersunk screw | Horizontal servo shaft plate |
+| 1 | M3×20 countersunk screw | Vertical servo shaft |
+| 4 | M3×8 button-head screws | Vertical servo mounting |
+| 3 | M3×30 countersunk screws | Bearing to the vertical shaft |
+| 1 | A toy wand | Any cat wand with a stick that fits the arm |
+
 
 <details>
 <summary><b>Draft assembly order</b></summary>
 
 ### Before you start
 
-- Print every part in [`stls/mk2/`](../stls/mk2/).
+- [Print](print.md) every part in [`stls/mk2/`](../stls/mk2/).
 - Clean the ball track and the bearing seat of strings and elephant's foot, so the balls roll freely.
 - Plug each servo into a powered, flashed board and let the robot Stow once, so both servos sit at their Stow position before you fit the arm. This keeps the arm centred within its range.
 
@@ -32,3 +47,5 @@ You need the printed and mechanical parts from [Hardware](hardware.md), and the 
 - Power up and stay close: the wand should crawl to its Stow position. Then try the joystick gently. See the [acceptance checklist](acceptance-checklist.md).
 
 </details>
+
+Next: [Wire the electronics](wiring.md).

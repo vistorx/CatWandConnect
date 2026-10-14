@@ -45,7 +45,7 @@ Le signal est trop faible ou la box a changé. Rapproche le robot, ou saisis le 
 
 **Les servos ne bougent pas du tout.**
 - Vérifie la masse commune entre la carte et l'alimentation des servos.
-- Vérifie que les fils de signal sont sur les broches indiquées dans Réglages → Matériel → Câblage (les valeurs par défaut sont dans [Électronique](electronics.fr.md#broches-par-défaut)).
+- Vérifie que les fils de signal sont sur les broches indiquées dans Réglages → Matériel → Câblage (les valeurs par défaut sont dans [Câbler l'électronique](wiring.fr.md#broches-par-défaut)).
 - Au démarrage, le robot rejoint très lentement (10 °/s) sa position de repos, puis relâche les servos. C'est normal.
 
 **Les servos tremblent ou la carte redémarre quand ils bougent.**

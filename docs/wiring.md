@@ -1,4 +1,4 @@
-# Electronics
+# Wire the electronics
 
 How to wire the two servos and the power supply to the board. The firmware drives the servos with 50 Hz PWM pulses; the board only sends the signals and never powers the servos.
 
@@ -60,3 +60,5 @@ Use a small terminal block, a Wago-style connector or a perfboard as the +5 V an
 ## Servo pulse range
 
 The defaults come from the proof of concept: 400–2200 µs for the Horizontal servo and 600–2400 µs for the Vertical one, mapped to 0°–180°. If your servos don't reach their full travel, or buzz at an end, adjust the pulse range in **Settings → Hardware → Wiring**. The same section reverses an axis whose direction is mirrored. Either change resets Calibration, so run it again afterwards.
+
+Next: [Install the software](install.md).

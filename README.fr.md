@@ -51,7 +51,7 @@ Trois parties : installer le firmware, câbler l'électronique, imprimer et asse
 
 Le firmware s'installe depuis ton navigateur, sans rien télécharger : ouvre le flasher web dans Chrome ou Edge, branche la carte en USB et appuie sur **Connecter et installer**. La bonne version pour ta puce est choisie pour toi. Les mises à jour suivantes passent par le Wi-Fi, depuis la page Réglages du robot.
 
-**[Ouvrir le flasher web →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Installation et premier démarrage](docs/install.fr.md) · [Canaux de publication](docs/releasing.md#channels) (en anglais)
+**[Ouvrir le flasher web →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Installer le logiciel](docs/install.fr.md) · [Canaux de publication](docs/releasing.md#channels) (en anglais)
 
 ### 2. Électronique
 
@@ -66,7 +66,7 @@ Une seule alimentation 5 V alimente les deux servos et la carte ; la carte envoi
 
 <p align="center"><img src="docs/images/wiring-compact.svg" alt="Câblage compact : l'alimentation 5 V alimente un rail +5 V et un rail GND ; les deux servos et l'ESP32 prennent leur alimentation sur les rails ; l'ESP32 envoie un signal à chaque servo." width="560"></p>
 
-**[Guide électronique →](docs/electronics.fr.md)** : schéma complet, broches par puce, règles d'alimentation.
+**[Guide de câblage →](docs/wiring.fr.md)** : schéma complet, broches par puce, règles d'alimentation.
 
 ### 3. Matériel
 
@@ -80,7 +80,7 @@ Le mécanisme est imprimé en 3D : six pièces, toutes dans [`stls/mk2/`](stls/m
 | 15 | Vis M3, de 8 à 30 mm |
 | 1 | Canne à pêche pour chat |
 
-**[Pièces et réglages d'impression →](docs/hardware.fr.md)** · **[Guide d'assemblage →](docs/assembly.fr.md)** (bientôt)
+**[Imprimer les pièces →](docs/print.fr.md)** · **[Assembler le mécanisme →](docs/assembly.fr.md)** (photos bientôt)
 
 ## Documentation
 
@@ -88,12 +88,12 @@ Le mécanisme est imprimé en 3D : six pièces, toutes dans [`stls/mk2/`](stls/m
 
 | Doc | Pour |
 |-----|------|
-| [Installation et premier démarrage](docs/install.fr.md) | Flasher depuis le navigateur, Wi-Fi, calibration, mises à jour |
-| [Électronique](docs/electronics.fr.md) | Composants, schéma de câblage, alimentation, broches par défaut selon la puce |
-| [Matériel](docs/hardware.fr.md) | Pièces imprimées, réglages d'impression, pièces mécaniques du Mk2 |
-| [Guide d'assemblage](docs/assembly.fr.md) | Monter le Mk2 (bientôt) |
+| [1. Imprimer les pièces](docs/print.fr.md) | Les six pièces imprimées du Mk2 et les réglages d'impression |
+| [2. Assembler le mécanisme](docs/assembly.fr.md) | Pièces à acheter (roulement, billes, vis) et ordre de montage (photos bientôt) |
+| [3. Câbler l'électronique](docs/wiring.fr.md) | Carte, servos, alimentation, schéma de câblage, broches par défaut selon la puce |
+| [4. Installer le logiciel](docs/install.fr.md) | Flasher depuis le navigateur, Wi-Fi, calibration, mises à jour |
+| [5. Configurer Home Assistant](docs/home-assistant.fr.md) | Facultatif : broker, utilisateur, intégration MQTT, connexion du robot, tableau de bord, automatisations |
 | [Fonctionnalités](docs/features.fr.md) | Tout ce que fait le robot, en détail |
-| [Home Assistant](docs/home-assistant.fr.md) | Connecter le robot via MQTT |
 | [Dépannage](docs/troubleshooting.fr.md) | Installation, Wi-Fi, mouvements, mises à jour, code PIN |
 
 **Développer et contribuer**

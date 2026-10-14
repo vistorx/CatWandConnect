@@ -1,4 +1,4 @@
-# Installation et premier démarrage
+# Installer le logiciel
 
 ## Installer le firmware
 
@@ -38,3 +38,5 @@ Aucun outil à installer : le firmware va sur la carte directement depuis ton na
 6. **Personnalise-le.** Donne un nom au robot dans les Réglages ; son adresse suit, par exemple `http://catwandconnect-salon.local/`. Utilise « Ajouter à l'écran d'accueil » de ton navigateur pour avoir une icône comme une appli.
 
 Un problème ? Voir le [dépannage](troubleshooting.fr.md), puis [Obtenir de l'aide](../SUPPORT.fr.md).
+
+Ensuite, en option : [Configurer Home Assistant](home-assistant.fr.md).

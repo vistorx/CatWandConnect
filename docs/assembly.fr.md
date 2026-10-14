@@ -1,15 +1,30 @@
-# Guide d'assemblage : mécanisme Mk2
+# Assembler le mécanisme
 
 > **Bientôt.** Un guide pas à pas avec photos sera rédigé à partir du montage de référence. En attendant, le brouillon ci-dessous donne l'ordre, reconstitué à partir des pièces et de la liste des vis, et pas encore vérifié sur un vrai montage. Corrections et photos bienvenues.
 
-Il te faut les pièces imprimées et mécaniques de [Matériel](hardware.fr.md), et le câblage de [Électronique](electronics.fr.md).
+Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les servos se câblent dans [Câbler l'électronique](wiring.fr.md).
+
+## Pièces à acheter
+
+| Qté | Pièce | Remarques |
+|-----|-------|-----------|
+| 1 | Roulement de skateboard 608 | |
+| 16–24 | Billes en acier de 4 mm | Adapte le nombre à la finition de ton impression. |
+| 4 | Vis M3×8 à tête bombée | Fixation du servo horizontal |
+| 2 | Vis M3×25 à tête bombée | Plateau inférieur de l'axe horizontal sur le chemin de billes |
+| 1 | Vis M3×8 à tête fraisée | Plateau de l'arbre du servo horizontal |
+| 1 | Vis M3×20 à tête fraisée | Arbre du servo vertical |
+| 4 | Vis M3×8 à tête bombée | Fixation du servo vertical |
+| 3 | Vis M3×30 à tête fraisée | Roulement sur l'arbre vertical |
+| 1 | Une canne à pêche pour chat | N'importe quelle canne dont la tige rentre dans le bras |
+
 
 <details>
 <summary><b>Brouillon de l'ordre d'assemblage</b></summary>
 
 ### Avant de commencer
 
-- Imprime toutes les pièces de [`stls/mk2/`](../stls/mk2/).
+- [Imprime](print.fr.md) toutes les pièces de [`stls/mk2/`](../stls/mk2/).
 - Nettoie le chemin de billes et le logement du roulement (fils, patte d'éléphant) pour que les billes roulent librement.
 - Branche chaque servo sur une carte alimentée et flashée, et laisse le robot se ranger une fois : les deux servos sont alors à leur position de repos avant que tu montes le bras. Le bras reste ainsi centré dans sa course.
 
@@ -32,3 +47,5 @@ Il te faut les pièces imprimées et mécaniques de [Matériel](hardware.fr.md),
 - Mets sous tension et reste à côté : la baguette doit rejoindre doucement sa position de repos. Essaie ensuite le joystick, doucement. Voir la [checklist de recette](acceptance-checklist.fr.md).
 
 </details>
+
+Ensuite : [Câbler l'électronique](wiring.fr.md).

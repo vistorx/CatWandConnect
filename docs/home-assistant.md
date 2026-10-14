@@ -1,35 +1,74 @@
-# Home Assistant
+# Set up Home Assistant
 
-CatWandConnect works without Home Assistant. If you have it, the robot can appear in it by itself through **MQTT discovery**: you get a device with a Stow button, the position and maximum speed of each axis, its activity, and a Play session switch with its Session duration, ready for dashboards and automations.
+CatWandConnect works without Home Assistant. If you have it, the robot can appear in it by itself: a device with a Play session switch and its duration, a Stow button, its activity, and each axis's position and maximum speed, ready for dashboards and automations.
 
-## What you need
+The robot talks to Home Assistant through **MQTT**, a small messaging service that runs next to Home Assistant (the *broker*). The robot sends its state to the broker and receives commands from it; Home Assistant reads and writes the same messages. Setting it up takes about 10 minutes:
 
-- Home Assistant with an **MQTT broker**. The easiest is the official **Mosquitto broker** add-on.
-- The **MQTT integration** in Home Assistant, connected to that broker.
-- The robot on the same network.
+1. [Check the prerequisites](#1-check-the-prerequisites)
+2. [Install the MQTT broker](#2-install-the-mqtt-broker)
+3. [Create a user for the robot](#3-create-a-user-for-the-robot)
+4. [Add the MQTT integration](#4-add-the-mqtt-integration)
+5. [Connect the robot](#5-connect-the-robot)
+6. [Find it in Home Assistant](#6-find-it-in-home-assistant)
 
-## 1. Set up the broker
+Already use MQTT (Zigbee2MQTT, Tasmota...)? Your broker and integration are ready: create a user (step 3) and go to [step 5](#5-connect-the-robot).
 
-If you already use MQTT, skip to step 2.
+## 1. Check the prerequisites
 
-1. In Home Assistant, go to **Settings → Add-ons → Add-on store**, install **Mosquitto broker** and start it.
-2. Create a user for the robot: **Settings → People → Users → Add user**, for example `catwandconnect`, with a password. Enable advanced mode in your profile if the Users tab is missing. Mosquitto accepts Home Assistant users.
-3. Home Assistant usually discovers the broker: accept the **MQTT** integration it proposes under **Settings → Devices & services**.
+- **Home Assistant OS** (a Home Assistant Green or Yellow, a Raspberry Pi, a virtual machine). To check: **Settings → About**, the *Installation type* line. On **Home Assistant Container** or **Core** there is no *Apps* menu: install a Mosquitto broker yourself (for example its Docker image) and go to [step 4](#4-add-the-mqtt-integration).
+- An **administrator** account in Home Assistant.
+- The robot **installed and on your Wi-Fi** ([Install the software](install.md)), on the same network as Home Assistant.
+- Home Assistant's **IP address**: **Settings → System → Network**, under *Network adapter*, for example `192.168.1.124`. Write it down for step 5. Give it a fixed address in your router (a *DHCP reservation*) so it never changes.
 
-## 2. Connect the robot
+## 2. Install the MQTT broker
 
-1. Open the robot's interface, then **Settings → Network → Home Assistant**.
-2. Tick **Enabled**, and enter:
-   - **Broker**: your Home Assistant's address, for example `homeassistant.local` or its IP;
+1. In Home Assistant, go to **Settings → Apps → Install app** (called *Add-ons* before Home Assistant 2026.2).
+2. Search for **Mosquitto broker** and open it.
+3. Click **Install**, wait, then turn on **Start on boot** and click **Start**.
+4. Open the **Log** tab: after a few seconds it should end without errors.
+
+Leave its *Configuration* tab as it is: the broker accepts Home Assistant's own users, which is what step 3 uses.
+
+## 3. Create a user for the robot
+
+The broker refuses anonymous connections, so the robot needs its own login.
+
+1. Turn on **Advanced mode**: click your name at the bottom left, then turn on *Advanced mode* (otherwise the *Users* tab is hidden).
+2. Go to **Settings → People → Users** and click **Add user**.
+3. Fill in:
+   - **Display name**: `CatWandConnect`;
+   - **Username**: `catwandconnect` (not `homeassistant` or `addons`: the broker reserves them);
+   - **Password**: a new password, used only by the robot. Note it for step 5.
+4. Leave **Administrator** off, then click **Create**.
+
+This user never logs in to Home Assistant's interface; it only lets the robot talk to the broker.
+
+## 4. Add the MQTT integration
+
+This connects Home Assistant itself to the broker.
+
+1. Go to **Settings → Devices & services**.
+2. Usually **MQTT** is waiting under *Discovered*: click **Add**, then **Submit**.
+3. If it isn't there: **Add integration** at the bottom right, search for **MQTT**, choose **MQTT**, and confirm the Mosquitto broker.
+4. **MQTT** now shows in the list of integrations, with no error.
+
+Leave *Enable discovery* on and the discovery prefix at `homeassistant` (the defaults): the robot announces itself there.
+
+## 5. Connect the robot
+
+1. Open the robot's interface (`http://catwandconnect.local/`, or the name you gave it), then **Settings → Network → Home Assistant**.
+2. Tick **Enabled**, and fill in:
+   - **Broker**: Home Assistant's IP address from step 1, for example `192.168.1.124`. `homeassistant.local` also works on most networks, but the IP is more reliable;
    - **Port**: `1883`;
-   - **User** and **Password**: the user from step 1.
-3. Save. Within a few seconds, the status should say **Connected**.
+   - **User** and **Password**: the user from step 3.
+3. Click **Save**. If a settings PIN is set, the robot asks for it.
+4. Within a few seconds, **Status** says **Connected**. If it shows an error instead, see [Troubleshooting](#troubleshooting).
 
-If a settings PIN is set, saving asks for it.
+The robot reconnects by itself after a power cut or a Home Assistant restart.
 
-## 3. Find it in Home Assistant
+## 6. Find it in Home Assistant
 
-Go to **Settings → Devices & services → MQTT → Devices**. The robot appears under its name, with:
+Go to **Settings → Devices & services → MQTT**, then **Devices**. The robot appears under its name. Its page lists these entities:
 
 | Entity | Type | What it does |
 |--------|------|--------------|
@@ -135,7 +174,10 @@ On a phone, the sections stack: Play session first, then the positions and speed
 
 **Renamed robot?** The ids above are those of a robot with the default name. Entity ids follow the robot's name: for a robot named "CatWandConnect salon", replace every `catwandconnect_` with `catwandconnect_salon_` (find and replace in the editor). The exact ids are on the device page under **Settings → Devices & services → MQTT**.
 
-## Example automation
+## Automations
+
+In **Settings → Automations & scenes → Create automation → Create new automation**, three dots → **Edit in YAML**, paste one of these, then **Save**.
+
 
 Stow the wand every evening at 22:00:
 
@@ -177,9 +219,11 @@ Entity ids follow the robot's name: `button.catwandconnect_stow` by default, `bu
 
 | Status in the robot's Settings | What to check |
 |--------------------------------|---------------|
-| Can't reach the broker | The broker address and port, and that the Mosquitto add-on is running. Try the IP instead of `homeassistant.local`. |
-| The broker refused the user or password | The user and password; the user must exist in Home Assistant (or in Mosquitto's own logins). |
-| Connected, but no device in Home Assistant | The MQTT integration is set up and uses the default discovery prefix `homeassistant`. |
+| Can't reach the broker | The broker address and port `1883`, and that the Mosquitto broker app is started (step 2). Use Home Assistant's IP instead of `homeassistant.local`. |
+| The broker refused the user or password | The user and password from step 3. Retype the password in the robot (it never shows the saved one). The username can't be `homeassistant` or `addons`. |
+| Connected, but no device in Home Assistant | The MQTT integration is set up (step 4) with discovery on and the prefix `homeassistant`. |
+| Entities unavailable | The robot is off or off Wi-Fi. They come back within a minute of it reconnecting. |
+| Play session switch flips back off | The robot is not calibrated yet, or it is stowing, calibrating or tuning a speed. Calibrate it from its main screen. |
 
 The robot's MQTT topics are documented in the [Device API](api.md#home-assistant-mqtt). Still stuck? See [Getting help](../SUPPORT.md), or open **Help** in the robot's Settings → Robot: Home Assistant's device page has a **Visit** link to the robot's interface (MQTT discovery only allows one link per device, so it can't point to the Help page directly).
 
