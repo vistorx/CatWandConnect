@@ -9,7 +9,12 @@ website/build/docs, the `docs_dir` of website/mkdocs.yml):
 - docs/** is copied as is (pages, diagrams, French pages `page.fr.md`);
 - SUPPORT.md, SECURITY.md and CONTEXT.md become support.md, security.md and
   glossary.md (SUPPORT.fr.md becomes support.fr.md);
-- media/** (logo, banners, photos) is copied for the images.
+- media/** (logo, banners, photos, video) is copied for the images.
+
+GitHub-only content is adapted: a bare user-attachments video URL (GitHub
+renders it as a player) becomes a <video> of the local copy in media/video/,
+and blocks between `<!-- github-only -->` and `<!-- /github-only -->` (such
+as the README's "read this on the website" link) are dropped.
 
 Links are rewritten so they work on the site the way they work on GitHub:
 links to staged pages point at the staged copy, links to anything else in the
@@ -45,8 +50,15 @@ FRONT_MATTER = {"index.md": HOME_FRONT_MATTER, "index.fr.md": HOME_FRONT_MATTER}
 FR_SUFFIX = ".fr.md"
 
 MD_LINK = re.compile(r"(\]\()([^)\s]+)(\))")
-HTML_LINK = re.compile(r"""((?:href|src)=")([^"]+)(")""")
+HTML_LINK = re.compile(r"""((?:href|src|poster)=")([^"]+)(")""")
 ALERT = re.compile(r"^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$")
+# GitHub user-attachments video -> its copy in media/, with its poster.
+VIDEOS = {
+    "https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499": (
+        "media/video/mk2-presentation.mp4", "media/video/mk2-presentation-poster.jpg"),
+}
+ATTACHMENT = re.compile(r"^(https://github\.com/user-attachments/assets/[0-9a-f-]+)\s*$", re.M)
+GITHUB_ONLY = re.compile(r"<!-- github-only -->.*?<!-- /github-only -->\n?", re.S)
 ADMONITION = {"NOTE": "note", "TIP": "tip", "IMPORTANT": "info", "WARNING": "warning", "CAUTION": "danger"}
 
 
@@ -118,7 +130,25 @@ def convert_alerts(text):
     return "\n".join(out)
 
 
+def convert_videos(text, src_repo):
+    """Bare GitHub video URLs -> a <video> of the local copy (or a plain link).
+
+    Paths are written relative to the source file, like any repo link, so the
+    HTML link rewriting that follows turns them into built URLs."""
+    def video(match):
+        url = match.group(1)
+        if url not in VIDEOS:
+            return f"[{url}]({url})"
+        up = "../" * src_repo.count("/")
+        src, poster = VIDEOS[url]
+        return (f'<video controls preload="metadata" playsinline width="100%" '
+                f'src="{up}{src}" poster="{up}{poster}"></video>')
+    return ATTACHMENT.sub(video, text)
+
+
 def rewrite_page(text, src_repo, dst_staged):
+    text = GITHUB_ONLY.sub("", text)
+    text = convert_videos(text, src_repo)
     text = MD_LINK.sub(lambda m: m.group(1) + rewrite_target(m.group(2), src_repo, dst_staged, False) + m.group(3), text)
     text = HTML_LINK.sub(lambda m: m.group(1) + rewrite_target(m.group(2), src_repo, dst_staged, True) + m.group(3), text)
     text = convert_alerts(text)
