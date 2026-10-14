@@ -196,6 +196,12 @@ Utilise un Home Assistant avec le module Mosquitto et l'intégration MQTT ([conf
 - [ ] Avant la calibration, allumer Play session ne fait rien : l'interrupteur revient sur éteint et le log du robot affiche « Play session refused: not calibrated ».
 - [ ] Changer Session duration dans Home Assistant met à jour la durée sur l'écran principal, et elle est toujours là après un redémarrage. Une valeur de 0 ou 61 est refusée.
 
+## Intégration native (découverte et API)
+
+- [ ] Le robot est visible en `_catwandconnect._tcp` pour le zeroconf de Home Assistant : avec l'intégration native installée, il apparaît dans Paramètres → Appareils et services → Découvert ; sans elle, `avahi-browse -rt _catwandconnect._tcp` (Linux) ou `dns-sd -B _catwandconnect._tcp` (macOS) sur le même réseau le liste sur le port 80 avec les enregistrements TXT `id` (l'identifiant d'appareil du rapport de diagnostic), `api=1`, `version` (celle de la page Infos) et `name` (le nom du robot).
+- [ ] `GET /api/info` contient `"api":1` et un `"id"` égal à l'identifiant d'appareil du rapport de diagnostic.
+- [ ] `curl -X POST -H 'Content-Type: application/json' -d '{"axis":"horizontal","degrees":90}' http://<nom>.local/api/position` y déplace la baguette en douceur et répond `202`. Une valeur au-delà des limites de course s'arrête à la limite ; pendant une session de jeu, elle termine la session sans ranger ; `{"axis":"up","degrees":90}` répond `400`.
+
 ## Flasher web et versions publiées
 
 - [ ] La page de la version publiée contient un `-factory.bin` et un `-ota.bin` par puce, et la version de la page Infos correspond au tag.

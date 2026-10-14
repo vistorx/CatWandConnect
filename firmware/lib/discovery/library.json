@@ -1,0 +1,6 @@
+{
+  "name": "discovery",
+  "version": "0.0.0",
+  "description": "How CatWandConnect makes itself known to the Native integration: the API version and the mDNS service's TXT records. Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

@@ -36,11 +36,15 @@ class NvsBlobs : public diagnostics::BlobStore {
 
 NvsBlobs blobs;
 
-// The Device ID, drawn once with the hardware RNG and kept in NVS.
-String deviceId() {
+}  // namespace
+
+// Drawn once with the hardware RNG and kept in NVS.
+const String& deviceId() {
+  static String id;
+  if (id.length() == 8) return id;
   Preferences prefs;
   prefs.begin("cwc", false);
-  String id = prefs.getString("deviceId", "");
+  id = prefs.getString("deviceId", "");
   if (id.length() != 8) {
     id = diagnostics::deviceIdFrom(esp_random()).c_str();
     prefs.putString("deviceId", id);
@@ -48,8 +52,6 @@ String deviceId() {
   prefs.end();
   return id;
 }
-
-}  // namespace
 
 void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, Network& network,
                          auth::PinGuard& pin, const String& name, const String& hostname) {
