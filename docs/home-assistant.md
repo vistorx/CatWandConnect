@@ -1,6 +1,6 @@
 # Home Assistant
 
-CatWandConnect works without Home Assistant. If you have it, the robot can appear in it by itself through **MQTT discovery**: you get a device with a Stow button, the position and maximum speed of each axis, and its activity, ready for dashboards and automations.
+CatWandConnect works without Home Assistant. If you have it, the robot can appear in it by itself through **MQTT discovery**: you get a device with a Stow button, the position and maximum speed of each axis, its activity, and a Play session switch with its Session duration, ready for dashboards and automations.
 
 ## What you need
 
@@ -36,7 +36,9 @@ Go to **Settings → Devices & services → MQTT → Devices**. The robot appear
 | Stow | Button | Puts the wand away and releases the servos. Beats every other command. |
 | Horizontal position, Vertical position | Number (0–180°) | Shows where each axis is. Setting a value moves the axis there at the Manual control speed, within the Travel limits. |
 | Horizontal maximum speed, Vertical maximum speed | Number (10–360 °/s) | The same setting as in the robot's Settings. A maximum at or below the minimum speed resets the minimum to a tenth of the new maximum. |
-| Activity | Sensor | `idle`, `manual`, `stowing`, `calibrating` or `tuning_speed`. |
+| Activity | Sensor | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` or `playing`. |
+| Play session | Switch | On starts a Play session for the Session duration; off stops it and Stows. It shows on while a session runs, whether it was started from Home Assistant or from the robot's interface, and turns off by itself when the session ends. Refused (the switch flips back off) until the robot is calibrated, and while it is stowing, calibrating or tuning a speed. |
+| Session duration | Number (1–60 min) | How long the next Play session lasts, the same value as on the robot's main screen. Remembered once the robot is idle. |
 
 When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
@@ -55,6 +57,27 @@ actions:
   - action: button.press
     target:
       entity_id: button.catwandconnect_stow
+```
+
+Start a 15-minute Play session when you leave for work on weekdays:
+
+```yaml
+alias: Play with the cat after we leave
+triggers:
+  - trigger: time
+    at: "08:30:00"
+conditions:
+  - condition: time
+    weekday: [mon, tue, wed, thu, fri]
+actions:
+  - action: number.set_value
+    target:
+      entity_id: number.catwandconnect_session_duration
+    data:
+      value: 15
+  - action: switch.turn_on
+    target:
+      entity_id: switch.catwandconnect_play_session
 ```
 
 Entity ids follow the robot's name: `button.catwandconnect_stow` by default, `button.catwandconnect_salon_stow` for a robot named "CatWandConnect salon".

@@ -51,7 +51,7 @@ Tout ce que fait le firmware CatWandConnect, regroupé par usage. Tout est dans 
 
 ## Intégrations
 
-- **Home Assistant (facultatif).** Saisis ton broker MQTT dans les Réglages et le robot apparaît tout seul dans Home Assistant, avec un bouton Ranger, la position et la vitesse maximale de chaque axe, et son activité. Les commandes suivent les mêmes règles de sécurité que le téléphone. Voir [Home Assistant](home-assistant.fr.md).
+- **Home Assistant (facultatif).** Saisis ton broker MQTT dans les Réglages et le robot apparaît tout seul dans Home Assistant, avec un bouton Ranger, la position et la vitesse maximale de chaque axe, son activité, et un interrupteur de session de jeu avec sa durée de session. Les commandes suivent les mêmes règles de sécurité que le téléphone. Voir [Home Assistant](home-assistant.fr.md).
 - **API ouverte.** Tout ce que fait l'interface passe par une API HTTP, WebSocket et MQTT documentée, pour tes propres scripts et intégrations. Voir [API du robot](api.fr.md).
 
 ## Matériel

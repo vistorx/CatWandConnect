@@ -1,6 +1,6 @@
 # Home Assistant
 
-CatWandConnect fonctionne sans Home Assistant. Si tu l'utilises, le robot peut y apparaître tout seul grâce à la **découverte MQTT** : tu obtiens un appareil avec un bouton Ranger, la position et la vitesse maximale de chaque axe, et son activité, prêt pour tes tableaux de bord et tes automatisations.
+CatWandConnect fonctionne sans Home Assistant. Si tu l'utilises, le robot peut y apparaître tout seul grâce à la **découverte MQTT** : tu obtiens un appareil avec un bouton Ranger, la position et la vitesse maximale de chaque axe, son activité, et un interrupteur de session de jeu avec sa durée de session, prêt pour tes tableaux de bord et tes automatisations.
 
 ## Ce qu'il te faut
 
@@ -36,7 +36,9 @@ Va dans **Paramètres → Appareils et services → MQTT → Appareils**. Le rob
 | Stow | Bouton | Range la baguette et relâche les servos. Passe avant toute autre commande. |
 | Horizontal position, Vertical position | Nombre (0–180°) | Indique où se trouve chaque axe. Changer la valeur déplace l'axe à cet endroit, à la vitesse du pilotage manuel, dans les limites de course. |
 | Horizontal maximum speed, Vertical maximum speed | Nombre (10–360 °/s) | Le même réglage que dans les Réglages du robot. Une vitesse maximale inférieure ou égale à la vitesse minimale ramène la minimale au dixième de la nouvelle maximale. |
-| Activity | Capteur | `idle`, `manual`, `stowing`, `calibrating` ou `tuning_speed`. |
+| Activity | Capteur | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` ou `playing`. |
+| Play session | Interrupteur | Allumé, il lance une session de jeu pour la durée de session ; éteint, il l'arrête et range la baguette. Il est allumé tant qu'une session tourne, qu'elle ait été lancée depuis Home Assistant ou depuis l'interface du robot, et s'éteint tout seul à la fin de la session. Refusé (l'interrupteur revient sur éteint) tant que le robot n'est pas calibré, et pendant un rangement, une calibration ou un réglage de vitesse. |
+| Session duration | Nombre (1–60 min) | La durée de la prochaine session de jeu, la même valeur que sur l'écran principal du robot. Mémorisée dès que le robot est au repos. |
 
 Les noms des entités restent en anglais. Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme indisponibles.
 
@@ -55,6 +57,27 @@ actions:
   - action: button.press
     target:
       entity_id: button.catwandconnect_stow
+```
+
+Lancer une session de jeu de 15 minutes quand tu pars au travail en semaine :
+
+```yaml
+alias: Jouer avec le chat après notre départ
+triggers:
+  - trigger: time
+    at: "08:30:00"
+conditions:
+  - condition: time
+    weekday: [mon, tue, wed, thu, fri]
+actions:
+  - action: number.set_value
+    target:
+      entity_id: number.catwandconnect_session_duration
+    data:
+      value: 15
+  - action: switch.turn_on
+    target:
+      entity_id: switch.catwandconnect_play_session
 ```
 
 Les identifiants des entités suivent le nom du robot : `button.catwandconnect_stow` par défaut, `button.catwandconnect_salon_stow` pour un robot nommé « CatWandConnect salon ».

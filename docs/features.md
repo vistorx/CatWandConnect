@@ -6,7 +6,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 - **Phone joystick.** Open `http://catwandconnect.local/` in any browser on your Wi-Fi and drag the joystick: the wand follows in real time. A small drag moves it slowly; a full drag moves it at full speed. Let go and it stops. Works with the phone upright or sideways.
 - **Speed slider.** Set how lively the wand is, from each axis's minimum speed to its maximum speed, right on the main screen. Every open phone stays in sync.
-- **Play session.** The robot plays with your cat on its own for a set time (1–60 min, 10 by default, remembered), then Stows. Each axis moves to random spots within your Travel limits at random speeds within its Speed range, and pauses for a random time within its Pause range (0–60 s, set per axis), never in step with the other axis, so the wand moves like prey. Touching the joystick takes over at once; Stop or Stow end it. It keeps going when you close the page, and never restarts by itself after a power cut. Available once calibrated. *In this build it is driven through the [Device API](api.md#play-session); the main-screen controls and Home Assistant entities come next.*
+- **Play session.** The robot plays with your cat on its own for a set time (1–60 min, 10 by default, remembered), then Stows. Each axis moves to random spots within your Travel limits at random speeds within its Speed range, and pauses for a random time within its Pause range (0–60 s, set per axis), never in step with the other axis, so the wand moves like prey. Touching the joystick takes over at once; Stop or Stow end it. It keeps going when you close the page, and never restarts by itself after a power cut. Available once calibrated. *In this build it is driven through the [Device API](api.md#play-session) and [Home Assistant](home-assistant.md); the main-screen controls come next.*
 - **Live position.** The main screen shows where each axis is.
 - **Several phones at once.** Anyone on your Wi-Fi can open the interface and watch or play.
 
@@ -52,7 +52,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 ## Integrations
 
-- **Home Assistant (optional).** Enter your MQTT broker in Settings and the robot appears in Home Assistant by itself, with a Stow button, each axis's position and maximum speed, and its activity. Commands follow the same safety rules as the phone. See [Home Assistant](home-assistant.md).
+- **Home Assistant (optional).** Enter your MQTT broker in Settings and the robot appears in Home Assistant by itself, with a Stow button, each axis's position and maximum speed, its activity, and a Play session switch with its Session duration. Commands follow the same safety rules as the phone. See [Home Assistant](home-assistant.md).
 - **Open API.** Everything the interface does goes through a documented HTTP, WebSocket and MQTT API, for your own scripts and integrations. See [Device API](api.md).
 
 ## Hardware

@@ -166,7 +166,7 @@ bool MqttBridge::connect() {
   for (const auto& message : home_assistant::discovery(device)) {
     client.publish(message.topic.c_str(), message.payload.c_str(), true);
   }
-  client.subscribe(topics.commands().c_str());
+  client.subscribe(topics.commands().c_str());  // stow, play_session, session_duration
   client.subscribe(topics.axisCommands().c_str());
   client.publish(topics.availability().c_str(), home_assistant::kOnline, true);
   publishState(true);
@@ -190,6 +190,7 @@ void MqttBridge::publishState(bool force) {
       s.maxSpeed[i] = robot.settings().axis(axis).maxSpeed;
     }
     s.activity = activityName(robot.activity());
+    s.sessionMinutes = robot.settings().sessionMinutes;
     return s;
   });
   String payload = home_assistant::statePayload(state).c_str();
@@ -223,6 +224,27 @@ void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsign
         // minimum speed down with it rather than being refused.
         if (a.minSpeed >= a.maxSpeed) a.minSpeed = cwc::defaultMinSpeed(a.maxSpeed);
         if (!robot.applySettings(settings).ok()) logLine("[mqtt] rejected maximum speed %s", text.c_str());
+        break;
+      }
+      // Refusals republish the real state below, so the switch flips back.
+      case home_assistant::CommandKind::StartPlay:
+        if (!robot.settings().calibrated) {
+          logLine("[mqtt] Play session refused: not calibrated");
+        } else if (!robot.startPlaySession(robot.settings().sessionMinutes)) {
+          logLine("[mqtt] Play session refused: busy");
+        }
+        break;
+      case home_assistant::CommandKind::StopPlay:
+        robot.stopPlaySession();
+        break;
+      case home_assistant::CommandKind::SessionDuration: {
+        // Whole minutes only; setSessionMinutes() enforces 1–60 and persists
+        // once the robot is idle.
+        float minutes = command.value;
+        bool valid = minutes >= 0 && minutes <= 255 && minutes == static_cast<float>(static_cast<int>(minutes));
+        if (!valid || !robot.setSessionMinutes(static_cast<uint8_t>(minutes))) {
+          logLine("[mqtt] rejected Session duration %s", text.c_str());
+        }
         break;
       }
       case home_assistant::CommandKind::None:

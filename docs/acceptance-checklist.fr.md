@@ -176,6 +176,11 @@ Utilise un Home Assistant avec le module Mosquitto et l'intégration MQTT ([conf
 - [ ] Changer une vitesse maximale dans Home Assistant se voit dans les Réglages du robot, et une valeur de 5 °/s est ignorée.
 - [ ] Débrancher le robot rend ses entités indisponibles dans Home Assistant en une minute environ. Le rebrancher les rend de nouveau disponibles.
 - [ ] Renommer le robot : après son redémarrage, Home Assistant affiche le nouveau nom.
+- [ ] L'appareil montre aussi un interrupteur Play session et un nombre Session duration (1–60 min) égal à la durée affichée sur l'écran principal.
+- [ ] Sur un robot calibré, allumer Play session lance une session pour la durée de session ; Activity affiche `playing`. L'éteindre range la baguette et l'interrupteur reste éteint.
+- [ ] Une session lancée depuis l'écran principal allume l'interrupteur dans Home Assistant ; quand le temps est écoulé (essaie 1 min), l'interrupteur s'éteint tout seul. Toucher le joystick ou appuyer sur Ranger l'éteint aussi.
+- [ ] Avant la calibration, allumer Play session ne fait rien : l'interrupteur revient sur éteint et le log du robot affiche « Play session refused: not calibrated ».
+- [ ] Changer Session duration dans Home Assistant met à jour la durée sur l'écran principal, et elle est toujours là après un redémarrage. Une valeur de 0 ou 61 est refusée.
 
 ## Flasher web et versions publiées
 

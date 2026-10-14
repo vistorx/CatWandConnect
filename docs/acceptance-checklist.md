@@ -186,6 +186,11 @@ Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup]
 - [ ] Changing a maximum speed in Home Assistant shows in the robot's Settings, and a value of 5 °/s is ignored.
 - [ ] Unplugging the robot makes its entities unavailable in Home Assistant within about a minute. Plugging it back makes them available again.
 - [ ] Renaming the robot: after its restart, Home Assistant shows the new name.
+- [ ] The device also shows a Play session switch and a Session duration number (1–60 min) matching the main screen's duration.
+- [ ] On a calibrated robot, turning Play session on starts a session for the Session duration; Activity shows `playing`. Turning it off Stows and the switch stays off.
+- [ ] A session started from the main screen turns the switch on in Home Assistant; when its time is up (try 1 min), the switch turns off by itself. Touching the joystick or pressing Stow also turns it off.
+- [ ] Before Calibration, turning Play session on does nothing: the switch flips back off and the robot's log shows "Play session refused: not calibrated".
+- [ ] Changing Session duration in Home Assistant updates the main screen's duration, and it is still there after a restart. A value of 0 or 61 is refused.
 
 ## Web flasher and releases
 
