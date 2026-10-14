@@ -37,6 +37,7 @@ const robot = {
   lastCommand: 0,
   calibration: { step: 'none', draft: null, target: null, sweep: [] },
   tuning: null,  // { axis, bound, speed, towardMax } while tuning a speed
+  goto: {},      // { horizontal: degrees } while moving to a position (POST /api/position)
   play: null,    // { endsAt, axes: { horizontal: { target, speed, pauseUntil } } } during a Play session
 };
 
@@ -59,11 +60,16 @@ function authorized(request) {
 const PROTECTED = new Set(['POST /api/calibration', 'POST /api/speed-tuning', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
   'POST /api/wifi', 'PUT /api/mqtt']);
 const startedAt = Date.now();
+// docs/api.md: the API version and the Device ID, as GET /api/info and the
+// _catwandconnect._tcp TXT records give them.
+const API_VERSION = 1;
+const DEVICE_ID = '3f9a12c4';
 
 function info() {
   const host = deviceName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'catwandconnect';
-  return { name: deviceName, hostname: `${host}.local`, version: '0.0.0-dev (simulator)', chip: 'ESP32-D0WD-V3',
+  return { name: deviceName, hostname: `${host}.local`, version: '0.0.0-dev (simulator)', api: API_VERSION, id: DEVICE_ID,
+    chip: 'ESP32-D0WD-V3',
     chipRevision: 3, cores: 2, cpuMhz: 240, flashMb: 4, freeHeap: 182000, mac: '24:6F:28:00:00:01',
     ssid: 'Simulated', ip: '127.0.0.1', rssi: -61, uptime: Math.floor((Date.now() - startedAt) / 1000), temperature: 47.5 };
 }
@@ -321,10 +327,17 @@ setInterval(() => {
     const along = (robot.settings.playSpeed - 0.1) / 0.9;
     const speed = a.minSpeed + (a.maxSpeed - a.minSpeed) * along;
     const { min, max } = travel(axis);
+    if (axis in robot.goto) {
+      const target = Math.min(max, Math.max(min, robot.goto[axis]));
+      robot.position[axis] = approach(robot.position[axis], target, speed * 0.05);
+      if (robot.position[axis] === target) delete robot.goto[axis];
+      continue;
+    }
     const next = robot.position[axis] + robot.command[axis] * speed * 0.05;
     robot.position[axis] = Math.min(max, Math.max(min, next));
   }
-  if (robot.activity === 'manual' && !robot.command.horizontal && !robot.command.vertical) robot.activity = 'idle';
+  if (robot.activity === 'manual' && !robot.command.horizontal && !robot.command.vertical
+    && !Object.keys(robot.goto).length) robot.activity = 'idle';
   broadcast(state());
 }, 50);
 
@@ -344,6 +357,7 @@ function onMessage(message) {
     robot.calibration.step = 'none';
     robot.play = null;  // Manual control ends a Play session, without Stow
     robot.command = { horizontal: clampUnit(message.h), vertical: clampUnit(message.v) };
+    robot.goto = {};
     robot.activity = 'manual';
     robot.lastCommand = Date.now();
   } else if (message.t === 'stop') {
@@ -353,7 +367,24 @@ function onMessage(message) {
   }
 }
 
+// Manual control by position, like the MQTT position command: clamped into
+// the Travel limits, ends a Play session without Stow, ignored while stowing.
+function position(body) {
+  if (!['horizontal', 'vertical'].includes(body?.axis) || typeof body.degrees !== 'number'
+    || !Number.isFinite(body.degrees)) return [400, { error: 'invalid_request' }];
+  if (robot.activity !== 'stowing') {
+    if (robot.activity !== 'manual') robot.command = { horizontal: 0, vertical: 0 };
+    robot.calibration.step = 'none';
+    robot.tuning = null;
+    robot.play = null;
+    robot.goto[body.axis] = Math.max(0, Math.min(180, body.degrees));
+    robot.activity = 'manual';
+  }
+  return [202, {}];
+}
+
 function stow() {
+  robot.goto = {};
   robot.play = null;
   robot.calibration.step = 'none';
   robot.command = { horizontal: 0, vertical: 0 };
@@ -441,6 +472,7 @@ const API = {
   'GET /api/speed-tuning': () => [200, tuningView()],
   'POST /api/speed-tuning': speedTuning,
   'POST /api/stow': () => { stow(); return [202, {}]; },
+  'POST /api/position': position,
   'GET /api/play': () => [200, playView()],
   'POST /api/play': play,
   // HOTSPOT=1 simulates a robot on its setup hotspot, with no internet on the phone.
@@ -513,7 +545,7 @@ Name: ${i.name === 'CatWandConnect' ? i.name : hide(i.name, 'name')}
 Address: http://${i.hostname === 'catwandconnect.local' ? 'catwandconnect' : hide(i.hostname.replace(/\.local$/, ''), 'hostname')}.local/
 Firmware: ${i.version}
 Chip: ${i.chip} rev ${i.chipRevision}, ${i.cores} x ${i.cpuMhz} MHz, ${i.flashMb} MB flash
-Device ID: 3f9a12c4
+Device ID: ${DEVICE_ID}
 Last reset: power-on
 Running for: ${Math.floor(s / 86400)} d ${Math.floor(s % 86400 / 3600)} h ${Math.floor(s % 3600 / 60)} min (${s} s)
 Free memory: ${Math.floor(i.freeHeap / 1024)} KB (lowest ${Math.floor(i.freeHeap / 1024) - 20} KB)

@@ -68,6 +68,10 @@ _Avoid_: MQTT mode, legacy integration
 The CatWandConnect Home Assistant integration (V2, installed through HACS from `vistorx/ha-catwandconnect`), which finds the robot on the network and talks to it directly, with no broker. Support for it happens in this repository.
 _Avoid_: HACS integration, custom component, add-on, app (an add-on/app is something else in Home Assistant)
 
+**API version**:
+The version number of the documented Device API contract (`docs/api.md`), starting at 1, returned by `GET /api/info` and announced in the robot's `_catwandconnect._tcp` mDNS service. Goes up only on a change that would break an existing integration; additive changes keep it. Distinct from the firmware version.
+_Avoid_: Protocol version, firmware version (that is `version`)
+
 ## Hardware
 
 **Mechanism**:

@@ -3,8 +3,10 @@
 #include <AsyncJson.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include <discovery/discovery.h>
 #include <identity/identity.h>
 
+#include "diagnostics_api.h"
 #include "pin_http.h"
 #include "log.h"
 
@@ -159,6 +161,11 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
     }
     request->send(202, "application/json", "{}");
   });
+
+  auto* position = new AsyncCallbackJsonWebHandler(
+      "/api/position", [this](AsyncWebServerRequest* request, JsonVariant& body) { postPosition(request, body); });
+  position->setMethod(HTTP_POST);
+  server.addHandler(position);
 
   server.on("/api/calibration", HTTP_GET, [this](AsyncWebServerRequest* request) { getCalibration(request); });
   auto* calibrate = new AsyncCallbackJsonWebHandler(
@@ -511,6 +518,34 @@ void DeviceApi::putHardware(AsyncWebServerRequest* request, JsonVariant& body) {
   restartAt_ = millis() + kRestartDelayMs;
 }
 
+// Manual control by position, like the MQTT position command. No PIN: moving
+// the wand is play, like the joystick.
+void DeviceApi::postPosition(AsyncWebServerRequest* request, JsonVariant& body) {
+  const char* axisName = body["axis"] | "";
+  cwc::Axis axis;
+  if (strcmp(axisName, "horizontal") == 0) {
+    axis = cwc::Axis::Horizontal;
+  } else if (strcmp(axisName, "vertical") == 0) {
+    axis = cwc::Axis::Vertical;
+  } else {
+    request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+    return;
+  }
+  if (!body["degrees"].is<float>()) {
+    request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+    return;
+  }
+  // Into the servo range first, so any number ends up at the nearest Travel
+  // limit rather than being ignored by the Robot core.
+  float degrees = cwc::kServoRange.clamp(body["degrees"].as<float>());
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    robot_.manualGoto(axis, degrees);
+  }
+  request->send(202, "application/json", "{}");
+  newClient_ = true;  // push the new activity to every open interface
+}
+
 // --- Identity and info ------------------------------------------------------
 
 void DeviceApi::getInfo(AsyncWebServerRequest* request) {
@@ -518,6 +553,8 @@ void DeviceApi::getInfo(AsyncWebServerRequest* request) {
   doc["name"] = name_;
   doc["hostname"] = String(identity::hostnameFor(name_.c_str()).c_str()) + ".local";
   doc["version"] = CWC_VERSION;
+  doc["api"] = discovery::kApiVersion;
+  doc["id"] = deviceId();
   doc["chip"] = ESP.getChipModel();
   doc["chipRevision"] = ESP.getChipRevision();
   doc["cores"] = ESP.getChipCores();

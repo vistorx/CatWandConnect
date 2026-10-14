@@ -76,6 +76,7 @@ class DeviceApi {
   void getHardware(AsyncWebServerRequest* request);
   void putHardware(AsyncWebServerRequest* request, JsonVariant& body);
   void writeHardware(JsonObject out, const cwc::HardwareConfig& hardware);
+  void postPosition(AsyncWebServerRequest* request, JsonVariant& body);
   void getInfo(AsyncWebServerRequest* request);
   void putDevice(AsyncWebServerRequest* request, JsonVariant& body);
   void getAuth(AsyncWebServerRequest* request);
