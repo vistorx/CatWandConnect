@@ -35,7 +35,7 @@ Aucun outil à installer : le firmware va sur la carte directement depuis ton na
 3. Reviens sur ton Wi-Fi habituel et ouvre **`http://catwandconnect.local/`** (ou l'adresse IP affichée sur la page de configuration).
 4. **Calibre.** L'écran principal t'y invite. L'assistant te fait amener chaque axe aux extrémités de sa course sans danger et choisir la position de repos, puis il parcourt lentement les nouvelles limites pour que tu vérifies que rien ne touche. Une fois les limites enregistrées, il balaie chaque axe pendant que tu règles sa vitesse minimale et maximale (Passer garde une vitesse telle quelle). D'ici là, les mouvements restent dans une plage prudente de 60° à 120° sur chaque axe.
 5. **Joue.** Fais glisser le joystick pour bouger la baguette et relâche pour l'arrêter. Appuie sur **Ranger** pour la ranger.
-6. **Personnalise-le.** Donne un nom au robot dans les Réglages ; son adresse suit, par exemple `http://catwandconnect-salon.local/`. Utilise « Ajouter à l'écran d'accueil » de ton navigateur pour avoir une icône comme une appli.
+6. **Personnalise-le.** Donne un nom au robot dans les Réglages ; son adresse suit, par exemple `http://catwandconnect-salon.local/`. Utilise « Ajouter à l'écran d'accueil » de ton navigateur pour avoir une icône comme une appli. Réglages → Réseau affiche l'adresse IP du robot, et **Changer de réseau Wi-Fi** le fait passer sur un autre réseau plus tard (nouvelle box, déménagement).
 
 Un problème ? Voir le [dépannage](troubleshooting.fr.md), puis [Obtenir de l'aide](../SUPPORT.fr.md).
 

@@ -286,7 +286,7 @@ async function updateFirmware() {
   }
 }
 
-// --- Wi-Fi: state, and the setup page while the hotspot is up -------------------
+// --- Wi-Fi: network, addresses, and the setup page to join or change it -------
 
 async function wifiSection() {
   try {
@@ -295,7 +295,13 @@ async function wifiSection() {
     $('wifi-state').textContent = connected
       ? I18n.t('settings.wifi.connected', { ssid: status.ssid })
       : I18n.t('settings.wifi.hotspot');
+    $('wifi-details').hidden = !connected;
+    $('wifi-ssid').textContent = status.ssid || '';
+    $('wifi-ip').textContent = status.ip || '';
+    $('wifi-host').textContent = status.host ? `http://${status.host}/` : '';
+    // On the hotspot nothing is lost: straight to the setup page.
     $('wifi-setup').hidden = connected;
+    $('wifi-change').hidden = !connected;
     // Phones open hotspot pages in a sign-in window that cannot pick files.
     $('firmware-hotspot').hidden = connected;
     $('firmware-address').textContent = `http://${location.host}/settings.html#robot`;
@@ -303,6 +309,18 @@ async function wifiSection() {
     $('wifi-state').textContent = '';
   }
 }
+
+// Changing network moves the robot away from this phone: say so first.
+$('wifi-change').addEventListener('click', () => {
+  $('wifi-confirm').hidden = false;
+  $('wifi-change').hidden = true;
+  $('wifi-confirm-go').focus();
+});
+$('wifi-confirm-cancel').addEventListener('click', () => {
+  $('wifi-confirm').hidden = true;
+  $('wifi-change').hidden = false;
+  $('wifi-change').focus();
+});
 
 $('firmware-copy').addEventListener('click', async () => {
   const text = $('firmware-address').textContent;

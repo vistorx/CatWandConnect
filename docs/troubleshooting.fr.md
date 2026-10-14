@@ -34,9 +34,12 @@ Va sur `http://192.168.4.1/`. Certains téléphones demandent aussi s'il faut «
 **« Connexion impossible » sur la page de configuration.**
 Vérifie le nom du réseau et le mot de passe. L'ESP32 ne gère que le Wi-Fi **2,4 GHz** ; si ta box a des réseaux 2,4 GHz et 5 GHz séparés, choisis le 2,4 GHz.
 
+**Comment faire passer le robot sur un autre réseau Wi-Fi ?**
+Ouvre **Réglages → Réseau** : le bloc Wi-Fi affiche le réseau actuel, l'adresse IP du robot et son adresse `.local`. Touche **Changer de réseau Wi-Fi**, lis l'avertissement, puis choisis le nouveau réseau et saisis son mot de passe. Une fois qu'il l'a rejoint, mets ton téléphone sur ce réseau et ouvre l'adresse affichée. S'il n'y arrive pas (mauvais mot de passe, réseau 5 GHz, hors de portée), il revient sur le réseau actuel en une minute environ et rien ne change ; si ça échoue aussi, son hotspot `CatWandConnect-XXXX` s'ouvre, comme à la première installation. Avec un code PIN de réglages, le changement le demande.
+
 **`catwandconnect.local` ne s'ouvre pas.**
 Si tu as renommé le robot, son adresse a changé aussi : elle est affichée dans les Réglages et sur la page Infos, par exemple `catwandconnect-salon.local`.
-Certains téléphones Android et d'anciens PC Windows ne résolvent pas les noms en `.local`. Utilise l'adresse IP affichée à la fin de la configuration, ou trouve-la dans la liste des appareils de ta box ou dans le moniteur série. Vérifie aussi que ton téléphone est sur le même Wi-Fi que le robot, pas en données mobiles ni sur un réseau invité.
+Certains téléphones Android et d'anciens PC Windows ne résolvent pas les noms en `.local`. Utilise l'adresse IP affichée à la fin de la configuration ou dans Réglages → Réseau, ou trouve-la dans la liste des appareils de ta box ou dans le moniteur série. Vérifie aussi que ton téléphone est sur le même Wi-Fi que le robot, pas en données mobiles ni sur un réseau invité.
 
 **Le robot repasse sans cesse sur son hotspot.**
 Le signal est trop faible ou la box a changé. Rapproche le robot, ou saisis le nouveau mot de passe sur la page de configuration du hotspot. Tant que personne n'est connecté au hotspot, le robot réessaie ton réseau toutes les 2 minutes.

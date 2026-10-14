@@ -20,6 +20,8 @@ constexpr uint32_t kLostGraceMs = 30000;
 constexpr uint32_t kRetryIntervalMs = 120000;
 // Keeps the hotspot up after a setup-page success so the phone can read the new address.
 constexpr uint32_t kHotspotLingerMs = 30000;
+// A change asked from the current Wi-Fi waits this long, so its answer gets out first.
+constexpr uint32_t kChangeDelayMs = 1000;
 
 #if CONFIG_IDF_TARGET_ESP32S3
 constexpr const char* kChipFamily = "ESP32-S3";
@@ -81,7 +83,7 @@ void Network::begin(AsyncWebServer& server, const String& deviceName, const Stri
 void Network::loop() {
   handleImprov();
 
-  if (setupRequested_) {
+  if (setupRequested_ && static_cast<int32_t>(millis() - setupAt_) >= 0) {
     setupRequested_ = false;
     startAttempt(setupSsid_, setupPassword_, Source::SetupPage);
   }
@@ -135,6 +137,7 @@ void Network::startAttempt(const String& ssid, const String& password, Source so
   attemptPassword_ = password;
   attemptSource_ = source;
   lastAttemptFailed_ = false;
+  failedSsid_ = "";
 
   WiFi.disconnect();
   WiFi.mode(hotspotActive_ ? WIFI_AP_STA : WIFI_STA);
@@ -170,12 +173,22 @@ void Network::onConnected() {
 
 void Network::onAttemptFailed() {
   logLine("[wifi] could not connect to \"%s\"", attemptSsid_.c_str());
-  lastAttemptFailed_ = true;
   WiFi.disconnect();
   if (attemptSource_ == Source::Improv) {
     sendImprov(improv::errorPacket(improv::Error::UnableToConnect));
     sendImprov(improv::statePacket(improv::State::Authorized));
   }
+  if (wifi_fallback::afterFailedAttempt(attemptSource_, !savedSsid_.isEmpty(), hotspotActive_) ==
+      wifi_fallback::Next::RejoinSaved) {
+    // A change from the home network failed: go back where the owner left it.
+    String failed = attemptSsid_;
+    logLine("[wifi] back to the saved network");
+    startAttempt(savedSsid_, savedPassword_, Source::Saved);
+    lastAttemptFailed_ = true;
+    failedSsid_ = failed;
+    return;
+  }
+  lastAttemptFailed_ = true;
   openHotspot();
 }
 
@@ -295,12 +308,8 @@ void Network::setupRoutes(AsyncWebServer& server) {
     request->send(200, "application/json", networksJson());
   });
 
-  // Only offered while the hotspot is up, and behind the settings PIN if set.
+  // From the hotspot or from the current Wi-Fi, behind the settings PIN if set.
   server.on("/api/wifi", HTTP_POST, [this](AsyncWebServerRequest* request) {
-    if (!hotspotActive_) {
-      request->send(409, "text/plain", "Wi-Fi can only be set from the hotspot");
-      return;
-    }
     if (!requirePin(*pin_, request)) return;
     if (!request->hasParam("ssid", true) || request->getParam("ssid", true)->value().isEmpty()) {
       request->send(400, "text/plain", "Missing network name");
@@ -308,6 +317,7 @@ void Network::setupRoutes(AsyncWebServer& server) {
     }
     setupSsid_ = request->getParam("ssid", true)->value();
     setupPassword_ = request->hasParam("password", true) ? request->getParam("password", true)->value() : "";
+    setupAt_ = millis() + (hotspotActive_ ? 0 : kChangeDelayMs);
     setupRequested_ = true;
     request->send(202, "application/json", "{}");
   });
@@ -331,6 +341,9 @@ String Network::statusJson() const {
   json += ",\"ssid\":" + jsonString(mode_ == Mode::Connected ? savedSsid_ : attemptSsid_);
   json += ",\"ip\":" + jsonString(mode_ == Mode::Connected ? WiFi.localIP().toString() : "");
   json += ",\"host\":" + jsonString(hostname_ + ".local");
+  json += ",\"hotspot\":";
+  json += hotspotActive_ ? "true" : "false";
+  json += ",\"failedSsid\":" + jsonString(failedSsid_);
   return json + "}";
 }
 
