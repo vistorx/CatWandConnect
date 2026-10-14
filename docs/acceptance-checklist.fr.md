@@ -72,9 +72,10 @@ Câble les servos sur les broches par défaut : GPIO 18 (horizontal) et 19 (vert
 - [ ] Saisir 5 °/s comme vitesse maximale affiche une erreur et garde la valeur précédente.
 - [ ] Régler la vitesse minimale horizontale à 20 °/s rend les 10 % du curseur nettement plus rapides qu'avant ; une minimale égale à la maximale affiche une erreur.
 - [ ] Après une mise à jour OTA depuis la 0.1.0, les réglages et la calibration sont conservés, et chaque vitesse minimale vaut le dixième de sa maximale.
-- [ ] Réglages → Mouvement → Régler les vitesses, maximum horizontal : la baguette balaie en douceur entre les limites de course et l'axe vertical reste immobile. Plus vite / Plus lent changent la vitesse du balayage en moins d'une seconde ; le nombre affiché correspond à ce que tu vois.
+- [ ] Réglages → Mouvement → Régler vitesses et accélération, maximum horizontal : la baguette balaie en douceur entre les limites de course et l'axe vertical reste immobile. Plus vite / Plus lent changent la vitesse du balayage en moins d'une seconde ; le nombre affiché correspond à ce que tu vois.
 - [ ] Garder cette vitesse l'enregistre (Réglages → Mouvement l'affiche) et range le robot ; Annuler, Ranger depuis un autre téléphone ou depuis Home Assistant, et toucher le joystick terminent tous le réglage en gardant la valeur précédente.
 - [ ] Régler la vitesse minimale d'un axe équipé d'un SG90 : à 2–4 °/s, le mouvement saccade visiblement ; la valeur gardée rend les 10 % du curseur fluides.
+- [ ] Réglages → Mouvement → Régler vitesses et accélération, accélération horizontale : la baguette fait de courts allers-retours autour du milieu de sa course, avec une pause à chaque bout, et l'axe vertical reste immobile. Plus nerveux rend les départs et les arrêts visiblement plus secs, Plus doux visiblement plus doux ; Garder cette accélération l'enregistre (Réglages → Mouvement → Accélération l'affiche) et range le robot ; Annuler, Ranger et le joystick gardent la valeur précédente.
 - [ ] Après une coupure d'alimentation, les valeurs du curseur et des Réglages sont conservées.
 
 ## Session de jeu
@@ -110,7 +111,7 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 ## Calibration
 
 - [ ] Sur un robot jamais calibré, l'écran principal affiche le bandeau « Not calibrated yet », et le joystick est limité à 60°–120°.
-- [ ] L'assistant enchaîne minimum horizontal, maximum horizontal, minimum vertical, maximum vertical, position de repos, balayage, confirmation, puis vitesse minimale horizontale, vitesse maximale horizontale, vitesse minimale verticale, vitesse maximale verticale et « Your robot is ready », en affichant « Step n of 10 ».
+- [ ] L'assistant enchaîne minimum horizontal, maximum horizontal, minimum vertical, maximum vertical, position de repos, balayage, confirmation, puis vitesse minimale horizontale, vitesse maximale horizontale, accélération horizontale, vitesse minimale verticale, vitesse maximale verticale, accélération verticale et « Your robot is ready », en affichant « Step n of 12 ».
 - [ ] À partir de la deuxième étape, « Marked so far » affiche les valeurs déjà validées ; l'étape de la position de repos affiche la plage autorisée de chaque axe ; un maximum en dessous du minimum cite le minimum dans l'erreur.
 - [ ] Les boutons ±1° et ±5° ne déplacent que l'axe de l'étape, lentement, et la position à l'écran suit.
 - [ ] Les ajustements peuvent dépasser 60°–120°.
@@ -123,9 +124,10 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 - [ ] Après l'enregistrement, le robot se range, puis l'étape de vitesse minimale horizontale balaie cet axe tout seul entre les nouvelles limites ; Plus vite / Plus lent changent la vitesse et « Keep this speed » l'enregistre et passe à la vitesse suivante.
 - [ ] Sur une étape de vitesse, « Skip (keep N °/s) » garde cette vitesse telle quelle (Réglages → Mouvement affiche la même valeur) et passe à la suite.
 - [ ] Les étapes de vitesse maximale démarrent le balayage à la vitesse maximale actuelle.
+- [ ] Chaque étape d'accélération fait de courts mouvements à la vitesse maximale qui vient d'être gardée ; « Snappier » / « Softer » changent visiblement les départs et les arrêts ; « Keep this acceleration » l'enregistre et passe à la suite ; « Skip (keep N °/s²) » la garde telle quelle.
 - [ ] Ranger depuis l'écran principal pendant une étape de vitesse arrête le balayage sans enregistrer ; « Sweep again » le relance.
 - [ ] Quitter l'assistant avec Retour pendant une étape de vitesse arrête le balayage ; les nouvelles limites restent enregistrées, ainsi que les vitesses déjà gardées.
-- [ ] « Your robot is ready » affiche la plage de vitesses de chaque axe ; Done ramène à l'écran principal.
+- [ ] « Your robot is ready » affiche la plage de vitesses et l'accélération de chaque axe ; Done ramène à l'écran principal.
 - [ ] Les Réglages affichent les nouvelles limites et la position de repos. Les y modifier est validé de la même façon.
 - [ ] Appuyer sur Annuler à n'importe quelle étape, ou sur Ranger sur l'écran principal, garde les limites précédentes et range le robot.
 - [ ] Après une coupure d'alimentation, le robot est toujours calibré, avec les mêmes limites.

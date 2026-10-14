@@ -338,8 +338,11 @@ void DeviceApi::writeSpeedTuning(JsonObject out) {
   out["active"] = tuning;
   if (!tuning) return;
   out["axis"] = axisName(robot_.tuningAxis());
+  bool accel = robot_.tuningAccel();
+  out["target"] = accel ? "accel" : "speed";
   out["bound"] = robot_.tuningBound() == cwc::SpeedBound::Maximum ? "max" : "min";
   out["speed"] = tenths(robot_.tuningSpeed());
+  if (accel) out["accel"] = tenths(robot_.tuningAccelValue());
 }
 
 void DeviceApi::getSpeedTuning(AsyncWebServerRequest* request) {
@@ -361,10 +364,16 @@ void DeviceApi::postSpeedTuning(AsyncWebServerRequest* request, JsonVariant& bod
     std::lock_guard<std::mutex> guard(robotLock_);
     if (strcmp(action, "start") == 0) {
       cwc::Axis axis;
+      const char* target = body["target"] | "speed";
       const char* bound = body["bound"] | "";
       bool max = strcmp(bound, "max") == 0;
-      known = parseAxis(body["axis"] | "", axis) && (max || strcmp(bound, "min") == 0) &&
-              robot_.startSpeedTuning(axis, max ? cwc::SpeedBound::Maximum : cwc::SpeedBound::Minimum);
+      if (strcmp(target, "accel") == 0) {
+        known = parseAxis(body["axis"] | "", axis) && robot_.startAccelTuning(axis);
+      } else {
+        known = strcmp(target, "speed") == 0 && parseAxis(body["axis"] | "", axis) &&
+                (max || strcmp(bound, "min") == 0) &&
+                robot_.startSpeedTuning(axis, max ? cwc::SpeedBound::Maximum : cwc::SpeedBound::Minimum);
+      }
     } else if (strcmp(action, "faster") == 0) {
       robot_.adjustSpeedTuning(true);
     } else if (strcmp(action, "slower") == 0) {
