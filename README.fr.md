@@ -37,7 +37,15 @@ Tout est libre et ouvert : les pièces à imprimer, le firmware et la documentat
 
 ## En images
 
+<table><tr><td width="64%">
+
 https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+</td><td align="center">
+
+<img src="media/screenshots/ui-main-screen-phone.png" alt="L'interface de l'appareil sur un téléphone : joystick, vitesse, session de jeu et Ranger" width="260"><br><em>L'interface de l'appareil sur un téléphone</em>
+
+</td></tr></table>
 
 <p align="center"><em>Le Mk2 en 50 secondes : imprime-le, assemble-le, ajoute le jouet préféré de ton chat, joue.</em></p>
 

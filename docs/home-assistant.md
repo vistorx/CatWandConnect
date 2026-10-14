@@ -164,6 +164,8 @@ On a phone, the sections stack: Play session first, then the positions and speed
 
 ### Native integration dashboard
 
+![The Native integration dashboard: Play session, Session duration and Stow, the joystick card, positions and maximum speeds](../media/screenshots/ha-dashboard-native.png)
+
 <!-- ha-dashboard-native -->
 ```yaml
 title: Cat wand
@@ -253,6 +255,8 @@ The joystick works like the one on the robot's page: hold and drag, the wand fol
 **Added the robot with integration 0.1.0, in another language than English?** Its ids are in that language (`switch.catwandconnect_session_de_jeu`) and the cards show "Entity not available". Either remove the robot from **Settings → Devices & services → CatWandConnect** and add it again (0.1.1 and later always use the English ids), or replace the ids in the YAML with yours from the device page.
 
 ### MQTT connection dashboard
+
+![The MQTT connection dashboard: Play session, Session duration and Stow, positions and maximum speeds](../media/screenshots/ha-dashboard-mqtt.png)
 
 <!-- ha-dashboard -->
 ```yaml
