@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Find out why the robot isn't under *Discovered*.** The Home Assistant guide now covers virtual machines (a bridged network adapter is needed) and shows how to check, with debug logging, whether Home Assistant hears the robot.
+
 - **Feel the acceleration before you set it.** Right after each axis's maximum speed, the Calibration wizard makes the wand do short moves while you tap Snappier or Softer, so you pick how sharply it starts and stops instead of guessing a number. Also in Settings → Motion → Tune speeds and acceleration.
 
 - **Change the robot's Wi-Fi from Settings.** Settings → Network now shows the network, the robot's IP address and its `.local` address, with a **Change Wi-Fi network** button. A wrong password sends the robot back to the network it was on, so moving it never makes it disappear.
