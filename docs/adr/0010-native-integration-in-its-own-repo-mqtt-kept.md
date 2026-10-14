@@ -5,3 +5,6 @@ V2 adds the dedicated integration that ADR 0005 deferred: a Home Assistant custo
 MQTT discovery is not deprecated: both are supported for good, and the Home Assistant docs present them as two ways to connect, each with its own ready-made dashboard. Users who already run MQTT keep it; others get the shorter setup.
 
 Support stays in this repository (ADR 0009). The integration's repository has issues turned off; its README, `SUPPORT.md` and manifest `issue_tracker` point at this repository's issues and Discord, and integration bugs carry an `ha-integration` label here.
+
+The integration reuses the Settings PIN rather than a new token or pairing scheme. Most of what it does (Play session, Stow, positions, reading state) needs no PIN; when the owner has set one, the config flow asks for it once, the integration stores it in its config entry and unlocks again whenever the robot answers `401` (session tokens end after 12 h idle or a restart). The robot stays reachable only on the local network, by IP or `.local` name, with no remote access of its own: Home Assistant is the secure way in from outside, through its own authentication and remote access.
+
