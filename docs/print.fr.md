@@ -1,12 +1,12 @@
-# Matériel : mécanisme Mk2
+# Imprimer les pièces
 
 https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
 
 <p align="center"><em>La présentation du Mk2 (50 s, animation 3D).</em></p>
 
-Ce qu'il faut imprimer et acheter pour le Mk2, le mécanisme actuel. Les composants électroniques (carte, servos, alimentation) sont dans [Électronique](electronics.fr.md) ; le montage est dans le [guide d'assemblage](assembly.fr.md).
+Les six pièces imprimées du Mk2, le mécanisme actuel, et comment les imprimer. Ensuite : [les assembler](assembly.fr.md).
 
-## Pièces imprimées
+## Les pièces
 
 Le **Mk2** est le mécanisme actuel. Il est renforcé par un roulement de skateboard 608 et un chemin de billes en acier de 4 mm. Tous les fichiers sont dans [`stls/mk2/`](../stls/mk2/), et [`catwandconnect-mk2.3mf`](../stls/mk2/catwandconnect-mk2.3mf) contient le plateau complet.
 
@@ -29,18 +29,6 @@ Le **Mk2** est le mécanisme actuel. Il est renforcé par un roulement de skateb
 - **Ajustement :** si le roulement ou un servo ne rentre pas, ponce la pièce plutôt que de forcer.
 - Le [`.3mf`](../stls/mk2/catwandconnect-mk2.3mf) contient le plateau complet en un seul fichier.
 
-## Pièces mécaniques
-
-| Qté | Pièce | Remarques |
-|-----|-------|-----------|
-| 1 | Roulement de skateboard 608 | |
-| 16–24 | Billes en acier de 4 mm | Adapte le nombre à la finition de ton impression. |
-| 4 | Vis M3×8 à tête bombée | Fixation du servo horizontal |
-| 2 | Vis M3×25 à tête bombée | Plateau inférieur de l'axe horizontal sur le chemin de billes |
-| 1 | Vis M3×8 à tête fraisée | Plateau de l'arbre du servo horizontal |
-| 1 | Vis M3×20 à tête fraisée | Arbre du servo vertical |
-| 4 | Vis M3×8 à tête bombée | Fixation du servo vertical |
-| 3 | Vis M3×30 à tête fraisée | Roulement sur l'arbre vertical |
-| 1 | Une canne à pêche pour chat | N'importe quelle canne dont la tige rentre dans le bras |
-
 Une pièce imprimée casse ? Réimprime-la : c'est tout l'intérêt d'un design ouvert.
+
+Ensuite : [Assembler le mécanisme](assembly.fr.md).

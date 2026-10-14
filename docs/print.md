@@ -1,12 +1,12 @@
-# Hardware: Mk2 Mechanism
+# Print the parts
 
-What to print and what to buy for the Mk2, the current Mechanism. The electronic parts (board, servos, supply) are in [Electronics](electronics.md); putting it together is in the [assembly guide](assembly.md).
+The six printed parts of the Mk2, the current Mechanism, and how to print them. Next: [assemble them](assembly.md).
 
 https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
 
 <p align="center"><em>The Mk2 presentation (50 s, 3D animation).</em></p>
 
-## Printed parts
+## The parts
 
 The **Mk2** is the current Mechanism. It is reinforced with a 608 skateboard bearing and a track of 4 mm steel balls. All files are in [`stls/mk2/`](../stls/mk2/), and [`catwandconnect-mk2.3mf`](../stls/mk2/catwandconnect-mk2.3mf) contains the whole plate.
 
@@ -29,18 +29,6 @@ The **Mk2** is the current Mechanism. It is reinforced with a 608 skateboard bea
 - **Fit:** if the bearing or a servo doesn't go in, sand the part rather than force it.
 - The [`.3mf`](../stls/mk2/catwandconnect-mk2.3mf) holds the whole plate in one file.
 
-## Mechanical parts
-
-| Qty | Part | Notes |
-|-----|------|-------|
-| 1 | 608 skateboard bearing | |
-| 16–24 | 4 mm steel balls | Adjust the count to your print's finish. |
-| 4 | M3×8 button-head screws | Horizontal servo mounting |
-| 2 | M3×25 button-head screws | Lower plate of the horizontal axis to the ball track |
-| 1 | M3×8 countersunk screw | Horizontal servo shaft plate |
-| 1 | M3×20 countersunk screw | Vertical servo shaft |
-| 4 | M3×8 button-head screws | Vertical servo mounting |
-| 3 | M3×30 countersunk screws | Bearing to the vertical shaft |
-| 1 | A toy wand | Any cat wand with a stick that fits the arm |
-
 A printed part breaks? Reprint it: that is the point of an open design.
+
+Next: [Assemble the Mechanism](assembly.md).

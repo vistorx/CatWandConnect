@@ -1,4 +1,4 @@
-# Électronique
+# Câbler l'électronique
 
 Comment câbler les deux servos et l'alimentation à la carte. Le firmware pilote les servos avec des impulsions PWM à 50 Hz ; la carte envoie seulement les signaux et n'alimente jamais les servos.
 
@@ -60,3 +60,5 @@ Utilise un petit bornier, un connecteur type Wago ou une plaque à trous comme �
 ## Plage d'impulsions des servos
 
 Les valeurs par défaut viennent de la preuve de concept : 400–2200 µs pour le servo horizontal et 600–2400 µs pour le vertical, pour 0° à 180°. Si tes servos ne vont pas au bout de leur course, ou grésillent en butée, ajuste la plage d'impulsions dans **Réglages → Matériel → Câblage**. La même section inverse un axe dont le sens est à l'envers. Les deux changements effacent la calibration : relance-la ensuite.
+
+Ensuite : [Installer le logiciel](install.fr.md).

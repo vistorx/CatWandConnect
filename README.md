@@ -51,7 +51,7 @@ Three parts: install the firmware, wire the electronics, print and assemble the 
 
 The firmware installs from your browser, with nothing to download: open the web flasher in Chrome or Edge, plug the board in over USB and press **Connect and install**. The right build for your chip is picked for you. Later updates go over Wi-Fi, from the robot's own Settings page.
 
-**[Open the web flasher →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Install and first start](docs/install.md) · [Release channels](docs/releasing.md#channels)
+**[Open the web flasher →](https://vistorx.github.io/CatWandConnect/flasher/)** · [Install the software](docs/install.md) · [Release channels](docs/releasing.md#channels)
 
 ### 2. Electronics
 
@@ -66,7 +66,7 @@ A single 5 V supply feeds both servos and the board; the board only sends the se
 
 <p align="center"><img src="docs/images/wiring-compact.svg" alt="Compact wiring: the 5 V supply feeds a +5 V rail and a GND rail; both servos and the ESP32 take power from the rails; the ESP32 sends a signal to each servo." width="560"></p>
 
-**[Electronics guide →](docs/electronics.md)**: full diagram, pins per chip, power rules.
+**[Wiring guide →](docs/wiring.md)**: full diagram, pins per chip, power rules.
 
 ### 3. Hardware
 
@@ -80,7 +80,7 @@ The Mechanism is 3D printed: six parts, all in [`stls/mk2/`](stls/mk2/) or as on
 | 15 | M3 screws, 8 to 30 mm |
 | 1 | Toy wand |
 
-**[Parts and print settings →](docs/hardware.md)** · **[Assembly guide →](docs/assembly.md)** (coming soon)
+**[Print the parts →](docs/print.md)** · **[Assemble the Mechanism →](docs/assembly.md)** (photos coming soon)
 
 ## Documentation
 
@@ -88,12 +88,12 @@ The Mechanism is 3D printed: six parts, all in [`stls/mk2/`](stls/mk2/) or as on
 
 | Doc | For |
 |-----|-----|
-| [Install and first start](docs/install.md) | Flashing from the browser, Wi-Fi, Calibration, updates |
-| [Electronics](docs/electronics.md) | Electronic parts, wiring diagram, power, default pins per chip |
-| [Hardware](docs/hardware.md) | Printed parts, print settings, mechanical parts of the Mk2 |
-| [Assembly guide](docs/assembly.md) | Putting the Mk2 together (coming soon) |
+| [1. Print the parts](docs/print.md) | The six printed parts of the Mk2 and print settings |
+| [2. Assemble the Mechanism](docs/assembly.md) | Parts to buy (bearing, balls, screws) and assembly order (photos coming soon) |
+| [3. Wire the electronics](docs/wiring.md) | Board, servos, power supply, wiring diagram, default pins per chip |
+| [4. Install the software](docs/install.md) | Flashing from the browser, Wi-Fi, Calibration, updates |
+| [5. Set up Home Assistant](docs/home-assistant.md) | Optional: broker, user, MQTT integration, connecting the robot, dashboard, automations |
 | [Features](docs/features.md) | Everything the robot does, in detail |
-| [Home Assistant](docs/home-assistant.md) | Connecting the robot over MQTT |
 | [Troubleshooting](docs/troubleshooting.md) | Installing, Wi-Fi, motion, updates, PIN |
 
 **Develop and contribute**
