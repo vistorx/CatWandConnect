@@ -268,10 +268,12 @@ When enabled in Settings, the robot connects to an MQTT broker and announces its
 | Topic | Direction | Payload |
 |-------|-----------|---------|
 | `<base>/status` | robot → | `online` / `offline` (retained; `offline` is the last will) |
-| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle"}` (retained): positions in degrees, maximum speeds in °/s; `activity` as in `/ws` (`playing` during a Play session) |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle","play":"OFF","sm":10}` (retained): positions in degrees, maximum speeds in °/s; `activity` as in `/ws` (`playing` during a Play session); `play` is `ON` while a Play session runs; `sm` is the Session duration in minutes |
 | `<base>/stow/set` | → robot | `PRESS` |
 | `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | A number of degrees. The axis moves there at the Manual control speed, clamped into the Travel limits. |
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | A number of °/s. Validated like the Settings value. |
-| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the four numbers and the activity sensor. |
+| `<base>/play_session/set` | → robot | `ON` starts a Play session for the Session duration, `OFF` stops it (Stow). A refused start (not calibrated, busy) is logged and the state is republished with `play` still `OFF`. |
+| `<base>/session_duration/set` | → robot | Whole minutes, 1–60. Saved once the robot is idle; other values are ignored. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the five numbers, the activity sensor and the Play session switch. |
 
 Commands go through the Robot core like Manual control: Travel limits, speed limits and priorities apply, and Stow beats everything.

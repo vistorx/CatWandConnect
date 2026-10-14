@@ -29,13 +29,15 @@ void test_topics_live_under_the_hostname() {
 void test_discovery_announces_the_required_entities() {
   auto messages = discovery(device());
 
-  TEST_ASSERT_EQUAL(6, messages.size());
+  TEST_ASSERT_EQUAL(8, messages.size());
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/button/catwandconnect_246f28abcdef/stow/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/horizontal_position/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/vertical_position/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/horizontal_max_speed/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/vertical_max_speed/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/activity/config"));
+  TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/switch/catwandconnect_246f28abcdef/play_session/config"));
+  TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/session_duration/config"));
 }
 
 void test_every_entity_shares_device_and_availability() {
@@ -60,8 +62,71 @@ void test_position_entity_reads_state_and_takes_commands() {
   TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/vertical/position/set", doc["command_topic"]);
 }
 
+void test_play_session_switch_follows_the_activity_and_takes_on_off() {
+  auto messages = discovery(device());
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/switch/catwandconnect_246f28abcdef/play_session/config")->payload);
+
+  TEST_ASSERT_EQUAL_STRING("Play session", doc["name"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_play_session", doc["unique_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_salon_play_session", doc["object_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/state", doc["state_topic"]);
+  TEST_ASSERT_EQUAL_STRING("{{ value_json.play }}", doc["value_template"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/play_session/set", doc["command_topic"]);
+  TEST_ASSERT_EQUAL_STRING("ON", doc["payload_on"]);
+  TEST_ASSERT_EQUAL_STRING("OFF", doc["payload_off"]);
+  TEST_ASSERT_EQUAL_STRING("ON", doc["state_on"]);
+  TEST_ASSERT_EQUAL_STRING("OFF", doc["state_off"]);
+}
+
+void test_session_duration_number_in_minutes() {
+  auto messages = discovery(device());
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/number/catwandconnect_246f28abcdef/session_duration/config")->payload);
+
+  TEST_ASSERT_EQUAL_STRING("Session duration", doc["name"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_session_duration", doc["unique_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/state", doc["state_topic"]);
+  TEST_ASSERT_EQUAL_STRING("{{ value_json.sm }}", doc["value_template"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/session_duration/set", doc["command_topic"]);
+  TEST_ASSERT_EQUAL(1, doc["min"].as<int>());
+  TEST_ASSERT_EQUAL(60, doc["max"].as<int>());
+  TEST_ASSERT_EQUAL(1, doc["step"].as<int>());
+  TEST_ASSERT_EQUAL_STRING("box", doc["mode"]);
+  TEST_ASSERT_EQUAL_STRING("min", doc["unit_of_measurement"]);
+}
+
+void test_state_payload_reports_the_play_session() {
+  JsonDocument playing;
+  deserializeJson(playing, statePayload(State{{90, 90}, {90, 90}, "playing", 15}));
+  TEST_ASSERT_EQUAL_STRING("ON", playing["play"]);
+  TEST_ASSERT_EQUAL(15, playing["sm"].as<int>());
+
+  JsonDocument idle;
+  deserializeJson(idle, statePayload(State{{90, 90}, {90, 90}, "idle", 10}));
+  TEST_ASSERT_EQUAL_STRING("OFF", idle["play"]);
+  TEST_ASSERT_EQUAL(10, idle["sm"].as<int>());
+}
+
+void test_parses_play_session_commands() {
+  Topics topics(device());
+
+  TEST_ASSERT_TRUE(parseCommand(topics, "catwandconnect/catwandconnect-salon/play_session/set", "ON").kind ==
+                   CommandKind::StartPlay);
+  TEST_ASSERT_TRUE(parseCommand(topics, "catwandconnect/catwandconnect-salon/play_session/set", "OFF").kind ==
+                   CommandKind::StopPlay);
+  TEST_ASSERT_TRUE(parseCommand(topics, "catwandconnect/catwandconnect-salon/play_session/set", "on").kind ==
+                   CommandKind::None);
+
+  Command duration = parseCommand(topics, "catwandconnect/catwandconnect-salon/session_duration/set", "15");
+  TEST_ASSERT_TRUE(duration.kind == CommandKind::SessionDuration);
+  TEST_ASSERT_EQUAL_FLOAT(15, duration.value);
+  TEST_ASSERT_TRUE(parseCommand(topics, "catwandconnect/catwandconnect-salon/session_duration/set", "abc").kind ==
+                   CommandKind::None);
+}
+
 void test_state_payload() {
-  State state{{92.4f, 87.6f}, {90, 45}, "manual"};
+  State state{{92.4f, 87.6f}, {90, 45}, "manual", 10};
   JsonDocument doc;
   deserializeJson(doc, statePayload(state));
 
@@ -116,6 +181,10 @@ int main() {
   RUN_TEST(test_every_entity_shares_device_and_availability);
   RUN_TEST(test_position_entity_reads_state_and_takes_commands);
   RUN_TEST(test_state_payload);
+  RUN_TEST(test_play_session_switch_follows_the_activity_and_takes_on_off);
+  RUN_TEST(test_session_duration_number_in_minutes);
+  RUN_TEST(test_state_payload_reports_the_play_session);
+  RUN_TEST(test_parses_play_session_commands);
   RUN_TEST(test_entity_ids_follow_the_hostname_and_unique_ids_the_mac);
   RUN_TEST(test_parses_commands);
   RUN_TEST(test_ignores_unknown_topics_and_bad_values);
