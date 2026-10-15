@@ -67,6 +67,7 @@ Go to **Settings → Devices & services → CatWandConnect**, then the robot's d
 | Activity | Sensor | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` or `playing` (shown as *Idle*, *Manual control*... on screen). |
 | Play session | Switch | On starts a Play session for the Session duration; off stops it and Stows. It shows on while a session runs, whether it was started from Home Assistant or from the robot's interface, and turns off by itself when the session ends. Refused, with a message saying why, until the robot is calibrated, and while it is stowing, calibrating or tuning a speed. |
 | Session duration | Number (1–60 min) | How long the next Play session lasts, the same value as on the robot's main screen. |
+| Firmware | Update | The installed version and, when a newer one is out on the robot's Update channel, the latest version with what's new. Home Assistant then shows its usual update notification; **Install** downloads the right file and updates the robot (integration 0.2.0 or later). Refused during a Play session or a Calibration. |
 
 Entities update within a second when someone uses the joystick or the robot's screen. When the robot is switched off or loses Wi-Fi, they show as unavailable, and come back by themselves when it returns. The device page also shows the robot's model, chip and firmware version, and a **Visit** link to its interface.
 
@@ -185,6 +186,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: update.catwandconnect_firmware
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: update.catwandconnect_firmware
+                    state: "on"
           - type: button
             entity: switch.catwandconnect_play_session
             name: Play session

@@ -33,7 +33,7 @@ MQTT_ENTITIES = {
     "update.catwandconnect_firmware",
 }
 
-# The Native integration's 8 entities (vistorx/ha-catwandconnect, entity
+# The Native integration's 9 entities (vistorx/ha-catwandconnect, entity
 # translation keys in comments). Home Assistant builds their ids from the
 # device name + the English entity name, whatever the user's language. They
 # match the MQTT ones on purpose: with both connections, Home Assistant
@@ -47,6 +47,7 @@ NATIVE_ENTITIES = {
     "number.catwandconnect_vertical_position",         # vertical_position
     "number.catwandconnect_horizontal_maximum_speed",  # horizontal_max_speed
     "number.catwandconnect_vertical_maximum_speed",    # vertical_max_speed
+    "update.catwandconnect_firmware",                  # firmware
 }
 
 # Custom cards a dashboard may use: the Native integration ships its joystick

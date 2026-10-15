@@ -67,6 +67,7 @@ Va dans **Paramètres → Appareils et services → CatWandConnect**, puis sur l
 | Activité | Capteur | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` ou `playing` (affichés *Au repos*, *Pilotage manuel*… à l'écran). |
 | Session de jeu | Interrupteur | Allumé, il lance une session de jeu pour la durée de session ; éteint, il l'arrête et range la baguette. Il est allumé tant qu'une session tourne, qu'elle ait été lancée depuis Home Assistant ou depuis l'interface du robot, et s'éteint tout seul à la fin de la session. Refusé, avec un message qui dit pourquoi, tant que le robot n'est pas calibré, et pendant un rangement, une calibration ou un réglage de vitesse. |
 | Durée de session | Nombre (1–60 min) | La durée de la prochaine session de jeu, la même valeur que sur l'écran principal du robot. |
+| Firmware | Mise à jour | La version installée et, quand une plus récente sort sur le Canal de mise à jour du robot, la dernière version avec ses nouveautés. Home Assistant affiche alors sa notification de mise à jour habituelle ; **Installer** télécharge le bon fichier et met le robot à jour (intégration 0.2.0 ou plus récente). Refusé pendant une session de jeu ou une calibration. |
 
 Les entités se mettent à jour en moins d'une seconde quand quelqu'un utilise le joystick ou l'écran du robot. Quand le robot est éteint ou perd le Wi-Fi, elles apparaissent comme indisponibles, et reviennent toutes seules à son retour. La page de l'appareil montre aussi le modèle, la puce et la version du firmware du robot, et un lien **Visiter** vers son interface.
 
@@ -185,6 +186,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: update.catwandconnect_firmware
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: update.catwandconnect_firmware
+                    state: "on"
           - type: button
             entity: switch.catwandconnect_play_session
             name: Session de jeu
