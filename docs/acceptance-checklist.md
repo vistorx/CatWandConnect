@@ -195,6 +195,19 @@ Build two versions that differ visibly (for example change `CWC_VERSION` in `pla
 - [ ] Unplugging the robot's Wi-Fi (or closing the tab) halfway through: the robot keeps running its old firmware, and a new upload then works.
 - [ ] With a PIN set, uploading from a phone that hasn't entered it asks for it.
 
+### One-tap update
+
+On a robot running a release older than the newest one of its channel, with the phone on the Internet.
+
+- [ ] The main screen shows *Version X available* with **What's new** (opens the release notes) and **Update**. On the newest version, no banner, and Settings → Robot → Firmware update says *Your robot is up to date*.
+- [ ] **Update** opens Settings → Robot → Firmware update with the confirmation; **Install now** shows the download, then the upload progress, then *The robot is back with version X*. Wi-Fi, name, Calibration, speed, wiring, PIN and Update channel are unchanged.
+- [ ] During a Play session or Calibration, **Update** says why it must wait, and nothing is installed.
+- [ ] With a PIN set, **Install now** asks for it before uploading.
+- [ ] With the phone offline (mobile data and Internet off, robot still reachable), the main screen shows no banner and Settings shows *Couldn't check for updates* with **Retry**.
+- [ ] A robot never set keeps its firmware's channel: a beta shows Update channel *Beta*. Switching to *Stable* survives a restart and an update; a beta robot on Stable is not offered an older stable.
+- [ ] `GET /api/info` contains `"channel"` and `"chipFamily"` (`ESP32`, `ESP32-S3` or `ESP32-C3`, matching the board).
+- [ ] With the MQTT connection, once the robot's page has been opened, Home Assistant's `update.catwandconnect_firmware` shows the installed and latest versions and an update notification, with a release notes link and no Install button; after updating it shows up to date.
+
 ## Home Assistant (MQTT)
 
 Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup](home-assistant.md)).

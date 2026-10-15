@@ -12,6 +12,7 @@
 #include <ESPAsyncWebServer.h>
 #include <robot_core/hardware.h>
 #include <robot_core/robot.h>
+#include <update_channel/update_channel.h>
 
 #include <atomic>
 #include <mutex>
@@ -36,6 +37,16 @@ class DeviceApi {
   // return them, for the Diagnostic report.
   String settingsJson();
   String hardwareJson();
+
+  // The newest firmware the Device interface found in the Update feed
+  // (POST /api/update/available), kept in RAM for the MQTT Firmware entity.
+  struct AvailableUpdate {
+    String version;  // empty when none is known
+    String notes;
+  };
+  AvailableUpdate availableUpdate();
+  // Goes up each time the available update changes, so MQTT republishes it.
+  uint32_t availableUpdateGeneration() const { return availableGeneration_; }
 
   // Stops Manual control and any Play session before a firmware update;
   // safe from any task.
@@ -82,6 +93,7 @@ class DeviceApi {
   void getAuth(AsyncWebServerRequest* request);
   void unlock(AsyncWebServerRequest* request, JsonVariant& body);
   void putPin(AsyncWebServerRequest* request, JsonVariant& body);
+  void postAvailableUpdate(AsyncWebServerRequest* request, JsonVariant& body);
 
   cwc::Robot& robot_;
   cwc::Storage& storage_;
@@ -91,7 +103,12 @@ class DeviceApi {
   cwc::HardwareConfig hardware_{};       // as saved, applied after restart
   std::atomic<uint32_t> restartAt_{0};
   String name_;
+  update_channel::Channel channel_ = update_channel::Channel::Stable;  // under robotLock_, like storage_
   AsyncWebSocket socket_{"/ws"};
+
+  std::mutex availableLock_;
+  AvailableUpdate available_;
+  std::atomic<uint32_t> availableGeneration_{0};
 
   std::mutex inboxLock_;
   Inbox inbox_;

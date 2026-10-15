@@ -45,6 +45,7 @@ class MqttBridge {
   void handleMessage(const char* topic, const uint8_t* payload, unsigned int length);
   bool connect();
   void publishState(bool force);
+  void publishUpdate();
 
   void getConfig(AsyncWebServerRequest* request);
   void putConfig(AsyncWebServerRequest* request, JsonVariant& body);
@@ -60,6 +61,7 @@ class MqttBridge {
   bool connected_ = false;
   String error_;
 
+  uint32_t updateGeneration_ = 0;  // of the available update last published
   String lastState_;
   uint32_t lastStateMs_ = 0;
 };

@@ -2,6 +2,12 @@
 // without hardware: `node tools/dev_server.mjs [port]` from firmware/, then
 // open http://localhost:8080/. No dependencies.
 //
+// Update feed (docs/adr/0012): by default the page reads the real one on
+// GitHub Pages. FEED=<version> (e.g. FEED=0.3.0-beta.1) serves a local feed
+// offering that version on both channels, with fake OTA images, so the banner,
+// the confirmation and the upload can be tried; FEED=offline makes the check
+// fail. VERSION=<version> sets the simulated robot's firmware version.
+//
 // The simulation is rough: it moves the axes at constant speed within the
 // limits and accepts settings with only basic checks. Safety behaviour is
 // specified and tested in the Robot core, not here.
@@ -15,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 const WEB = fileURLToPath(new URL('../web/', import.meta.url));
 const PORT = Number(process.argv[2] || 8080);
 let pendingReport = null;  // the Pending report, kept until sent or discarded
+let restartingUntil = 0;   // a simulated restart after a firmware update
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 
@@ -88,7 +95,21 @@ function authorized(request) {
 
 const PROTECTED = new Set(['POST /api/calibration', 'POST /api/speed-tuning', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
   'POST /api/wifi', 'PUT /api/mqtt']);
-const startedAt = Date.now();
+let startedAt = Date.now();
+let firmwareVersion = process.env.VERSION || '0.0.0-dev (simulator)';
+let channel = null;  // the Update channel; null = never set, follows the firmware
+let available = { version: '', notes: '' };  // POST /api/update/available
+const channelNow = () => channel || (firmwareVersion.includes('-beta') ? 'beta' : 'stable');
+const FEED = process.env.FEED || '';
+const FEED_PATH = '/dev-feed/channels.json';
+function feed() {
+  const entry = name => ({ version: FEED, tag: `v${FEED}`,
+    notes: `https://github.com/vistorx/CatWandConnect/releases/tag/v${FEED}`,
+    summary: 'Simulated release: one-tap updates from the robot\'s page.',
+    ota: Object.fromEntries([['ESP32', 'esp32'], ['ESP32-S3', 'esp32s3'], ['ESP32-C3', 'esp32c3']]
+      .map(([family, env]) => [family, `${name}/catwandconnect-${env}-ota.bin`])) });
+  return { stable: entry('stable'), beta: entry('beta') };
+}
 // docs/api.md: the API version and the Device ID, as GET /api/info and the
 // _catwandconnect._tcp TXT records give them.
 const API_VERSION = 1;
@@ -97,8 +118,8 @@ const DEVICE_ID = '3f9a12c4';
 function info() {
   const host = deviceName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'catwandconnect';
-  return { name: deviceName, hostname: `${host}.local`, version: '0.0.0-dev (simulator)', api: API_VERSION, id: DEVICE_ID,
-    chip: 'ESP32-D0WD-V3',
+  return { name: deviceName, hostname: `${host}.local`, version: firmwareVersion, api: API_VERSION, id: DEVICE_ID,
+    channel: channelNow(), chipFamily: 'ESP32', chip: 'ESP32-D0WD-V3',
     chipRevision: 3, cores: 2, cpuMhz: 240, flashMb: 4, freeHeap: 182000, mac: '24:6F:28:00:00:01',
     ssid: 'Simulated', ip: '127.0.0.1', rssi: -61, uptime: Math.floor((Date.now() - startedAt) / 1000), temperature: 47.5 };
 }
@@ -456,6 +477,10 @@ function stow() {
 const clampUnit = value => Math.max(-1, Math.min(1, Number(value) || 0));
 
 function putSettings(body) {
+  if ('channel' in body && !['stable', 'beta'].includes(body.channel)) return [400, { error: 'invalid_channel' }];
+  if ('channel' in body) channel = body.channel;
+  const { channel: _, ...rest } = body;
+  body = rest;
   const next = structuredClone(robot.settings);
   if (typeof body.playSpeed === 'number') next.playSpeed = body.playSpeed;
   if ('sessionMinutes' in body) next.sessionMinutes = body.sessionMinutes;
@@ -474,13 +499,19 @@ function putSettings(body) {
     if (a.pauseMin > a.pauseMax) return [400, { error: 'pause_order', axis }];
   }
   robot.settings = next;
-  return [200, robot.settings];
+  return [200, { ...robot.settings, channel: channelNow() }];
 }
 
 // --- HTTP ---------------------------------------------------------------------
 
 const API = {
-  'GET /api/settings': () => [200, robot.settings],
+  'GET /api/settings': () => [200, { ...robot.settings, channel: channelNow() }],
+  'POST /api/update/available': body => {
+    if (typeof body.version !== 'string') return [400, { error: 'invalid_request' }];
+    available = { version: body.version, notes: body.version ? String(body.notes ?? '') : '' };
+    console.log(`[update] latest version reported: ${available.version || '(none)'}`);
+    return [200, available];
+  },
   'PUT /api/settings': putSettings,
   'GET /api/info': () => [200, info()],
   'GET /api/auth': (body, url, request) => [200, { enabled: !!pin, authorized: authorized(request), lockedFor: 0 }],
@@ -560,9 +591,37 @@ const API = {
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost');
   if (request.method === 'POST' && url.pathname === '/api/update') {
-    for await (const chunk of request) void chunk;  // pretend to flash it
+    let size = 0;
+    for await (const chunk of request) size += chunk.length;  // pretend to flash it
     if (!authorized(request)) return send(response, 401, { error: 'pin_required' });
+    console.log(`[update] received ${size} bytes`);
+    // "Restart" on the offered version: unreachable for a few seconds.
+    restartingUntil = Date.now() + 5000;
+    setTimeout(() => {
+      if (FEED && FEED !== 'offline') firmwareVersion = FEED;
+      startedAt = Date.now();
+      available = { version: '', notes: '' };
+    }, 1000);
     return send(response, 200, { ok: true, restart: true });
+  }
+  if (Date.now() < restartingUntil && url.pathname.startsWith('/api/')) return request.socket.destroy();
+  if (url.pathname === '/update.js' && FEED) {
+    // The page's feed constant, pointed at the local feed.
+    const code = (await readFile(join(WEB, 'update.js'), 'utf8'))
+      .replace(/const FEED_URL = '[^']*';/, `const FEED_URL = '${FEED === 'offline' ? '/dev-feed/offline.json' : FEED_PATH}';`);
+    response.writeHead(200, { 'Content-Type': 'text/javascript' });
+    return response.end(code);
+  }
+  if (url.pathname.startsWith('/dev-feed/')) {
+    if (FEED === 'offline' || !FEED) return send(response, 404, { error: 'not_found' });
+    if (url.pathname === FEED_PATH) return send(response, 200, feed());
+    // A fake app image: ESP magic byte, chip id 0 (ESP32) at offset 12.
+    const image = Buffer.alloc(1200 * 1024, 0xff);
+    image[0] = 0xe9;
+    image[12] = 0;
+    image[13] = 0;
+    response.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Length': image.length });
+    return setTimeout(() => response.end(image), 800);
   }
   if (request.method === 'POST' && url.pathname === '/api/wifi') {
     // Form-encoded, like the robot's.

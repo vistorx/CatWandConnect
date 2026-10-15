@@ -156,18 +156,51 @@
       <button id="pin-remove" type="button" class="secondary" data-i18n="security.remove" hidden></button>
       <p class="message" role="status"></p>
     </form>
-    <form id="firmware">
+    <section id="update">
       <h2 data-i18n="firmware.title"></h2>
+      <fieldset>
+        <div class="field wide">
+          <span data-i18n="firmware.current"></span>
+          <output id="firmware-version"></output>
+        </div>
+        <div class="field wide">
+          <label for="update-channel" data-i18n="update.channel"></label>
+          <select id="update-channel">
+            <option value="stable" data-i18n="update.channel.stable"></option>
+            <option value="beta" data-i18n="update.channel.beta"></option>
+          </select>
+        </div>
+      </fieldset>
+      <p class="hint" data-i18n="update.channel.hint"></p>
+      <p id="update-status" class="hint" role="status"></p>
+      <div id="update-available" class="note" hidden>
+        <p><strong id="update-title"></strong></p>
+        <p id="update-summary"></p>
+        <p><a id="update-notes" href="#" target="_blank" rel="noopener" data-i18n="update.notes"></a></p>
+        <div class="actions">
+          <button id="update-start" type="button" class="primary" data-i18n="update.button"></button>
+        </div>
+      </div>
+      <button id="update-retry" type="button" class="secondary" data-i18n="update.retry" hidden></button>
+      <div id="update-confirm" class="note" role="alertdialog" aria-labelledby="update-confirm-text" hidden>
+        <p id="update-confirm-text"></p>
+        <p data-i18n="update.confirm.keep"></p>
+        <div class="actions">
+          <button id="update-confirm-go" type="button" class="primary" data-i18n="update.confirm.go"></button>
+          <button id="update-confirm-cancel" type="button" class="secondary" data-i18n="settings.wifi.change.cancel"></button>
+        </div>
+      </div>
+      <progress id="update-progress" max="100" value="0" hidden></progress>
+      <p id="update-message" class="message" role="status"></p>
+    </section>
+    <form id="firmware">
+      <h2 data-i18n="firmware.manual"></h2>
       <p class="hint" data-i18n="firmware.hint"></p>
       <div id="firmware-hotspot" class="note" hidden>
         <p data-i18n="firmware.hotspot"></p>
         <p><code id="firmware-address"></code> <button id="firmware-copy" type="button" class="secondary" data-i18n="firmware.copy"></button></p>
       </div>
       <fieldset>
-        <div class="field wide">
-          <span data-i18n="firmware.current"></span>
-          <output id="firmware-version"></output>
-        </div>
         <input id="firmware-file" type="file" accept=".bin,application/octet-stream" required>
         <progress id="firmware-progress" max="100" value="0" hidden></progress>
       </fieldset>
@@ -187,6 +220,7 @@
 
 <script src="i18n.js"></script>
 <script src="api.js"></script>
+<script src="update.js"></script>
 <script src="settings.js"></script>
 </body>
 </html>

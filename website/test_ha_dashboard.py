@@ -30,6 +30,7 @@ MQTT_ENTITIES = {
     "number.catwandconnect_vertical_position",
     "number.catwandconnect_horizontal_maximum_speed",
     "number.catwandconnect_vertical_maximum_speed",
+    "update.catwandconnect_firmware",
 }
 
 # The Native integration's 8 entities (vistorx/ha-catwandconnect, entity

@@ -18,7 +18,9 @@ Aucun outil à installer : le firmware va sur la carte directement depuis ton na
 
 ## Mettre à jour, compiler depuis les sources
 
-- **Mettre à jour un robot déjà installé :** télécharge le fichier `-ota.bin` de ta puce dans la [dernière version publiée](https://github.com/vistorx/CatWandConnect/releases), puis envoie-le depuis **Réglages → Robot → Mise à jour du firmware** du robot. Les réglages et la calibration sont conservés.
+- **Mettre à jour un robot déjà installé :** quand une nouvelle version sort, l'écran principal du robot affiche *Version X disponible* avec **Nouveautés** et **Mettre à jour**. Touche **Mettre à jour**, puis **Installer maintenant** : ton téléphone télécharge la version pour la puce du robot et l'envoie au robot, qui redémarre dessus environ une minute plus tard. Garde la page ouverte jusqu'à ce qu'elle annonce le retour du robot. Les réglages et la calibration sont conservés. On retrouve tout ça dans **Réglages → Robot → Mise à jour du firmware**, où *Impossible de vérifier les mises à jour* veut dire que ton téléphone n'a pas accès à Internet (touche **Réessayer**). Termine ou arrête d'abord une Session de jeu ou une Calibration.
+- **Stable ou Bêta :** **Réglages → Robot → Mise à jour du firmware → Canal de mise à jour** choisit les versions proposées au robot ([canaux de publication](releasing.md#channels)). Le robot garde ce choix après un redémarrage ou une mise à jour. Tant que tu n'as pas choisi, il suit la version installée : une bêta propose des bêtas.
+- **Pas d'Internet sur ton téléphone** (par exemple sur le hotspot du robot) : télécharge à l'avance le fichier `-ota.bin` de ta puce dans les [versions publiées](https://github.com/vistorx/CatWandConnect/releases), puis envoie-le depuis **Réglages → Robot → Mise à jour du firmware → Installer depuis un fichier**.
 - **Compiler depuis les sources** avec [PlatformIO](https://platformio.org/) ; [Bien démarrer](getting-started.fr.md) présente les outils :
 
   ```sh

@@ -38,7 +38,8 @@ std::string bearer(AsyncWebServerRequest* request) {
 void registerOta(AsyncWebServer& server, auth::PinGuard& pin, cwc::Chip chip, std::function<void()> onStart,
                  std::function<void()> onDone) {
   server.on(
-      "/api/update", HTTP_POST,
+      // Exact: /api/update/available is another route (device_api.cpp).
+      AsyncURIMatcher::exact("/api/update"), HTTP_POST,
       // Runs once the whole body has been received.
       [onDone](AsyncWebServerRequest* request) {
         const char* error = upload.error;

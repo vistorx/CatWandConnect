@@ -142,11 +142,12 @@ Le robot se reconnecte tout seul après une coupure de courant ou un redémarrag
 
 ### 6. Le retrouver dans Home Assistant
 
-Va dans **Paramètres → Appareils et services → MQTT**, puis **Appareils**. Le robot apparaît sous son nom, avec les mêmes entités qu'avec l'intégration native ([listées plus haut](#3-vérifier-ses-entités)), mais nommées en anglais : Stow, Horizontal position, Vertical position, Horizontal maximum speed, Vertical maximum speed, Activity, Play session et Session duration. Les différences :
+Va dans **Paramètres → Appareils et services → MQTT**, puis **Appareils**. Le robot apparaît sous son nom, avec les mêmes entités qu'avec l'intégration native ([listées plus haut](#3-vérifier-ses-entités)), mais nommées en anglais : Stow, Horizontal position, Vertical position, Horizontal maximum speed, Vertical maximum speed, Activity, Play session, Session duration et Firmware. Les différences :
 
 - Horizontal position et Vertical position vont de 0 à 180° ; le robot garde l'axe dans ses limites de course.
 - Une session de jeu refusée par le robot (pas calibré, occupé) remet l'interrupteur sur éteint sans message ; le log du robot dit pourquoi.
 - Session duration est mémorisée dès que le robot est au repos.
+- **Firmware** (`update.catwandconnect_firmware`) affiche la version installée et, dès que la page du robot en a trouvé une plus récente pour son Canal de mise à jour, la dernière version avec un lien vers ses nouveautés : Home Assistant affiche alors sa notification de mise à jour habituelle. Il n'y a pas de bouton **Installer** : le robot ne peut rien télécharger lui-même. Mets à jour depuis la page du robot (le bouton **Mettre à jour** de son écran principal, voir [Mettre à jour](install.fr.md#mettre-à-jour-compiler-depuis-les-sources)) ou avec l'intégration native. La dernière version est connue après que quelqu'un a ouvert la page du robot, et oubliée quand le robot redémarre.
 
 Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme indisponibles.
 
@@ -276,6 +277,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: update.catwandconnect_firmware
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: update.catwandconnect_firmware
+                    state: "on"
           - type: button
             entity: switch.catwandconnect_play_session
             name: Session de jeu
@@ -340,7 +348,7 @@ views:
             features_position: inline
 ```
 
-Les curseurs de position vont de 0 à 180° ; le robot s'arrête à ses limites de course. La carte joystick n'existe qu'avec l'intégration native ; avec la connexion MQTT, déplace la baguette avec les curseurs ou depuis la page du robot.
+Les curseurs de position vont de 0 à 180° ; le robot s'arrête à ses limites de course. Un badge **Firmware** apparaît à côté d'Activity quand une nouvelle version est disponible ; touche-le pour voir les nouveautés. La carte joystick n'existe qu'avec l'intégration native ; avec la connexion MQTT, déplace la baguette avec les curseurs ou depuis la page du robot.
 
 ## Automatisations
 

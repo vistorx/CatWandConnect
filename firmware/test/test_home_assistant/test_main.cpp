@@ -29,7 +29,7 @@ void test_topics_live_under_the_hostname() {
 void test_discovery_announces_the_required_entities() {
   auto messages = discovery(device());
 
-  TEST_ASSERT_EQUAL(8, messages.size());
+  TEST_ASSERT_EQUAL(9, messages.size());
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/button/catwandconnect_246f28abcdef/stow/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/horizontal_position/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/vertical_position/config"));
@@ -38,6 +38,7 @@ void test_discovery_announces_the_required_entities() {
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/activity/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/switch/catwandconnect_246f28abcdef/play_session/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/session_duration/config"));
+  TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/update/catwandconnect_246f28abcdef/firmware/config"));
 }
 
 void test_every_entity_shares_device_and_availability() {
@@ -181,6 +182,48 @@ void test_entity_ids_follow_the_hostname_and_unique_ids_the_mac() {
   TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_stow", doc["unique_id"]);
 }
 
+// The robot can't download anything (ADR 0012): the Firmware entity only
+// shows the versions, with no install command.
+void test_firmware_update_entity_reads_its_own_topic_and_has_no_install() {
+  Topics topics(device());
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/update", topics.update().c_str());
+
+  auto messages = discovery(device());
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/update/catwandconnect_246f28abcdef/firmware/config")->payload);
+  TEST_ASSERT_EQUAL_STRING("Firmware", doc["name"]);
+  TEST_ASSERT_EQUAL_STRING("firmware", doc["device_class"]);
+  TEST_ASSERT_EQUAL_STRING("config", doc["entity_category"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/update", doc["state_topic"]);
+  TEST_ASSERT_TRUE(doc["command_topic"].isNull());
+}
+
+void test_update_payload_offers_a_newer_version_with_its_notes() {
+  JsonDocument doc;
+  deserializeJson(doc, updatePayload({"0.2.0-beta.3", "0.2.0-beta.4", "https://example.org/notes"}));
+  TEST_ASSERT_EQUAL_STRING("0.2.0-beta.3", doc["installed_version"]);
+  TEST_ASSERT_EQUAL_STRING("0.2.0-beta.4", doc["latest_version"]);
+  TEST_ASSERT_EQUAL_STRING("https://example.org/notes", doc["release_url"]);
+  TEST_ASSERT_EQUAL_STRING("CatWandConnect firmware", doc["title"]);
+}
+
+// Nothing known, or nothing newer: Home Assistant shows the robot up to date.
+void test_update_payload_without_a_newer_version_reads_up_to_date() {
+  for (const char* latest : {"", "0.1.0", "0.2.0-beta.3", "garbage"}) {
+    JsonDocument doc;
+    deserializeJson(doc, updatePayload({"0.2.0-beta.3", latest, "https://example.org/notes"}));
+    TEST_ASSERT_EQUAL_STRING("0.2.0-beta.3", doc["latest_version"]);
+    TEST_ASSERT_TRUE(doc["release_url"].isNull());
+  }
+}
+
+// Without notes from the Device interface, the release page of that version.
+void test_update_payload_defaults_the_release_url_to_the_github_release() {
+  JsonDocument doc;
+  deserializeJson(doc, updatePayload({"0.2.0-beta.3", "0.2.0", ""}));
+  TEST_ASSERT_EQUAL_STRING("https://github.com/vistorx/CatWandConnect/releases/tag/v0.2.0", doc["release_url"]);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_topics_live_under_the_hostname);
@@ -196,5 +239,9 @@ int main() {
   RUN_TEST(test_entity_ids_follow_the_hostname_and_unique_ids_the_mac);
   RUN_TEST(test_parses_commands);
   RUN_TEST(test_ignores_unknown_topics_and_bad_values);
+  RUN_TEST(test_firmware_update_entity_reads_its_own_topic_and_has_no_install);
+  RUN_TEST(test_update_payload_offers_a_newer_version_with_its_notes);
+  RUN_TEST(test_update_payload_without_a_newer_version_reads_up_to_date);
+  RUN_TEST(test_update_payload_defaults_the_release_url_to_the_github_release);
   return UNITY_END();
 }
