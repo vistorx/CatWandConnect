@@ -8,6 +8,11 @@
 // the confirmation and the upload can be tried; FEED=offline makes the check
 // fail. VERSION=<version> sets the simulated robot's firmware version.
 //
+// The .local step (homescreen.js) only shows when the page is opened by IP and
+// the robot's .local name opens from the browser. Open http://127.0.0.1:<port>/
+// and set LOCAL_HOST=localhost:<port> to stand in for a resolving .local name;
+// without it, catwandconnect.local doesn't resolve, as on some Android phones.
+//
 // The simulation is rough: it moves the axes at constant speed within the
 // limits and accepts settings with only basic checks. Safety behaviour is
 // specified and tested in the Robot core, not here.
@@ -57,11 +62,12 @@ let lockedUntil = 0;  // simulated lockout: 30 s after 5 wrong PINs
 let scanToggle = false;
 // The simulated Wi-Fi: a change from the home network to any password but
 // "wrong" succeeds after 3 s; "wrong" fails, then rejoins the previous one.
+const LOCAL_HOST = process.env.LOCAL_HOST || 'catwandconnect.local';
 const wifi = { ssid: 'Simulated', target: '', failedSsid: '', mode: 'connected', until: 0 };
 
 function wifiStatus() {
   const hotspot = process.env.HOTSPOT === '1';
-  if (hotspot) return { mode: 'hotspot', failed: false, ssid: '', ip: '', host: 'catwandconnect.local', hotspot: true, failedSsid: '' };
+  if (hotspot) return { mode: 'hotspot', failed: false, ssid: '', ip: '', host: LOCAL_HOST, hotspot: true, failedSsid: '' };
   if (wifi.mode !== 'connected' && Date.now() >= wifi.until) {
     if (wifi.mode === 'trying' && wifi.wrong) {
       wifi.failedSsid = wifi.target;
@@ -75,7 +81,7 @@ function wifiStatus() {
   const connected = wifi.mode === 'connected';
   return { mode: connected ? 'connected' : 'connecting', failed: !!wifi.failedSsid,
     ssid: connected ? wifi.ssid : wifi.mode === 'trying' ? wifi.target : wifi.ssid,
-    ip: connected ? '127.0.0.1' : '', host: 'catwandconnect.local', hotspot: false, failedSsid: wifi.failedSsid };
+    ip: connected ? '127.0.0.1' : '', host: LOCAL_HOST, hotspot: false, failedSsid: wifi.failedSsid };
 }
 
 function changeWifi(form) {

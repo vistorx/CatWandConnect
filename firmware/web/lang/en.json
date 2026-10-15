@@ -353,9 +353,15 @@
   "home.android.2": "Tap <b>Add to Home screen</b> {icon} (or <b>Install app</b>, depending on the version).",
   "home.android.3": "Tap <b>Add</b> (or <b>Install</b>).",
   "home.ip": "This page was opened by IP address, which can change. Open {address} first: that address keeps working (also shown in Settings → Network).",
+  "home.ip_router": "This page was opened by IP address, which can change, and this device can't open the robot's .local address. Reserve the robot's address in your router so the icon keeps working ({docs}).",
+  "home.ip_docs": "how",
   "home.show.android": "Show the steps for Android",
   "home.show.ios": "Show the steps for iPhone",
   "home.done": "Got it",
   "home.later": "Later",
+  "local.title": "Use the robot's permanent address",
+  "local.intro": "This page was opened by IP address, which your router can change. This address always leads to the robot:",
+  "local.go": "Go",
+  "local.later": "Not now",
   "help.home": "Add to your home screen"
 }

@@ -34,10 +34,10 @@ No tools to install: the firmware goes on the board straight from your browser. 
 
 1. If you entered your Wi-Fi in the web flasher, skip to step 3. Otherwise power the robot: with no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** hotspot.
 2. Join it from your phone. The setup page opens by itself; if not, browse to `http://192.168.4.1/`. Pick your Wi-Fi and enter its password, or tap **Continue without Wi-Fi** to use the robot from the hotspot for now.
-3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page).
+3. Rejoin your home Wi-Fi and open **`http://catwandconnect.local/`** (or the IP shown on the setup page). Opened by IP, the page first offers **Use the robot's permanent address**: tap **Go** to switch to the `.local` address, which keeps working when the IP changes. It only offers it when your phone or computer can open it; otherwise see [`catwandconnect.local` doesn't open](troubleshooting.md#wi-fi).
 4. **Calibrate.** The main screen invites you to. The wizard has you nudge each axis to the ends of its safe travel and pick the Stow position, then sweeps the new envelope slowly so you can check nothing touches. Once the limits are saved, it sweeps each axis while you set its minimum and maximum speed, then makes short moves while you set its acceleration (Skip keeps a value as it is). Until then, movement stays within a conservative 60°–120° range on each axis.
 5. **Play.** Drag the joystick to move the wand and let go to stop. Press **Stow** to put it away.
-6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. On a phone, the first visit shows how to add the robot to your home screen for an app-like icon (**Got it** hides the tip; Help → **Add to your home screen** shows it again). Settings → Network shows the robot's IP address, and **Change Wi-Fi network** moves it to another network later (new router, new home).
+6. **Make it yours.** Name the robot in Settings; its address follows, for example `http://catwandconnect-salon.local/`. On a phone, the first visit shows how to add the robot to your home screen for an app-like icon (**Got it** hides the tip; Settings → Robot or Help → **Add to your home screen** shows it again). Settings → Network shows the robot's IP address, and **Change Wi-Fi network** moves it to another network later (new router, new home).
 
 Something wrong? See [Troubleshooting](troubleshooting.md), then [Getting help](../SUPPORT.md).
 

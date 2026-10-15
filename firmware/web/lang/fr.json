@@ -353,9 +353,15 @@
   "home.android.2": "Touche <b>Ajouter à l'écran d'accueil</b> {icon} (ou <b>Installer l'application</b>, selon la version).",
   "home.android.3": "Touche <b>Ajouter</b> (ou <b>Installer</b>).",
   "home.ip": "Cette page a été ouverte par son adresse IP, qui peut changer. Ouvre d'abord {address} : cette adresse-là reste valable (elle est aussi dans Réglages → Réseau).",
+  "home.ip_router": "Cette page a été ouverte par son adresse IP, qui peut changer, et cet appareil n'arrive pas à ouvrir l'adresse en .local du robot. Réserve l'adresse du robot dans ta box pour que l'icône continue de marcher ({docs}).",
+  "home.ip_docs": "comment faire",
   "home.show.android": "Voir les étapes pour Android",
   "home.show.ios": "Voir les étapes pour iPhone",
   "home.done": "Compris",
   "home.later": "Plus tard",
+  "local.title": "Utilise l'adresse permanente du robot",
+  "local.intro": "Cette page a été ouverte par son adresse IP, que ta box peut changer. Cette adresse-ci mène toujours au robot :",
+  "local.go": "Y aller",
+  "local.later": "Pas maintenant",
   "help.home": "Ajouter à ton écran d'accueil"
 }
