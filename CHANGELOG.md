@@ -6,20 +6,22 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
-- **Find out why the robot isn't under *Discovered*.** The Home Assistant guide now covers virtual machines (a bridged network adapter is needed) and shows how to check, with debug logging, whether Home Assistant hears the robot.
+## 0.2.0-beta.3 - 2026-10-14
 
-- **Feel the acceleration before you set it.** Right after each axis's maximum speed, the Calibration wizard makes the wand do short moves while you tap Snappier or Softer, so you pick how sharply it starts and stops instead of guessing a number. Also in Settings → Motion → Tune speeds and acceleration.
+**Set up a new robot in one go, and feel every setting before you keep it.** The Calibration wizard now goes on after the limits: it sweeps each axis so you pick its minimum and maximum speed, then makes short moves while you tap Snappier or Softer to set its acceleration. No more guessing numbers.
 
-- **Change the robot's Wi-Fi from Settings.** Settings → Network now shows the network, the robot's IP address and its `.local` address, with a **Change Wi-Fi network** button. A wrong password sends the robot back to the network it was on, so moving it never makes it disappear.
+### Highlights
 
-- **Livelier Play sessions out of the box.** The default pauses are now 0 to 2 s on both axes (they were up to 3 s and 5 s), so the wand rests less. Pauses you already set are kept.
+- **Calibration sets the speeds.** After saving the limits, pick each axis's minimum and maximum speed with Faster and Slower while the wand sweeps, or skip to keep the current one.
+- **Feel the acceleration.** Right after each maximum speed, the wand makes short moves while you tap Snappier or Softer, so you choose how sharply it starts and stops. Also in Settings → Motion → Tune speeds and acceleration.
+- **Change the robot's Wi-Fi from Settings.** Settings → Network shows the network, the robot's IP address and its `.local` address, with a **Change Wi-Fi network** button. A wrong password sends the robot back to the network it was on, so it never disappears.
+- **Livelier Play sessions out of the box.** Default pauses are now 0 to 2 s on both axes, so the wand rests less. Pauses you already set are kept.
+- **Home Assistant dashboards, upgraded.** The ready-made dashboards get a big Play session button (tap to start, tap again to stop), and the Native integration's adds the joystick (integration 0.1.1 or later). Screenshots of both are in the [Home Assistant guide](https://vistorx.github.io/CatWandConnect/home-assistant/).
+- **Robot not under *Discovered*?** The guide now covers Home Assistant in a virtual machine (use a bridged network adapter) and how to check whether it hears the robot.
 
-- **Calibration now sets the speeds too.** After saving the limits, the wizard sweeps each axis so you pick its minimum and maximum speed with Faster and Slower, or skip to keep the current one: a new robot is set up in one go.
+### Update
 
-- **Joystick in the Native integration's ready-made dashboard.** Move the wand with your finger right from Home Assistant (integration 0.1.1 or later).
-
-- **Bigger Play session control in the ready-made dashboards.** The Play session is now a large button: tap to start, tap again to stop.
-- The README shows the Device interface on a phone next to the Mk2 video, and the Home Assistant guide shows both ready-made dashboards.
+Update by OTA from 0.2.0-beta.2, 0.2.0-beta.1 or 0.1.0: settings and Calibration are kept. To set the new acceleration on an already calibrated robot, open Settings → Motion → Tune speeds and acceleration, or run the Calibration again.
 
 ## 0.2.0-beta.2 - 2026-10-14
 
