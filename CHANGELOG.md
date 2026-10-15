@@ -6,7 +6,20 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
-- **Update in one tap.** When a new version is out, the robot's main screen says so with what's new and an **Update** button: your phone downloads the right file and installs it, no more hunting for `-ota.bin` files. Choose Stable or Beta in Settings → Robot → Firmware update; the robot remembers it. With the MQTT connection, Home Assistant's Firmware entity shows when an update is available.
+## 0.2.0-beta.4 - 2026-10-15
+
+**Updates in one tap.** No more downloading files from GitHub: when a new version is out, your robot's page tells you and installs it for you. Pick Stable or Beta once, the robot remembers.
+
+### Highlights
+
+- **Update in one tap.** When a new version is out, the robot's main screen says so, with what's new and an **Update** button: your phone downloads the right file and installs it. Installing a file by hand is still there, in Settings → Robot → Firmware update.
+- **Stable or Beta, your choice.** Choose the Update channel in Settings → Robot → Firmware update. The robot remembers it across restarts and updates; it starts on the channel of the version you installed.
+- **Updates in Home Assistant.** With the Native integration (0.2.0 or later), a **Firmware** entity shows the installed and latest versions, and **Install** updates the robot from Home Assistant. With the MQTT connection, the Firmware entity shows when an update is out. Both ready-made dashboards show a Firmware badge when there is one.
+- **Your robot stays private.** The robot still never goes on the Internet: your phone or Home Assistant checks for updates and brings the file.
+
+### Update
+
+This is the last update you install by hand: download `catwandconnect-<chip>-v0.2.0-beta.4-ota.bin` from the release and install it in Settings → Robot → Firmware update. From then on, the robot's page offers the next ones by itself. Settings and Calibration are kept.
 
 ## 0.2.0-beta.3 - 2026-10-14
 
