@@ -84,9 +84,10 @@ jobs:
           mkdir -p site/flasher/beta site/flasher/media
           cp flasher/index.html site/flasher/
           cp -r media/logo site/flasher/media/
-          cp dist/*-factory.bin site/flasher/beta/
+          cp dist/*-factory.bin dist/*-ota.bin site/flasher/beta/
           python firmware/tools/flasher_manifest.py "$v" site/flasher/beta/manifest.json
-          echo "{\"beta\": {\"version\": \"$v\", \"tag\": \"\"}}" > site/flasher/channels.json
+          ota='{"ESP32": "beta/catwandconnect-esp32-ota.bin", "ESP32-S3": "beta/catwandconnect-esp32s3-ota.bin", "ESP32-C3": "beta/catwandconnect-esp32c3-ota.bin"}'
+          echo "{\"beta\": {\"version\": \"$v\", \"tag\": \"\", \"notes\": \"\", \"summary\": \"\", \"ota\": $ota}}" > site/flasher/channels.json
       - uses: actions/upload-artifact@v6
         with:
           name: flasher-preview

@@ -16,23 +16,57 @@ partition alone (flasher_manifest.split_image) and writes a manifest there:
 - beta: the newest release of any kind (so a stable newer than every beta is
   also what Beta users get).
 
-<site-dir>/flasher/channels.json lists the channels with their versions, for the page.
+<site-dir>/flasher/channels.json lists the channels for the page, and is also
+the Update feed the Device interface and the Native integration read to offer
+a one-tap update (docs/adr/0012). Per channel: `version`, `tag`, `notes` (the
+release page), `summary` (the pitch of the version's CHANGELOG.md section, in
+plain text, may be empty) and `ota`, the path of each chip family's app image
+(the release's `-ota.bin`, copied into the channel folder, because GitHub
+release downloads have no CORS), relative to flasher/:
+
+    {"stable": {"version": "0.2.0", "tag": "v0.2.0",
+                "notes": "https://github.com/vistorx/CatWandConnect/releases/tag/v0.2.0",
+                "summary": "...",
+                "ota": {"ESP32": "stable/catwandconnect-esp32-ota.bin", ...}},
+     "beta": {...}}
+
 A channel with no release is left out. Downloading uses the `gh` CLI.
 """
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 
 from flasher_manifest import CHIPS, site_manifest
+from release_notes import section
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Where the flasher is served, relative to the site root (/CatWandConnect/flasher/).
 FLASHER = "flasher"
 # Repository files the flasher page loads, copied next to it.
 PAGE_FILES = ["flasher/index.html", "media/logo/logo-64.png", "media/logo/logo-320.png"]
+RELEASES = "https://github.com/vistorx/CatWandConnect/releases/tag/"
+
+
+def ota_name(env):
+    return f"catwandconnect-{env}-ota.bin"
+
+
+def summary(changelog, tag):
+    """The pitch of the version's CHANGELOG.md section in plain text, or ""."""
+    try:
+        body = section(changelog, tag)
+    except KeyError:
+        return ""
+    if body.startswith("#"):
+        return ""
+    text = body.split("\n\n", 1)[0]
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)   # [text](url) -> text
+    text = re.sub(r"(\*\*|__|`)", "", text)                  # bold, code
+    return " ".join(text.split())
 
 
 def pick_channels(releases):
@@ -52,7 +86,7 @@ def copy_page(site):
         shutil.copyfile(os.path.join(REPO, path), dst)
 
 
-def build(releases, site, download):
+def build(releases, site, download, changelog=""):
     """Writes the channels under <site>/flasher/ and returns them."""
     site = os.path.join(site, FLASHER)
     os.makedirs(site, exist_ok=True)
@@ -67,7 +101,16 @@ def build(releases, site, download):
         with open(os.path.join(folder, "manifest.json"), "w") as f:
             json.dump(site_manifest(version, folder), f, indent=2)
             f.write("\n")
-        channels[channel] = {"version": version, "tag": tag}
+        missing = [env for env in CHIPS if not os.path.exists(os.path.join(folder, ota_name(env)))]
+        if missing:
+            sys.exit(f"{tag} has no OTA image for {', '.join(missing)}")
+        channels[channel] = {
+            "version": version,
+            "tag": tag,
+            "notes": RELEASES + tag,
+            "summary": summary(changelog, tag),
+            "ota": {family: f"{channel}/{ota_name(env)}" for env, family in CHIPS.items()},
+        }
     with open(os.path.join(site, "channels.json"), "w") as f:
         json.dump(channels, f, indent=2)
         f.write("\n")
@@ -76,7 +119,7 @@ def build(releases, site, download):
 
 def gh_download(tag, folder):
     subprocess.run(["gh", "release", "download", tag, "--dir", folder, "--clobber",
-                    "--pattern", "catwandconnect-*-factory.bin"], check=True)
+                    "--pattern", "catwandconnect-*-factory.bin", "--pattern", "catwandconnect-*-ota.bin"], check=True)
     missing = [env for env in CHIPS if not os.path.exists(
         os.path.join(folder, f"catwandconnect-{env}-factory.bin"))]
     if missing:
@@ -86,5 +129,7 @@ def gh_download(tag, folder):
 if __name__ == "__main__":
     with open(sys.argv[1]) as f:
         releases = json.load(f)
+    with open(os.path.join(REPO, "CHANGELOG.md"), encoding="utf-8") as f:
+        changelog = f.read()
     copy_page(sys.argv[2])
-    print(json.dumps(build(releases, sys.argv[2], gh_download), indent=2))
+    print(json.dumps(build(releases, sys.argv[2], gh_download, changelog), indent=2))

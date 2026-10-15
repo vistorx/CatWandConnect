@@ -1,0 +1,6 @@
+{
+  "name": "update_channel",
+  "version": "0.0.0",
+  "description": "The robot's Update channel and firmware version comparison (semver with pre-release). Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

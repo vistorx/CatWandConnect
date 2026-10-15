@@ -94,6 +94,14 @@ The current reference Mechanism, reinforced with a 608 skateboard bearing and a 
 Which firmware releases a user is offered: **Stable** (`vX.Y.Z`, the default) or **Beta** (`vX.Y.Z-beta.N` pre-releases, tested on real robots before going stable).
 _Avoid_: Nightly, dev build, preview (a dev build is an untagged local or CI build, not a channel)
 
+**Update channel**:
+The Release channel a given robot follows: a robot setting (Settings → Robot → Firmware update), stored on the robot and kept across restarts and updates, so every phone and Home Assistant offer it the same versions. Never set, it is the channel of the firmware it runs (a `-beta` version is on Beta).
+_Avoid_: Update track, branch
+
+**Update feed**:
+The file listing the newest version of each Release channel, its release notes and the OTA image per chip family: the web flasher's `channels.json` on GitHub Pages. The Device interface and the Native integration read it to offer a one-tap update; the robot never reads it itself (ADR 0012).
+_Avoid_: Update server, manifest (the manifest is the web flasher's per-channel install file)
+
 ## Support
 
 **Diagnostic report**:

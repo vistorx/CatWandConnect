@@ -280,6 +280,9 @@ button.secondary {
 }
 .banner a { font-weight: 600; white-space: nowrap; }
 p.banner { margin: 0; }
+.update-banner { flex-wrap: wrap; border-color: var(--accent); }
+.banner-links { display: flex; gap: 1rem; }
+.banner-why { flex-basis: 100%; color: var(--muted); }
 .banner:not([hidden]) + .banner { margin-top: -.75rem; }
 
 .link-button { display: inline-block; margin: .25rem 0 1rem; font-weight: 600; }

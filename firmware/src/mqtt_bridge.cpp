@@ -128,6 +128,7 @@ void MqttBridge::run() {
     if (client.connected()) {
       client.loop();
       publishState(false);
+      if (api_->availableUpdateGeneration() != updateGeneration_) publishUpdate();
     } else {
       std::lock_guard<std::mutex> guard(lock_);
       connected_ = false;
@@ -170,6 +171,7 @@ bool MqttBridge::connect() {
   client.subscribe(topics.axisCommands().c_str());
   client.publish(topics.availability().c_str(), home_assistant::kOnline, true);
   publishState(true);
+  publishUpdate();
   {
     std::lock_guard<std::mutex> guard(lock_);
     error_ = "";
@@ -201,6 +203,17 @@ void MqttBridge::publishState(bool force) {
   client.publish(topics.state().c_str(), payload.c_str(), true);
   lastState_ = payload;
   lastStateMs_ = now;
+}
+
+// The Firmware entity: installed version, and the latest one the Device
+// interface reported from the Update feed.
+void MqttBridge::publishUpdate() {
+  updateGeneration_ = api_->availableUpdateGeneration();
+  DeviceApi::AvailableUpdate available = api_->availableUpdate();
+  std::string payload =
+      home_assistant::updatePayload({CWC_VERSION, available.version.c_str(), available.notes.c_str()});
+  home_assistant::Topics topics(deviceInfo(name_, hostname_));
+  client.publish(topics.update().c_str(), payload.c_str(), true);
 }
 
 void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsigned int length) {

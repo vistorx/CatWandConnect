@@ -48,15 +48,15 @@ Tout ce que fait le firmware CatWandConnect, regroupé par usage. Tout est dans 
 
 ## Mises à jour
 
-- **Mises à jour du firmware depuis le navigateur.** Envoie le nouveau fichier dans les Réglages. Les réglages et la calibration sont conservés, et si l'envoi échoue ou est interrompu, le robot garde son firmware actuel.
+- **Mises à jour en un geste.** Quand une nouvelle version sort pour le Canal de mise à jour du robot, son écran principal et les Réglages le signalent, avec les nouveautés et un bouton **Mettre à jour** : ton téléphone télécharge le bon fichier pour la puce et l'installe, puis attend le retour du robot. Le robot lui-même ne se connecte jamais à Internet. Sans Internet sur le téléphone, envoie le fichier à la main dans les Réglages. Les réglages et la calibration sont conservés, et si l'envoi échoue ou est interrompu, le robot garde son firmware actuel.
 - **Versions publiées.** Chaque version est publiée avec des fichiers prêts à l'emploi pour chaque puce compatible.
-- **Canaux Stable et Bêta.** Les versions stables sont pour tout le monde. Les versions bêta reçoivent les nouveautés en premier pour être testées sur de vrais robots ; le flasher web te laisse choisir l'une ou l'autre.
+- **Canaux Stable et Bêta.** Les versions stables sont pour tout le monde. Les versions bêta reçoivent les nouveautés en premier pour être testées sur de vrais robots ; le flasher web te laisse choisir l'une ou l'autre, et chaque robot a son propre Canal de mise à jour dans les Réglages, gardé après un redémarrage ou une mise à jour.
 
 ## Intégrations
 
 - **Home Assistant (facultatif), deux façons de le connecter.** Dans les deux cas, le robot apparaît dans Home Assistant avec un bouton Ranger, la position et la vitesse maximale de chaque axe, son activité, et un interrupteur de session de jeu avec sa durée de session ; les commandes suivent les mêmes règles de sécurité que le téléphone, et chaque connexion a un tableau de bord tout prêt à copier-coller. N'en utilise qu'une par robot. Voir [Home Assistant](home-assistant.fr.md).
   - **Intégration native.** S'installe avec HACS depuis [`vistorx/ha-catwandconnect`](https://github.com/vistorx/ha-catwandconnect) : Home Assistant trouve le robot sous *Découverts*, tu cliques sur Ajouter (et tu saisis le code PIN des réglages s'il y en a un). Pas de broker, des mises à jour en moins d'une seconde, des noms d'entités dans la langue de Home Assistant, le nouveau code PIN redemandé quand tu le changes, et des diagnostics masqués à télécharger pour les rapports de bug. Demande le firmware 0.2.0-beta.2 ou plus récent et Home Assistant 2026.10 ou plus récent.
-  - **Connexion MQTT.** Saisis ton broker MQTT dans les Réglages et le robot s'annonce par la découverte MQTT. Marche avec tout Home Assistant, pour ceux qui ont déjà un broker.
+  - **Connexion MQTT.** Saisis ton broker MQTT dans les Réglages et le robot s'annonce par la découverte MQTT. Marche avec tout Home Assistant, pour ceux qui ont déjà un broker. Son entité Firmware signale quand une nouvelle version est disponible (installe-la depuis la page du robot).
 - **API ouverte.** Tout ce que fait l'interface passe par une API HTTP, WebSocket et MQTT documentée, pour tes propres scripts et intégrations. L'API est versionnée, et le robot s'annonce sur le réseau en `_catwandconnect._tcp` avec son identifiant d'appareil et sa version d'API, pour que l'intégration native pour Home Assistant le trouve sans MQTT. Voir [API du robot](api.fr.md).
 
 ## Matériel

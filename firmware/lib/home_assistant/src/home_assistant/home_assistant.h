@@ -28,6 +28,7 @@ struct Topics {
   std::string state() const { return base + "/state"; }          // JSON, see statePayload()
   std::string commands() const { return base + "/+/set"; }       // subscribe pattern
   std::string axisCommands() const { return base + "/+/+/set"; }
+  std::string update() const { return base + "/update"; }        // JSON, see updatePayload()
 };
 
 constexpr const char* kOnline = "online";
@@ -40,8 +41,8 @@ struct Message {
 };
 
 // Retained discovery messages: a Stow button, a position and a maximum speed
-// number per Axis, an activity sensor, a Play session switch and a Session
-// duration number, all grouped under one device.
+// number per Axis, an activity sensor, a Play session switch, a Session
+// duration number and a Firmware update entity, all grouped under one device.
 std::vector<Message> discovery(const Device& device, const std::string& prefix = kDefaultPrefix);
 
 struct State {
@@ -53,6 +54,18 @@ struct State {
 // The Play session switch reads ON exactly while the activity is "playing",
 // whatever started the session.
 std::string statePayload(const State& state);
+
+// What the Firmware update entity shows. `latest` is the newest version the
+// Device interface found in the Update feed (empty when unknown), `notes` its
+// release notes URL. The robot never downloads anything itself (ADR 0012), so
+// the entity has no install command.
+struct UpdateInfo {
+  std::string installed;
+  std::string latest;
+  std::string notes;
+};
+// A `latest` not newer than `installed` reads as up to date.
+std::string updatePayload(const UpdateInfo& info);
 
 enum class CommandKind { None, Stow, Position, MaxSpeed, StartPlay, StopPlay, SessionDuration };
 

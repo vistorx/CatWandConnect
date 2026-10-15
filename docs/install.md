@@ -18,7 +18,9 @@ No tools to install: the firmware goes on the board straight from your browser. 
 
 ## Updating, building from source
 
-- **Update a robot that is already installed:** download the `-ota.bin` file for your chip from the [latest release](https://github.com/vistorx/CatWandConnect/releases), then upload it in the robot's **Settings → Robot → Firmware update**. Settings and Calibration are kept.
+- **Update a robot that is already installed:** when a new version is out, the robot's main screen shows *Version X available* with **What's new** and **Update**. Tap **Update**, then **Install now**: your phone downloads the version for the robot's chip and sends it to the robot, which restarts on it about a minute later. Keep the page open until it says the robot is back. Settings and Calibration are kept. The same is in **Settings → Robot → Firmware update**, where *Couldn't check for updates* means your phone has no Internet access (tap **Retry**). Finish or stop a Play session or Calibration first.
+- **Stable or Beta:** **Settings → Robot → Firmware update → Update channel** chooses which versions the robot is offered ([release channels](releasing.md#channels)). The robot keeps it across restarts and updates. Until you choose, it follows the version installed: a beta offers betas.
+- **No Internet on your phone** (for example on the robot's hotspot): download the `-ota.bin` file for your chip from the [releases](https://github.com/vistorx/CatWandConnect/releases) beforehand, then upload it in **Settings → Robot → Firmware update → Install from a file**.
 - **Build from source** with [PlatformIO](https://platformio.org/); [Getting started](getting-started.md) covers the tools:
 
   ```sh

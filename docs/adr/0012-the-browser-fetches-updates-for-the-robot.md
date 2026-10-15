@@ -1,0 +1,11 @@
+# The browser fetches firmware updates for the robot
+
+Owners asked to update the robot from its own page, without downloading a file from GitHub by hand, and to be told when a new version is out (#185). Home Assistant users want the same through the Native integration (#186) and the MQTT connection.
+
+**The robot still makes no outbound connection** ([ADR 0009](0009-support-flows-end-in-github-issues.md)). The update check and the download happen in the owner's browser (or in Home Assistant for the Native integration): the Device interface reads the Update feed, compares its version for the robot's Update channel with the running firmware, downloads the OTA image for the robot's chip and uploads it to the existing `POST /api/update`, exactly as a manual upload. The robot only learns the result: the browser reports the latest version with `POST /api/update/available` so the MQTT Firmware entity can show it. That entity has no install command, since the robot cannot fetch anything itself.
+
+**The Update feed lives on GitHub Pages**, as the web flasher's `channels.json`, extended with each channel's release notes link, a one-paragraph summary and the path of the OTA image per chip family. `firmware/tools/flasher_site.py` copies each channel's `-ota.bin` files next to it when it rebuilds the flasher, so the release and Pages workflows keep it current with no new step. GitHub release asset downloads send no CORS headers, so a browser cannot fetch them; Pages serves everything with `Access-Control-Allow-Origin: *`.
+
+**The Update channel became a robot setting**, kept in NVS apart from the Robot core's settings record (its own small versioned record, `lib/update_channel`), so it survives restarts and updates and every phone and Home Assistant see the same choice. Never set, it follows the running firmware: a `-beta` version is on Beta.
+
+We rejected letting the robot check or download by itself (an HTTPS client, certificates and a background task on a device that otherwise only answers on the local network, and a first outbound connection that owners did not ask for). We rejected fetching the GitHub API from the browser (rate-limited per IP, and release assets still have no CORS). We rejected a third-party proxy or the Support relay, which would put a service between owners and their updates.
