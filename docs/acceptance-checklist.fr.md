@@ -172,6 +172,10 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 - [ ] Un téléphone réglé en français affiche l'interface en français. Choisir l'anglais dans les Réglages la change immédiatement et le choix est gardé après un rechargement. « Automatique » revient à la langue du téléphone.
 - [ ] iPhone (Safari) → Partager → Sur l'écran d'accueil : l'icône apparaît, et l'ouvrir affiche l'interface en plein écran, sans les barres de Safari.
 - [ ] Android (Chrome) → menu → Ajouter à l'écran d'accueil : l'icône apparaît et ouvre l'interface.
+- [ ] Première visite sur un iPhone dans Safari, sur le Wi-Fi de la maison : une fois l'écran principal chargé, une astuce « Mets le robot sur ton écran d'accueil » montre les étapes Partager → Sur l'écran d'accueil → Ajouter ; « Voir les étapes pour Android » les change. Ouverte par adresse IP, elle propose aussi l'adresse `.local`.
+- [ ] Première visite sur un téléphone Android dans Chrome : l'astuce montre les étapes menu ⋮ → Ajouter à l'écran d'accueil (ou Installer l'application) → Ajouter.
+- [ ] Après **Compris**, l'astuce ne revient plus, même après des rechargements ; Aide → « Ajouter à ton écran d'accueil » l'affiche quand même. Après **Plus tard** (ou un appui à côté), elle ne revient pas le jour même.
+- [ ] Ouverte depuis l'icône de l'écran d'accueil, sur un ordinateur ou sur le hotspot de configuration, l'astuce ne s'affiche jamais.
 
 ## Code PIN des réglages
 

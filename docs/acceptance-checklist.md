@@ -170,6 +170,10 @@ Use the Play session block under the speed slider on the main screen.
 - [ ] A phone set to French shows the interface in French. Choosing English in Settings switches it at once and the choice is remembered after a reload. "Automatic" goes back to the phone's language.
 - [ ] iPhone (Safari) → Share → Add to Home Screen: the icon appears, and opening it shows the interface full screen without the Safari bars.
 - [ ] Android (Chrome) → menu → Add to Home screen: the icon appears and opens the interface.
+- [ ] First visit on an iPhone in Safari, on the home Wi-Fi: once the main screen loads, a tip "Put the robot on your home screen" shows the Share → Add to Home Screen → Add steps; "Show the steps for Android" switches them. Opened by IP address, it also suggests the `.local` address.
+- [ ] First visit on an Android phone in Chrome: the tip shows the ⋮ menu → Add to Home screen (or Install app) → Add steps.
+- [ ] After **Got it**, the tip never shows again, even after reloads; Help → "Add to your home screen" still shows it. After **Later** (or a tap outside), it does not come back the same day.
+- [ ] Opened from the home-screen icon, on a computer, or on the setup hotspot, the tip never shows.
 
 ## Settings PIN
 

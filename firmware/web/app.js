@@ -255,7 +255,13 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) relea
 I18n.load().then(() => {
   setLink('offline');
   connect();
-  Updates.watch(renderUpdateBanner);
+  // The update banner wins: the home-screen tip waits for a later visit.
+  let firstCheck = true;
+  Updates.watch(result => {
+    renderUpdateBanner(result);
+    if (firstCheck && result.state !== 'available') HomeScreen.maybeShow();
+    firstCheck = false;
+  });
 });
 
 // A report saved on the hotspot waits for the owner, never sent by itself.

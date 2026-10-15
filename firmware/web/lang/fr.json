@@ -342,5 +342,20 @@
   "update.restarting": "Installé. Le robot redémarre…",
   "update.done": "Le robot est de retour avec la version {version}.",
   "update.not_back": "Le robot n'est pas encore revenu. Attends une minute, puis recharge cette page.",
-  "error.invalid_channel": "Canal de mise à jour inconnu."
+  "error.invalid_channel": "Canal de mise à jour inconnu.",
+  "home.title": "Mets le robot sur ton écran d'accueil",
+  "home.intro": "Il s'ouvre alors en plein écran depuis sa propre icône, comme une app.",
+  "home.ios.1": "Dans Safari, touche le bouton <b>Partager</b> {icon} dans la barre d'outils.",
+  "home.ios.2": "Fais défiler et touche <b>Sur l'écran d'accueil</b> {icon}.",
+  "home.ios.3": "Touche <b>Ajouter</b>.",
+  "home.ios.other": "Tu utilises Chrome sur ton iPhone ? Son bouton Partager est dans la barre d'adresse ; les étapes sont les mêmes.",
+  "home.android.1": "Dans Chrome, touche le menu {icon} en haut à droite.",
+  "home.android.2": "Touche <b>Ajouter à l'écran d'accueil</b> {icon} (ou <b>Installer l'application</b>, selon la version).",
+  "home.android.3": "Touche <b>Ajouter</b> (ou <b>Installer</b>).",
+  "home.ip": "Cette page a été ouverte par son adresse IP, qui peut changer. Ouvre d'abord {address} : cette adresse-là reste valable (elle est aussi dans Réglages → Réseau).",
+  "home.show.android": "Voir les étapes pour Android",
+  "home.show.ios": "Voir les étapes pour iPhone",
+  "home.done": "Compris",
+  "home.later": "Plus tard",
+  "help.home": "Ajouter à ton écran d'accueil"
 }
