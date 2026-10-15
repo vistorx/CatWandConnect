@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Update in one tap.** When a new version is out, the robot's main screen says so with what's new and an **Update** button: your phone downloads the right file and installs it, no more hunting for `-ota.bin` files. Choose Stable or Beta in Settings → Robot → Firmware update; the robot remembers it. With the MQTT connection, Home Assistant's Firmware entity shows when an update is available.
+
 ## 0.2.0-beta.3 - 2026-10-14
 
 **Set up a new robot in one go, and feel every setting before you keep it.** The Calibration wizard now goes on after the limits: it sweeps each axis so you pick its minimum and maximum speed, then makes short moves while you tap Snappier or Softer to set its acceleration. No more guessing numbers.

@@ -14,7 +14,7 @@ La version de l'API n'augmente que quand un changement casserait une intégratio
 
 | Version de l'API | Premier firmware | Ce qu'elle contient |
 |------------------|------------------|---------------------|
-| 1 | 0.2.0-beta.2 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. |
+| 1 | 0.2.0-beta.2 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. Ajoutés depuis, sans nouvelle version de l'API : `channel` et `chipFamily` dans `/api/info`, `channel` dans les réglages et `POST /api/update/available` (0.2.0-beta.4). |
 
 ## Découverte (mDNS)
 
@@ -173,12 +173,13 @@ Le rangement et le pilotage manuel terminent aussi le réglage des vitesses et c
 `GET /api/info` renvoie ce qu'affiche la page Infos :
 
 ```json
-{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","chip":"ESP32-D0WD-V3",
+{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","channel":"stable",
+ "chipFamily":"ESP32","chip":"ESP32-D0WD-V3",
  "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
  "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
 ```
 
-`api` est la [version de l'API](#version-de-lapi) et `id` l'identifiant d'appareil (le même que l'enregistrement TXT `id`). `uptime` est en secondes, `rssi` en dBm et `temperature` en °C. Le capteur interne est approximatif : regarde-le comme une tendance.
+`api` est la [version de l'API](#version-de-lapi) et `id` l'identifiant d'appareil (le même que l'enregistrement TXT `id`). `channel` est le Canal de mise à jour du robot (`stable` ou `beta`, voir [Réglages](#réglages)) et `chipFamily` sa famille de puce telle que la nomme le [flux de mises à jour](#flux-de-mises-à-jour) : `ESP32`, `ESP32-S3` ou `ESP32-C3` ; `chip` est le modèle exact. `uptime` est en secondes, `rssi` en dBm et `temperature` en °C. Le capteur interne est approximatif : regarde-le comme une tendance.
 
 `GET /api/diagnostics` renvoie le rapport de diagnostic en texte brut (`text/plain`) : version du firmware, puce, un identifiant d'appareil aléatoire (tiré une fois, gardé en flash, non personnel, pour que le support puisse regrouper les rapports d'un même robot sans son adresse MAC), raison du dernier redémarrage, durée de fonctionnement, mémoire, état du code PIN, état du Wi-Fi et de Home Assistant (MQTT), réglages, câblage et les 200 dernières lignes de log (12 Ko au plus). Il est anonymisé par défaut : le nom du robot et son nom d'hôte (sauf s'ils sont ceux par défaut), le réseau Wi-Fi, les adresses IP et MAC, l'adresse du broker et l'utilisateur MQTT sont remplacés par des marqueurs comme `<wifi-network>`, y compris dans les lignes de log. `GET /api/diagnostics?full=1` les garde, pour un usage local uniquement. Le mot de passe MQTT n'est jamais inclus.
 
@@ -218,7 +219,27 @@ Recent log:
 - **Succès :** `200 {"ok":true,"restart":true}`, et le robot redémarre sur le nouveau firmware environ une seconde plus tard.
 - **Échec :** `400 {"error":"update_failed","detail":"…"}`. Si l'envoi est interrompu, le robot continue avec son firmware actuel.
 
-Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et sont conservés. Une session de jeu en cours se termine au début de la mise à jour. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+Les réglages, la calibration, le Wi-Fi, le nom, le code PIN et le Canal de mise à jour sont en NVS et sont conservés. Une session de jeu en cours se termine au début de la mise à jour. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+
+#### Flux de mises à jour
+
+Le robot ne se connecte jamais à Internet ([ADR 0012](adr/0012-the-browser-fetches-updates-for-the-robot.md)). L'interface du robot et l'intégration native lisent le **flux de mises à jour**, `https://vistorx.github.io/CatWandConnect/flasher/channels.json` (servi avec `Access-Control-Allow-Origin: *`), prennent l'entrée du `channel` du robot, et la proposent quand sa `version` est strictement plus récente que celle du robot (SemVer avec pré-versions, un `v` initial ignoré : `0.2.0-beta.3` < `0.2.0-beta.10` < `0.2.0`). Elles téléchargent `ota[chipFamily]`, relatif à l'URL du flux, et l'envoient à `POST /api/update` :
+
+```json
+{
+  "stable": {"version": "0.2.0", "tag": "v0.2.0",
+             "notes": "https://github.com/vistorx/CatWandConnect/releases/tag/v0.2.0",
+             "summary": "Premier paragraphe du changelog de la version, texte brut, peut être vide",
+             "ota": {"ESP32": "stable/catwandconnect-esp32-ota.bin",
+                     "ESP32-S3": "stable/catwandconnect-esp32s3-ota.bin",
+                     "ESP32-C3": "stable/catwandconnect-esp32c3-ota.bin"}},
+  "beta": {"version": "0.3.0-beta.1", "tag": "v0.3.0-beta.1", "notes": "…", "summary": "…", "ota": {"…": "…"}}
+}
+```
+
+Un canal sans version publiée est absent. Les images sont les fichiers `-ota.bin` des versions publiées, copiés à côté du flux parce qu'un navigateur ne peut pas télécharger les fichiers des versions GitHub (pas de CORS).
+
+`POST /api/update/available` avec `{"version":"0.2.0-beta.4","notes":"https://…"}` indique au robot la version la plus récente que le flux propose pour son canal, pour l'entité Firmware de MQTT ; `{"version":""}` l'efface. Sans code PIN : cela ne change que ce qu'affiche Home Assistant. Le robot la garde en mémoire jusqu'à son redémarrage et renvoie `200` avec ce qu'il a enregistré ; `400 invalid_request` sans chaîne `version` (32 caractères au plus, `notes` 200). L'interface du robot l'envoie après chaque vérification.
 
 ### Réglages Home Assistant (MQTT)
 
@@ -263,7 +284,8 @@ Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et so
     "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0, "pauseMax": 2},
     "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0, "pauseMax": 2}
   },
-  "sessionMinutes": 10
+  "sessionMinutes": 10,
+  "channel": "stable"
 }
 ```
 
@@ -278,11 +300,12 @@ Les réglages, la calibration, le Wi-Fi, le nom et le code PIN sont en NVS et so
 | `maxAccel` | Accélération, en °/s². | 20–2000 |
 | `pauseMin`, `pauseMax` | Plage de pause, en secondes : combien de temps l'axe se repose entre deux mouvements d'une session de jeu. `0` signifie sans arrêt. | 0–60, `pauseMin` ≤ `pauseMax` |
 | `sessionMinutes` | Durée de session : combien de temps dure une session de jeu, en minutes. Nombres entiers. | 1–60 |
+| `channel` | Canal de mise à jour : les versions proposées au robot. Gardé en NVS, à part des réglages du cœur du robot, après un redémarrage ou une mise à jour. Tant qu'il n'est pas choisi, il suit le firmware en cours : `beta` pour une version `-beta`, `stable` sinon. | `stable`, `beta` |
 
 🔒 `PUT /api/settings` (sauf un corps ne contenant que `playSpeed` et/ou `sessionMinutes`) avec un corps JSON contenant n'importe quel sous-ensemble de ces champs les modifie ; les champs absents gardent leur valeur. Les réglages sont validés comme un tout :
 
 - **Valide :** `200` avec l'ensemble des nouveaux réglages. Ils sont enregistrés et survivent aux redémarrages et aux mises à jour du firmware.
-- **Invalide :** `400` avec `{"error":"<code>","axis":"horizontal"|"vertical"}`, et rien ne change. Les codes sont `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `min_speed_out_of_range`, `accel_out_of_range`, `pause_out_of_range`, `pause_order`, `play_speed_out_of_range` et `session_duration_out_of_range` (ces deux-là sans `axis`), et `invalid_json`.
+- **Invalide :** `400` avec `{"error":"<code>","axis":"horizontal"|"vertical"}`, et rien ne change. Les codes sont `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `min_speed_out_of_range`, `accel_out_of_range`, `pause_out_of_range`, `pause_order`, `play_speed_out_of_range` et `session_duration_out_of_range` (ces deux-là sans `axis`), `invalid_channel` (seul, sans `axis`) et `invalid_json`.
 
 Chaque `PUT` réussi écrit en flash : envoie-le quand une valeur est fixée, pas à chaque cran du curseur.
 
@@ -311,6 +334,7 @@ Quand c'est activé dans les Réglages, le robot se connecte à un broker MQTT e
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | Un nombre de °/s. Validé comme la valeur des Réglages. |
 | `<base>/play_session/set` | → robot | `ON` lance une session de jeu pour la durée de session, `OFF` l'arrête (rangement). Un lancement refusé (pas calibré, occupé) est noté dans le log et l'état est republié avec `play` toujours à `OFF`. |
 | `<base>/session_duration/set` | → robot | Des minutes entières, de 1 à 60. Enregistrée dès que le robot est au repos ; les autres valeurs sont ignorées. |
-| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les cinq nombres, le capteur d'activité et l'interrupteur de session de jeu. |
+| `<base>/update` | robot → | `{"installed_version":"0.2.0-beta.3","latest_version":"0.2.0-beta.4","release_url":"https://…","title":"CatWandConnect firmware"}` (retenu), pour l'entité de mise à jour Firmware. `latest_version` est celle indiquée par `POST /api/update/available` si elle est plus récente que la version installée, sinon la version installée (à jour, sans `release_url`). Il n'y a pas de commande d'installation : le robot ne peut pas télécharger. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les cinq nombres, le capteur d'activité, l'interrupteur de session de jeu et l'entité de mise à jour Firmware. |
 
 Les commandes passent par le Robot core comme le pilotage manuel : les limites de course, les limites de vitesse et les priorités s'appliquent, et le rangement passe avant tout.

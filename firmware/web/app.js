@@ -255,6 +255,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) relea
 I18n.load().then(() => {
   setLink('offline');
   connect();
+  Updates.watch(renderUpdateBanner);
 });
 
 // A report saved on the hotspot waits for the owner, never sent by itself.
@@ -268,3 +269,23 @@ async function checkPending() {
   } catch { /* older firmware or offline */ }
 }
 checkPending();
+
+// --- Update banner: a newer firmware in the Update feed (docs/adr/0012) ----------
+
+function renderUpdateBanner(result) {
+  const available = result.state === 'available';
+  $('update-banner').hidden = !available;
+  if (!available) return;
+  $('update-banner-text').textContent = I18n.t('update.available', { version: result.version });
+  $('update-banner-notes').href = result.notes;
+  $('update-banner-notes').hidden = !result.notes;
+}
+
+// Updating stops the robot: not in the middle of a Play session or Calibration.
+$('update-banner-go').addEventListener('click', event => {
+  const why = Updates.BUSY[lastActivity];
+  $('update-banner-why').hidden = !why;
+  if (!why) return;
+  event.preventDefault();
+  $('update-banner-why').textContent = I18n.t(why);
+});

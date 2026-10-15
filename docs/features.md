@@ -48,15 +48,15 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 
 ## Updates
 
-- **Firmware updates from the browser.** Upload the new file in Settings. Settings and Calibration are kept, and if the upload fails or is interrupted the robot keeps its current firmware.
+- **One-tap updates.** When a new version is out for the robot's Update channel, its main screen and Settings say so, with what's new and an **Update** button: your phone downloads the right file for the chip and installs it, then waits for the robot to come back. The robot itself never connects to the Internet. Without Internet on the phone, upload the file by hand in Settings. Settings and Calibration are kept, and if the upload fails or is interrupted the robot keeps its current firmware.
 - **Releases.** Each version is published with ready-made files for every supported chip.
-- **Stable and Beta channels.** Stable versions are for everyone. Beta versions get new changes first so they can be tested on real robots; the web flasher lets you pick either one.
+- **Stable and Beta channels.** Stable versions are for everyone. Beta versions get new changes first so they can be tested on real robots; the web flasher lets you pick either one, and each robot has its own Update channel in Settings, kept across restarts and updates.
 
 ## Integrations
 
 - **Home Assistant (optional), two ways to connect.** Either way the robot appears in Home Assistant with a Stow button, each axis's position and maximum speed, its activity, and a Play session switch with its Session duration; commands follow the same safety rules as the phone, and each connection has a ready-made dashboard to copy and paste. Use only one per robot. See [Home Assistant](home-assistant.md).
   - **Native integration.** Installed through HACS from [`vistorx/ha-catwandconnect`](https://github.com/vistorx/ha-catwandconnect): Home Assistant finds the robot under *Discovered*, you click Add (and type the Settings PIN if one is set). No broker, live updates within a second, entity names in Home Assistant's language, a new PIN asked again when you change it, and a redacted diagnostics download for bug reports. Needs firmware 0.2.0-beta.2 or later and Home Assistant 2026.10 or later.
-  - **MQTT connection.** Enter your MQTT broker in Settings and the robot announces itself through MQTT discovery. Works with any Home Assistant, for owners who already run a broker.
+  - **MQTT connection.** Enter your MQTT broker in Settings and the robot announces itself through MQTT discovery. Works with any Home Assistant, for owners who already run a broker. Its Firmware entity shows when a new version is available (install it from the robot's page).
 - **Open API.** Everything the interface does goes through a documented HTTP, WebSocket and MQTT API, for your own scripts and integrations. The API is versioned, and the robot announces itself on the network as `_catwandconnect._tcp` with its Device ID and API version, so the Native integration for Home Assistant finds it without MQTT. See [Device API](api.md).
 
 ## Hardware

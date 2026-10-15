@@ -14,7 +14,7 @@ The API version goes up only when a change would break an existing integration: 
 
 | API version | First firmware | What it has |
 |-------------|----------------|-------------|
-| 1 | 0.2.0-beta.2 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. |
+| 1 | 0.2.0-beta.2 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. Added since, without a new API version: `channel` and `chipFamily` in `/api/info`, `channel` in the settings and `POST /api/update/available` (0.2.0-beta.4). |
 
 ## Discovery (mDNS)
 
@@ -173,12 +173,13 @@ Stow and Manual control end Speed tuning and Acceleration tuning too, without sa
 `GET /api/info` returns what the Info page shows:
 
 ```json
-{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","chip":"ESP32-D0WD-V3",
+{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","channel":"stable",
+ "chipFamily":"ESP32","chip":"ESP32-D0WD-V3",
  "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
  "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
 ```
 
-`api` is the [API version](#api-version) and `id` the Device ID (the same as the `id` TXT record). `uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
+`api` is the [API version](#api-version) and `id` the Device ID (the same as the `id` TXT record). `channel` is the robot's Update channel (`stable` or `beta`, see [Settings](#settings)) and `chipFamily` its chip family as the [Update feed](#update-feed) names it: `ESP32`, `ESP32-S3` or `ESP32-C3`; `chip` is the exact model. `uptime` is in seconds, `rssi` in dBm and `temperature` in °C. The internal sensor is rough, so treat it as a trend.
 
 `GET /api/diagnostics` returns the Diagnostic report as plain text (`text/plain`): firmware version, chip, a random Device ID (drawn once, kept in flash, not personal, so support can group the reports of one robot without its MAC address), last reset reason, uptime, memory, settings PIN state, Wi-Fi and Home Assistant (MQTT) state, settings, wiring and the last 200 log lines (at most 12 KB). It is redacted by default: the robot's name and hostname (unless they are the default), the Wi-Fi network, IP and MAC addresses, the broker address and the MQTT user are replaced by placeholders such as `<wifi-network>`, in the log lines too. `GET /api/diagnostics?full=1` keeps them, for local use only. The MQTT password is never included.
 
@@ -218,7 +219,27 @@ Recent log:
 - **Success:** `200 {"ok":true,"restart":true}`, and the robot restarts on the new firmware about a second later.
 - **Failure:** `400 {"error":"update_failed","detail":"…"}`. If the upload is interrupted, the robot keeps running its current firmware.
 
-Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. A Play session in progress ends when the update starts. Example: `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+Settings, Calibration, Wi-Fi, name, PIN and Update channel live in NVS and are kept. A Play session in progress ends when the update starts. Example: `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+
+#### Update feed
+
+The robot never connects to the Internet ([ADR 0012](adr/0012-the-browser-fetches-updates-for-the-robot.md)). The Device interface and the Native integration read the **Update feed**, `https://vistorx.github.io/CatWandConnect/flasher/channels.json` (served with `Access-Control-Allow-Origin: *`), pick the entry of the robot's `channel`, and offer it when its `version` is strictly newer than the robot's (SemVer with pre-releases, a leading `v` ignored: `0.2.0-beta.3` < `0.2.0-beta.10` < `0.2.0`). They download `ota[chipFamily]`, relative to the feed's URL, and send it to `POST /api/update`:
+
+```json
+{
+  "stable": {"version": "0.2.0", "tag": "v0.2.0",
+             "notes": "https://github.com/vistorx/CatWandConnect/releases/tag/v0.2.0",
+             "summary": "First paragraph of the version's changelog, plain text, may be empty",
+             "ota": {"ESP32": "stable/catwandconnect-esp32-ota.bin",
+                     "ESP32-S3": "stable/catwandconnect-esp32s3-ota.bin",
+                     "ESP32-C3": "stable/catwandconnect-esp32c3-ota.bin"}},
+  "beta": {"version": "0.3.0-beta.1", "tag": "v0.3.0-beta.1", "notes": "…", "summary": "…", "ota": {"…": "…"}}
+}
+```
+
+A channel with no release is missing. The images are the releases' `-ota.bin` files, copied next to the feed because GitHub release downloads can't be fetched from a browser (no CORS).
+
+`POST /api/update/available` with `{"version":"0.2.0-beta.4","notes":"https://…"}` tells the robot the newest version the feed offers for its channel, for the MQTT Firmware entity; `{"version":""}` clears it. No PIN: it only changes what Home Assistant shows. The robot keeps it in memory until it restarts and returns `200` with what it stored; `400 invalid_request` without a `version` string (32 characters at most, `notes` 200). The Device interface sends it after each check.
 
 ### Home Assistant (MQTT) settings
 
@@ -263,7 +284,8 @@ Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. A Play sess
     "horizontal": {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0, "pauseMax": 2},
     "vertical":   {"min": 60, "max": 120, "stow": 90, "maxSpeed": 90, "minSpeed": 9, "maxAccel": 360, "pauseMin": 0, "pauseMax": 2}
   },
-  "sessionMinutes": 10
+  "sessionMinutes": 10,
+  "channel": "stable"
 }
 ```
 
@@ -278,11 +300,12 @@ Settings, Calibration, Wi-Fi, name and PIN live in NVS and are kept. A Play sess
 | `maxAccel` | Acceleration, in °/s². | 20–2000 |
 | `pauseMin`, `pauseMax` | Pause range, in seconds: how long the axis rests between two moves of a Play session. `0` means non-stop. | 0–60, `pauseMin` ≤ `pauseMax` |
 | `sessionMinutes` | Session duration: how long a Play session lasts, in minutes. Whole numbers. | 1–60 |
+| `channel` | Update channel: which versions the robot is offered. Kept in NVS, apart from the Robot core's settings, across restarts and updates. Until set, it follows the running firmware: `beta` for a `-beta` version, `stable` otherwise. | `stable`, `beta` |
 
 🔒 `PUT /api/settings` (except a body containing only `playSpeed` and/or `sessionMinutes`) with a JSON body containing any subset of these fields changes them; the fields left out keep their values. The settings are validated as a whole:
 
 - **Valid:** `200` with the full new settings. They are saved and survive reboots and firmware updates.
-- **Invalid:** `400` with `{"error":"<code>","axis":"horizontal"|"vertical"}`, and nothing changes. The codes are `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `min_speed_out_of_range`, `accel_out_of_range`, `pause_out_of_range`, `pause_order`, `play_speed_out_of_range` and `session_duration_out_of_range` (these two without `axis`), and `invalid_json`.
+- **Invalid:** `400` with `{"error":"<code>","axis":"horizontal"|"vertical"}`, and nothing changes. The codes are `travel_order`, `travel_out_of_range`, `stow_out_of_travel`, `speed_out_of_range`, `min_speed_out_of_range`, `accel_out_of_range`, `pause_out_of_range`, `pause_order`, `play_speed_out_of_range` and `session_duration_out_of_range` (these two without `axis`), `invalid_channel` (alone, without `axis`) and `invalid_json`.
 
 Each successful `PUT` writes to flash, so send it when a value is settled, not on every slider step.
 
@@ -311,6 +334,7 @@ When enabled in Settings, the robot connects to an MQTT broker and announces its
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | A number of °/s. Validated like the Settings value. |
 | `<base>/play_session/set` | → robot | `ON` starts a Play session for the Session duration, `OFF` stops it (Stow). A refused start (not calibrated, busy) is logged and the state is republished with `play` still `OFF`. |
 | `<base>/session_duration/set` | → robot | Whole minutes, 1–60. Saved once the robot is idle; other values are ignored. |
-| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the five numbers, the activity sensor and the Play session switch. |
+| `<base>/update` | robot → | `{"installed_version":"0.2.0-beta.3","latest_version":"0.2.0-beta.4","release_url":"https://…","title":"CatWandConnect firmware"}` (retained), for the Firmware update entity. `latest_version` is the one reported by `POST /api/update/available` when newer than the installed one, else the installed version (up to date, no `release_url`). There is no install command: the robot can't download. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the five numbers, the activity sensor, the Play session switch and the Firmware update entity. |
 
 Commands go through the Robot core like Manual control: Travel limits, speed limits and priorities apply, and Stow beats everything.

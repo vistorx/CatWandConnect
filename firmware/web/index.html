@@ -26,6 +26,14 @@
     <span data-i18n="banner.uncalibrated"></span>
     <a href="calibrate.html" data-i18n="banner.calibrate"></a>
   </p>
+  <div id="update-banner" class="banner update-banner" hidden>
+    <span id="update-banner-text"></span>
+    <span class="banner-links">
+      <a id="update-banner-notes" href="#" target="_blank" rel="noopener" data-i18n="update.notes"></a>
+      <a id="update-banner-go" href="settings.html?update=1#robot" data-i18n="update.button"></a>
+    </span>
+    <span id="update-banner-why" class="banner-why" hidden></span>
+  </div>
   <p id="pending-banner" class="banner" hidden>
     <span data-i18n="pending.banner"></span>
     <a href="help.html" data-i18n="pending.banner.open"></a>
@@ -72,6 +80,8 @@
 </footer>
 
 <script src="i18n.js"></script>
+<script src="api.js"></script>
+<script src="update.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

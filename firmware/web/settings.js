@@ -236,7 +236,125 @@ async function savePin(pin) {
   securitySection();
 }
 
-// --- Firmware update (/api/update) -------------------------------------------------
+// --- Firmware update: one tap from the Update feed, or a file (/api/update) ------
+
+let robotInfo = null;
+let offer = null;  // the last check's result
+
+function updateMessage(kind, text) {
+  $('update-message').dataset.kind = kind;
+  $('update-message').textContent = text;
+}
+
+function showOffer(result) {
+  offer = result;
+  const available = result.state === 'available';
+  $('update-status').textContent = available ? '' : I18n.t(result.state === 'error' ? 'update.error' : 'update.current');
+  $('update-retry').hidden = result.state !== 'error';
+  $('update-available').hidden = !available;
+  if (!available) {
+    $('update-confirm').hidden = true;
+    return;
+  }
+  $('update-title').textContent = I18n.t('update.available', { version: result.version });
+  $('update-summary').textContent = result.summary;
+  $('update-summary').hidden = !result.summary;
+  $('update-notes').href = result.notes;
+  $('update-notes').hidden = !result.notes;
+}
+
+async function checkNow() {
+  $('update-status').textContent = I18n.t('update.checking');
+  $('update-retry').hidden = true;
+  showOffer(await Updates.check(robotInfo));
+}
+
+async function saveChannel() {
+  const select = $('update-channel');
+  const { ok, data } = await Api.call('PUT', '/api/settings', { channel: select.value });
+  if (!ok) {
+    select.value = robotInfo.channel || Updates.channelOf(robotInfo);
+    if (data.error !== 'pin_required') updateMessage('error', I18n.t(`error.${data.error}`));
+    return;
+  }
+  robotInfo.channel = data.channel;
+  updateMessage('ok', I18n.t('settings.saved'));
+  checkNow();
+}
+
+// After the confirmation: the browser downloads the image, then uploads it.
+async function installUpdate() {
+  $('update-confirm').hidden = true;
+  const why = await Updates.blocker();
+  if (why) {
+    $('update-available').hidden = false;
+    return updateMessage('error', I18n.t(why));
+  }
+  const progress = $('update-progress');
+  const show = value => { progress.value = value; };
+  progress.hidden = false;
+  show(0);
+  updateMessage('', I18n.t('update.downloading'));
+  let file;
+  try {
+    file = await Updates.download(offer.url, show);
+  } catch {
+    progress.hidden = true;
+    $('update-available').hidden = false;
+    return updateMessage('error', I18n.t('update.download_failed'));
+  }
+  show(0);
+  updateMessage('', I18n.t('firmware.uploading'));
+  const result = await Updates.upload(file, offer.url.split('/').pop(), show);
+  if (result.status !== 200) {
+    progress.hidden = true;
+    $('update-available').hidden = false;
+    if (result.data.error === 'pin_required') return updateMessage('', '');
+    updateMessage('error', I18n.t(`error.${result.data.error || 'update_failed'}`));
+    $('update-message').insertAdjacentHTML('beforeend', ` <a href="help.html">${I18n.t('help.stuck')}</a>`);
+    return;
+  }
+  progress.hidden = true;
+  updateMessage('', I18n.t('update.restarting'));
+  const after = await Updates.waitForRestart(robotInfo);
+  if (!after) return updateMessage('error', I18n.t('update.not_back'));
+  updateMessage('ok', I18n.t('update.done', { version: after.version }));
+  setTimeout(() => location.reload(), 3000);
+}
+
+function openConfirm() {
+  $('update-confirm-text').textContent = I18n.t('update.confirm', { version: offer.version });
+  $('update-available').hidden = true;
+  $('update-confirm').hidden = false;
+  updateMessage('', '');
+  $('update-confirm-go').focus();
+  $('update-confirm').scrollIntoView({ block: 'center' });
+}
+
+async function updateSection(info) {
+  robotInfo = info;
+  $('firmware-version').textContent = info.version;
+  $('update-channel').value = Updates.channelOf(info);
+  $('update-channel').addEventListener('change', saveChannel);
+  $('update-retry').addEventListener('click', checkNow);
+  $('update-start').addEventListener('click', openConfirm);
+  $('update-confirm-go').addEventListener('click', installUpdate);
+  $('update-confirm-cancel').addEventListener('click', () => {
+    $('update-confirm').hidden = true;
+    $('update-available').hidden = false;
+    $('update-start').focus();
+  });
+  $('update-status').textContent = I18n.t('update.checking');
+  // The main screen's Update button lands here with ?update=1: straight to the confirmation.
+  const fromBanner = new URLSearchParams(location.search).has('update');
+  if (fromBanner) history.replaceState(null, '', `settings.html${location.hash}`);
+  await Updates.watch(result => {
+    // Keep a confirmation or an install in progress as it is.
+    if (!$('update-confirm').hidden || !$('update-progress').hidden) return;
+    showOffer(result);
+  });
+  if (fromBanner && offer?.state === 'available') openConfirm();
+}
 
 // XHR rather than fetch, for upload progress.
 function uploadFirmware(file) {
@@ -386,7 +504,7 @@ async function start() {
   const info = await (await fetch('/api/info')).json();
   deviceSection(info);
   wifiSection();
-  $('firmware-version').textContent = info.version;
+  updateSection(info);
   $('firmware').addEventListener('submit', event => {
     event.preventDefault();
     updateFirmware();

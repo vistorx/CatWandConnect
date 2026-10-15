@@ -147,6 +147,7 @@ Go to **Settings → Devices & services → MQTT**, then **Devices**. The robot 
 - Horizontal position and Vertical position go from 0 to 180°; the robot keeps the axis within its Travel limits.
 - A Play session the robot refuses (not calibrated, busy) flips the switch back off with no message; the robot's log says why.
 - Session duration is remembered once the robot is idle.
+- **Firmware** (`update.catwandconnect_firmware`) shows the installed version and, once the robot's page has found a newer one for its Update channel, the latest version with a link to its release notes, so Home Assistant shows its usual update notification. It has no **Install** button: the robot can't download anything itself. Update from the robot's page (the **Update** button on its main screen, see [Updating](install.md#updating-building-from-source)) or with the Native integration. The latest version is known after someone opens the robot's page, and is forgotten when the robot restarts.
 
 When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
@@ -276,6 +277,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: update.catwandconnect_firmware
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: update.catwandconnect_firmware
+                    state: "on"
           - type: button
             entity: switch.catwandconnect_play_session
             name: Play session
@@ -340,7 +348,7 @@ views:
             features_position: inline
 ```
 
-The position sliders go from 0 to 180°; the robot stops at its Travel limits. The joystick card comes with the Native integration only; with the MQTT connection, move the wand with the sliders or from the robot's page.
+The position sliders go from 0 to 180°; the robot stops at its Travel limits. A **Firmware** badge appears next to Activity when a new version is available; tap it for the release notes. The joystick card comes with the Native integration only; with the MQTT connection, move the wand with the sliders or from the robot's page.
 
 ## Automations
 

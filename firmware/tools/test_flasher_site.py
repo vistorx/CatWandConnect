@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 from flasher_manifest import CHIPS, split_image
-from flasher_site import build, copy_page, pick_channels
+from flasher_site import build, copy_page, pick_channels, summary
 
 NVS = (0x9000, 0x5000)
 
@@ -75,20 +75,61 @@ class SplitImage(unittest.TestCase):
             split_image(b"\xff" * 0x20000)
 
 
+CHANGELOG = """# Changelog
+
+## Unreleased
+
+## 0.2.0 - 2026-10-20
+
+**One-tap updates.** Your robot tells you when a new version is out, and
+installs it in [one tap](https://example.org/docs) from `Settings`.
+
+### Highlights
+
+- Something.
+
+## 0.1.0-beta.1 - 2026-10-12
+
+### Highlights
+
+- First beta.
+"""
+
+
+def fake_download(downloaded=None):
+    def download(tag, folder):
+        if downloaded is not None:
+            downloaded.append((tag, folder))
+        for env in CHIPS:
+            with open(os.path.join(folder, f"catwandconnect-{env}-factory.bin"), "wb") as f:
+                f.write(factory_image())
+            with open(os.path.join(folder, f"catwandconnect-{env}-ota.bin"), "wb") as f:
+                f.write(f"{tag} {env}".encode())
+    return download
+
+
+class Summary(unittest.TestCase):
+    def test_is_the_pitch_in_plain_text_on_one_line(self):
+        self.assertEqual(summary(CHANGELOG, "v0.2.0"),
+                         "One-tap updates. Your robot tells you when a new version is out, and installs it in "
+                         "one tap from Settings.")
+
+    def test_is_empty_when_the_section_starts_with_a_heading(self):
+        self.assertEqual(summary(CHANGELOG, "v0.1.0-beta.1"), "")
+
+    def test_is_empty_without_a_section(self):
+        self.assertEqual(summary(CHANGELOG, "v0.0.9"), "")
+
+
 class Build(unittest.TestCase):
     def test_writes_a_manifest_per_channel_and_the_channel_list_under_flasher(self):
         releases = [release("v0.1.0-beta.1", 12, pre=True)]
         downloaded = []
         with tempfile.TemporaryDirectory() as root:
             site = os.path.join(root, "flasher")
-            def download(tag, folder):
-                downloaded.append((tag, folder))
-                for env in CHIPS:
-                    with open(os.path.join(folder, f"catwandconnect-{env}-factory.bin"), "wb") as f:
-                        f.write(factory_image())
-
-            channels = build(releases, root, download)
-            self.assertEqual(channels, {"beta": {"version": "0.1.0-beta.1", "tag": "v0.1.0-beta.1"}})
+            channels = build(releases, root, fake_download(downloaded), CHANGELOG)
+            self.assertEqual(channels["beta"]["version"], "0.1.0-beta.1")
+            self.assertEqual(channels["beta"]["tag"], "v0.1.0-beta.1")
             self.assertEqual(downloaded, [("v0.1.0-beta.1", os.path.join(site, "beta"))])
             with open(os.path.join(site, "beta", "manifest.json")) as f:
                 manifest = json.load(f)
@@ -101,6 +142,42 @@ class Build(unittest.TestCase):
                 self.assertEqual(json.load(f), channels)
             self.assertFalse(os.path.exists(os.path.join(site, "stable")))
             self.assertFalse(os.path.exists(os.path.join(root, "channels.json")))
+
+    # The Update feed (docs/adr/0012): what the Device interface and the
+    # Native integration read to offer a one-tap update.
+    def test_channels_json_is_the_update_feed(self):
+        releases = [release("v0.2.0", 20), release("v0.3.0-beta.1", 25, pre=True)]
+        with tempfile.TemporaryDirectory() as root:
+            channels = build(releases, root, fake_download(), CHANGELOG)
+            self.assertEqual(channels["stable"], {
+                "version": "0.2.0", "tag": "v0.2.0",
+                "notes": "https://github.com/vistorx/CatWandConnect/releases/tag/v0.2.0",
+                "summary": summary(CHANGELOG, "v0.2.0"),
+                "ota": {"ESP32": "stable/catwandconnect-esp32-ota.bin",
+                        "ESP32-S3": "stable/catwandconnect-esp32s3-ota.bin",
+                        "ESP32-C3": "stable/catwandconnect-esp32c3-ota.bin"},
+            })
+            self.assertEqual(channels["beta"]["summary"], "")
+            self.assertEqual(channels["beta"]["ota"]["ESP32-C3"], "beta/catwandconnect-esp32c3-ota.bin")
+
+    def test_every_ota_path_is_the_release_s_app_image_for_that_chip(self):
+        releases = [release("v0.2.0", 20), release("v0.3.0-beta.1", 25, pre=True)]
+        with tempfile.TemporaryDirectory() as root:
+            channels = build(releases, root, fake_download(), CHANGELOG)
+            for channel in ("stable", "beta"):
+                for family, path in channels[channel]["ota"].items():
+                    env = next(e for e, f in CHIPS.items() if f == family)
+                    with open(os.path.join(root, "flasher", path), "rb") as f:
+                        self.assertEqual(f.read(), f"{channels[channel]['tag']} {env}".encode())
+
+    def test_a_release_without_ota_images_fails(self):
+        def download(tag, folder):
+            for env in CHIPS:
+                with open(os.path.join(folder, f"catwandconnect-{env}-factory.bin"), "wb") as f:
+                    f.write(factory_image())
+        with tempfile.TemporaryDirectory() as root:
+            with self.assertRaises(SystemExit):
+                build([release("v0.2.0", 20)], root, download, CHANGELOG)
 
     def test_copies_the_page_and_the_files_it_loads_under_flasher(self):
         with tempfile.TemporaryDirectory() as root:

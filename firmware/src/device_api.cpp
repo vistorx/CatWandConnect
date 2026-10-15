@@ -126,6 +126,7 @@ void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc)
 void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name) {
   hardware_ = hardware;
   name_ = name;
+  channel_ = update_channel::loadChannel(storage_, CWC_VERSION);
 
   server.on("/api/auth", HTTP_GET, [this](AsyncWebServerRequest* request) { getAuth(request); });
   auto* unlockHandler = new AsyncCallbackJsonWebHandler(
@@ -142,6 +143,13 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
       "/api/device", [this](AsyncWebServerRequest* request, JsonVariant& body) { putDevice(request, body); });
   device->setMethod(HTTP_PUT);
   server.addHandler(device);
+
+  // Registered before /api/update (ota.cpp), which matches only that path.
+  auto* available = new AsyncCallbackJsonWebHandler(
+      "/api/update/available",
+      [this](AsyncWebServerRequest* request, JsonVariant& body) { postAvailableUpdate(request, body); });
+  available->setMethod(HTTP_POST);
+  server.addHandler(available);
 
   server.on("/api/hardware", HTTP_GET, [this](AsyncWebServerRequest* request) { getHardware(request); });
   auto* hw = new AsyncCallbackJsonWebHandler(
@@ -201,6 +209,7 @@ void DeviceApi::getSettings(AsyncWebServerRequest* request) {
   {
     std::lock_guard<std::mutex> guard(robotLock_);
     writeSettings(doc.to<JsonObject>(), robot_.settings());
+    doc["channel"] = update_channel::channelName(channel_);
   }
   sendJson(request, 200, doc);
 }
@@ -210,6 +219,7 @@ String DeviceApi::settingsJson() {
   {
     std::lock_guard<std::mutex> guard(robotLock_);
     writeSettings(doc.to<JsonObject>(), robot_.settings());
+    doc["channel"] = update_channel::channelName(channel_);
   }
   String out;
   serializeJson(doc, out);
@@ -241,23 +251,41 @@ void DeviceApi::putSettings(AsyncWebServerRequest* request, JsonVariant& body) {
 
   JsonDocument doc;
   cwc::SettingsCheck check;
+  bool badChannel = false;
   {
     std::lock_guard<std::mutex> guard(robotLock_);
     uint8_t minutes = 0;
     bool hasMinutes = readSessionMinutes(in, minutes);
-    if (hasMinutes && (minutes < cwc::kMinSessionMinutes || minutes > cwc::kMaxSessionMinutes)) {
+    // The Update channel is the robot's, not the Robot core's: saved apart.
+    bool hasChannel = !in["channel"].isNull();
+    update_channel::Channel channel = channel_;
+    if (hasChannel && !update_channel::parseChannel(in["channel"] | "", channel)) badChannel = true;
+    if (!badChannel && hasMinutes && (minutes < cwc::kMinSessionMinutes || minutes > cwc::kMaxSessionMinutes)) {
       check = {cwc::SettingsError::SessionDurationOutOfRange, cwc::Axis::Horizontal};
     }
-    if (check.ok() && in.size() > (hasMinutes ? 1u : 0u)) {
+    size_t others = (hasMinutes ? 1u : 0u) + (hasChannel ? 1u : 0u);
+    if (!badChannel && check.ok() && in.size() > others) {
       cwc::RobotSettings settings = robot_.settings();
       readSettings(in, settings);
       check = robot_.applySettings(settings);
     }
     // Saved once the robot is idle, and only if it changed.
-    if (check.ok() && hasMinutes) robot_.setSessionMinutes(minutes);
-    if (check.ok()) writeSettings(doc.to<JsonObject>(), robot_.settings());
+    if (!badChannel && check.ok() && hasMinutes) robot_.setSessionMinutes(minutes);
+    if (!badChannel && check.ok() && hasChannel && channel != channel_) {
+      update_channel::saveChannel(storage_, channel);
+      channel_ = channel;
+      logLine("[update] Update channel: %s", update_channel::channelName(channel));
+    }
+    if (!badChannel && check.ok()) {
+      writeSettings(doc.to<JsonObject>(), robot_.settings());
+      doc["channel"] = update_channel::channelName(channel_);
+    }
   }
 
+  if (badChannel) {
+    request->send(400, "application/json", "{\"error\":\"invalid_channel\"}");
+    return;
+  }
   if (!check.ok()) {
     doc["error"] = cwc::settingsErrorName(check.error);
     if (check.error != cwc::SettingsError::PlaySpeedOutOfRange &&
@@ -564,6 +592,11 @@ void DeviceApi::getInfo(AsyncWebServerRequest* request) {
   doc["version"] = CWC_VERSION;
   doc["api"] = discovery::kApiVersion;
   doc["id"] = deviceId();
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    doc["channel"] = update_channel::channelName(channel_);
+  }
+  doc["chipFamily"] = chipName(chip_);  // the key into the Update feed's `ota`
   doc["chip"] = ESP.getChipModel();
   doc["chipRevision"] = ESP.getChipRevision();
   doc["cores"] = ESP.getChipCores();
@@ -601,6 +634,36 @@ void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
   doc["restart"] = true;
   sendJson(request, 200, doc);
   restartAt_ = millis() + kRestartDelayMs;  // mDNS, DHCP and the hotspot pick up the name at boot
+}
+
+// No PIN: it only changes what Home Assistant displays; the robot never
+// downloads anything itself (docs/adr/0012).
+void DeviceApi::postAvailableUpdate(AsyncWebServerRequest* request, JsonVariant& body) {
+  JsonVariantConst version = body["version"];
+  JsonVariantConst notes = body["notes"];
+  if (!version.is<const char*>() || (!notes.isNull() && !notes.is<const char*>()) ||
+      strlen(version.as<const char*>()) > 32 || (notes.is<const char*>() && strlen(notes.as<const char*>()) > 200)) {
+    request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+    return;
+  }
+  AvailableUpdate next{version.as<const char*>(), notes.is<const char*>() ? notes.as<const char*>() : ""};
+  if (next.version.isEmpty()) next.notes = "";
+  {
+    std::lock_guard<std::mutex> guard(availableLock_);
+    if (next.version != available_.version || next.notes != available_.notes) {
+      available_ = next;
+      ++availableGeneration_;
+    }
+  }
+  JsonDocument doc;
+  doc["version"] = next.version;
+  doc["notes"] = next.notes;
+  sendJson(request, 200, doc);
+}
+
+DeviceApi::AvailableUpdate DeviceApi::availableUpdate() {
+  std::lock_guard<std::mutex> guard(availableLock_);
+  return available_;
 }
 
 void DeviceApi::stopForUpdate() {

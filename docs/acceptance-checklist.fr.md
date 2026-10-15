@@ -197,6 +197,19 @@ Compile deux versions visiblement différentes (par exemple en changeant `CWC_VE
 - [ ] Couper le Wi-Fi du robot (ou fermer l'onglet) en plein envoi : le robot continue avec son ancien firmware, et un nouvel envoi fonctionne ensuite.
 - [ ] Avec un code PIN défini, envoyer depuis un téléphone qui ne l'a pas saisi le demande.
 
+### Mise à jour en un geste
+
+Sur un robot qui a une version plus ancienne que la dernière de son canal, avec le téléphone sur Internet.
+
+- [ ] L'écran principal affiche *Version X disponible* avec **Nouveautés** (ouvre les notes de version) et **Mettre à jour**. Sur la dernière version, pas de bandeau, et Réglages → Robot → Mise à jour du firmware dit *Ton robot est à jour*.
+- [ ] **Mettre à jour** ouvre Réglages → Robot → Mise à jour du firmware avec la confirmation ; **Installer maintenant** affiche le téléchargement, puis la progression de l'envoi, puis *Le robot est de retour avec la version X*. Le Wi-Fi, le nom, la calibration, la vitesse, le câblage, le code PIN et le Canal de mise à jour sont inchangés.
+- [ ] Pendant une Session de jeu ou une Calibration, **Mettre à jour** explique pourquoi il faut attendre, et rien n'est installé.
+- [ ] Avec un code PIN défini, **Installer maintenant** le demande avant l'envoi.
+- [ ] Téléphone hors ligne (données mobiles et Internet coupés, robot toujours joignable) : pas de bandeau sur l'écran principal, et les Réglages affichent *Impossible de vérifier les mises à jour* avec **Réessayer**.
+- [ ] Un robot jamais réglé garde le canal de son firmware : une bêta affiche le Canal de mise à jour *Bêta*. Passer à *Stable* tient après un redémarrage et une mise à jour ; un robot en bêta sur Stable ne se voit pas proposer une stable plus ancienne.
+- [ ] `GET /api/info` contient `"channel"` et `"chipFamily"` (`ESP32`, `ESP32-S3` ou `ESP32-C3`, selon la carte).
+- [ ] Avec la connexion MQTT, une fois la page du robot ouverte, `update.catwandconnect_firmware` dans Home Assistant affiche la version installée et la dernière, et une notification de mise à jour, avec un lien vers les nouveautés et sans bouton Installer ; après la mise à jour, il est à jour.
+
 ## Home Assistant (MQTT)
 
 Utilise un Home Assistant avec le module Mosquitto et l'intégration MQTT ([configuration](home-assistant.fr.md)).

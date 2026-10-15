@@ -2,6 +2,7 @@
 
 #include <ArduinoJson.h>
 #include <robot_core/settings.h>
+#include <update_channel/update_channel.h>
 
 #include <cstdlib>
 
@@ -158,7 +159,36 @@ std::vector<Message> discovery(const Device& device, const std::string& prefix) 
     doc["unit_of_measurement"] = "min";
     messages.push_back(config(prefix, "number", device, "session_duration", doc));
   }
+
+  {
+    // Shows the installed and latest versions only: no command topic, the
+    // robot can't download an update (ADR 0012).
+    JsonDocument doc;
+    common(doc.to<JsonObject>(), device, topics, "firmware");
+    doc["name"] = "Firmware";
+    doc["device_class"] = "firmware";
+    doc["entity_category"] = "config";
+    doc["state_topic"] = topics.update();
+    messages.push_back(config(prefix, "update", device, "firmware", doc));
+  }
   return messages;
+}
+
+std::string updatePayload(const UpdateInfo& info) {
+  JsonDocument doc;
+  doc["installed_version"] = info.installed;
+  doc["title"] = "CatWandConnect firmware";
+  if (update_channel::isNewer(info.latest, info.installed)) {
+    doc["latest_version"] = info.latest;
+    doc["release_url"] = info.notes.empty()
+                             ? "https://github.com/vistorx/CatWandConnect/releases/tag/v" + info.latest
+                             : info.notes;
+  } else {
+    doc["latest_version"] = info.installed;
+  }
+  std::string payload;
+  serializeJson(doc, payload);
+  return payload;
 }
 
 std::string statePayload(const State& state) {
