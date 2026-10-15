@@ -342,5 +342,20 @@
   "update.restarting": "Installed. The robot is restarting…",
   "update.done": "The robot is back with version {version}.",
   "update.not_back": "The robot hasn't come back yet. Wait a minute, then reload this page.",
-  "error.invalid_channel": "Unknown Update channel."
+  "error.invalid_channel": "Unknown Update channel.",
+  "home.title": "Put the robot on your home screen",
+  "home.intro": "It then opens full screen from its own icon, like an app.",
+  "home.ios.1": "In Safari, tap the <b>Share</b> button {icon} in the toolbar.",
+  "home.ios.2": "Scroll down and tap <b>Add to Home Screen</b> {icon}.",
+  "home.ios.3": "Tap <b>Add</b>.",
+  "home.ios.other": "Using Chrome on your iPhone? Its Share button is in the address bar; the steps are the same.",
+  "home.android.1": "In Chrome, tap the menu {icon} at the top right.",
+  "home.android.2": "Tap <b>Add to Home screen</b> {icon} (or <b>Install app</b>, depending on the version).",
+  "home.android.3": "Tap <b>Add</b> (or <b>Install</b>).",
+  "home.ip": "This page was opened by IP address, which can change. Open {address} first: that address keeps working (also shown in Settings → Network).",
+  "home.show.android": "Show the steps for Android",
+  "home.show.ios": "Show the steps for iPhone",
+  "home.done": "Got it",
+  "home.later": "Later",
+  "help.home": "Add to your home screen"
 }

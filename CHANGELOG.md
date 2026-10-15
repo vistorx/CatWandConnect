@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Your robot on your home screen.** The first time you open the robot's page on an iPhone or Android phone, a short tip shows how to add it to your home screen so it opens like an app. Find it again any time in Help.
+
 ## 0.2.0-beta.4 - 2026-10-15
 
 **Updates in one tap.** No more downloading files from GitHub: when a new version is out, your robot's page tells you and installs it for you. Pick Stable or Beta once, the robot remembers.

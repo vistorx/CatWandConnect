@@ -135,11 +135,15 @@ $('pending-discard').addEventListener('click', async () => {
   loadPending();
 });
 
+let robotHost = '';  // the robot's .local name, for the home-screen tip
+$('home-screen').addEventListener('click', () => HomeScreen.open(robotHost));
+
 // On the hotspot the phone has no internet: offer to keep the report instead.
 async function checkNetwork() {
   try {
     const wifi = await (await fetch('/api/wifi/status')).json();
     $('offline').hidden = wifi.mode === 'connected';
+    robotHost = wifi.host || '';
   } catch { /* leave it hidden */ }
 }
 
