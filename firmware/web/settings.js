@@ -406,6 +406,9 @@ async function updateFirmware() {
 
 // --- Wi-Fi: network, addresses, and the setup page to join or change it -------
 
+let robotHost = '';  // the robot's .local name, for the home-screen tip
+$('home-screen').addEventListener('click', () => HomeScreen.open(robotHost));
+
 async function wifiSection() {
   try {
     const status = await (await fetch('/api/wifi/status')).json();
@@ -417,6 +420,7 @@ async function wifiSection() {
     $('wifi-ssid').textContent = status.ssid || '';
     $('wifi-ip').textContent = status.ip || '';
     $('wifi-host').textContent = status.host ? `http://${status.host}/` : '';
+    robotHost = status.host || '';
     // On the hotspot nothing is lost: straight to the setup page.
     $('wifi-setup').hidden = connected;
     $('wifi-change').hidden = !connected;

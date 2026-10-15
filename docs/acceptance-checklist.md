@@ -174,6 +174,12 @@ Use the Play session block under the speed slider on the main screen.
 - [ ] First visit on an Android phone in Chrome: the tip shows the ⋮ menu → Add to Home screen (or Install app) → Add steps.
 - [ ] After **Got it**, the tip never shows again, even after reloads; Help → "Add to your home screen" still shows it. After **Later** (or a tap outside), it does not come back the same day.
 - [ ] Opened from the home-screen icon, on a computer, or on the setup hotspot, the tip never shows.
+- [ ] iPhone in Safari, robot's page opened by IP on the home Wi-Fi: "Use the robot's permanent address" shows the `http://<name>.local/` address first; **Go** opens the same page at that address, where the home-screen tip then shows. Reopening the IP page afterwards shows neither.
+- [ ] Same on a computer: the permanent-address step shows, and after **Not now** no home-screen tip follows.
+- [ ] After **Not now** on a phone, the home-screen tip shows on the IP page with the note that the address can change; the permanent-address step doesn't come back the same day.
+- [ ] Android phone that doesn't open `.local` names (or a network that blocks them), page opened by IP: no permanent-address step; the home-screen tip shows with the hint to reserve the robot's address in the router, and its link opens the troubleshooting doc.
+- [ ] Opened at the `.local` address or from the setup hotspot: the permanent-address step never shows.
+- [ ] Settings → Robot → "Add to your home screen" shows the tip again, even after **Got it**.
 
 ## Settings PIN
 

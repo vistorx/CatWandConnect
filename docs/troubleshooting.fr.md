@@ -40,6 +40,7 @@ Ouvre **Réglages → Réseau** : le bloc Wi-Fi affiche le réseau actuel, l'adr
 **`catwandconnect.local` ne s'ouvre pas.**
 Si tu as renommé le robot, son adresse a changé aussi : elle est affichée dans les Réglages et sur la page Infos, par exemple `catwandconnect-salon.local`.
 Certains téléphones Android et d'anciens PC Windows ne résolvent pas les noms en `.local`. Utilise l'adresse IP affichée à la fin de la configuration ou dans Réglages → Réseau, ou trouve-la dans la liste des appareils de ta box ou dans le moniteur série. Vérifie aussi que ton téléphone est sur le même Wi-Fi que le robot, pas en données mobiles ni sur un réseau invité.
+Ouverte par son adresse IP, la page du robot vérifie si ce téléphone ou cet ordinateur arrive à ouvrir l'adresse `.local` : si oui, elle propose d'y aller ; sinon, elle le signale et propose la suite. Donne alors au robot une adresse fixe dans ta box (une *réservation DHCP*, en général dans les appareils connectés ou les réglages du réseau local) pour que l'adresse IP, et l'icône de l'écran d'accueil qui l'utilise, continuent de marcher.
 
 **Le robot repasse sans cesse sur son hotspot.**
 Le signal est trop faible ou la box a changé. Rapproche le robot, ou saisis le nouveau mot de passe sur la page de configuration du hotspot. Tant que personne n'est connecté au hotspot, le robot réessaie ton réseau toutes les 2 minutes.

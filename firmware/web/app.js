@@ -255,7 +255,8 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) relea
 I18n.load().then(() => {
   setLink('offline');
   connect();
-  // The update banner wins: the home-screen tip waits for a later visit.
+  // The update banner wins: the .local step and the home-screen tip wait
+  // for a later visit.
   let firstCheck = true;
   Updates.watch(result => {
     renderUpdateBanner(result);

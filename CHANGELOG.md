@@ -7,6 +7,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 ## Unreleased
 
 - **Your robot on your home screen.** The first time you open the robot's page on an iPhone or Android phone, a short tip shows how to add it to your home screen so it opens like an app. Find it again any time in Help.
+- **The robot's permanent address first.** Open the robot's page by its IP address and it offers to switch to its `.local` address, which keeps working when your router changes the IP, before you add it to your home screen. The home-screen tip is now also in Settings → Robot.
 
 ## 0.2.0-beta.4 - 2026-10-15
 

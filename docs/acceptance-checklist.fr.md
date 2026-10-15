@@ -176,6 +176,12 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 - [ ] Première visite sur un téléphone Android dans Chrome : l'astuce montre les étapes menu ⋮ → Ajouter à l'écran d'accueil (ou Installer l'application) → Ajouter.
 - [ ] Après **Compris**, l'astuce ne revient plus, même après des rechargements ; Aide → « Ajouter à ton écran d'accueil » l'affiche quand même. Après **Plus tard** (ou un appui à côté), elle ne revient pas le jour même.
 - [ ] Ouverte depuis l'icône de l'écran d'accueil, sur un ordinateur ou sur le hotspot de configuration, l'astuce ne s'affiche jamais.
+- [ ] iPhone dans Safari, page du robot ouverte par adresse IP sur le Wi-Fi de la maison : « Utilise l'adresse permanente du robot » montre d'abord l'adresse `http://<nom>.local/` ; **Y aller** ouvre la même page à cette adresse, où l'astuce de l'écran d'accueil s'affiche alors. Rouvrir ensuite la page par IP n'affiche ni l'une ni l'autre.
+- [ ] Pareil sur un ordinateur : l'étape de l'adresse permanente s'affiche, et après **Pas maintenant** aucune astuce d'écran d'accueil ne suit.
+- [ ] Après **Pas maintenant** sur un téléphone, l'astuce de l'écran d'accueil s'affiche sur la page ouverte par IP avec la note que l'adresse peut changer ; l'étape de l'adresse permanente ne revient pas le jour même.
+- [ ] Téléphone Android qui n'ouvre pas les noms en `.local` (ou réseau qui les bloque), page ouverte par IP : pas d'étape d'adresse permanente ; l'astuce de l'écran d'accueil s'affiche avec le conseil de réserver l'adresse du robot dans ta box, et son lien ouvre la doc de dépannage.
+- [ ] Ouverte à l'adresse `.local` ou depuis le hotspot de configuration : l'étape de l'adresse permanente ne s'affiche jamais.
+- [ ] Réglages → Robot → « Ajouter à ton écran d'accueil » réaffiche l'astuce, même après **Compris**.
 
 ## Code PIN des réglages
 

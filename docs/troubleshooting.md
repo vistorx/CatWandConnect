@@ -40,6 +40,7 @@ Open **Settings → Network**: the Wi-Fi block shows the current network, the ro
 **`catwandconnect.local` doesn't open.**
 If you renamed the robot, its address changed too: it is shown in Settings and on the Info page, for example `catwandconnect-salon.local`.
 Some Android phones and older Windows PCs don't resolve `.local` names. Use the IP address shown at the end of setup or in Settings → Network, or find it in your router's device list or the serial monitor. Also check that your phone is on the same Wi-Fi as the robot, not on mobile data or a guest network.
+Opened by IP, the robot's page checks whether this phone or computer can open the `.local` address: if it can, it offers to go there; if not, it says so and suggests the next step. Then give the robot a fixed address in your router (a *DHCP reservation*, usually under the connected devices or LAN settings) so the IP address, and the home-screen icon that uses it, keep working.
 
 **The robot keeps falling back to its hotspot.**
 The signal is too weak or the router changed. Move the robot closer, or enter the new password on the hotspot's setup page. While nobody is connected to the hotspot, the robot retries your network every 2 minutes.
