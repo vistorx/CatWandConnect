@@ -6,6 +6,31 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+## 0.2.0 - 2026-10-16
+
+**The robot plays on its own, and it lives in Home Assistant.** Start a Play session and the wand hunts like prey, then puts itself away. Connect it to Home Assistant without MQTT, set it up in one guided Calibration, and update it in one tap.
+
+### Highlights
+
+- **Play session.** 1 to 60 minutes: each axis moves to random spots within your Travel limits, at random speeds, with short random pauses (0 to 2 s by default), never in step with the other. Touch the joystick to take over at any time.
+- **Native Home Assistant integration.** Install [`vistorx/ha-catwandconnect`](https://github.com/vistorx/ha-catwandconnect) from HACS (Home Assistant 2026.10 or later): Play session, duration, Stow, positions, speeds, a joystick card and firmware updates, live within a second, no broker. The MQTT connection stays, now with the Play session too. The [Home Assistant guide](https://vistorx.github.io/CatWandConnect/home-assistant/) presents both, each with a ready-made dashboard.
+- **One guided Calibration.** After the limits, the wizard sweeps each axis so you pick its minimum and maximum speed, then lets you feel the acceleration with Snappier or Softer. Also in Settings → Motion → Tune speeds and acceleration.
+- **Update in one tap.** When a new version is out, the robot's page says so and installs it, on the Stable or Beta channel you choose. Home Assistant shows it too, and the Native integration installs it. The robot itself still never goes on the Internet.
+- **Change Wi-Fi from Settings.** Settings → Network shows the network, IP and `.local` address, with **Change Wi-Fi network**. A wrong password sends the robot back to the network it was on.
+- **On your home screen.** On a phone, the robot's page offers its permanent `.local` address, then shows how to add it to your home screen so it opens like an app.
+- **Project website in English and French** at <https://vistorx.github.io/CatWandConnect/>: one page per step, from printing the parts to Home Assistant.
+- **For scripts and integrations:** API version 1, `_catwandconnect._tcp` announcement, `POST /api/position`. See the [Device API](https://vistorx.github.io/CatWandConnect/api/).
+
+### Update
+
+From 0.1.0: install `catwandconnect-<chip>-v0.2.0-ota.bin` from this release in Settings → Firmware update. From a 0.2.0 beta: tap **Update** on the robot's page. Settings and Calibration are kept. To set the acceleration on a robot calibrated before, open Settings → Motion → Tune speeds and acceleration.
+
+### Known issues
+
+- Home Assistant may not show the robot under *Discovered* ([#175](https://github.com/vistorx/CatWandConnect/issues/175)). Add it by hand: Settings → Devices & services → Add integration → CatWandConnect, and type the robot's address.
+- Two robots that both keep the default name share `catwandconnect.local`: give each one its own name in Settings → Robot.
+- The ESP32-S3 and ESP32-C3 builds are tested in CI, not yet on real boards.
+
 ## 0.2.0-beta.5 - 2026-10-16
 
 **Your robot, one tap away.** Open its page on your phone and it shows you how to put it on your home screen, at an address that doesn't change. And Home Assistant should now find it on its own.
