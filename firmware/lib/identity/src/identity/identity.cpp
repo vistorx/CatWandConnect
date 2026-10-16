@@ -32,7 +32,32 @@ bool validName(const std::string& name) {
 
 std::string hostnameFor(const std::string& name) {
   std::string host = slug(name);
-  return host.empty() ? "catwandconnect" : host;
+  return host.empty() ? kDefaultHostname : host;
+}
+
+std::string hostnameFor(const std::string& name, const std::string& deviceId, bool legacy) {
+  std::string host = hostnameFor(name);
+  if (host != kDefaultHostname || legacy) return host;
+  std::string suffix;
+  for (char c : deviceId.substr(0, 4)) suffix += lower(c);
+  return suffix.empty() ? host : host + "-" + suffix;
+}
+
+namespace {
+constexpr const char* kLegacyKey = "legacyHost";
+constexpr uint8_t kLegacyRecordVersion = 1;
+}  // namespace
+
+bool legacyHostname(cwc::Storage& storage, bool hasWifiCredentials, const std::string& name) {
+  uint8_t record[2] = {0, 0};
+  if (storage.read(kLegacyKey, record, sizeof(record)) && record[0] == kLegacyRecordVersion) {
+    return record[1] == 1;
+  }
+  bool legacy = hasWifiCredentials && hostnameFor(name) == kDefaultHostname;
+  record[0] = kLegacyRecordVersion;
+  record[1] = legacy ? 1 : 0;
+  storage.write(kLegacyKey, record, sizeof(record));
+  return legacy;
 }
 
 namespace {

@@ -11,7 +11,9 @@
 // The .local step (homescreen.js) only shows when the page is opened by IP and
 // the robot's .local name opens from the browser. Open http://127.0.0.1:<port>/
 // and set LOCAL_HOST=localhost:<port> to stand in for a resolving .local name;
-// without it, catwandconnect.local doesn't resolve, as on some Android phones.
+// without it, the robot's .local name (catwandconnect-3f9a.local with the
+// default name, #195) doesn't resolve, as on some Android phones.
+// LEGACY_HOST=1 simulates a robot set up before #195: plain catwandconnect.local.
 //
 // The simulation is rough: it moves the axes at constant speed within the
 // limits and accepts settings with only basic checks. Safety behaviour is
@@ -55,19 +57,20 @@ const robot = {
 
 let deviceName = 'CatWandConnect';
 let mqtt = { enabled: false, host: '', port: 1883, user: '', passwordSet: false, connected: false, error: '',
-  baseTopic: 'catwandconnect/catwandconnect' };
+  baseTopic: 'catwandconnect/catwandconnect-3f9a' };
 let pin = '';
 let wrongPins = 0;
 let lockedUntil = 0;  // simulated lockout: 30 s after 5 wrong PINs
 let scanToggle = false;
 // The simulated Wi-Fi: a change from the home network to any password but
 // "wrong" succeeds after 3 s; "wrong" fails, then rejoins the previous one.
-const LOCAL_HOST = process.env.LOCAL_HOST || 'catwandconnect.local';
+// The .local name /api/wifi/status reports: the simulated robot's own, unless overridden.
+const localHost = () => process.env.LOCAL_HOST || info().hostname;
 const wifi = { ssid: 'Simulated', target: '', failedSsid: '', mode: 'connected', until: 0 };
 
 function wifiStatus() {
   const hotspot = process.env.HOTSPOT === '1';
-  if (hotspot) return { mode: 'hotspot', failed: false, ssid: '', ip: '', host: LOCAL_HOST, hotspot: true, failedSsid: '' };
+  if (hotspot) return { mode: 'hotspot', failed: false, ssid: '', ip: '', host: localHost(), hotspot: true, failedSsid: '' };
   if (wifi.mode !== 'connected' && Date.now() >= wifi.until) {
     if (wifi.mode === 'trying' && wifi.wrong) {
       wifi.failedSsid = wifi.target;
@@ -81,7 +84,7 @@ function wifiStatus() {
   const connected = wifi.mode === 'connected';
   return { mode: connected ? 'connected' : 'connecting', failed: !!wifi.failedSsid,
     ssid: connected ? wifi.ssid : wifi.mode === 'trying' ? wifi.target : wifi.ssid,
-    ip: connected ? '127.0.0.1' : '', host: LOCAL_HOST, hotspot: false, failedSsid: wifi.failedSsid };
+    ip: connected ? '127.0.0.1' : '', host: localHost(), hotspot: false, failedSsid: wifi.failedSsid };
 }
 
 function changeWifi(form) {
@@ -121,10 +124,18 @@ function feed() {
 const API_VERSION = 1;
 const DEVICE_ID = '3f9a12c4';
 
-function info() {
-  const host = deviceName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+// lib/identity's rule (#195): a name giving "catwandconnect" gets the first 4
+// digits of the Device ID, except on a robot set up before that (LEGACY_HOST=1).
+function hostnameFor(name) {
+  const host = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'catwandconnect';
-  return { name: deviceName, hostname: `${host}.local`, version: firmwareVersion, api: API_VERSION, id: DEVICE_ID,
+  if (host !== 'catwandconnect' || process.env.LEGACY_HOST === '1') return host;
+  return `${host}-${DEVICE_ID.slice(0, 4)}`;
+}
+
+function info() {
+  return { name: deviceName, hostname: `${hostnameFor(deviceName)}.local`,
+    defaultHostname: `${hostnameFor('CatWandConnect')}.local`, version: firmwareVersion, api: API_VERSION, id: DEVICE_ID,
     channel: channelNow(), chipFamily: 'ESP32', chip: 'ESP32-D0WD-V3',
     chipRevision: 3, cores: 2, cpuMhz: 240, flashMb: 4, freeHeap: 182000, mac: '24:6F:28:00:00:01',
     ssid: 'Simulated', ip: '127.0.0.1', rssi: -61, uptime: Math.floor((Date.now() - startedAt) / 1000), temperature: 47.5 };
@@ -677,7 +688,7 @@ function diagnostics(full) {
 Redacted: ${full ? 'no' : 'yes'}
 
 Name: ${i.name === 'CatWandConnect' ? i.name : hide(i.name, 'name')}
-Address: http://${i.hostname === 'catwandconnect.local' ? 'catwandconnect' : hide(i.hostname.replace(/\.local$/, ''), 'hostname')}.local/
+Address: http://${i.name === 'CatWandConnect' ? i.hostname.replace(/\.local$/, '') : hide(i.hostname.replace(/\.local$/, ''), 'hostname')}.local/
 Firmware: ${i.version}
 Chip: ${i.chip} rev ${i.chipRevision}, ${i.cores} x ${i.cpuMhz} MHz, ${i.flashMb} MB flash
 Device ID: ${DEVICE_ID}

@@ -149,6 +149,15 @@ void test_default_name_stays_readable_when_redacted() {
   TEST_ASSERT_TRUE(contains(report, "CatWandConnect 0.1.0-beta.2 starting"));
 }
 
+// A default-named robot's hostname carries only part of its Device ID (#195).
+void test_default_name_keeps_its_suffixed_hostname_readable_when_redacted() {
+  ReportData d = sample();
+  d.name = "CatWandConnect";
+  d.hostname = "catwandconnect-5894";
+  std::string report = reportText(d, true);
+  TEST_ASSERT_TRUE(contains(report, "Address: http://catwandconnect-5894.local/\n"));
+}
+
 void test_report_says_when_wifi_or_mqtt_are_not_in_use() {
   ReportData d = sample();
   d.wifiConnected = false;
@@ -206,6 +215,7 @@ int main() {
   RUN_TEST(test_redacted_report_holds_no_personal_data);
   RUN_TEST(test_full_report_keeps_personal_data_for_local_use);
   RUN_TEST(test_default_name_stays_readable_when_redacted);
+  RUN_TEST(test_default_name_keeps_its_suffixed_hostname_readable_when_redacted);
   RUN_TEST(test_report_says_when_wifi_or_mqtt_are_not_in_use);
   RUN_TEST(test_personal_values_noted_while_logging_are_redacted);
   RUN_TEST(test_values_are_only_replaced_as_whole_words);

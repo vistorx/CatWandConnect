@@ -123,9 +123,12 @@ void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc)
 
 }  // namespace
 
-void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name) {
+void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name,
+                      const String& hostname, bool legacyHostname) {
   hardware_ = hardware;
   name_ = name;
+  hostname_ = hostname;
+  legacyHostname_ = legacyHostname;
   channel_ = update_channel::loadChannel(storage_, CWC_VERSION);
 
   server.on("/api/auth", HTTP_GET, [this](AsyncWebServerRequest* request) { getAuth(request); });
@@ -588,7 +591,10 @@ void DeviceApi::postPosition(AsyncWebServerRequest* request, JsonVariant& body) 
 void DeviceApi::getInfo(AsyncWebServerRequest* request) {
   JsonDocument doc;
   doc["name"] = name_;
-  doc["hostname"] = String(identity::hostnameFor(name_.c_str()).c_str()) + ".local";
+  doc["hostname"] = hostname_ + ".local";
+  // What it would answer to with the default name, for the rename preview (#195).
+  doc["defaultHostname"] =
+      String(identity::hostnameFor(identity::kDefaultName, deviceId().c_str(), legacyHostname_).c_str()) + ".local";
   doc["version"] = CWC_VERSION;
   doc["api"] = discovery::kApiVersion;
   doc["id"] = deviceId();
@@ -630,7 +636,8 @@ void DeviceApi::putDevice(AsyncWebServerRequest* request, JsonVariant& body) {
 
   JsonDocument doc;
   doc["name"] = name;
-  doc["hostname"] = String(identity::hostnameFor(name).c_str()) + ".local";
+  // The address it will answer to after the restart.
+  doc["hostname"] = String(identity::hostnameFor(name, deviceId().c_str(), legacyHostname_).c_str()) + ".local";
   doc["restart"] = true;
   sendJson(request, 200, doc);
   restartAt_ = millis() + kRestartDelayMs;  // mDNS, DHCP and the hotspot pick up the name at boot

@@ -182,6 +182,23 @@ void test_entity_ids_follow_the_hostname_and_unique_ids_the_mac() {
   TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_stow", doc["unique_id"]);
 }
 
+// A default-named robot's hostname has a Device ID suffix (#195): its topics
+// use it, so two robots never share commands, while its entity ids keep the
+// documented catwandconnect_* (as with the Native integration).
+void test_a_suffixed_hostname_keeps_topics_unique_and_entity_ids_readable() {
+  Device d{"CatWandConnect", "catwandconnect-5894", "24:6F:28:AB:CD:EF", "0.1.0", "http://192.168.1.20/"};
+  d.entityPrefix = "catwandconnect";
+  Topics topics(d);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-5894/status", topics.availability().c_str());
+
+  auto messages = discovery(d);
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/button/catwandconnect_246f28abcdef/stow/config")->payload);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_stow", doc["object_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_stow", doc["unique_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-5894/stow/set", doc["command_topic"]);
+}
+
 // The robot can't download anything (ADR 0012): the Firmware entity only
 // shows the versions, with no install command.
 void test_firmware_update_entity_reads_its_own_topic_and_has_no_install() {
@@ -237,6 +254,7 @@ int main() {
   RUN_TEST(test_state_payload_reports_the_play_session);
   RUN_TEST(test_parses_play_session_commands);
   RUN_TEST(test_entity_ids_follow_the_hostname_and_unique_ids_the_mac);
+  RUN_TEST(test_a_suffixed_hostname_keeps_topics_unique_and_entity_ids_readable);
   RUN_TEST(test_parses_commands);
   RUN_TEST(test_ignores_unknown_topics_and_bad_values);
   RUN_TEST(test_firmware_update_entity_reads_its_own_topic_and_has_no_install);

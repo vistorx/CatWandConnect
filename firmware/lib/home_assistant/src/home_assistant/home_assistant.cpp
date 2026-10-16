@@ -27,7 +27,7 @@ std::string nodeId(const Device& device) {
 // Readable entity ids follow the hostname: "catwandconnect-salon" gives
 // button.catwandconnect_salon_stow. The unique id stays tied to the MAC.
 std::string objectPrefix(const Device& device) {
-  std::string prefix = device.hostname;
+  std::string prefix = device.entityPrefix.empty() ? device.hostname : device.entityPrefix;
   for (char& c : prefix) {
     if (c == '-') c = '_';
   }

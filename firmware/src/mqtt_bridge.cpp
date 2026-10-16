@@ -5,6 +5,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <home_assistant/home_assistant.h>
+#include <identity/identity.h>
 
 #include "device_api.h"
 #include "log.h"
@@ -58,8 +59,12 @@ void saveConfig(const MqttConfig& config) {
 }
 
 home_assistant::Device deviceInfo(const String& name, const String& hostname) {
-  return {name.c_str(), hostname.c_str(), WiFi.macAddress().c_str(), CWC_VERSION,
-          ("http://" + WiFi.localIP().toString() + "/").c_str()};
+  home_assistant::Device device{name.c_str(), hostname.c_str(), WiFi.macAddress().c_str(), CWC_VERSION,
+                                ("http://" + WiFi.localIP().toString() + "/").c_str()};
+  // Entity ids follow the name, without the Device ID suffix a default-named
+  // robot's hostname gets (#195): the documented catwandconnect_* ids.
+  device.entityPrefix = identity::hostnameFor(name.c_str());
+  return device;
 }
 
 }  // namespace

@@ -141,15 +141,18 @@ async function saveHardware(form) {
 // --- Robot name and interface language ----------------------------------------
 
 // Mirrors the firmware's hostname rule (lib/identity) for the live preview.
-function hostnameFor(name) {
+// A name giving "catwandconnect" answers at the robot's default address,
+// which carries part of its Device ID (#195).
+function hostnameFor(name, info) {
   const host = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+/, '').slice(0, 32).replace(/-+$/, '');
-  return host || 'catwandconnect';
+  if (!host || host === 'catwandconnect') return (info.defaultHostname || 'catwandconnect.local').replace(/\.local$/, '');
+  return host;
 }
 
 function deviceSection(info) {
   $('name').value = info.name;
-  const preview = () => { $('address').textContent = `${hostnameFor($('name').value)}.local`; };
+  const preview = () => { $('address').textContent = `${hostnameFor($('name').value, info)}.local`; };
   $('name').addEventListener('input', preview);
   preview();
 

@@ -26,7 +26,7 @@ Ferme tout autre programme qui utilise le port (moniteur série, Arduino IDE, un
 ## Wi-Fi
 
 **Je ne trouve pas le hotspot `CatWandConnect-XXXX`.**
-Le hotspot n'apparaît que quand le robot ne peut joindre aucun Wi-Fi connu. S'il a rejoint ton réseau, ouvre plutôt `http://catwandconnect.local/`. Après une tentative ratée, le hotspot peut mettre jusqu'à 20 s à apparaître.
+Le hotspot n'apparaît que quand le robot ne peut joindre aucun Wi-Fi connu. S'il a rejoint ton réseau, ouvre plutôt son adresse `.local` (affichée à la fin de la configuration, par exemple `http://catwandconnect-3f9a.local/`). Après une tentative ratée, le hotspot peut mettre jusqu'à 20 s à apparaître.
 
 **La page de configuration ne s'ouvre pas quand je me connecte au hotspot.**
 Va sur `http://192.168.4.1/`. Certains téléphones demandent aussi s'il faut « rester connecté » à un réseau sans internet : réponds oui.
@@ -37,8 +37,8 @@ Vérifie le nom du réseau et le mot de passe. L'ESP32 ne gère que le Wi-Fi **2
 **Comment faire passer le robot sur un autre réseau Wi-Fi ?**
 Ouvre **Réglages → Réseau** : le bloc Wi-Fi affiche le réseau actuel, l'adresse IP du robot et son adresse `.local`. Touche **Changer de réseau Wi-Fi**, lis l'avertissement, puis choisis le nouveau réseau et saisis son mot de passe. Une fois qu'il l'a rejoint, mets ton téléphone sur ce réseau et ouvre l'adresse affichée. S'il n'y arrive pas (mauvais mot de passe, réseau 5 GHz, hors de portée), il revient sur le réseau actuel en une minute environ et rien ne change ; si ça échoue aussi, son hotspot `CatWandConnect-XXXX` s'ouvre, comme à la première installation. Avec un code PIN de réglages, le changement le demande.
 
-**`catwandconnect.local` ne s'ouvre pas.**
-Si tu as renommé le robot, son adresse a changé aussi : elle est affichée dans les Réglages et sur la page Infos, par exemple `catwandconnect-salon.local`.
+**L'adresse `.local` du robot ne s'ouvre pas.**
+Vérifie l'adresse exacte : elle est affichée à la fin de la configuration, dans les Réglages et sur la page Infos. Avec le nom par défaut, elle se termine par 4 caractères propres au robot, par exemple `catwandconnect-3f9a.local` (les robots installés avant la version 0.2.1 gardent `catwandconnect.local`). Si tu as renommé le robot, son adresse a changé aussi, par exemple `catwandconnect-salon.local`.
 Certains téléphones Android et d'anciens PC Windows ne résolvent pas les noms en `.local`. Utilise l'adresse IP affichée à la fin de la configuration ou dans Réglages → Réseau, ou trouve-la dans la liste des appareils de ta box ou dans le moniteur série. Vérifie aussi que ton téléphone est sur le même Wi-Fi que le robot, pas en données mobiles ni sur un réseau invité.
 Ouverte par son adresse IP, la page du robot vérifie si ce téléphone ou cet ordinateur arrive à ouvrir l'adresse `.local` : si oui, elle propose d'y aller ; sinon, elle le signale et propose la suite. Donne alors au robot une adresse fixe dans ta box (une *réservation DHCP*, en général dans les appareils connectés ou les réglages du réseau local) pour que l'adresse IP, et l'icône de l'écran d'accueil qui l'utilise, continuent de marcher.
 
