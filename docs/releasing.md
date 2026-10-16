@@ -23,10 +23,11 @@ Pushing a `vX.Y.Z` or `vX.Y.Z-beta.N` tag runs `.github/workflows/release.yml`:
 
 1. Runs the Robot core tests, the language check and the flasher tests. If any fails, nothing is published.
 2. Builds the three chips with `CWC_VERSION` set from the tag (`0.1.0` or `0.1.0-beta.1`).
-3. Publishes a GitHub release with two files per chip, marked as a pre-release for a beta tag:
+3. Waits for the owner's approval: the publishing job runs in the `release` environment, whose only required reviewer is the owner. GitHub emails a review request; open the run (**Actions → Release**) and click **Review deployments → Approve**. Until then nothing is published, so a tag pushed by mistake (or by an agent) has no effect; reject the run and delete the tag.
+4. Publishes a GitHub release with two files per chip, marked as a pre-release for a beta tag:
    - `catwandconnect-<chip>-factory.bin`: the full flash image, written at offset 0 by `esptool`. It also covers the settings partition (NVS) with blank bytes, so writing it whole wipes the robot's settings;
    - `catwandconnect-<chip>-ota.bin`: the app only, for **Settings → Robot → Firmware update**.
-4. Starts the **Pages** workflow on `main`, which republishes the website and the web flasher with the new release (see [The website and the web flasher](#the-website-and-the-web-flasher)).
+5. Starts the **Pages** workflow on `main`, which republishes the website and the web flasher with the new release (see [The website and the web flasher](#the-website-and-the-web-flasher)).
 
 Running the Release workflow by hand (**Actions → Release → Run workflow**) is a dry run: it builds everything and keeps a flasher preview as an artifact, but publishes nothing.
 
@@ -72,8 +73,9 @@ uvx --with-requirements website/requirements.txt mkdocs serve -f website/mkdocs.
    git push origin v0.1.0-beta.1
    ```
 
-3. Check that the release is marked as a pre-release with the changelog as its notes, the Discord announcement, that the Pages workflow ran, and that the web flasher's Beta channel shows the new version.
-4. Install it (web flasher, or OTA from Settings) and run the [acceptance checklist](acceptance-checklist.md). Each fix gets a new beta.
+3. Approve the run in **Actions → Release → Review deployments** once the builds pass.
+4. Check that the release is marked as a pre-release with the changelog as its notes, the Discord announcement, that the Pages workflow ran, and that the web flasher's Beta channel shows the new version.
+5. Install it (web flasher, or OTA from Settings) and run the [acceptance checklist](acceptance-checklist.md). Each fix gets a new beta.
 
 ### Stable
 
@@ -85,8 +87,9 @@ uvx --with-requirements website/requirements.txt mkdocs serve -f website/mkdocs.
    git push origin v0.1.0
    ```
 
-3. Check the release page and the Discord announcement.
-4. Open the web flasher: Stable is selected by default and shows the new version. Install on a board to check it.
+3. Approve the run in **Actions → Release → Review deployments**.
+4. Check the release page and the Discord announcement.
+5. Open the web flasher: Stable is selected by default and shows the new version. Install on a board to check it.
 
 ## One-time setup for GitHub Pages
 
@@ -94,6 +97,7 @@ GitHub Pages is free for public repositories. Once the repository is public:
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 2. **Settings → Environments → github-pages → Deployment branches and tags:** allow `main` (and a tag rule `v*`).
+3. **Settings → Environments → release:** required reviewer = the owner, *Prevent self-review* off, deployment tags `v*` only.
 
 The website is then served at <https://vistorx.github.io/CatWandConnect/> and the flasher at <https://vistorx.github.io/CatWandConnect/flasher/>. Each release rebuilds them with the current Stable and Beta.
 
