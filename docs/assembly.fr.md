@@ -41,7 +41,7 @@ Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les 
 9. **Électronique en place.** D'après les notes du montage de référence, en suivant [Monter pas à pas](wiring.fr.md#monter-pas-à-pas) :
    - Installe la carte de déclenchement et le convertisseur abaisseur sur le dessus du robot.
    - Fais passer les deux fils de sortie du convertisseur par le trou qui mène à la cavité technique, à l'intérieur de la pince.
-   - Les deux connecteurs à levier (les rails +5 V et GND) se placent dans la cavité technique, à côté du servo horizontal.
+   - Les deux connecteurs à levier (les rails +5 V et GND) se placent dans la cavité technique du clamp.
    - Fais passer la moitié de rallonge du servo vertical par le trou vers l'extérieur de la cavité.
 
 ### Vérifications

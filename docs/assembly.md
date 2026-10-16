@@ -41,7 +41,7 @@ You need the [printed parts](print.md) and the parts below. The servos are wired
 9. **Electronics in place.** From the reference build's notes, while you follow [Build it step by step](wiring.md#build-it-step-by-step):
    - Install the trigger board and the buck converter on top of the robot.
    - Pass the buck converter's two output wires through the hole that leads into the technical cavity inside the clamp.
-   - The two lever connectors (the +5 V and GND rails) sit in the technical cavity, next to the Horizontal servo.
+   - The two lever connectors (the +5 V and GND rails) sit in the technical cavity inside the clamp.
    - Pass the Vertical servo's extension half through the hole to the outside of the cavity.
 
 ### Checks
