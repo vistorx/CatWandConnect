@@ -63,7 +63,7 @@ Le firmware s'installe depuis ton navigateur, sans rien télécharger : ouvre le
 
 ### 2. Électronique
 
-Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 V, un convertisseur abaisseur les transforme en 5 V, et ce 5 V alimente les deux servos et la carte ; la carte envoie seulement les signaux aux servos. Aucune soudure n'est nécessaire. Le [guide de câblage](docs/wiring.fr.md#exemples-de-composants) donne des exemples de composants.
+Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 V, un convertisseur abaisseur les transforme en 5 V, et ce 5 V alimente les deux servos et la carte ; la carte envoie seulement les signaux aux servos. Les cartes d'alimentation demandent un peu de soudure. Le [guide de câblage](docs/wiring.fr.md#monter-pas-à-pas) l'explique pas à pas et donne des [exemples de composants](docs/wiring.fr.md#exemples-de-composants).
 
 | Qté | Pièce |
 |-----|-------|
@@ -72,7 +72,9 @@ Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 
 | 1 | Chargeur USB-C PD, 30 W minimum, 45 W conseillé (doit proposer le 20 V) |
 | 1 | Carte de déclenchement USB-C PD, réglée sur 20 V |
 | 1 | Convertisseur abaisseur, sortie 5 V, 5 A ou plus |
-| | Bornier ou connecteurs type Wago, fils, un condensateur de 470–1000 µF en option |
+| 2 | Connecteurs à levier (type Wago 221), 4 entrées minimum chacun |
+| 2 | Rallonges de servo, environ 30 cm |
+| | Fil, connecteurs Dupont, un condensateur de 470–1000 µF en option ; un fer à souder et un multimètre |
 
 <p align="center"><img src="docs/images/wiring-compact.svg" alt="Câblage compact : un chargeur USB-C alimente une carte de déclenchement PD réglée sur 20 V, puis un convertisseur abaisseur réglé sur 5 V, qui alimente un rail +5 V et un rail GND ; les deux servos et l'ESP32 prennent leur alimentation sur les rails ; l'ESP32 envoie un signal à chaque servo." width="560"></p>
 
