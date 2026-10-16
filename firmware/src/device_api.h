@@ -23,8 +23,10 @@ class DeviceApi {
       : robot_(robot), storage_(storage), chip_(chip), pin_(pin) {}
 
   // `hardware` is the wiring the servo driver was started with; `name` the
-  // robot's name.
-  void begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name);
+  // robot's name, `hostname` the one it answers to (without ".local") and
+  // `legacyHostname` whether it keeps plain "catwandconnect" (#195).
+  void begin(AsyncWebServer& server, const cwc::HardwareConfig& hardware, const String& name,
+             const String& hostname, bool legacyHostname);
 
   // Runs `f(robot)` under the robot lock, for other tasks such as MQTT.
   template <class F>
@@ -103,6 +105,8 @@ class DeviceApi {
   cwc::HardwareConfig hardware_{};       // as saved, applied after restart
   std::atomic<uint32_t> restartAt_{0};
   String name_;
+  String hostname_;
+  bool legacyHostname_ = false;
   update_channel::Channel channel_ = update_channel::Channel::Stable;  // under robotLock_, like storage_
   AsyncWebSocket socket_{"/ws"};
 

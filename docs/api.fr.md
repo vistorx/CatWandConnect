@@ -173,7 +173,7 @@ Le rangement et le pilotage manuel terminent aussi le réglage des vitesses et c
 `GET /api/info` renvoie ce qu'affiche la page Infos :
 
 ```json
-{"name":"CatWandConnect","hostname":"catwandconnect.local","version":"0.2.0","api":1,"id":"3f9a12c4","channel":"stable",
+{"name":"CatWandConnect","hostname":"catwandconnect-3f9a.local","defaultHostname":"catwandconnect-3f9a.local","version":"0.2.0","api":1,"id":"3f9a12c4","channel":"stable",
  "chipFamily":"ESP32","chip":"ESP32-D0WD-V3",
  "chipRevision":3,"cores":2,"cpuMhz":240,"flashMb":4,"freeHeap":182000,"mac":"24:6F:28:00:00:01",
  "ssid":"Home","ip":"192.168.1.20","rssi":-61,"uptime":3600,"temperature":47.5}
@@ -219,7 +219,7 @@ Recent log:
 - **Succès :** `200 {"ok":true,"restart":true}`, et le robot redémarre sur le nouveau firmware environ une seconde plus tard.
 - **Échec :** `400 {"error":"update_failed","detail":"…"}`. Si l'envoi est interrompu, le robot continue avec son firmware actuel.
 
-Les réglages, la calibration, le Wi-Fi, le nom, le code PIN et le Canal de mise à jour sont en NVS et sont conservés. Une session de jeu en cours se termine au début de la mise à jour. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect.local/api/update`.
+Les réglages, la calibration, le Wi-Fi, le nom, le code PIN et le Canal de mise à jour sont en NVS et sont conservés. Une session de jeu en cours se termine au début de la mise à jour. Exemple : `curl -F firmware=@catwandconnect-esp32-ota.bin http://catwandconnect-3f9a.local/api/update`.
 
 #### Flux de mises à jour
 
@@ -313,7 +313,7 @@ Chaque `PUT` réussi écrit en flash : envoie-le quand une valeur est fixée, pa
 
 | Requête | Réponse |
 |---------|---------|
-| `GET /api/wifi/status` | `{"mode":"hotspot"\|"connecting"\|"connected","failed":bool,"ssid":"…","ip":"…","host":"catwandconnect.local","hotspot":bool,"failedSsid":"…"}`. `failed` vaut true quand la dernière tentative a échoué. `hotspot` vaut true tant que le hotspot `CatWandConnect-XXXX` est actif. `failedSsid` donne le réseau qu'un changement depuis le réseau habituel n'a pas pu rejoindre, pendant que le robot revient (puis est revenu) sur le réseau précédent ; vide sinon. |
+| `GET /api/wifi/status` | `{"mode":"hotspot"\|"connecting"\|"connected","failed":bool,"ssid":"…","ip":"…","host":"catwandconnect-3f9a.local","hotspot":bool,"failedSsid":"…"}`. `failed` vaut true quand la dernière tentative a échoué. `hotspot` vaut true tant que le hotspot `CatWandConnect-XXXX` est actif. `failedSsid` donne le réseau qu'un changement depuis le réseau habituel n'a pas pu rejoindre, pendant que le robot revient (puis est revenu) sur le réseau précédent ; vide sinon. |
 | `GET /api/wifi/networks` | `{"scanning":true}` pendant une recherche (interroge à nouveau), puis `{"scanning":false,"networks":[{"ssid":"…","rssi":-60,"secure":true}]}`. |
 | 🔒 `POST /api/wifi` | Champs de formulaire `ssid` et `password`. Renvoie 202 et se connecte en arrière-plan (environ 1 s plus tard quand la demande vient du réseau habituel, pour que la réponse parte) ; suis la progression avec `/api/wifi/status`. Accepté depuis le hotspot et depuis le réseau habituel. Le nouveau réseau n'est enregistré qu'une fois rejoint ; si un changement demandé depuis le réseau habituel échoue, le robot revient sur le réseau précédent, puis ouvre son hotspot si ça échoue aussi ([ADR 0011](adr/0011-wifi-change-falls-back-to-the-previous-network.md), en anglais). |
 

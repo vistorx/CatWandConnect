@@ -47,7 +47,7 @@ HACS offers the integration's updates by itself when a new version comes out.
 
 1. Go to **Settings → Devices & services**.
 2. Usually the robot is waiting under *Discovered*, under its name: click **Add**, then **Submit**.
-3. If it isn't there: **Add integration** at the bottom right, search for **CatWandConnect**, and type the robot's address: its `.local` name (`catwandconnect.local`, or the name you gave it) or its IP address, for example `192.168.1.20`.
+3. If it isn't there: **Add integration** at the bottom right, search for **CatWandConnect**, and type the robot's address: its `.local` address (shown in Settings → Network, for example `catwandconnect-3f9a.local`) or its IP address, for example `192.168.1.20`.
 4. **Settings PIN**: if you set one in the robot's Settings, Home Assistant asks for it once. Without a PIN there is nothing to type. A wrong PIN says so and lets you try again; after too many, wait the time shown.
 5. Pick an area if you like, then **Finish**.
 
@@ -131,7 +131,7 @@ Leave *Enable discovery* on and the discovery prefix at `homeassistant` (the def
 
 ### 5. Connect the robot
 
-1. Open the robot's interface (`http://catwandconnect.local/`, or the name you gave it), then **Settings → Network → Home Assistant**.
+1. Open the robot's interface (its `.local` address or IP), then **Settings → Network → Home Assistant**.
 2. Tick **Enabled**, and fill in:
    - **Broker**: Home Assistant's IP address from step 1, for example `192.168.1.124`. `homeassistant.local` also works on most networks, but the IP is more reliable;
    - **Port**: `1883`;

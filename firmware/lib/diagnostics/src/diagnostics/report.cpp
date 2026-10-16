@@ -32,9 +32,10 @@ void line(std::string& out, const char* label, const std::string& value) {
 
 Redactor redactorFor(const ReportData& d) {
   Redactor r;
-  // The default name says nothing about its owner and helps reading logs.
+  // The default name says nothing about its owner and helps reading logs; so
+  // does its hostname, plain or with part of the Device ID (#195).
   if (d.name != kDefaultName) r.add(d.name, "name");
-  if (d.hostname != kDefaultHostname) r.add(d.hostname, "hostname");
+  if (d.name != kDefaultName && d.hostname != kDefaultHostname) r.add(d.hostname, "hostname");
   r.add(d.wifiNetwork, "wifi-network");
   r.add(d.mqttHost, "broker");
   r.add(d.mqttUser, "mqtt-user");

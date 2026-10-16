@@ -17,6 +17,10 @@ struct Device {
   std::string mac;       // "24:6F:28:00:00:01", the stable identity
   std::string version;   // firmware version
   std::string url;       // the Device interface, e.g. "http://192.168.1.20/"
+  // Readable entity ids start with this, hyphens as underscores; the
+  // hostname when empty. "catwandconnect" for a default-named robot whose
+  // hostname has a Device ID suffix (#195), so its ids stay documented.
+  std::string entityPrefix = "";
 };
 
 // Topics live under "catwandconnect/<hostname>".
