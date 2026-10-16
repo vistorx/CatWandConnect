@@ -6,9 +6,19 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+## 0.2.0-beta.5 - 2026-10-16
+
+**Your robot, one tap away.** Open its page on your phone and it shows you how to put it on your home screen, at an address that doesn't change. And Home Assistant should now find it on its own.
+
+### Highlights
+
 - **Found on its own by Home Assistant.** The robot's Wi-Fi no longer dozes between packets, so it answers Home Assistant's discovery and shows up under Discovered more reliably. Its page and the joystick respond faster too.
 - **Your robot on your home screen.** The first time you open the robot's page on an iPhone or Android phone, a short tip shows how to add it to your home screen so it opens like an app. Find it again any time in Help.
 - **The robot's permanent address first.** Open the robot's page by its IP address and it offers to switch to its `.local` address, which keeps working when your router changes the IP, before you add it to your home screen. The home-screen tip is now also in Settings → Robot.
+
+### Update
+
+Your robot's page offers this version: tap **Update** on the banner, or Settings → Robot → Firmware update. Your settings and Calibration are kept.
 
 ## 0.2.0-beta.4 - 2026-10-15
 
