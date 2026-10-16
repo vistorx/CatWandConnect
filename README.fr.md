@@ -72,7 +72,7 @@ Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 
 | 1 | Chargeur USB-C PD, 30 W minimum, 45 W conseillé (doit proposer le 20 V) |
 | 1 | Carte de déclenchement USB-C PD, réglée sur 20 V |
 | 1 | Convertisseur abaisseur, sortie 5 V, 5 A ou plus |
-| 2 | Connecteurs à levier (type Wago 221), 4 entrées minimum chacun |
+| 2 | Connecteurs à levier (type Wago 221), 2 entrées |
 | 2 | Rallonges de servo, environ 30 cm |
 | | Fil, connecteurs Dupont, un condensateur de 470–1000 µF en option ; un fer à souder et un multimètre |
 
