@@ -63,18 +63,20 @@ Le firmware s'installe depuis ton navigateur, sans rien télécharger : ouvre le
 
 ### 2. Électronique
 
-Une seule alimentation 5 V alimente les deux servos et la carte ; la carte envoie seulement les signaux aux servos. Aucune soudure n'est nécessaire.
+Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 V, un convertisseur abaisseur les transforme en 5 V, et ce 5 V alimente les deux servos et la carte ; la carte envoie seulement les signaux aux servos. Aucune soudure n'est nécessaire. Le [guide de câblage](docs/wiring.fr.md#exemples-de-composants) donne des exemples de composants.
 
 | Qté | Pièce |
 |-----|-------|
 | 1 | Carte de développement ESP32, ESP32-S3 ou ESP32-C3 (pas d'ESP8266, voir l'[ADR 0008](docs/adr/0008-no-esp8266-support.md)) |
-| 2 | Servos MG996R |
-| 1 | Alimentation 5 V, 3 A ou plus |
+| 2 | Servos MG996R (parfois vendus sous le nom SG996R), ou DS3218 pour plus de couple |
+| 1 | Chargeur USB-C PD, 30 W minimum, 45 W conseillé (doit proposer le 20 V) |
+| 1 | Carte de déclenchement USB-C PD, réglée sur 20 V |
+| 1 | Convertisseur abaisseur, sortie 5 V, 5 A ou plus |
 | | Bornier ou connecteurs type Wago, fils, un condensateur de 470–1000 µF en option |
 
-<p align="center"><img src="docs/images/wiring-compact.svg" alt="Câblage compact : l'alimentation 5 V alimente un rail +5 V et un rail GND ; les deux servos et l'ESP32 prennent leur alimentation sur les rails ; l'ESP32 envoie un signal à chaque servo." width="560"></p>
+<p align="center"><img src="docs/images/wiring-compact.svg" alt="Câblage compact : un chargeur USB-C alimente une carte de déclenchement PD réglée sur 20 V, puis un convertisseur abaisseur réglé sur 5 V, qui alimente un rail +5 V et un rail GND ; les deux servos et l'ESP32 prennent leur alimentation sur les rails ; l'ESP32 envoie un signal à chaque servo." width="560"></p>
 
-**[Guide de câblage →](docs/wiring.fr.md)** : schéma complet, broches par puce, règles d'alimentation.
+**[Guide de câblage →](docs/wiring.fr.md)** : schéma complet, exemples de composants, broches par puce, règles d'alimentation.
 
 ### 3. Matériel
 
@@ -98,7 +100,7 @@ Le mécanisme est imprimé en 3D : six pièces, toutes dans [`stls/mk2/`](stls/m
 |-----|------|
 | [1. Imprimer les pièces](docs/print.fr.md) | Les six pièces imprimées du Mk2 et les réglages d'impression |
 | [2. Assembler le mécanisme](docs/assembly.fr.md) | Pièces à acheter (roulement, billes, vis) et ordre de montage (photos bientôt) |
-| [3. Câbler l'électronique](docs/wiring.fr.md) | Carte, servos, alimentation, schéma de câblage, broches par défaut selon la puce |
+| [3. Câbler l'électronique](docs/wiring.fr.md) | Carte, servos, alimentation USB-C, schéma de câblage, broches par défaut selon la puce |
 | [4. Installer le logiciel](docs/install.fr.md) | Flasher depuis le navigateur, Wi-Fi, calibration, mises à jour |
 | [5. Configurer Home Assistant](docs/home-assistant.fr.md) | Facultatif : deux façons de le connecter, l'intégration native (HACS) ou la connexion MQTT, un tableau de bord pour chacune, automatisations |
 | [Fonctionnalités](docs/features.fr.md) | Tout ce que fait le robot, en détail |

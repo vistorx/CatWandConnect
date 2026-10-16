@@ -53,7 +53,7 @@ Le signal est trop faible ou la box a changé. Rapproche le robot, ou saisis le 
 - Au démarrage, le robot rejoint très lentement (10 °/s) sa position de repos, puis relâche les servos. C'est normal.
 
 **Les servos tremblent ou la carte redémarre quand ils bougent.**
-L'alimentation est trop faible ou les fils trop fins. Utilise une alimentation 5 V de 3 A ou plus, et ajoute un condensateur de 470–1000 µF sur l'alimentation des servos.
+L'alimentation est trop faible ou les fils trop fins. Utilise un chargeur USB-C de 30 W ou plus (45 W c'est mieux) avec un convertisseur abaisseur de 5 A ou plus, ou une alimentation 5 V de 3 A ou plus, et ajoute un condensateur de 470–1000 µF entre les rails +5 V et GND. Voir [Alimentation](wiring.fr.md#alimentation).
 
 **Le joystick ne fait rien.**
 - Vérifie que le coin en haut à droite indique « Connecté ».

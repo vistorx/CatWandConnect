@@ -6,6 +6,9 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Power it from a USB-C charger.** The wiring guide now shows the USB-C power chain (a 30–45 W charger, a PD trigger board set to 20 V, a buck converter set to 5 V), how to set it up safely, and example parts.
+- **Stronger servo option.** The wiring guide now links example MG996R servos and the sturdier DS3218 upgrade (180° version, pulse range and power notes).
+
 ## 0.2.0 - 2026-10-16
 
 **The robot plays on its own, and it lives in Home Assistant.** Start a Play session and the wand hunts like prey, then puts itself away. Connect it to Home Assistant without MQTT, set it up in one guided Calibration, and update it in one tap.

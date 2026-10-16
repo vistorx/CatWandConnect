@@ -63,18 +63,20 @@ The firmware installs from your browser, with nothing to download: open the web 
 
 ### 2. Electronics
 
-A single 5 V supply feeds both servos and the board; the board only sends the servo signals. No soldering is required.
+A USB-C charger powers everything: a PD trigger board asks it for 20 V, a buck converter turns that into 5 V, and the 5 V feeds both servos and the board; the board only sends the servo signals. No soldering is required. The [wiring guide](docs/wiring.md#example-parts) lists example parts.
 
 | Qty | Part |
 |-----|------|
 | 1 | ESP32, ESP32-S3 or ESP32-C3 dev board (not ESP8266, see [ADR 0008](docs/adr/0008-no-esp8266-support.md)) |
-| 2 | MG996R servos |
-| 1 | 5 V power supply, 3 A or more |
+| 2 | MG996R servos (sometimes sold as SG996R), or DS3218 for more torque |
+| 1 | USB-C PD charger, 30 W minimum, 45 W recommended (must offer 20 V) |
+| 1 | USB-C PD trigger board, set to 20 V |
+| 1 | Buck converter, 5 V output, 5 A or more |
 | | Terminal block or Wago-style connectors, wires, an optional 470–1000 µF capacitor |
 
-<p align="center"><img src="docs/images/wiring-compact.svg" alt="Compact wiring: the 5 V supply feeds a +5 V rail and a GND rail; both servos and the ESP32 take power from the rails; the ESP32 sends a signal to each servo." width="560"></p>
+<p align="center"><img src="docs/images/wiring-compact.svg" alt="Compact wiring: a USB-C charger feeds a PD trigger board set to 20 V, then a buck converter set to 5 V, which feeds a +5 V rail and a GND rail; both servos and the ESP32 take power from the rails; the ESP32 sends a signal to each servo." width="560"></p>
 
-**[Wiring guide →](docs/wiring.md)**: full diagram, pins per chip, power rules.
+**[Wiring guide →](docs/wiring.md)**: full diagram, example parts, pins per chip, power rules.
 
 ### 3. Hardware
 
@@ -98,7 +100,7 @@ The Mechanism is 3D printed: six parts, all in [`stls/mk2/`](stls/mk2/) or as on
 |-----|-----|
 | [1. Print the parts](docs/print.md) | The six printed parts of the Mk2 and print settings |
 | [2. Assemble the Mechanism](docs/assembly.md) | Parts to buy (bearing, balls, screws) and assembly order (photos coming soon) |
-| [3. Wire the electronics](docs/wiring.md) | Board, servos, power supply, wiring diagram, default pins per chip |
+| [3. Wire the electronics](docs/wiring.md) | Board, servos, USB-C power chain, wiring diagram, default pins per chip |
 | [4. Install the software](docs/install.md) | Flashing from the browser, Wi-Fi, Calibration, updates |
 | [5. Set up Home Assistant](docs/home-assistant.md) | Optional: two ways to connect, the Native integration (HACS) or the MQTT connection, a dashboard for each, automations |
 | [Features](docs/features.md) | Everything the robot does, in detail |
