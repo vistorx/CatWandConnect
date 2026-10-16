@@ -1,0 +1,62 @@
+name: Label guard
+
+# `ready-for-agent` lets the dev agent implement an issue, so it is a trust
+# boundary against prompt injection from issue text (docs/agents/triage-labels.md).
+# It stays only if the owner applied it (any issue), or the dev agent's account
+# (repository variable DEV_AGENT_LOGIN) applied it on an issue it opened.
+# Anyone else editing the title or body of a labelled issue removes the label,
+# so the owner re-validates the new text. Uses no third-party action.
+
+on:
+  issues:
+    types: [labeled, edited]
+
+permissions:
+  issues: write
+
+concurrency:
+  group: label-guard-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: Guard ready-for-agent
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          OWNER_LOGIN: ${{ github.repository_owner }}
+          DEV_AGENT_LOGIN: ${{ vars.DEV_AGENT_LOGIN }}
+        with:
+          script: |
+            const LABEL = 'ready-for-agent';
+            const strip = (l) => (l || '').replace(/\[bot\]$/, '').toLowerCase();
+            const owner = strip(process.env.OWNER_LOGIN);
+            const dev = strip(process.env.DEV_AGENT_LOGIN);
+            const { action, issue, sender } = context.payload;
+            const actor = strip(sender.login);
+            const author = strip(issue.user.login);
+            const trusted = actor === owner || (dev && actor === dev);
+            const hasLabel = issue.labels.some((l) => l.name === LABEL);
+
+            let reason = null;
+            if (action === 'labeled' && context.payload.label.name === LABEL) {
+              const allowed = actor === owner || (dev && actor === dev && author === dev);
+              if (!allowed) {
+                reason = `\`${LABEL}\` was applied by @${sender.login} on an issue opened by @${issue.user.login}. ` +
+                  `Only @${process.env.OWNER_LOGIN} (any issue) or the dev agent (its own issues) may apply it.`;
+              }
+            } else if (action === 'edited' && hasLabel && !trusted) {
+              reason = `@${sender.login} edited this issue after it was marked \`${LABEL}\`. ` +
+                `@${process.env.OWNER_LOGIN}, please review the new text and re-apply the label.`;
+            }
+            if (!reason) return;
+
+            const ref = { owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number };
+            try {
+              await github.rest.issues.removeLabel({ ...ref, name: LABEL });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+            await github.rest.issues.createComment({ ...ref, body: `Label guard: removed \`${LABEL}\`. ${reason}` });
+            core.notice(reason);
