@@ -43,7 +43,9 @@ Il faut un second réseau 2,4 GHz (le partage de connexion d'un téléphone conv
 
 ### Nom et reprise
 
-- [ ] Depuis un ordinateur ou un téléphone sur le réseau de la maison, `http://catwandconnect.local/` ouvre la page du robot.
+- [ ] Depuis un ordinateur ou un téléphone sur le réseau de la maison, l'adresse `.local` affichée à la fin de la configuration (`http://catwandconnect-XXXX.local/` avec le nom par défaut) ouvre la page du robot.
+- [ ] Deux robots fraîchement flashés qui gardent le nom par défaut, sur le même réseau, s'ouvrent chacun à leur propre adresse `catwandconnect-XXXX.local`.
+- [ ] Un robot qui répondait à `catwandconnect.local` avant la mise à jour en 0.2.1 y répond toujours après, et ses entités Home Assistant sont inchangées.
 - [ ] Éteindre la box : en une minute environ, le hotspot réapparaît.
 - [ ] Rallumer la box : en 2 minutes environ, sans téléphone sur le hotspot, le robot rejoint le réseau de la maison et le hotspot disparaît.
 - [ ] Changer le mot de passe de la box : le hotspot apparaît, et le nouveau mot de passe peut être saisi sur la page de configuration.

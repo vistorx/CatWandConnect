@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Several robots on one network.** A new robot that keeps the default name answers at its own address, like `catwandconnect-3f9a.local` (shown at the end of setup and in Settings), so two robots no longer clash. Robots already set up keep `catwandconnect.local`, and Home Assistant entities don't change.
 - **Step-by-step electronics build.** The wiring guide now walks through the reference build: solder the power boards, check the voltages, then wire both servos and the board on the table with two lever connectors (Wago 221 style) and cut servo extension cables, ready for a first test. The parts list gains those two items.
 - **Power it from a USB-C charger.** The wiring guide now shows the USB-C power chain (a 30–45 W charger, a PD trigger board set to 20 V, a buck converter set to 5 V), how to set it up safely, and example parts.
 - **Stronger servo option.** The wiring guide now links example MG996R servos and the sturdier DS3218 upgrade (180° version, pulse range and power notes).

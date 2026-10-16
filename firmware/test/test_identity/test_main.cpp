@@ -1,6 +1,8 @@
 #include <identity/identity.h>
 #include <unity.h>
 
+#include "../fakes.h"
+
 using namespace identity;
 
 void setUp() {}
@@ -53,6 +55,66 @@ void test_hotspot_name_never_cuts_a_utf8_character() {
   TEST_ASSERT_EQUAL(13 * 2 + 5, name.size());
 }
 
+// --- Hostname with the Device ID (#195) --------------------------------------
+
+constexpr const char* kId = "5894c0de";
+
+void test_default_name_gets_a_suffix_from_the_device_id() {
+  TEST_ASSERT_EQUAL_STRING("catwandconnect-5894", hostnameFor(kDefaultName, kId, false).c_str());
+}
+
+void test_a_name_giving_the_default_hostname_also_gets_the_suffix() {
+  TEST_ASSERT_EQUAL_STRING("catwandconnect-5894", hostnameFor("catwandconnect", kId, false).c_str());
+  TEST_ASSERT_EQUAL_STRING("catwandconnect-5894", hostnameFor(" CATWANDCONNECT ", kId, false).c_str());
+}
+
+void test_a_chosen_name_keeps_its_own_hostname() {
+  TEST_ASSERT_EQUAL_STRING("salon-d-ete", hostnameFor("Salon d'été", kId, false).c_str());
+  TEST_ASSERT_EQUAL_STRING("salon-d-ete", hostnameFor("Salon d'été", kId, true).c_str());
+  TEST_ASSERT_EQUAL_STRING("catwandconnect-salon", hostnameFor("CatWandConnect Salon", kId, false).c_str());
+}
+
+void test_a_legacy_robot_with_the_default_name_keeps_catwandconnect() {
+  TEST_ASSERT_EQUAL_STRING("catwandconnect", hostnameFor(kDefaultName, kId, true).c_str());
+}
+
+void test_suffix_is_lowercase_hex() {
+  TEST_ASSERT_EQUAL_STRING("catwandconnect-a1b2", hostnameFor(kDefaultName, "A1B2C3D4", false).c_str());
+}
+
+// --- Which robots keep catwandconnect.local -----------------------------------
+
+void test_a_fresh_install_is_not_legacy_and_remembers_it() {
+  cwc::test::FakeStorage storage;
+  TEST_ASSERT_FALSE(legacyHostname(storage, false, kDefaultName));
+  // Wi-Fi set up afterwards: still the suffixed hostname.
+  TEST_ASSERT_FALSE(legacyHostname(storage, true, kDefaultName));
+}
+
+void test_a_robot_already_on_wifi_with_the_default_name_is_legacy() {
+  cwc::test::FakeStorage storage;
+  TEST_ASSERT_TRUE(legacyHostname(storage, true, kDefaultName));
+  TEST_ASSERT_EQUAL(1, storage.writes);
+  TEST_ASSERT_TRUE(legacyHostname(storage, true, kDefaultName));
+  TEST_ASSERT_EQUAL(1, storage.writes);  // decided once
+}
+
+void test_a_robot_already_on_wifi_with_its_own_name_is_not_legacy() {
+  cwc::test::FakeStorage storage;
+  TEST_ASSERT_FALSE(legacyHostname(storage, true, "Minou"));
+  // Renamed to the default later: it never answered at catwandconnect.local.
+  TEST_ASSERT_FALSE(legacyHostname(storage, true, kDefaultName));
+}
+
+void test_a_legacy_robot_renamed_and_back_gets_catwandconnect_again() {
+  cwc::test::FakeStorage storage;
+  TEST_ASSERT_TRUE(legacyHostname(storage, true, kDefaultName));
+  bool legacy = legacyHostname(storage, true, "Minou");
+  TEST_ASSERT_EQUAL_STRING("minou", hostnameFor("Minou", kId, legacy).c_str());
+  legacy = legacyHostname(storage, true, kDefaultName);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect", hostnameFor(kDefaultName, kId, legacy).c_str());
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_default_name_gives_the_documented_hostname);
@@ -63,5 +125,14 @@ int main() {
   RUN_TEST(test_ordinary_names_are_valid);
   RUN_TEST(test_hotspot_name_appends_the_suffix_within_32_bytes);
   RUN_TEST(test_hotspot_name_never_cuts_a_utf8_character);
+  RUN_TEST(test_default_name_gets_a_suffix_from_the_device_id);
+  RUN_TEST(test_a_name_giving_the_default_hostname_also_gets_the_suffix);
+  RUN_TEST(test_a_chosen_name_keeps_its_own_hostname);
+  RUN_TEST(test_a_legacy_robot_with_the_default_name_keeps_catwandconnect);
+  RUN_TEST(test_suffix_is_lowercase_hex);
+  RUN_TEST(test_a_fresh_install_is_not_legacy_and_remembers_it);
+  RUN_TEST(test_a_robot_already_on_wifi_with_the_default_name_is_legacy);
+  RUN_TEST(test_a_robot_already_on_wifi_with_its_own_name_is_not_legacy);
+  RUN_TEST(test_a_legacy_robot_renamed_and_back_gets_catwandconnect_again);
   return UNITY_END();
 }

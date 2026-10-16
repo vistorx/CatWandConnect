@@ -84,6 +84,15 @@ String loadPin() {
   return stored;
 }
 
+// Whether a Wi-Fi network was saved: set up before this boot (#195).
+bool hasWifiCredentials() {
+  Preferences prefs;
+  prefs.begin("wifi", true);
+  bool saved = !prefs.getString("ssid", "").isEmpty();
+  prefs.end();
+  return saved;
+}
+
 }  // namespace
 
 void setup() {
@@ -94,11 +103,13 @@ void setup() {
   cwc::HardwareConfig hardware = cwc::loadHardware(storage, kChip);
   String name = loadDeviceName();
   pin.setPin(loadPin().c_str());
-  String hostname = identity::hostnameFor(name.c_str()).c_str();
+  // Robots that already answered at catwandconnect.local keep it (#195).
+  bool legacyHostname = identity::legacyHostname(storage, hasWifiCredentials(), name.c_str());
+  String hostname = identity::hostnameFor(name.c_str(), deviceId().c_str(), legacyHostname).c_str();
   motors.begin(hardware);
   robot.begin();
 
-  api.begin(server, hardware, name);
+  api.begin(server, hardware, name, hostname, legacyHostname);
   registerOta(server, pin, kChip, [] { api.stopForUpdate(); }, [] { api.restartSoon(); });
   registerWebUi(server, [] { return network.inSetup(); });
   network.begin(server, name, hostname, pin);

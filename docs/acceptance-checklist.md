@@ -41,7 +41,9 @@ Needs a second 2.4 GHz network (a phone's personal hotspot works).
 
 ### Name and recovery
 
-- [ ] From a computer or phone on the home network, `http://catwandconnect.local/` opens the robot's page.
+- [ ] From a computer or phone on the home network, the robot's `.local` address shown at the end of setup (`http://catwandconnect-XXXX.local/` with the default name) opens the robot's page.
+- [ ] Two freshly flashed robots that keep the default name, on the same network, each open at their own `catwandconnect-XXXX.local` address.
+- [ ] A robot that answered at `catwandconnect.local` before updating to 0.2.1 still answers there after the update, and its Home Assistant entities are unchanged.
 - [ ] Switching the router off: within about a minute the hotspot reappears.
 - [ ] Switching the router back on: within about 2 minutes, with no phone on the hotspot, the robot rejoins the home network and the hotspot disappears.
 - [ ] Changing the router password: the hotspot appears, and the new password can be entered on the setup page.
