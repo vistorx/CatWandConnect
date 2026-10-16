@@ -12,7 +12,7 @@ Comment câbler les deux servos et la chaîne d'alimentation à la carte. Le fir
 | 1 | Carte de déclenchement USB-C PD (*PD trigger*), réglée sur 20 V | Demande 20 V au chargeur et les transmet. |
 | 1 | Convertisseur abaisseur (*buck*), sortie 5 V, 5 A ou plus | Transforme le 20 V en 5 V pour les servos et la carte. Un 8 A donne de la marge. |
 | 1 | Condensateur, 470–1000 µF, 10 V ou plus | Facultatif, contre les redémarrages et les à-coups. |
-| 2 | Connecteurs à levier (type Wago 221), 4 entrées minimum chacun (par ex. 221-414 ou 221-415) | Les rails +5 V et GND. Chacun prend 4 fils : la sortie du convertisseur et trois moitiés de rallonge. Un 221-415 à 5 entrées laisse la place pour le condensateur. Un bornier ou une plaque à trous convient aussi. |
+| 2 | Connecteurs à levier (type Wago 221), 2 entrées (par ex. 221-412) | Les rails +5 V et GND : une entrée pour la sortie du convertisseur, l'autre pour les fils des servos et de la carte torsadés ensemble. Des connecteurs plus grands, un bornier ou une plaque à trous conviennent aussi. |
 | 2 | Rallonges de servo, environ 30 cm (JR/Futaba 3 broches, le modèle standard) | Coupées en deux : deux moitiés reçoivent les servos, une alimente la carte. Voir [Monter pas à pas](#monter-pas-à-pas). |
 | | Fil d'environ 0,5 mm² (AWG 20) et connecteurs Dupont femelles | Le fil pour l'alimentation, les embouts Dupont pour les broches de la carte. |
 
@@ -105,9 +105,9 @@ Utilise un petit bornier, un connecteur type Wago ou une plaque à trous comme �
 
 ## Monter pas à pas
 
-> **Photos bientôt.**
+> **Photos bientôt.** Elles montreront le câblage posé sur la table, pour un premier test.
 
-Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo coupées. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. L'emplacement des cartes et des connecteurs sur le Mk2 est dans le [brouillon d'assemblage du mécanisme](assembly.fr.md).
+Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo coupées. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; son installation dans le mécanisme sera décrite plus tard.
 
 Laisse le chargeur débranché, sauf quand une étape dit le contraire.
 
@@ -117,10 +117,10 @@ Laisse le chargeur débranché, sauf quand une étape dit le contraire.
 4. **Règle et vérifie les tensions.** Règle la carte de déclenchement sur 20 V et la sortie du convertisseur sur 5 V, et vérifie les deux au multimètre avant de brancher quoi que ce soit d'autre, comme dans [Alimentation](#alimentation). Débranche ensuite le chargeur.
 5. **Coupe les rallonges.** Coupe deux rallonges de servo en deux. Garde les deux moitiés dont la prise reçoit un servo, et une des autres moitiés : sa prise est comme celle du servo et s'enfiche sur les broches de la carte.
 6. **Retire un fil de signal.** Sur cette moitié côté carte, retire ou coupe le fil de signal (orange). Cette moitié n'amène que le +5 V et la masse à la carte.
-7. **Regroupe les rails.** Mets tous les fils + dans un connecteur à levier : le + de la sortie du convertisseur et les fils rouges des trois moitiés. Mets tous les fils − dans l'autre : le − de la sortie du convertisseur et les trois fils marron. En option : avec des connecteurs à 5 entrées, place un condensateur entre les deux, sa patte marquée d'une bande dans le connecteur GND.
+7. **Regroupe les rails.** Dénude les trois fils rouges (des trois moitiés), torsade-les ensemble et mets-les dans une entrée d'un connecteur à levier ; le + de la sortie du convertisseur va dans son autre entrée. Fais pareil avec les trois fils marron et le − de la sortie du convertisseur dans le second connecteur. Pas le plus propre, mais ça tient.
 8. **Alimente la carte.** Enfiche la moitié côté carte sur les broches 5V/VIN et GND de la carte : le rouge sur 5V/VIN, le marron sur GND.
    **Vérifie d'abord le brochage de ta carte.** Si 5V/VIN et GND ne sont pas côte à côte, utilise plutôt deux fils Dupont femelles séparés. Ne mets jamais le fil rouge sur la broche 3,3 V.
-9. **Servo horizontal.** Branche le servo horizontal (celui dans la cavité) sur une des moitiés côté servo.
+9. **Servo horizontal.** Branche le servo horizontal sur une des moitiés côté servo.
 10. **Servo vertical.** Branche le servo vertical sur l'autre moitié côté servo.
 11. **Fils de signal.** Chaque moitié côté servo garde son fil de signal (orange) : il prolonge le fil orange du servo jusqu'à la carte. Mets un embout Dupont femelle sur chacun et enfiche-le sur sa broche GPIO :
     - la moitié du servo horizontal sur le **GPIO 18** (S3/C3 : **GPIO 4**) ;

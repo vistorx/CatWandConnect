@@ -72,7 +72,7 @@ A USB-C charger powers everything: a PD trigger board asks it for 20 V, a buck c
 | 1 | USB-C PD charger, 30 W minimum, 45 W recommended (must offer 20 V) |
 | 1 | USB-C PD trigger board, set to 20 V |
 | 1 | Buck converter, 5 V output, 5 A or more |
-| 2 | Lever connectors (Wago 221 style), at least 4 ports each |
+| 2 | Lever connectors (Wago 221 style), 2 ports |
 | 2 | Servo extension cables, about 30 cm |
 | | Wire, Dupont connectors, an optional 470–1000 µF capacitor; a soldering iron and a multimeter |
 
