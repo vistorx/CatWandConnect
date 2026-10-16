@@ -6,7 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
-- **Step-by-step electronics build.** The wiring guide now walks through the reference build: solder the power boards, check the voltages, then wire both servos and the board with two lever connectors (Wago 221 style) and cut servo extension cables. The parts list gains those two items.
+- **Step-by-step electronics build.** The wiring guide now walks through the reference build: solder the power boards, check the voltages, then wire both servos and the board on the table with two lever connectors (Wago 221 style) and cut servo extension cables, ready for a first test. The parts list gains those two items.
 - **Power it from a USB-C charger.** The wiring guide now shows the USB-C power chain (a 30–45 W charger, a PD trigger board set to 20 V, a buck converter set to 5 V), how to set it up safely, and example parts.
 - **Stronger servo option.** The wiring guide now links example MG996R servos and the sturdier DS3218 upgrade (180° version, pulse range and power notes).
 
