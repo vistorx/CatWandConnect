@@ -12,8 +12,11 @@ How to wire the two servos and the power chain to the board. The firmware drives
 | 1 | USB-C PD trigger board, set to 20 V | Asks the charger for 20 V and passes it on. |
 | 1 | Buck (step-down) converter, 5 V output, 5 A or more | Turns the 20 V into the 5 V that powers the servos and the board. 8 A gives headroom. |
 | 1 | Capacitor, 470–1000 µF, 10 V or more | Optional, against resets and stutter. |
-| 1 | Terminal block, Wago-style connectors or perfboard | The +5 V and GND rails. |
-| | Wires, Dupont connectors | Thick enough for the servos' 5 V and GND. |
+| 2 | Lever connectors (Wago 221 style), at least 4 ports each (e.g. 221-414 or 221-415) | The +5 V and GND rails. Each one takes 4 wires: the buck converter's output and three extension halves. A 5-port 221-415 leaves room for the capacitor. A terminal block or perfboard also works. |
+| 2 | Servo extension cables, about 30 cm (JR/Futaba 3-pin, the standard kind) | Cut in half: two halves take the servos, one feeds the board. See [Build it step by step](#build-it-step-by-step). |
+| | Wire, about 0.5 mm² (AWG 20), and female Dupont connectors | The wire for the power, the Dupont ends for the board's pins. |
+
+Tools: a soldering iron and a multimeter.
 
 A plain 5 V power supply of 3 A or more also works instead of the charger, trigger board and buck converter: connect it straight to the +5 V and GND rails.
 
@@ -99,6 +102,31 @@ Use a small terminal block, a Wago-style connector or a perfboard as the +5 V an
 - **Size the power.** Allow 5 A or more at 5 V for two MG996R: a buck converter of 5 A or more, a charger of 30 W or more (or a plain 5 V supply of 3 A or more). Weak power resets the board when both servos start together, often seen as the robot rebooting when the wand moves.
 - **Thick power wires.** Keep the 5 V and ground wires to the servos short and reasonably thick.
 - **Capacitor.** If the board resets or motion stutters, add a capacitor (470–1000 µF, 10 V or more) across the +5 V and GND rails, close to the servos.
+
+## Build it step by step
+
+> **Photos coming soon.**
+
+This is how the reference build is wired, with lever connectors (Wago 221 style) as the rails and cut servo extension cables. It needs a little soldering. Any other build can follow the [Wiring](#wiring) table and diagram above instead: they apply to every build. Where the boards and connectors sit on the Mk2 is in the [Mechanism assembly draft](assembly.md).
+
+Keep the charger unplugged unless a step says otherwise.
+
+1. **Trigger board output.** Solder two wires to the USB-C PD trigger board's output, + and −.
+2. **Buck converter input.** Solder those two wires to the buck converter's IN pins: + to +, − to −.
+3. **Buck converter output.** Solder two wires to the buck converter's OUT pins, + and −.
+4. **Set and check the voltages.** Set the trigger board to 20 V and the buck converter's output to 5 V, and check both with a multimeter before you connect anything else, as in [Power](#power). Then unplug the charger.
+5. **Cut the extension cables.** Cut two servo extension cables in half. Keep the two halves whose plug a servo plugs into, and one of the other halves: its plug is like the servo's own and fits onto the board's pins.
+6. **Remove one signal wire.** On that board-side half, pull out or cut off the signal (orange) wire. This half only carries +5 V and GND to the board.
+7. **Gather the rails.** Put all the + wires in one lever connector: the buck converter's OUT +, and the red wires of the three halves. Put all the − wires in the other: the buck converter's OUT −, and the three brown wires. Optional: with 5-port connectors, put a capacitor across the two, its striped leg in the GND connector.
+8. **Power the board.** Plug the board-side half onto the board's 5V/VIN and GND pins: red on 5V/VIN, brown on GND.
+   **Check your board's pinout first.** If 5V/VIN and GND aren't next to each other, use two separate female Dupont wires instead. Never put the red wire on the 3.3 V pin.
+9. **Horizontal servo.** Plug the Horizontal servo (the one inside the cavity) into one of the servo-side halves.
+10. **Vertical servo.** Plug the Vertical servo into the other servo-side half.
+11. **Signal wires.** Each servo-side half still has its signal (orange) wire: it continues the servo's orange wire to the board. Put a female Dupont end on each one and push it onto its GPIO pin:
+    - the Horizontal servo's half to **GPIO 18** (S3/C3: **GPIO 4**);
+    - the Vertical servo's half to **GPIO 19** (S3/C3: **GPIO 5**).
+
+    If you used other pins, choose them in **Settings → Hardware → Wiring**.
 
 ## Servo pulse range
 

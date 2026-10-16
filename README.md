@@ -63,7 +63,7 @@ The firmware installs from your browser, with nothing to download: open the web 
 
 ### 2. Electronics
 
-A USB-C charger powers everything: a PD trigger board asks it for 20 V, a buck converter turns that into 5 V, and the 5 V feeds both servos and the board; the board only sends the servo signals. No soldering is required. The [wiring guide](docs/wiring.md#example-parts) lists example parts.
+A USB-C charger powers everything: a PD trigger board asks it for 20 V, a buck converter turns that into 5 V, and the 5 V feeds both servos and the board; the board only sends the servo signals. The power boards need a little soldering. The [wiring guide](docs/wiring.md#build-it-step-by-step) walks through it step by step and lists [example parts](docs/wiring.md#example-parts).
 
 | Qty | Part |
 |-----|------|
@@ -72,7 +72,9 @@ A USB-C charger powers everything: a PD trigger board asks it for 20 V, a buck c
 | 1 | USB-C PD charger, 30 W minimum, 45 W recommended (must offer 20 V) |
 | 1 | USB-C PD trigger board, set to 20 V |
 | 1 | Buck converter, 5 V output, 5 A or more |
-| | Terminal block or Wago-style connectors, wires, an optional 470–1000 µF capacitor |
+| 2 | Lever connectors (Wago 221 style), at least 4 ports each |
+| 2 | Servo extension cables, about 30 cm |
+| | Wire, Dupont connectors, an optional 470–1000 µF capacitor; a soldering iron and a multimeter |
 
 <p align="center"><img src="docs/images/wiring-compact.svg" alt="Compact wiring: a USB-C charger feeds a PD trigger board set to 20 V, then a buck converter set to 5 V, which feeds a +5 V rail and a GND rail; both servos and the ESP32 take power from the rails; the ESP32 sends a signal to each servo." width="560"></p>
 
