@@ -6,10 +6,24 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+## 0.2.1 - 2026-10-16
+
+**Several robots on one network, and a step-by-step build guide.** A new robot gets its own `.local` address, and the wiring guide now walks you through a USB-C powered build.
+
+### Highlights
+
 - **Several robots on one network.** A new robot that keeps the default name answers at its own address, like `catwandconnect-3f9a.local` (shown at the end of setup and in Settings), so two robots no longer clash. Robots already set up keep `catwandconnect.local`, and Home Assistant entities don't change.
 - **Step-by-step electronics build.** The wiring guide now walks through the reference build: solder the power boards, check the voltages, then wire both servos and the board on the table with two lever connectors (Wago 221 style) and cut servo extension cables, ready for a first test. The parts list gains those two items.
 - **Power it from a USB-C charger.** The wiring guide now shows the USB-C power chain (a 30–45 W charger, a PD trigger board set to 20 V, a buck converter set to 5 V), how to set it up safely, and example parts.
 - **Stronger servo option.** The wiring guide now links example MG996R servos and the sturdier DS3218 upgrade (180° version, pulse range and power notes).
+
+### Update
+
+Tap **Update** on the robot's page, or install `catwandconnect-<chip>-v0.2.1-ota.bin` from this release in Settings → Firmware update. Settings and Calibration are kept, and a robot already set up keeps its address.
+
+### Known issues
+
+- The ESP32-S3 and ESP32-C3 builds are tested in CI, not yet on real boards.
 
 ## 0.2.0 - 2026-10-16
 
