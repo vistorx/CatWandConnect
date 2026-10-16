@@ -53,7 +53,7 @@ The signal is too weak or the router changed. Move the robot closer, or enter th
 - At power-up the robot crawls very slowly (10 °/s) to its Stow position, then releases the servos. That is expected.
 
 **The servos jitter or the board resets when they move.**
-The supply is too weak or the wires too thin. Use a 5 V supply of 3 A or more, and add a 470–1000 µF capacitor across the servo supply.
+The power is too weak or the wires too thin. Use a USB-C charger of 30 W or more (45 W is better) with a buck converter of 5 A or more, or a 5 V supply of 3 A or more, and add a 470–1000 µF capacitor across the +5 V and GND rails. See [Power](wiring.md#power).
 
 **The joystick does nothing.**
 - Check that the top right corner says "Connected".
