@@ -152,6 +152,10 @@ void Network::onConnected() {
   mode_ = Mode::Connected;
   lostSince_ = 0;
   WiFi.setAutoReconnect(true);
+  // Modem sleep makes the ESP32 miss multicast: mDNS queries from Home
+  // Assistant and other browsers go unanswered, so the robot is never
+  // discovered (#175). The robot is mains powered: keep the radio awake.
+  WiFi.setSleep(false);
 
   if (attemptSource_ != Source::Saved) {
     savedSsid_ = attemptSsid_;
