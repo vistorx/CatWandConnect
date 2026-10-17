@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Print without supports.** The print guide now says which parts need supports: none, except under the clamp's horizontal surfaces (5° overhang threshold in PrusaSlicer).
+
 ## 0.2.1 - 2026-10-16
 
 **Several robots on one network, and a step-by-step build guide.** A new robot gets its own `.local` address, and the wiring guide now walks you through a USB-C powered build.
