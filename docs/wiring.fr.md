@@ -33,7 +33,7 @@ Ce sont les composants du montage de référence. Les annonces changent avec le 
 
 ### Servos plus robustes : DS3218
 
-Le DS3218 coûte plus cher que le MG996R, mais il est bien plus solide et a beaucoup plus de couple (classe 20 kg·cm, pignons métalliques). Il a la même taille de servo standard, il devrait donc tenir dans les mêmes supports (pas encore vérifié sur le Mk2).
+Le DS3218 coûte plus cher que le MG996R, mais il est bien plus solide et a beaucoup plus de couple (classe 20 kg·cm, pignons métalliques). Il a la même taille de servo standard, il devrait donc tenir dans les mêmes supports (pas encore vérifié sur le Mk3).
 
 - Prends la version **180°**. Le DS3218 existe aussi en 270°, ce qui fausserait les angles.
 - Sa plage d'impulsions est d'environ 500–2500 µs : règle-la dans **Réglages → Matériel → Câblage**, puis relance la calibration. Voir [Plage d'impulsions des servos](#plage-dimpulsions-des-servos).

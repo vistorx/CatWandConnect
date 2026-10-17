@@ -2,6 +2,8 @@
 
 > **Coming soon.** A step-by-step guide with photos will be written from the reference build. Until then, the draft below gives the order, reconstructed from the parts and screw list and not yet checked against a build. Corrections and photos are welcome.
 
+> **Mk3:** this draft order was written for the Mk2 and is not yet checked on the Mk3. The Mk3 is standalone: the board and the power boards go inside the clamp's technical cavity, which the printed door closes, and the USB-C connector is the only connector left outside.
+
 You need the [printed parts](print.md) and the parts below. The servos are wired in [Wire the electronics](wiring.md).
 
 ## Parts to buy
@@ -24,7 +26,7 @@ You need the [printed parts](print.md) and the parts below. The servos are wired
 
 ### Before you start
 
-- [Print](print.md) every part in [`stls/mk2/`](../stls/mk2/).
+- [Print](print.md) every part in [`stls/mk3/`](../stls/mk3/) (or [`stls/mk2/`](../stls/mk2/) for the previous Mechanism).
 - Clean the ball track and the bearing seat of strings and elephant's foot, so the balls roll freely.
 - Plug each servo into a powered, flashed board and let the robot Stow once, so both servos sit at their Stow position before you fit the arm. This keeps the arm centred within its range.
 

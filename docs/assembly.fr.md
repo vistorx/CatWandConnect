@@ -2,6 +2,8 @@
 
 > **Bientôt.** Un guide pas à pas avec photos sera rédigé à partir du montage de référence. En attendant, le brouillon ci-dessous donne l'ordre, reconstitué à partir des pièces et de la liste des vis, et pas encore vérifié sur un vrai montage. Corrections et photos bienvenues.
 
+> **Mk3 :** ce brouillon a été écrit pour le Mk2 et n'est pas encore vérifié sur le Mk3. Le Mk3 est autonome : la carte et les cartes d'alimentation se placent dans la cavité technique de la pince, que la porte imprimée referme, et le connecteur USB-C est le seul qui reste dehors.
+
 Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les servos se câblent dans [Câbler l'électronique](wiring.fr.md).
 
 ## Pièces à acheter
@@ -24,7 +26,7 @@ Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les 
 
 ### Avant de commencer
 
-- [Imprime](print.fr.md) toutes les pièces de [`stls/mk2/`](../stls/mk2/).
+- [Imprime](print.fr.md) toutes les pièces de [`stls/mk3/`](../stls/mk3/) (ou de [`stls/mk2/`](../stls/mk2/) pour le mécanisme précédent).
 - Nettoie le chemin de billes et le logement du roulement (fils, patte d'éléphant) pour que les billes roulent librement.
 - Branche chaque servo sur une carte alimentée et flashée, et laisse le robot se ranger une fois : les deux servos sont alors à leur position de repos avant que tu montes le bras. Le bras reste ainsi centré dans sa course.
 
