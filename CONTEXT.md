@@ -86,7 +86,11 @@ _Avoid_: Version, V1, V2 (reserved for firmware releases)
 The first Mechanism, retired because its vertical servo overheated under load. Its files were removed from the repo; they remain in the Git history.
 
 **Mk2**:
-The current reference Mechanism, reinforced with a 608 skateboard bearing and a 4 mm steel-ball track. The only one the firmware targets.
+The previous Mechanism, reinforced with a 608 skateboard bearing and a 4 mm steel-ball track, with the electronics outside the robot. Its files stay in `stls/mk2/` for builds that keep the electronics outside.
+
+**Mk3**:
+The current reference Mechanism, standalone: the board and the power chain (USB-C PD trigger board, buck converter, wiring) sit inside the clamp's technical cavity, closed by a printed door, and a single USB-C connector powers the robot. The firmware works with both the Mk2 and the Mk3: only the Calibration differs from one build to another.
+_Avoid_: Mk2.5, standalone version
 
 ## Releases
 

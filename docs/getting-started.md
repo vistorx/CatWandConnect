@@ -21,7 +21,7 @@ In the repo:
 
 - Logo, banners, photos and screenshots in `media/` (see [`media/README.md`](../media/README.md)).
 - Domain docs, ADRs and agent config.
-- Printable parts: Mk2 in `stls/mk2/`.
+- Printable parts: Mk3 (current) in `stls/mk3/`, Mk2 (previous, electronics outside) in `stls/mk2/`.
 - The Claude Code project settings that enable the `mattpocock-skills` plugin (`.claude/settings.json`).
 
 Not in the repo:
@@ -157,7 +157,7 @@ The slash-command skills are specific to Claude Code. Agents without them follow
 4. If you settle a new term or decision, update `CONTEXT.md` or add an ADR in the same PR.
 5. If you change an English user page, update its French page (`.fr.md`) in the same PR.
 
-Hardware you need to test on the robot: an ESP32, ESP32-S3 or ESP32-C3 board, two MG996R servos, the USB-C power chain from the [wiring guide](wiring.md#power) (or a 5 V supply of 3 A or more), and a printed Mk2 Mechanism.
+Hardware you need to test on the robot: an ESP32, ESP32-S3 or ESP32-C3 board, two MG996R servos, the USB-C power chain from the [wiring guide](wiring.md#power) (or a 5 V supply of 3 A or more), and a printed Mk3 (or Mk2) Mechanism.
 
 **ESP8266 boards are not supported, and almost certainly never will be.** See [ADR 0008](adr/0008-no-esp8266-support.md).
 

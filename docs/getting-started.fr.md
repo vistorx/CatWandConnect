@@ -21,7 +21,7 @@ Dans le dépôt :
 
 - Logo, bannières, photos et captures d'écran dans `media/` (voir [`media/README.md`](../media/README.md)).
 - La doc du domaine, les ADR et la configuration des agents.
-- Les pièces à imprimer : le Mk2 dans `stls/mk2/`.
+- Les pièces à imprimer : le Mk3 (actuel) dans `stls/mk3/`, le Mk2 (précédent, électronique à l'extérieur) dans `stls/mk2/`.
 - Les réglages de projet Claude Code qui activent le plugin `mattpocock-skills` (`.claude/settings.json`).
 
 Pas dans le dépôt :
@@ -157,7 +157,7 @@ Les skills en commande slash sont propres à Claude Code. Les agents qui ne les 
 4. Si tu fixes un nouveau terme ou une nouvelle décision, mets à jour `CONTEXT.md` ou ajoute un ADR dans la même PR.
 5. Si tu modifies une page utilisateur en anglais, mets à jour sa page française (`.fr.md`) dans la même PR.
 
-Le matériel nécessaire pour tester sur le robot : une carte ESP32, ESP32-S3 ou ESP32-C3, deux servos MG996R, la chaîne d'alimentation USB-C du [guide de câblage](wiring.fr.md#alimentation) (ou une alimentation 5 V de 3 A ou plus), et un mécanisme Mk2 imprimé.
+Le matériel nécessaire pour tester sur le robot : une carte ESP32, ESP32-S3 ou ESP32-C3, deux servos MG996R, la chaîne d'alimentation USB-C du [guide de câblage](wiring.fr.md#alimentation) (ou une alimentation 5 V de 3 A ou plus), et un mécanisme Mk3 (ou Mk2) imprimé.
 
 **Les cartes ESP8266 ne sont pas compatibles, et ne le seront presque certainement jamais.** Voir l'[ADR 0008](adr/0008-no-esp8266-support.md) (en anglais).
 

@@ -64,7 +64,7 @@ Everything the CatWandConnect firmware does, grouped by what you use it for. All
 ## Hardware
 
 - **Boards:** ESP32, ESP32-S3 and ESP32-C3. ESP8266 boards are not supported ([ADR 0008](adr/0008-no-esp8266-support.md)).
-- **Mechanism:** the Mk2, with two MG996R servos.
+- **Mechanism:** the Mk3, with two MG996R servos. Standalone: the electronics fit inside and a single USB-C connector powers it. The previous Mk2 works too.
 
 ## Planned
 

@@ -82,11 +82,11 @@ Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 
 
 ### 3. Matériel
 
-Le mécanisme est imprimé en 3D : six pièces, toutes dans [`stls/mk2/`](stls/mk2/) ou sur un seul plateau [`.3mf`](stls/mk2/catwandconnect-mk2.3mf). Pas d'imprimante ? N'importe quel service d'impression ou fablab peut les imprimer. Ajoute un roulement de skateboard, des billes en acier, quelques vis M3 et une canne à pêche pour chat.
+Le mécanisme, le Mk3, est imprimé en 3D : sept pièces, toutes dans [`stls/mk3/`](stls/mk3/) ou sur un seul plateau [`.3mf`](stls/mk3/catwandconnect-mk3.3mf). Il est autonome : l'électronique tient à l'intérieur, derrière une porte imprimée, et un seul connecteur USB-C l'alimente. Pas d'imprimante ? N'importe quel service d'impression ou fablab peut les imprimer. Ajoute un roulement de skateboard, des billes en acier, quelques vis M3 et une canne à pêche pour chat.
 
 | Qté | Pièce |
 |-----|-------|
-| 6 | Pièces imprimées (bras, roulement, pince, vis, plateau rotor, plateau supérieur) |
+| 7 | Pièces imprimées (bras, roulement, pince, porte, vis, plateau rotor, plateau supérieur) |
 | 1 | Roulement de skateboard 608 |
 | 16–24 | Billes en acier de 4 mm |
 | 15 | Vis M3, de 8 à 30 mm |
@@ -100,7 +100,7 @@ Le mécanisme est imprimé en 3D : six pièces, toutes dans [`stls/mk2/`](stls/m
 
 | Doc | Pour |
 |-----|------|
-| [1. Imprimer les pièces](docs/print.fr.md) | Les six pièces imprimées du Mk2 et les réglages d'impression |
+| [1. Imprimer les pièces](docs/print.fr.md) | Les sept pièces imprimées du Mk3 et les réglages d'impression |
 | [2. Assembler le mécanisme](docs/assembly.fr.md) | Pièces à acheter (roulement, billes, vis) et ordre de montage (photos bientôt) |
 | [3. Câbler l'électronique](docs/wiring.fr.md) | Carte, servos, alimentation USB-C, schéma de câblage, broches par défaut selon la puce |
 | [4. Installer le logiciel](docs/install.fr.md) | Flasher depuis le navigateur, Wi-Fi, calibration, mises à jour |

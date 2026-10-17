@@ -1,6 +1,6 @@
 # Checklist de recette physique
 
-Les vérifications qui demandent le vrai robot, à faire avant chaque version sur un mécanisme Mk2. Les tests automatiques couvrent le Robot core ; tout ce qui est ici concerne le matériel et le réseau autour. Note la carte, la puce et la version du firmware utilisées. Chaque ticket qui ajoute un comportement que les tests ne couvrent pas ajoute sa section ici.
+Les vérifications qui demandent le vrai robot, à faire avant chaque version sur un mécanisme Mk3. Les tests automatiques couvrent le Robot core ; tout ce qui est ici concerne le matériel et le réseau autour. Note la carte, la puce et la version du firmware utilisées. Chaque ticket qui ajoute un comportement que les tests ne couvrent pas ajoute sa section ici.
 
 Les textes entre guillemets sont ceux de l'interface en anglais ; avec l'interface en français, cherche leur équivalent (par exemple « Stow » s'affiche « Ranger »).
 
@@ -98,7 +98,7 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 
 - [ ] Le bouton Ranger reste visible en bas de l'écran principal, y compris sur un petit téléphone.
 - [ ] Appuyer sur Ranger quand la baguette est ailleurs la ramène à la position de repos. Le bouton affiche « Stowing… » jusqu'à son arrivée.
-- [ ] À la position de repos, les servos deviennent mous : le bras se déplace à la main avec peu de résistance. Note si le Mk2 reste en place sans couple (voir la note de la spec sur le maintien et le relâchement).
+- [ ] À la position de repos, les servos deviennent mous : le bras se déplace à la main avec peu de résistance. Note si le Mk3 reste en place sans couple (voir la note de la spec sur le maintien et le relâchement).
 - [ ] Pousser le joystick pendant le rangement ne fait rien ; la baguette atteint quand même la position de repos.
 - [ ] Après le rangement, le joystick refonctionne et les servos tiennent fermement pendant le mouvement et après avoir relâché le joystick hors de la position de repos.
 - [ ] `curl -X POST http://catwandconnect.local/api/stow` range la baguette.

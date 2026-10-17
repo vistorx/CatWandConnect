@@ -1,6 +1,6 @@
 # Physical acceptance checklist
 
-Checks that need the real robot, run before each release on a Mk2 Mechanism. The automated tests cover the Robot core; everything here is the hardware and network around it. Note the board, chip and firmware version you tested with. Each ticket that adds behaviour tests can't cover adds its section here.
+Checks that need the real robot, run before each release on a Mk3 Mechanism. The automated tests cover the Robot core; everything here is the hardware and network around it. Note the board, chip and firmware version you tested with. Each ticket that adds behaviour tests can't cover adds its section here.
 
 Keep a serial monitor open (`pio device monitor` in `firmware/`) to read the `[wifi]` log lines.
 
@@ -96,7 +96,7 @@ Use the Play session block under the speed slider on the main screen.
 
 - [ ] The Stow button stays visible at the bottom of the main screen, including on a small phone.
 - [ ] Pressing Stow while the wand is away moves it back to the Stow position. The button shows "Stowing…" until it arrives.
-- [ ] At the Stow position the servos go limp: the arm can be moved by hand with little resistance. Note whether the Mk2 stays in place without torque (see the spec's note on hold and release).
+- [ ] At the Stow position the servos go limp: the arm can be moved by hand with little resistance. Note whether the Mk3 stays in place without torque (see the spec's note on hold and release).
 - [ ] Pushing the joystick while stowing does nothing; the wand still reaches the Stow position.
 - [ ] After Stow, the joystick works again and the servos hold firmly while moving and after letting go away from Stow.
 - [ ] `curl -X POST http://catwandconnect.local/api/stow` stows the wand.

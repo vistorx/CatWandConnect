@@ -82,11 +82,11 @@ A USB-C charger powers everything: a PD trigger board asks it for 20 V, a buck c
 
 ### 3. Hardware
 
-The Mechanism is 3D printed: six parts, all in [`stls/mk2/`](stls/mk2/) or as one [`.3mf`](stls/mk2/catwandconnect-mk2.3mf) plate. No printer? Any print service or maker space can print them. Add a skateboard bearing, steel balls, a few M3 screws and a toy wand.
+The Mechanism, the Mk3, is 3D printed: seven parts, all in [`stls/mk3/`](stls/mk3/) or as one [`.3mf`](stls/mk3/catwandconnect-mk3.3mf) plate. It is standalone: the electronics fit inside, behind a printed door, and a single USB-C connector powers it. No printer? Any print service or maker space can print them. Add a skateboard bearing, steel balls, a few M3 screws and a toy wand.
 
 | Qty | Part |
 |-----|------|
-| 6 | Printed parts (arm, bearing, clamp, screw, rotor plate, top plate) |
+| 7 | Printed parts (arm, bearing, clamp, door, screw, rotor plate, top plate) |
 | 1 | 608 skateboard bearing |
 | 16–24 | 4 mm steel balls |
 | 15 | M3 screws, 8 to 30 mm |
@@ -100,7 +100,7 @@ The Mechanism is 3D printed: six parts, all in [`stls/mk2/`](stls/mk2/) or as on
 
 | Doc | For |
 |-----|-----|
-| [1. Print the parts](docs/print.md) | The six printed parts of the Mk2 and print settings |
+| [1. Print the parts](docs/print.md) | The seven printed parts of the Mk3 and print settings |
 | [2. Assemble the Mechanism](docs/assembly.md) | Parts to buy (bearing, balls, screws) and assembly order (photos coming soon) |
 | [3. Wire the electronics](docs/wiring.md) | Board, servos, USB-C power chain, wiring diagram, default pins per chip |
 | [4. Install the software](docs/install.md) | Flashing from the browser, Wi-Fi, Calibration, updates |
