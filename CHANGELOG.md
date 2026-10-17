@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Mk3: everything inside.** The new reference Mechanism houses the board and the power boards inside the robot, behind a printed door, with a single USB-C connector. Files in `stls/mk3/`; the Mk2 stays available.
 - **Print without supports.** The print guide now says which parts need supports: none, except under the clamp's horizontal surfaces (5° overhang threshold in PrusaSlicer).
 
 ## 0.2.1 - 2026-10-16

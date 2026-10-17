@@ -19,7 +19,7 @@ Plus tu en donnes, plus on peut t'aider vite :
 
 - **Le rapport de diagnostic.** Dans l'interface du robot, ouvre Réglages → Infos, puis **Copier le rapport** ou **Télécharger le rapport**, et colle-le ou joins-le. Il contient la version du firmware, la puce, la raison du dernier redémarrage, les réglages et le log récent, avec le nom de ton Wi-Fi et tes adresses masqués. Les firmwares antérieurs à 0.1.0-beta.2 n'ont pas de rapport : appuie plutôt sur **Copier** sous la liste des Infos.
 - **Ce que tu as fait, ce que tu attendais, et ce qui s'est passé à la place.**
-- **Ton montage :** la carte et la puce (ESP32, ESP32-S3 ou ESP32-C3), le mécanisme (par exemple Mk2), et comment tu as installé le firmware (flasher web, mise à jour, compilé depuis les sources).
+- **Ton montage :** la carte et la puce (ESP32, ESP32-S3 ou ESP32-C3), le mécanisme (par exemple Mk3), et comment tu as installé le firmware (flasher web, mise à jour, compilé depuis les sources).
 - **Le log série, si tu peux.** Ouvre le [flasher web](https://vistorx.github.io/CatWandConnect/flasher/), connecte la carte, puis **Logs & Console**. Copie les lignes autour du problème.
 
 Vérifie que ce que tu colles ne contient ni ton mot de passe Wi-Fi ni ton mot de passe MQTT : les issues et les posts Discord sont publics.

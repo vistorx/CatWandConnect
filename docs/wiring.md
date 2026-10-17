@@ -33,7 +33,7 @@ These are the parts the reference build uses. Listings change over time and any 
 
 ### Stronger servos: DS3218
 
-The DS3218 costs more than the MG996R but is much sturdier and has much more torque (20 kg·cm class, metal gears). It has the same standard servo size, so it should fit the same mounts (not checked on the Mk2 yet).
+The DS3218 costs more than the MG996R but is much sturdier and has much more torque (20 kg·cm class, metal gears). It has the same standard servo size, so it should fit the same mounts (not checked on the Mk3 yet).
 
 - Pick the **180°** version. The DS3218 also comes as 270°, which would map the angles wrong.
 - Its pulse range is about 500–2500 µs: set it in **Settings → Hardware → Wiring**, then run Calibration again. See [Servo pulse range](#servo-pulse-range).
