@@ -24,6 +24,7 @@ The **Mk2** is the current Mechanism. It is reinforced with a 608 skateboard bea
 > Starting points, not yet checked against the reference build. Share the settings that work for you on [Discord](https://discord.gg/Rbqge3v9dk) and they will land here.
 
 - **Material:** PLA works for a robot that stays indoors; PETG is tougher if the cat attacks the arm.
+- **Supports:** none, except on the clamp. Print every other part without supports. The clamp needs supports under its horizontal surfaces only: in PrusaSlicer, turn on supports with an **overhang threshold of 5°** so they don't fill its slopes and holes.
 - **Strength:** 3 walls or more and 20–30 % infill. The arm, the clamp and the parts that hold the servos take the load.
 - **Ball track:** print it flat with a fine first layer, and clean any strings or elephant's foot so the balls roll freely.
 - **Fit:** if the bearing or a servo doesn't go in, sand the part rather than force it.
