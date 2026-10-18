@@ -28,6 +28,8 @@ Le Mk2, renforcé par un roulement de skateboard 608 et un chemin de billes en a
 
 ## Conseils d'impression
 
+![Les sept pièces du Mk3 disposées sur un seul plateau dans PrusaSlicer, dans leur orientation d'impression.](images/mk3-print-plate.jpg)
+
 > Des points de départ, pas encore vérifiés sur le montage de référence. Partage les réglages qui marchent pour toi sur [Discord](https://discord.gg/Rbqge3v9dk) et ils seront ajoutés ici.
 
 - **Matière :** le PLA convient pour un robot qui reste à l'intérieur ; le PETG est plus résistant si le chat attaque le bras.
