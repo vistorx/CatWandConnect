@@ -13,7 +13,7 @@ The **Mk3** is the current Mechanism. It is standalone: the board and the power 
 | Part | File |
 |------|------|
 | Arm | [`catwandconnect-mk3-arm.stl`](../stls/mk3/catwandconnect-mk3-arm.stl) |
-| Bearing | [`catwandconnect-mk3-bearing.stl`](../stls/mk3/catwandconnect-mk3-bearing.stl) |
+| Bearing holder | [`catwandconnect-mk3-bearing_holder.stl`](../stls/mk3/catwandconnect-mk3-bearing_holder.stl) |
 | Clamp | [`catwandconnect-mk3-clamp.stl`](../stls/mk3/catwandconnect-mk3-clamp.stl) |
 | Door | [`catwandconnect-mk3-door.stl`](../stls/mk3/catwandconnect-mk3-door.stl) |
 | Screw | [`catwandconnect-mk3-screw.stl`](../stls/mk3/catwandconnect-mk3-screw.stl) |

@@ -13,7 +13,7 @@ Le **Mk3** est le mécanisme actuel. Il est autonome : la carte et les cartes d'
 | Pièce | Fichier |
 |-------|---------|
 | Bras | [`catwandconnect-mk3-arm.stl`](../stls/mk3/catwandconnect-mk3-arm.stl) |
-| Roulement | [`catwandconnect-mk3-bearing.stl`](../stls/mk3/catwandconnect-mk3-bearing.stl) |
+| Support de roulement | [`catwandconnect-mk3-bearing_holder.stl`](../stls/mk3/catwandconnect-mk3-bearing_holder.stl) |
 | Pince | [`catwandconnect-mk3-clamp.stl`](../stls/mk3/catwandconnect-mk3-clamp.stl) |
 | Porte | [`catwandconnect-mk3-door.stl`](../stls/mk3/catwandconnect-mk3-door.stl) |
 | Vis | [`catwandconnect-mk3-screw.stl`](../stls/mk3/catwandconnect-mk3-screw.stl) |
