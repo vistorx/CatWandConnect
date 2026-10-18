@@ -86,7 +86,7 @@ The Mechanism, the Mk3, is 3D printed: seven parts, all in [`stls/mk3/`](stls/mk
 
 | Qty | Part |
 |-----|------|
-| 7 | Printed parts (arm, bearing, clamp, door, screw, rotor plate, top plate) |
+| 7 | Printed parts (arm, bearing holder, clamp, door, screw, rotor plate, top plate) |
 | 1 | 608 skateboard bearing |
 | 27–28 | 6 mm balls (airsoft BBs work very well) |
 | 15 | M3 screws, 8 to 30 mm |
