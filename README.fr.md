@@ -82,13 +82,13 @@ Un chargeur USB-C alimente tout : une carte de déclenchement PD lui demande 20 
 
 ### 3. Matériel
 
-Le mécanisme, le Mk3, est imprimé en 3D : sept pièces, toutes dans [`stls/mk3/`](stls/mk3/) ou sur un seul plateau [`.3mf`](stls/mk3/catwandconnect-mk3.3mf). Il est autonome : l'électronique tient à l'intérieur, derrière une porte imprimée, et un seul connecteur USB-C l'alimente. Pas d'imprimante ? N'importe quel service d'impression ou fablab peut les imprimer. Ajoute un roulement de skateboard, des billes en acier, quelques vis M3 et une canne à pêche pour chat.
+Le mécanisme, le Mk3, est imprimé en 3D : sept pièces, toutes dans [`stls/mk3/`](stls/mk3/) ou sur un seul plateau [`.3mf`](stls/mk3/catwandconnect-mk3.3mf). Il est autonome : l'électronique tient à l'intérieur, derrière une porte imprimée, et un seul connecteur USB-C l'alimente. Pas d'imprimante ? N'importe quel service d'impression ou fablab peut les imprimer. Ajoute un roulement de skateboard, des billes de 6 mm (billes d'airsoft), quelques vis M3 et une canne à pêche pour chat.
 
 | Qté | Pièce |
 |-----|-------|
 | 7 | Pièces imprimées (bras, roulement, pince, porte, vis, plateau rotor, plateau supérieur) |
 | 1 | Roulement de skateboard 608 |
-| 16–24 | Billes en acier de 4 mm |
+| 27–28 | Billes de 6 mm (les billes d'airsoft font très bien l'affaire) |
 | 15 | Vis M3, de 8 à 30 mm |
 | 1 | Canne à pêche pour chat |
 
