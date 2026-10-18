@@ -28,6 +28,8 @@ The Mk2, reinforced with a 608 skateboard bearing and a track of 4 mm steel ball
 
 ## Print recommendations
 
+![The seven Mk3 parts laid out on one print plate in PrusaSlicer, in their print orientation.](images/mk3-print-plate.jpg)
+
 > Starting points, not yet checked against the reference build. Share the settings that work for you on [Discord](https://discord.gg/Rbqge3v9dk) and they will land here.
 
 - **Material:** PLA works for a robot that stays indoors; PETG is tougher if the cat attacks the arm.
