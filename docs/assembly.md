@@ -11,7 +11,7 @@ You need the [printed parts](print.md) and the parts below. The servos are wired
 | Qty | Part | Notes |
 |-----|------|-------|
 | 1 | 608 skateboard bearing | |
-| 16–24 | 4 mm steel balls | Adjust the count to your print's finish. |
+| 27–28 | 6 mm balls | Between the top plate and the rotor plate. 6 mm airsoft BBs do the job very well. The Mk2 uses 16–24 steel balls of 4 mm instead. |
 | 4 | M3×8 button-head screws | Horizontal servo mounting |
 | 2 | M3×25 button-head screws | Lower plate of the horizontal axis to the ball track |
 | 1 | M3×8 countersunk screw | Horizontal servo shaft plate |
@@ -33,7 +33,7 @@ You need the [printed parts](print.md) and the parts below. The servos are wired
 ### Steps
 
 1. **Bearing.** Press the 608 bearing into its seat. It should sit flush and turn without rubbing.
-2. **Ball track.** Lay the 4 mm steel balls in the track, starting with 16 and adding more until the plate turns smoothly without play. Usually 16–24 are needed.
+2. **Ball track.** Lay the 6 mm balls in the track between the top plate and the rotor plate: 27 to 28, until the plate turns smoothly without play. On the Mk2: 16–24 steel balls of 4 mm.
 3. **Horizontal servo.** Mount it with four M3×8 button-head screws, then fix the horizontal servo shaft plate with the M3×8 countersunk screw.
 4. **Horizontal axis.** Fix the lower plate of the horizontal axis to the ball track with the two M3×25 button-head screws.
 5. **Vertical servo.** Mount it with four M3×8 button-head screws, and fix its shaft with the M3×20 countersunk screw.

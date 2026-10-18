@@ -11,7 +11,7 @@ Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les 
 | Qté | Pièce | Remarques |
 |-----|-------|-----------|
 | 1 | Roulement de skateboard 608 | |
-| 16–24 | Billes en acier de 4 mm | Adapte le nombre à la finition de ton impression. |
+| 27–28 | Billes de 6 mm | Entre le plateau supérieur et le plateau rotor. Les billes d'airsoft de 6 mm font très bien l'affaire. Le Mk2 utilise à la place 16 à 24 billes en acier de 4 mm. |
 | 4 | Vis M3×8 à tête bombée | Fixation du servo horizontal |
 | 2 | Vis M3×25 à tête bombée | Plateau inférieur de l'axe horizontal sur le chemin de billes |
 | 1 | Vis M3×8 à tête fraisée | Plateau de l'arbre du servo horizontal |
@@ -33,7 +33,7 @@ Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les 
 ### Étapes
 
 1. **Roulement.** Enfonce le roulement 608 dans son logement. Il doit affleurer et tourner sans frotter.
-2. **Chemin de billes.** Dépose les billes en acier de 4 mm dans le chemin, en commençant par 16 et en en ajoutant jusqu'à ce que le plateau tourne en douceur, sans jeu. Il en faut en général 16 à 24.
+2. **Chemin de billes.** Dépose les billes de 6 mm dans le chemin entre le plateau supérieur et le plateau rotor : 27 à 28, jusqu'à ce que le plateau tourne en douceur, sans jeu. Sur le Mk2 : 16 à 24 billes en acier de 4 mm.
 3. **Servo horizontal.** Fixe-le avec quatre vis M3×8 à tête bombée, puis fixe le plateau de l'arbre du servo horizontal avec la vis M3×8 à tête fraisée.
 4. **Axe horizontal.** Fixe le plateau inférieur de l'axe horizontal sur le chemin de billes avec les deux vis M3×25 à tête bombée.
 5. **Servo vertical.** Fixe-le avec quatre vis M3×8 à tête bombée, et fixe son arbre avec la vis M3×20 à tête fraisée.
