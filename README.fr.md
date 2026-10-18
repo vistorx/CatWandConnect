@@ -86,7 +86,7 @@ Le mécanisme, le Mk3, est imprimé en 3D : sept pièces, toutes dans [`stls/mk3
 
 | Qté | Pièce |
 |-----|-------|
-| 7 | Pièces imprimées (bras, roulement, pince, porte, vis, plateau rotor, plateau supérieur) |
+| 7 | Pièces imprimées (bras, support de roulement, pince, porte, vis, plateau rotor, plateau supérieur) |
 | 1 | Roulement de skateboard 608 |
 | 27–28 | Billes de 6 mm (les billes d'airsoft font très bien l'affaire) |
 | 15 | Vis M3, de 8 à 30 mm |
