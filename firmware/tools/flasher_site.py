@@ -47,7 +47,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # Where the flasher is served, relative to the site root (/CatWandConnect/flasher/).
 FLASHER = "flasher"
 # Repository files the flasher page loads, copied next to it.
-PAGE_FILES = ["flasher/index.html", "media/logo/logo-64.png", "media/logo/logo-320.png"]
+PAGE_FILES = ["flasher/index.html", "media/logo/logo.svg", "media/logo/favicon.ico", "media/logo/logo-180.png"]
 RELEASES = "https://github.com/vistorx/CatWandConnect/releases/tag/"
 
 

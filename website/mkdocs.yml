@@ -19,8 +19,8 @@ theme:
   name: material
   # Set per language by the i18n plugin (search and UI texts follow it).
   language: en
-  logo: media/logo/logo-64.png
-  favicon: media/logo/logo-64.png
+  logo: media/logo/logo.svg
+  favicon: media/logo/favicon.ico
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
