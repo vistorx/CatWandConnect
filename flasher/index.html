@@ -18,6 +18,19 @@
       color-scheme: dark; }
   }
   * { box-sizing: border-box; }
+  /* Same header and tabs as the documentation site (MkDocs Material, indigo). */
+  .site-nav { background: #3f51b5; color: #fff; box-shadow: 0 1px 4px rgb(0 0 0 / .2); }
+  .site-nav .bar { max-width: 61rem; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; gap: .75rem; height: 3rem; }
+  .site-nav .home { display: flex; align-items: center; gap: .6rem; color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem; }
+  .site-nav .home img { width: 1.9rem; height: 1.9rem; border-radius: .4rem; }
+  .site-nav .lang { margin-left: auto; color: #fff; font-size: .85rem; opacity: .85; text-decoration: none; }
+  .site-nav .lang:hover { opacity: 1; text-decoration: underline; }
+  .site-nav .tabs { background: #3f51b5; }
+  .site-nav .tabs ul { list-style: none; max-width: 61rem; margin: 0 auto; padding: 0 .5rem; display: flex; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+  .site-nav .tabs li + li { margin-top: 0; }
+  .site-nav .tabs a { display: block; padding: .6rem .75rem; color: #fff; opacity: .7; text-decoration: none; font-size: .85rem; }
+  .site-nav .tabs a:hover, .site-nav .tabs a[aria-current] { opacity: 1; }
+  .site-nav .tabs a[aria-current] { font-weight: 700; }
   body { margin: 0; font-family: system-ui, -apple-system, sans-serif; color: var(--fg); background: var(--bg); line-height: 1.5; }
   main { max-width: 40rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
   .brand { text-align: center; margin-bottom: 2rem; }
@@ -54,6 +67,22 @@
 </style>
 </head>
 <body>
+<nav class="site-nav" aria-label="Documentation">
+  <div class="bar">
+    <a class="home" href="../" data-href-fr="../fr/"><img src="media/logo/logo-64.png" alt="" width="30" height="30"><span>CatWandConnect</span></a>
+    <a class="lang" id="lang-switch" href="?lang=fr">Français</a>
+  </div>
+  <div class="tabs">
+    <ul>
+      <li><a href="../" data-href-fr="../fr/" data-t="navHome">Home</a></li>
+      <li><a href="./" aria-current="page" data-href-fr="./?lang=fr" data-t="navInstall">Install</a></li>
+      <li><a href="../bom/" data-href-fr="../fr/bom/" data-t="navBuild">Build</a></li>
+      <li><a href="../home-assistant/" data-href-fr="../fr/home-assistant/">Home Assistant</a></li>
+      <li><a href="../features/" data-href-fr="../fr/features/" data-t="navUse">Use</a></li>
+      <li><a href="../support/" data-href-fr="../fr/support/" data-t="navCommunity">Community</a></li>
+    </ul>
+  </div>
+</nav>
 <main>
   <header class="brand">
     <img src="media/logo/logo-320.png" alt="" width="160" height="160">
@@ -117,14 +146,14 @@
       <li data-t="step1">Plug the board into the computer, then press the button above and pick its port.</li>
       <li data-t="step2">Choose "Install CatWandConnect". The right firmware for your chip is picked automatically. Erase the board on a first install.</li>
       <li data-t="step3">When it's done, choose "Connect to Wi-Fi" and enter your Wi-Fi name and password.</li>
-      <li data-t="step4">Choose "Visit device" to open the robot's interface. Next time, it's at http://catwandconnect.local/.</li>
+      <li data-t="step4">Choose "Visit device" to open the robot's interface. Note its address, for example http://catwandconnect-3f9a.local/, to open it next time.</li>
     </ol>
     <p data-t="later">Skipped Wi-Fi? The robot opens its own CatWandConnect-XXXX hotspot with a setup page.</p>
   </section>
 
   <section>
     <h2 data-t="moreTitle">More</h2>
-    <p data-t="more">Parts, wiring, assembly and help are in the <a href="https://github.com/vistorx/CatWandConnect">project's repository</a>.</p>
+    <p data-t="more">Parts, wiring, assembly and help are in the <a href="../">documentation</a>.</p>
   </section>
 </main>
 <script>
@@ -150,15 +179,22 @@
     step1: "Branchez la carte à l'ordinateur, appuyez sur le bouton ci-dessus et choisissez son port.",
     step2: "Choisissez « Install CatWandConnect ». Le bon firmware pour votre puce est choisi automatiquement. Effacez la carte lors d'une première installation.",
     step3: "Une fois terminé, choisissez « Connect to Wi-Fi » et saisissez le nom et le mot de passe de votre Wi-Fi.",
-    step4: "Choisissez « Visit device » pour ouvrir l'interface du robot. Ensuite, elle est sur http://catwandconnect.local/.",
+    step4: "Choisissez « Visit device » pour ouvrir l'interface du robot. Notez son adresse, par exemple http://catwandconnect-3f9a.local/, pour la rouvrir ensuite.",
     later: "Wi-Fi sauté ? Le robot ouvre son propre hotspot CatWandConnect-XXXX avec une page de configuration.",
     moreTitle: "Pour aller plus loin",
     stable: "Stable",
     beta: "Bêta",
     betaNote: "Les versions bêta reçoivent les nouveautés en premier et peuvent encore contenir des bugs.",
     firmware: "Firmware",
+    navHome: "Accueil",
+    navInstall: "Installer",
+    navBuild: "Fabriquer",
+    navUse: "Utilisation",
+    navCommunity: "Communauté",
   };
-  if ((navigator.language || '').toLowerCase().startsWith('fr')) {
+  // ?lang=fr or ?lang=en (the header's switch) wins over the browser language.
+  const wanted = new URLSearchParams(location.search).get('lang');
+  if (wanted ? wanted === 'fr' : (navigator.language || '').toLowerCase().startsWith('fr')) {
     document.documentElement.lang = 'fr';
     for (const el of document.querySelectorAll('[data-t]')) {
       if (FR[el.dataset.t]) el.textContent = FR[el.dataset.t];
@@ -168,7 +204,11 @@
     document.querySelector('[data-t="drvAsk"]').innerHTML =
       'Toujours bloqué ? Demandez sur <a href="https://discord.gg/Rbqge3v9dk">Discord</a> (pas besoin de compte GitHub) ou voyez <a href="https://github.com/vistorx/CatWandConnect/blob/main/SUPPORT.md">Obtenir de l\'aide</a> (en anglais).';
     document.querySelector('[data-t="more"]').innerHTML =
-      'Pièces, câblage, montage et aide : voir le <a href="https://github.com/vistorx/CatWandConnect">dépôt du projet</a>.';
+      'Pièces, câblage, montage et aide : voir la <a href="../fr/">documentation</a>.';
+    for (const a of document.querySelectorAll('[data-href-fr]')) a.href = a.dataset.hrefFr;
+    const sw = document.getElementById('lang-switch');
+    sw.textContent = 'English';
+    sw.href = '?lang=en';
   }
   // channels.json lists the published channels: {"stable": {"version": …}, "beta": {…}}.
   // Stable is the default; before the first stable release only Beta exists.
