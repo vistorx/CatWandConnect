@@ -15,6 +15,8 @@ class GithubOnlyContent(unittest.TestCase):
         page = rewrite_page(f"Intro\n\n{VIDEO_URL}\n\nMore", "README.md", "index.md")
         self.assertNotIn(VIDEO_URL, page)
         self.assertIn('<video controls preload="metadata" playsinline', page)
+        # Plays on its own: muted (it has no sound), looping, like a GIF.
+        self.assertIn('autoplay muted loop', page)
         self.assertIn('src="media/video/mk2-presentation.mp4"', page)
         self.assertIn('poster="media/video/mk2-presentation-poster.jpg"', page)
 
