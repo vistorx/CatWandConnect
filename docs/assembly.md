@@ -1,53 +1,116 @@
-# Assemble the Mechanism
+# Assemble the robot
 
-> **Coming soon.** A step-by-step guide with photos will be written from the reference build. Until then, the draft below gives the order, reconstructed from the parts and screw list and not yet checked against a build. Corrections and photos are welcome.
+This guide puts the printed parts, the servos and the electronics together into a working robot.
 
-> **Mk3:** this draft order was written for the Mk2 and is not yet checked on the Mk3. The Mk3 is standalone: the board and the power boards go inside the clamp's technical cavity, which the printed door closes, and the USB-C connector is the only connector left outside.
+> [!IMPORTANT]
+> **Install the software first** ([step 3](install.md)). The robot must boot to put the servos in position while you assemble it.
 
-You need the [printed parts](print.md) and the parts below. The servos are wired in [Wire the electronics](wiring.md).
-
-## Parts to buy
+## What you need
 
 | Qty | Part | Notes |
 |-----|------|-------|
 | 1 | 608 skateboard bearing | |
-| 27–28 | 6 mm balls | Between the top plate and the rotor plate. 6 mm airsoft BBs do the job very well. The Mk2 uses 16–24 steel balls of 4 mm instead. |
-| 4 | M3×8 button-head screws | Horizontal servo mounting |
-| 2 | M3×25 button-head screws | Lower plate of the horizontal axis to the ball track |
-| 1 | M3×8 countersunk screw | Horizontal servo shaft plate |
-| 1 | M3×20 countersunk screw | Vertical servo shaft |
-| 4 | M3×8 button-head screws | Vertical servo mounting |
-| 3 | M3×30 countersunk screws | Bearing to the vertical shaft |
-| 1 | A toy wand | Any cat wand with a stick that fits the arm |
+| 27–28 | 6 mm balls | Between the top plate and the rotor plate. Airsoft BBs work very well. |
+| 19 | M3 screws | Lengths coming soon. 8 identical screws for the two servos (4 each); 1 for the Horizontal servo's axis (through the rotor plate and the servo horn); 1 for the Vertical servo's axis (through the arm and the servo horn); 4 for the top plate; 2 for the bearing holder; 3 for the door. |
+| 2 | Servo horns | Supplied with the servos. |
+| | Double-sided tape | For the USB-C trigger board. |
+| | Grease | For the ball groove, for example lithium or PTFE grease. |
+| 1 | Toy wand | Any cat wand with a stick that fits the arm. |
+| | The printed parts, the wired electronics | From [step 1](print.md) and [step 2](wiring.md), with the firmware installed ([step 3](install.md)). |
 
+Tools: a screwdriver for M3 screws.
 
-<details>
-<summary><b>Draft assembly order</b></summary>
+**[Full parts list →](bom.md)**
 
-### Before you start
+## Steps
 
-- [Print](print.md) every part in [`stls/mk3/`](../stls/mk3/) (or [`stls/mk2/`](../stls/mk2/) for the previous Mechanism).
-- Clean the ball track and the bearing seat of strings and elephant's foot, so the balls roll freely.
-- Plug each servo into a powered, flashed board and let the robot Stow once, so both servos sit at their Stow position before you fit the arm. This keeps the arm centred within its range.
+<!-- video: assembling the robot -->
+Photos and video coming soon.
 
-### Steps
+### 1. Remove the supports
 
-1. **Bearing.** Press the 608 bearing into its seat. It should sit flush and turn without rubbing.
-2. **Ball track.** Lay the 6 mm balls in the track between the top plate and the rotor plate: 27 to 28, until the plate turns smoothly without play. On the Mk2: 16–24 steel balls of 4 mm.
-3. **Horizontal servo.** Mount it with four M3×8 button-head screws, then fix the horizontal servo shaft plate with the M3×8 countersunk screw.
-4. **Horizontal axis.** Fix the lower plate of the horizontal axis to the ball track with the two M3×25 button-head screws.
-5. **Vertical servo.** Mount it with four M3×8 button-head screws, and fix its shaft with the M3×20 countersunk screw.
-6. **Bearing to the vertical shaft.** Fix it with the three M3×30 countersunk screws.
-7. **Arm and wand.** Fit the arm and attach the wand.
-8. **Clamp.** Fix the robot in place with the clamp and its screw.
+Remove all the print supports.
 
-### Checks
+<!-- photo: step 1 -->
 
-- Unpowered, both axes turn by hand without binding, and the bearing doesn't rub anything.
-- No screw crushes a printed part. Tighten until snug, not more.
-- Route the servo cables so they can't snag as the axes move.
-- Power up and stay close: the wand should crawl to its Stow position. Then try the joystick gently. See the [acceptance checklist](acceptance-checklist.md).
+### 2. Fit the Horizontal servo
 
-</details>
+Insert the Horizontal servo into the clamp and fit its 4 M3 screws.
 
-Next: [Wire the electronics](wiring.md).
+<!-- photo: step 2 -->
+
+### 3. Stick the trigger board
+
+Stick the USB-C trigger board (the board that brings 20 V) into the top plate with double-sided tape.
+
+<!-- photo: step 3 -->
+
+### 4. Fit the top plate
+
+Position the top plate, passing the two power wires through the hole into the technical cavity, with the buck converter in the recess made for it. Fit the top plate's 4 M3 screws.
+
+<!-- photo: step 4 -->
+
+### 5. Connect the electronics
+
+In the technical cavity, fit the lever connectors (Wago) and connect the electronics: the board's power and the Horizontal servo. Then plug in the USB-C charger: the robot starts and the servo goes to its position (neutral).
+
+<!-- photo: step 5 -->
+
+### 6. Fit a servo horn into the rotor plate
+
+Fit a servo horn into the rotor plate.
+
+<!-- photo: step 6 -->
+
+### 7. Grease and lay the balls
+
+Grease the top plate's ball groove and lay the 27–28 balls in it.
+
+<!-- photo: step 7 -->
+
+### 8. Fit the rotor plate
+
+Fit the rotor plate, with its servo horn, onto the Horizontal servo, and screw the M3 screw through the rotor plate and the horn into the servo's axis.
+
+<!-- photo: step 8 -->
+
+### 9. Press in the bearing
+
+Press the 608 bearing into the bearing holder.
+
+<!-- photo: step 9 -->
+
+### 10. Fit the other servo horn into the arm
+
+Fit the other servo horn into the arm.
+
+<!-- photo: step 10 -->
+
+### 11. Fit the Vertical servo
+
+Install the Vertical servo on the rotor plate and fit its 4 M3 screws.
+
+<!-- photo: step 11 -->
+
+### 12. Connect the Vertical servo and fit the arm
+
+Connect the Vertical servo so it goes to its position. Recommended: on the robot's page, move the Vertical axis to its lowest position, then fit the arm, with its servo horn, onto the Vertical servo and screw it into the servo's axis with an M3 screw.
+
+<!-- photo: step 12 -->
+
+### 13. Fit the bearing holder
+
+Place the bearing and its holder on the arm and fit the 2 M3 screws that hold it.
+
+<!-- photo: step 13 -->
+
+### 14. Close the door
+
+Tuck the electronics into the technical cavity and close it with the door and its 3 M3 screws.
+
+<!-- photo: step 14 -->
+
+Then run [Calibration](install.md#calibrate) from the robot's main screen, so the robot learns the Travel limits of your build.
+
+Next, optional: [Set up Home Assistant](home-assistant.md). Or just play!

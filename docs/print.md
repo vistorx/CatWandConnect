@@ -1,14 +1,10 @@
 # Print the parts
 
-The seven printed parts of the Mk3, the current Mechanism, and how to print them. Next: [assemble them](assembly.md).
+This guide gets you the seven printed parts of the Mk3 Mechanism, ready to assemble.
 
-https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+## What you will make
 
-<p align="center"><em>The presentation of the Mk2, the previous Mechanism (50 s, 3D animation).</em></p>
-
-## The parts
-
-The **Mk3** is the current Mechanism. It is standalone: the board and the power boards fit inside the robot, in the clamp's technical cavity closed by a printed door, and a single USB-C connector powers it. All files are in [`stls/mk3/`](../stls/mk3/), and [`catwandconnect-mk3.3mf`](../stls/mk3/catwandconnect-mk3.3mf) contains the whole plate.
+The **Mk3** is standalone: the board and the power boards fit inside the robot, in the clamp's technical cavity closed by a printed door, and a single USB-C connector powers it. All files are in [`stls/mk3/`](../stls/mk3/), and [`catwandconnect-mk3.3mf`](../stls/mk3/catwandconnect-mk3.3mf) holds the whole plate, already oriented.
 
 | Part | File |
 |------|------|
@@ -16,29 +12,66 @@ The **Mk3** is the current Mechanism. It is standalone: the board and the power 
 | Bearing holder | [`catwandconnect-mk3-bearing_holder.stl`](../stls/mk3/catwandconnect-mk3-bearing_holder.stl) |
 | Clamp | [`catwandconnect-mk3-clamp.stl`](../stls/mk3/catwandconnect-mk3-clamp.stl) |
 | Door | [`catwandconnect-mk3-door.stl`](../stls/mk3/catwandconnect-mk3-door.stl) |
-| Screw | [`catwandconnect-mk3-screw.stl`](../stls/mk3/catwandconnect-mk3-screw.stl) |
 | Rotor plate | [`catwandconnect-mk3-rotor_plate.stl`](../stls/mk3/catwandconnect-mk3-rotor_plate.stl) |
+| Screw | [`catwandconnect-mk3-screw.stl`](../stls/mk3/catwandconnect-mk3-screw.stl) |
 | Top plate | [`catwandconnect-mk3-top_plate.stl`](../stls/mk3/catwandconnect-mk3-top_plate.stl) |
 
-**What changed from the Mk2:** the electronics move inside the robot, behind the new door, and the robot needs only one USB-C cable.
+![The seven Mk3 parts sliced on one plate in PrusaSlicer, in their print orientation, with the clamp's supports in green.](../media/screenshots/prusa-slicer-plate.jpg)
 
-### Previous Mechanism: Mk2
+## What you need
 
-The Mk2, reinforced with a 608 skateboard bearing and a track of 4 mm steel balls, leaves the electronics outside the robot. Pick it if you'd rather keep the board and the power boards outside. Its six parts are in [`stls/mk2/`](../stls/mk2/), and [`catwandconnect-mk2.3mf`](../stls/mk2/catwandconnect-mk2.3mf) contains its whole plate.
+| What | Notes |
+|------|-------|
+| A 3D printer | A 300 × 300 mm plate fits every part at once; a smaller printer works over several plates. No printer? Any print service or maker space can print them. |
+| Filament | PETG or ABS (or equivalent) recommended; PLA can do the job. |
+| A slicer | PrusaSlicer or any other. |
 
-## Print recommendations
+**[Full parts list →](bom.md)**
 
-![The seven Mk3 parts laid out on one print plate in PrusaSlicer, in their print orientation.](images/mk3-print-plate.jpg)
+## Steps
 
-> Starting points, not yet checked against the reference build. Share the settings that work for you on [Discord](https://discord.gg/Rbqge3v9dk) and they will land here.
+<!-- video: printing and cleaning the parts -->
+Photos and video coming soon.
 
-- **Material:** PLA works for a robot that stays indoors; PETG is tougher if the cat attacks the arm.
-- **Supports:** none, except on the clamp. Print every other part, door included, without supports. The clamp needs supports under its horizontal surfaces only: in PrusaSlicer, turn on supports with an **overhang threshold of 5°** so they don't fill its slopes and holes.
-- **Strength:** 3 walls or more and 20–30 % infill. The arm, the clamp and the parts that hold the servos take the load.
-- **Ball track:** print it flat with a fine first layer, and clean any strings or elephant's foot so the balls roll freely.
-- **Fit:** if the bearing or a servo doesn't go in, sand the part rather than force it.
-- The [`.3mf`](../stls/mk3/catwandconnect-mk3.3mf) holds the whole plate in one file.
+### 1. Choose the material
 
-A printed part breaks? Reprint it: that is the point of an open design.
+PETG or ABS (or an equivalent) is recommended: tougher when the cat attacks the arm. PLA can do the job too.
 
-Next: [Assemble the Mechanism](assembly.md).
+<!-- photo: step 1 -->
+
+### 2. Set up the slicer
+
+- **Infill:** gyroid, 25 %.
+- **Walls:** 3.
+- **Top and bottom layers:** 6 each.
+- **Layer height:** 0.2 mm, with a 0.4 mm nozzle.
+
+<!-- photo: step 2 -->
+
+### 3. Split the parts over several plates
+
+Print the parts over several plates, even if your printer can take them all at once (300 × 300 mm): a failed print then costs only one plate.
+
+<!-- photo: step 3 -->
+
+### 4. Orient the parts
+
+Print the top plate and the rotor plate with their ball groove facing the build plate. Orient the other parts as in the [`.3mf`](../stls/mk3/catwandconnect-mk3.3mf).
+
+<!-- photo: step 4 -->
+
+### 5. Add supports to the clamp only
+
+No part needs supports except the clamp; the door prints without them. On the clamp, put supports under its horizontal surfaces only: in PrusaSlicer, turn supports on with an **overhang threshold of 5°** so they don't fill its slopes and holes.
+
+<!-- photo: step 5 -->
+
+### 6. Clean the parts
+
+Remove the clamp's supports, and clean any strings or elephant's foot in the ball groove so the balls roll freely. If a part doesn't fit, sand it rather than force it.
+
+<!-- photo: step 6 -->
+
+Settings that work well on your printer? Share them on [Discord](https://discord.gg/Rbqge3v9dk). A printed part breaks? Reprint it: that is the point of an open design.
+
+Next: [Wire the electronics](wiring.md).

@@ -58,7 +58,6 @@ body:
       label: Mechanism
       options:
         - Mk3
-        - Mk2
         - Own design
         - No Mechanism yet (board and servos only)
     validations:

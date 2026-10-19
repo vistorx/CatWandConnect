@@ -1,8 +1,23 @@
 # Set up Home Assistant
 
+This optional guide adds the robot to Home Assistant, with a ready-made dashboard.
+
 CatWandConnect works without Home Assistant. If you have it, the robot can appear in it as a device with a Play session switch and its duration, a Stow button, its activity, and each axis's position and maximum speed, ready for dashboards and automations.
 
 There are two ways to connect it. Pick one, set it up, then copy the [ready-made dashboard](#ready-made-dashboards) that goes with it.
+
+## What you need
+
+| What | Notes |
+|------|-------|
+| A running Home Assistant | 2026.10 or later for the Native integration; any recent version for the MQTT connection. |
+| HACS, or an MQTT broker | [HACS](https://hacs.xyz/) for the Native integration, or an MQTT broker (the Mosquitto broker app) for the MQTT connection. |
+| The robot on your Wi-Fi | Installed in [step 3](install.md), on the same network as Home Assistant. |
+
+Nothing to buy for this step. **[Full parts list →](bom.md)**
+
+<!-- video: connecting the robot to Home Assistant -->
+Photos and video coming soon.
 
 ## Choose your connection
 
@@ -43,6 +58,8 @@ The Native integration is installed through [HACS](https://hacs.xyz/), the Home 
 
 HACS offers the integration's updates by itself when a new version comes out.
 
+<!-- screenshot: Native integration, step 1 -->
+
 ### 2. Add the robot
 
 1. Go to **Settings → Devices & services**.
@@ -54,6 +71,8 @@ HACS offers the integration's updates by itself when a new version comes out.
 If the robot's firmware is too old, setup stops with *This robot's firmware is too old for the integration*: [update the robot](install.md#updating-building-from-source) to 0.2.0-beta.2 or later, then add it again.
 
 The robot is added only once, even if it is discovered again; when it gets a new IP address from your router, the integration follows it.
+
+<!-- screenshot: Native integration, step 2 -->
 
 ### 3. Check its entities
 
@@ -75,6 +94,8 @@ Entities update within a second when someone uses the joystick or the robot's sc
 
 Commands from Home Assistant go through the same safety rules as the phone: Travel limits, speed limits and priorities. Nothing from Home Assistant can push the wand beyond its limits, and Stow can't be interrupted.
 
+<!-- screenshot: Native integration, step 3 -->
+
 ## MQTT connection
 
 The robot talks to Home Assistant through **MQTT**, a small messaging service that runs next to Home Assistant (the *broker*). The robot sends its state to the broker and receives commands from it; Home Assistant reads and writes the same messages. Setting it up takes about 10 minutes:
@@ -95,6 +116,8 @@ Already use MQTT (Zigbee2MQTT, Tasmota...)? Your broker and integration are read
 - The robot **installed and on your Wi-Fi** ([Install the software](install.md)), on the same network as Home Assistant.
 - Home Assistant's **IP address**: **Settings → System → Network**, under *Network adapter*, for example `192.168.1.124`. Write it down for step 5. Give it a fixed address in your router (a *DHCP reservation*) so it never changes.
 
+<!-- screenshot: MQTT connection, step 1 -->
+
 ### 2. Install the MQTT broker
 
 1. In Home Assistant, go to **Settings → Apps → Install app** (called *Add-ons* before Home Assistant 2026.2).
@@ -103,6 +126,8 @@ Already use MQTT (Zigbee2MQTT, Tasmota...)? Your broker and integration are read
 4. Open the **Log** tab: after a few seconds it should end without errors.
 
 Leave its *Configuration* tab as it is: the broker accepts Home Assistant's own users, which is what step 3 uses.
+
+<!-- screenshot: MQTT connection, step 2 -->
 
 ### 3. Create a user for the robot
 
@@ -118,6 +143,8 @@ The broker refuses anonymous connections, so the robot needs its own login.
 
 This user never logs in to Home Assistant's interface; it only lets the robot talk to the broker.
 
+<!-- screenshot: MQTT connection, step 3 -->
+
 ### 4. Add the MQTT integration
 
 This connects Home Assistant itself to the broker.
@@ -128,6 +155,8 @@ This connects Home Assistant itself to the broker.
 4. **MQTT** now shows in the list of integrations, with no error.
 
 Leave *Enable discovery* on and the discovery prefix at `homeassistant` (the defaults): the robot announces itself there.
+
+<!-- screenshot: MQTT connection, step 4 -->
 
 ### 5. Connect the robot
 
@@ -141,6 +170,8 @@ Leave *Enable discovery* on and the discovery prefix at `homeassistant` (the def
 
 The robot reconnects by itself after a power cut or a Home Assistant restart.
 
+<!-- screenshot: MQTT connection, step 5 -->
+
 ### 6. Find it in Home Assistant
 
 Go to **Settings → Devices & services → MQTT**, then **Devices**. The robot appears under its name, with the same entities as with the Native integration ([listed above](#3-check-its-entities)), named in English. The differences:
@@ -151,6 +182,8 @@ Go to **Settings → Devices & services → MQTT**, then **Devices**. The robot 
 - **Firmware** (`update.catwandconnect_firmware`) shows the installed version and, once the robot's page has found a newer one for its Update channel, the latest version with a link to its release notes, so Home Assistant shows its usual update notification. It has no **Install** button: the robot can't download anything itself. Update from the robot's page (the **Update** button on its main screen, see [Updating](install.md#updating-building-from-source)) or with the Native integration. The latest version is known after someone opens the robot's page, and is forgotten when the robot restarts.
 
 When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
+
+<!-- screenshot: MQTT connection, step 6 -->
 
 ## Ready-made dashboards
 
@@ -429,3 +462,5 @@ The robot's MQTT topics are documented in the [Device API](api.md#home-assistant
 ### Still stuck?
 
 See [Getting help](../SUPPORT.md), or open **Help** in the robot's Settings → Robot. Bugs in the Native integration are reported in [CatWandConnect's issues](https://github.com/vistorx/CatWandConnect/issues/new/choose) too: pick *Home Assistant integration (HACS)* as the area.
+
+Next: play! Every feature is described in [Features](features.md).
