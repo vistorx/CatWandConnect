@@ -75,7 +75,7 @@ A USB-C charger powers everything through two small boards that turn it into 5 V
 ### 3. Install the software
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Install in your browser" width="340"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Install in your browser" width="260"></a>
 </p>
 
 Plug the board into a computer and install the firmware from Chrome or Edge, with nothing to download. Later updates go over Wi-Fi.

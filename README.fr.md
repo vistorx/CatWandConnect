@@ -75,7 +75,7 @@ Un chargeur USB-C alimente tout, à travers deux petites cartes qui en font du 5
 ### 3. Installer le logiciel
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Installer depuis le navigateur" width="340"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="media/buttons/install.svg" alt="Installer depuis le navigateur" width="260"></a>
 </p>
 
 Branche la carte sur un ordinateur et installe le firmware depuis Chrome ou Edge, sans rien télécharger. Les mises à jour suivantes passent par le Wi-Fi.
