@@ -13,7 +13,7 @@ This guide puts the firmware on the board from your browser and gets the robot o
 Nothing to buy for this step. **[Full parts list →](bom.md)**
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Install in your browser" width="340"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Install in your browser" width="260"></a>
 </p>
 
 ## Steps
