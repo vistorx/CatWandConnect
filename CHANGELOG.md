@@ -6,9 +6,11 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Clearer docs.** The README walks you through the build in five steps — print, electronics, software, assembly, Home Assistant — each guide starts with what you need, and a full parts list gathers everything. The Mk3 assembly guide is written step by step.
+- **Mk2 files removed.** The Mk3 is now the only Mechanism; the Mk2's printable files left the repository (they stay in the Git history).
 - **Mk3 parts list.** The Mk3 rolls on 27–28 balls of 6 mm between the top plate and the rotor plate; airsoft BBs do the job very well. The 608 skateboard bearing stays.
-- **Mk3: everything inside.** The new reference Mechanism houses the board and the power boards inside the robot, behind a printed door, with a single USB-C connector. Files in `stls/mk3/`; the Mk2 stays available.
-- **Print without supports.** The print guide now says which parts need supports: none, except under the clamp's horizontal surfaces (5° overhang threshold in PrusaSlicer).
+- **Mk3: everything inside.** The new reference Mechanism houses the board and the power boards inside the robot, behind a printed door, with a single USB-C connector. Files in `stls/mk3/`.
+- **Print without supports.** The print guide now says which parts need supports: none, except under the clamp's horizontal surfaces (5° overhang threshold in PrusaSlicer), along with tested print settings.
 
 ## 0.2.1 - 2026-10-16
 
