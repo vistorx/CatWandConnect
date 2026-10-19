@@ -1,53 +1,116 @@
-# Assembler le mécanisme
+# Assembler le robot
 
-> **Bientôt.** Un guide pas à pas avec photos sera rédigé à partir du montage de référence. En attendant, le brouillon ci-dessous donne l'ordre, reconstitué à partir des pièces et de la liste des vis, et pas encore vérifié sur un vrai montage. Corrections et photos bienvenues.
+Ce guide réunit les pièces imprimées, les servos et l'électronique en un robot qui fonctionne.
 
-> **Mk3 :** ce brouillon a été écrit pour le Mk2 et n'est pas encore vérifié sur le Mk3. Le Mk3 est autonome : la carte et les cartes d'alimentation se placent dans la cavité technique de la pince, que la porte imprimée referme, et le connecteur USB-C est le seul qui reste dehors.
+> [!IMPORTANT]
+> **Installe d'abord le logiciel** ([étape 3](install.fr.md)). Le robot doit démarrer pour mettre les servos en position pendant le montage.
 
-Il te faut les [pièces imprimées](print.fr.md) et les pièces ci-dessous. Les servos se câblent dans [Câbler l'électronique](wiring.fr.md).
-
-## Pièces à acheter
+## Ce qu'il te faut
 
 | Qté | Pièce | Remarques |
 |-----|-------|-----------|
 | 1 | Roulement de skateboard 608 | |
-| 27–28 | Billes de 6 mm | Entre le plateau supérieur et le plateau rotor. Les billes d'airsoft de 6 mm font très bien l'affaire. Le Mk2 utilise à la place 16 à 24 billes en acier de 4 mm. |
-| 4 | Vis M3×8 à tête bombée | Fixation du servo horizontal |
-| 2 | Vis M3×25 à tête bombée | Plateau inférieur de l'axe horizontal sur le chemin de billes |
-| 1 | Vis M3×8 à tête fraisée | Plateau de l'arbre du servo horizontal |
-| 1 | Vis M3×20 à tête fraisée | Arbre du servo vertical |
-| 4 | Vis M3×8 à tête bombée | Fixation du servo vertical |
-| 3 | Vis M3×30 à tête fraisée | Roulement sur l'arbre vertical |
-| 1 | Une canne à pêche pour chat | N'importe quelle canne dont la tige rentre dans le bras |
+| 27–28 | Billes de 6 mm | Entre le plateau supérieur et le plateau rotor. Les billes d'airsoft font très bien l'affaire. |
+| 19 | Vis M3 | Longueurs bientôt. 8 vis identiques pour les deux servos (4 chacun) ; 1 pour l'axe du servo horizontal (à travers le plateau rotor et le palonnier) ; 1 pour l'axe du servo vertical (à travers le bras et le palonnier) ; 4 pour le plateau supérieur ; 2 pour le support de roulement ; 3 pour la porte. |
+| 2 | Palonniers de servo | Fournis avec les servos. |
+| | Adhésif double face | Pour la carte de déclenchement USB-C. |
+| | Graisse | Pour la gouttière des billes, par exemple de la graisse au lithium ou au PTFE. |
+| 1 | Canne à pêche pour chat | N'importe quelle canne dont la tige rentre dans le bras. |
+| | Les pièces imprimées, l'électronique câblée | De l'[étape 1](print.fr.md) et de l'[étape 2](wiring.fr.md), avec le firmware installé ([étape 3](install.fr.md)). |
 
+Outils : un tournevis pour vis M3.
 
-<details>
-<summary><b>Brouillon de l'ordre d'assemblage</b></summary>
+**[Liste complète des pièces →](bom.fr.md)**
 
-### Avant de commencer
+## Étapes
 
-- [Imprime](print.fr.md) toutes les pièces de [`stls/mk3/`](../stls/mk3/) (ou de [`stls/mk2/`](../stls/mk2/) pour le mécanisme précédent).
-- Nettoie le chemin de billes et le logement du roulement (fils, patte d'éléphant) pour que les billes roulent librement.
-- Branche chaque servo sur une carte alimentée et flashée, et laisse le robot se ranger une fois : les deux servos sont alors à leur position de repos avant que tu montes le bras. Le bras reste ainsi centré dans sa course.
+<!-- video: assembling the robot -->
+Photos et vidéo bientôt.
 
-### Étapes
+### 1. Retire les supports
 
-1. **Roulement.** Enfonce le roulement 608 dans son logement. Il doit affleurer et tourner sans frotter.
-2. **Chemin de billes.** Dépose les billes de 6 mm dans le chemin entre le plateau supérieur et le plateau rotor : 27 à 28, jusqu'à ce que le plateau tourne en douceur, sans jeu. Sur le Mk2 : 16 à 24 billes en acier de 4 mm.
-3. **Servo horizontal.** Fixe-le avec quatre vis M3×8 à tête bombée, puis fixe le plateau de l'arbre du servo horizontal avec la vis M3×8 à tête fraisée.
-4. **Axe horizontal.** Fixe le plateau inférieur de l'axe horizontal sur le chemin de billes avec les deux vis M3×25 à tête bombée.
-5. **Servo vertical.** Fixe-le avec quatre vis M3×8 à tête bombée, et fixe son arbre avec la vis M3×20 à tête fraisée.
-6. **Roulement sur l'arbre vertical.** Fixe-le avec les trois vis M3×30 à tête fraisée.
-7. **Bras et baguette.** Monte le bras et attache la baguette.
-8. **Pince.** Fixe le robot en place avec la pince et sa vis.
+Retire tous les supports d'impression.
 
-### Vérifications
+<!-- photo: step 1 -->
 
-- Hors tension, les deux axes tournent à la main sans point dur, et le roulement ne frotte nulle part.
-- Aucune vis n'écrase une pièce imprimée. Serre jusqu'au contact, pas plus.
-- Fais passer les câbles des servos de façon qu'ils ne puissent pas s'accrocher quand les axes bougent.
-- Mets sous tension et reste à côté : la baguette doit rejoindre doucement sa position de repos. Essaie ensuite le joystick, doucement. Voir la [checklist de recette](acceptance-checklist.fr.md).
+### 2. Monte le servo horizontal
 
-</details>
+Insère le servo horizontal dans la pince et pose ses 4 vis M3.
 
-Ensuite : [Câbler l'électronique](wiring.fr.md).
+<!-- photo: step 2 -->
+
+### 3. Colle la carte de déclenchement
+
+Colle la carte de déclenchement USB-C (la carte qui amène le 20 V) dans le plateau supérieur avec de l'adhésif double face.
+
+<!-- photo: step 3 -->
+
+### 4. Pose le plateau supérieur
+
+Positionne le plateau supérieur en faisant passer les deux fils d'alimentation par le trou, dans la cavité technique, avec le convertisseur abaisseur dans le logement prévu pour lui. Pose les 4 vis M3 du plateau supérieur.
+
+<!-- photo: step 4 -->
+
+### 5. Branche l'électronique
+
+Dans la cavité technique, pose les connecteurs à levier (Wago) et branche l'électronique : l'alimentation de la carte et le servo horizontal. Branche ensuite le chargeur USB-C : le robot démarre et le servo se met en position (neutre).
+
+<!-- photo: step 5 -->
+
+### 6. Mets un palonnier dans le plateau rotor
+
+Insère un palonnier de servo dans le plateau rotor.
+
+<!-- photo: step 6 -->
+
+### 7. Graisse et pose les billes
+
+Graisse la gouttière à billes du plateau supérieur et dépose-y les 27 à 28 billes.
+
+<!-- photo: step 7 -->
+
+### 8. Pose le plateau rotor
+
+Emboîte le plateau rotor, avec son palonnier, sur le servo horizontal, et visse la vis M3 à travers le plateau rotor et le palonnier dans l'axe du servo.
+
+<!-- photo: step 8 -->
+
+### 9. Enfonce le roulement
+
+Enfonce le roulement 608 dans le support de roulement.
+
+<!-- photo: step 9 -->
+
+### 10. Mets l'autre palonnier dans le bras
+
+Insère l'autre palonnier de servo dans le bras.
+
+<!-- photo: step 10 -->
+
+### 11. Monte le servo vertical
+
+Installe le servo vertical sur le plateau rotor et pose ses 4 vis M3.
+
+<!-- photo: step 11 -->
+
+### 12. Branche le servo vertical et pose le bras
+
+Branche le servo vertical pour qu'il se mette en position. Conseillé : sur la page du robot, amène l'axe vertical à sa position la plus basse, puis emboîte le bras, avec son palonnier, sur le servo vertical et visse-le dans l'axe du servo avec une vis M3.
+
+<!-- photo: step 12 -->
+
+### 13. Pose le support de roulement
+
+Place le roulement et son support sur le bras et pose les 2 vis M3 qui le tiennent.
+
+<!-- photo: step 13 -->
+
+### 14. Ferme la porte
+
+Range l'électronique dans la cavité technique et ferme-la avec la porte et ses 3 vis M3.
+
+<!-- photo: step 14 -->
+
+Lance ensuite la [Calibration](install.fr.md#calibrer) depuis l'écran principal du robot, pour qu'il apprenne les limites de course de ton montage.
+
+Ensuite, en option : [Configurer Home Assistant](home-assistant.fr.md). Ou joue, tout simplement !

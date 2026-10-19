@@ -1,8 +1,23 @@
 # Configurer Home Assistant
 
+Ce guide facultatif ajoute le robot à Home Assistant, avec un tableau de bord tout prêt.
+
 CatWandConnect fonctionne sans Home Assistant. Si tu l'utilises, le robot peut y apparaître comme un appareil avec un interrupteur de session de jeu et sa durée, un bouton Ranger, son activité, et la position et la vitesse maximale de chaque axe, prêt pour tes tableaux de bord et tes automatisations.
 
 Il y a deux façons de le connecter. Choisis-en une, configure-la, puis copie le [tableau de bord tout prêt](#tableaux-de-bord-tout-prêts) qui va avec.
+
+## Ce qu'il te faut
+
+| Quoi | Remarques |
+|------|-----------|
+| Un Home Assistant qui tourne | 2026.10 ou plus récent pour l'intégration native ; n'importe quelle version récente pour la connexion MQTT. |
+| HACS, ou un broker MQTT | [HACS](https://hacs.xyz/) pour l'intégration native, ou un broker MQTT (l'app Mosquitto broker) pour la connexion MQTT. |
+| Le robot sur ton Wi-Fi | Installé à l'[étape 3](install.fr.md), sur le même réseau que Home Assistant. |
+
+Rien à acheter pour cette étape. **[Liste complète des pièces →](bom.fr.md)**
+
+<!-- video: connecting the robot to Home Assistant -->
+Photos et vidéo bientôt.
 
 ## Choisir ta connexion
 
@@ -43,6 +58,8 @@ L'intégration native s'installe avec [HACS](https://hacs.xyz/), la boutique com
 
 HACS te propose tout seul les mises à jour de l'intégration quand une nouvelle version sort.
 
+<!-- screenshot: Intégration native, step 1 -->
+
 ### 2. Ajouter le robot
 
 1. Va dans **Paramètres → Appareils et services**.
@@ -54,6 +71,8 @@ HACS te propose tout seul les mises à jour de l'intégration quand une nouvelle
 Si le firmware du robot est trop ancien, l'ajout s'arrête avec *Le firmware de ce robot est trop ancien pour l'intégration* : [mets le robot à jour](install.fr.md#mettre-à-jour-compiler-depuis-les-sources) en 0.2.0-beta.2 ou plus récent, puis ajoute-le à nouveau.
 
 Le robot n'est ajouté qu'une fois, même s'il est découvert de nouveau ; quand ta box lui donne une nouvelle adresse IP, l'intégration le suit.
+
+<!-- screenshot: Intégration native, step 2 -->
 
 ### 3. Vérifier ses entités
 
@@ -75,6 +94,8 @@ Les entités se mettent à jour en moins d'une seconde quand quelqu'un utilise l
 
 Les commandes venant de Home Assistant suivent les mêmes règles de sécurité que le téléphone : limites de course, limites de vitesse et priorités. Rien depuis Home Assistant ne peut pousser la baguette au-delà de ses limites, et le rangement ne peut pas être interrompu.
 
+<!-- screenshot: Intégration native, step 3 -->
+
 ## Connexion MQTT
 
 Le robot parle à Home Assistant par **MQTT**, un petit service de messages qui tourne à côté de Home Assistant (le *broker*). Le robot y envoie son état et y reçoit ses commandes ; Home Assistant lit et écrit les mêmes messages. Compte une dizaine de minutes :
@@ -95,6 +116,8 @@ Tu utilises déjà MQTT (Zigbee2MQTT, Tasmota…) ? Ton broker et ton intégrati
 - Le robot **installé et sur ton Wi-Fi** ([Installer le logiciel](install.fr.md)), sur le même réseau que Home Assistant.
 - L'**adresse IP** de Home Assistant : **Paramètres → Système → Réseau**, sous *Adaptateur réseau*, par exemple `192.168.1.124`. Note-la pour l'étape 5. Donne-lui une adresse fixe dans ta box (une *réservation DHCP*) pour qu'elle ne change jamais.
 
+<!-- screenshot: Connexion MQTT, step 1 -->
+
 ### 2. Installer le broker MQTT
 
 1. Dans Home Assistant, va dans **Paramètres → Applications → Installer une application** (appelées *Modules complémentaires* avant Home Assistant 2026.2).
@@ -103,6 +126,8 @@ Tu utilises déjà MQTT (Zigbee2MQTT, Tasmota…) ? Ton broker et ton intégrati
 4. Ouvre l'onglet **Journal** : au bout de quelques secondes, il doit se terminer sans erreur.
 
 Laisse son onglet *Configuration* tel quel : le broker accepte les utilisateurs de Home Assistant, c'est ce qu'utilise l'étape 3.
+
+<!-- screenshot: Connexion MQTT, step 2 -->
 
 ### 3. Créer un utilisateur pour le robot
 
@@ -118,6 +143,8 @@ Le broker refuse les connexions anonymes : le robot a besoin de son propre ident
 
 Cet utilisateur ne se connecte jamais à l'interface de Home Assistant ; il permet seulement au robot de parler au broker.
 
+<!-- screenshot: Connexion MQTT, step 3 -->
+
 ### 4. Ajouter l'intégration MQTT
 
 C'est ce qui relie Home Assistant lui-même au broker.
@@ -128,6 +155,8 @@ C'est ce qui relie Home Assistant lui-même au broker.
 4. **MQTT** apparaît maintenant dans la liste des intégrations, sans erreur.
 
 Laisse *Activer la découverte* coché et le préfixe de découverte à `homeassistant` (les valeurs par défaut) : c'est là que le robot s'annonce.
+
+<!-- screenshot: Connexion MQTT, step 4 -->
 
 ### 5. Connecter le robot
 
@@ -141,6 +170,8 @@ Laisse *Activer la découverte* coché et le préfixe de découverte à `homeass
 
 Le robot se reconnecte tout seul après une coupure de courant ou un redémarrage de Home Assistant.
 
+<!-- screenshot: Connexion MQTT, step 5 -->
+
 ### 6. Le retrouver dans Home Assistant
 
 Va dans **Paramètres → Appareils et services → MQTT**, puis **Appareils**. Le robot apparaît sous son nom, avec les mêmes entités qu'avec l'intégration native ([listées plus haut](#3-vérifier-ses-entités)), mais nommées en anglais : Stow, Horizontal position, Vertical position, Horizontal maximum speed, Vertical maximum speed, Activity, Play session, Session duration et Firmware. Les différences :
@@ -151,6 +182,8 @@ Va dans **Paramètres → Appareils et services → MQTT**, puis **Appareils**. 
 - **Firmware** (`update.catwandconnect_firmware`) affiche la version installée et, dès que la page du robot en a trouvé une plus récente pour son Canal de mise à jour, la dernière version avec un lien vers ses nouveautés : Home Assistant affiche alors sa notification de mise à jour habituelle. Il n'y a pas de bouton **Installer** : le robot ne peut rien télécharger lui-même. Mets à jour depuis la page du robot (le bouton **Mettre à jour** de son écran principal, voir [Mettre à jour](install.fr.md#mettre-à-jour-compiler-depuis-les-sources)) ou avec l'intégration native. La dernière version est connue après que quelqu'un a ouvert la page du robot, et oubliée quand le robot redémarre.
 
 Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme indisponibles.
+
+<!-- screenshot: Connexion MQTT, step 6 -->
 
 ## Tableaux de bord tout prêts
 
@@ -429,3 +462,5 @@ Les topics MQTT du robot sont documentés dans l'[API du robot](api.fr.md#home-a
 ### Toujours bloqué ?
 
 Voir [Obtenir de l'aide](../SUPPORT.fr.md), ou ouvre **Aide** dans Réglages → Robot. Les bugs de l'intégration native se signalent aussi dans les [issues de CatWandConnect](https://github.com/vistorx/CatWandConnect/issues/new/choose) : choisis *Home Assistant integration (HACS)* comme domaine.
+
+Ensuite : joue ! Toutes les fonctionnalités sont décrites dans [Fonctionnalités](features.fr.md).
