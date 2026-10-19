@@ -12,14 +12,15 @@
 <!-- /github-only -->
 
 <p align="center">
+  <a href="https://vistorx.github.io/CatWandConnect/fr/"><img src="media/buttons/docs.svg" alt="Lire la documentation" width="260"></a>
+  <a href="https://github.com/sponsors/vistorx"><img src="media/buttons/sponsor.svg" alt="Soutenir le projet" width="260"></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/vistorx/CatWandConnect/releases"><img src="https://img.shields.io/github/v/release/vistorx/CatWandConnect?include_prereleases&label=latest" alt="Dernière version"></a>
   <a href="https://github.com/vistorx/CatWandConnect/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/vistorx/CatWandConnect/ci.yml?branch=main&label=tests" alt="Tests"></a>
   <a href="docs/install.fr.md"><img src="https://img.shields.io/badge/chips-ESP32%20%C2%B7%20S3%20%C2%B7%20C3-2b6cb0" alt="ESP32, ESP32-S3, ESP32-C3"></a>
   <a href="https://discord.gg/Rbqge3v9dk"><img src="https://img.shields.io/badge/chat-Discord-5865F2" alt="Discord"></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/sponsors/vistorx"><img src="media/buttons/sponsor.svg" alt="Soutenir le projet" width="260"></a>
 </p>
 
 ## En images
