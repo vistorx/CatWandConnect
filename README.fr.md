@@ -25,15 +25,17 @@
 
 ## En images
 
-https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
-
-<p align="center"><em>CatWandConnect en 50 secondes : imprime-le, assemble-le, ajoute le jouet préféré de ton chat, joue.</em></p>
-
 <table>
   <tr>
-    <td align="center" width="26%"><img src="media/screenshots/ui-main-screen-phone.png" alt="L'interface de l'appareil sur un téléphone : joystick, vitesse, session de jeu et Ranger" width="200"><br><em>Joue depuis ton téléphone</em></td>
-    <td align="center" width="37%"><img src="media/screenshots/ha-dashboard-native.png" alt="Tableau de bord Home Assistant de l'intégration native, avec la carte joystick" width="100%"><br><em>Home Assistant, intégration native</em></td>
-    <td align="center" width="37%"><img src="media/screenshots/ha-dashboard-mqtt.png" alt="Tableau de bord Home Assistant de la connexion MQTT" width="100%"><br><em>Home Assistant, connexion MQTT</em></td>
+    <td width="34%" valign="top">
+
+https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+<em>CatWandConnect en 50 secondes : imprime-le, assemble-le, ajoute le jouet préféré de ton chat, joue.</em>
+
+</td>
+    <td width="22%" align="center" valign="top"><img src="media/screenshots/ui-main-screen-phone.png" alt="L'interface de l'appareil sur un téléphone : joystick, vitesse, session de jeu et Ranger" width="100%"><br><em>Joue depuis ton téléphone</em></td>
+    <td width="44%" align="center" valign="top"><img src="media/screenshots/ha-dashboard-native.png" alt="Tableau de bord Home Assistant de l'intégration native, avec la carte joystick" width="100%"><br><em>Home Assistant, intégration native</em><br><br><img src="media/screenshots/ha-dashboard-mqtt.png" alt="Tableau de bord Home Assistant de la connexion MQTT" width="100%"><br><em>Home Assistant, connexion MQTT</em></td>
   </tr>
 </table>
 

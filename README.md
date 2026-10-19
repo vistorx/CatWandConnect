@@ -25,15 +25,17 @@
 
 ## See it
 
-https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
-
-<p align="center"><em>CatWandConnect in 50 seconds: print it, assemble it, add your cat's favourite toy, play.</em></p>
-
 <table>
   <tr>
-    <td align="center" width="26%"><img src="media/screenshots/ui-main-screen-phone.png" alt="The Device interface on a phone: joystick, Speed, Play session and Stow" width="200"><br><em>Play from your phone</em></td>
-    <td align="center" width="37%"><img src="media/screenshots/ha-dashboard-native.png" alt="Home Assistant dashboard of the Native integration, with the joystick card" width="100%"><br><em>Home Assistant, Native integration</em></td>
-    <td align="center" width="37%"><img src="media/screenshots/ha-dashboard-mqtt.png" alt="Home Assistant dashboard of the MQTT connection" width="100%"><br><em>Home Assistant, MQTT connection</em></td>
+    <td width="34%" valign="top">
+
+https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
+
+<em>CatWandConnect in 50 seconds: print it, assemble it, add your cat's favourite toy, play.</em>
+
+</td>
+    <td width="22%" align="center" valign="top"><img src="media/screenshots/ui-main-screen-phone.png" alt="The Device interface on a phone: joystick, Speed, Play session and Stow" width="100%"><br><em>Play from your phone</em></td>
+    <td width="44%" align="center" valign="top"><img src="media/screenshots/ha-dashboard-native.png" alt="Home Assistant dashboard of the Native integration, with the joystick card" width="100%"><br><em>Home Assistant, Native integration</em><br><br><img src="media/screenshots/ha-dashboard-mqtt.png" alt="Home Assistant dashboard of the MQTT connection" width="100%"><br><em>Home Assistant, MQTT connection</em></td>
   </tr>
 </table>
 

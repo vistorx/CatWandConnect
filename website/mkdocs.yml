@@ -91,8 +91,13 @@ plugins:
                   name: Mode clair
           nav_translations:
             Home: Accueil
-            Install: Installer
             Build: Fabriquer
+            1. Print the parts: 1. Imprimer les pièces
+            2. Wire the electronics: 2. Câbler l'électronique
+            3. Install the software: 3. Installer le logiciel
+            4. Assemble the robot: 4. Assembler le robot
+            5. Set up Home Assistant: 5. Configurer Home Assistant
+            Full parts list: Liste complète des pièces
             Use: Utilisation
             Community: Communauté
             Contributing: Contribuer
@@ -124,20 +129,19 @@ validation:
   anchors: warn
 
 nav:
+  # Same order as the README: the five build steps, then the parts list.
   - Home: index.md
-  - Install: https://vistorx.github.io/CatWandConnect/flasher/
   - Build:
-      - bom.md
-      - print.md
-      - wiring.md
-      - install.md
-      - assembly.md
-  - Home Assistant:
-      - home-assistant.md
+      - 1. Print the parts: print.md
+      - 2. Wire the electronics: wiring.md
+      - 3. Install the software: install.md
+      - 4. Assemble the robot: assembly.md
+      - 5. Set up Home Assistant: home-assistant.md
+      - Full parts list: bom.md
   - Use:
       - features.md
-      - changelog.md
       - troubleshooting.md
+      - changelog.md
   - Community:
       - support.md
       - security.md
