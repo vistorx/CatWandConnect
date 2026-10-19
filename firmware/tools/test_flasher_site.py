@@ -185,7 +185,7 @@ class Build(unittest.TestCase):
             page = os.path.join(root, "flasher", "index.html")
             with open(page) as f:
                 html = f.read()
-            for ref in ("media/logo/logo-64.png", "media/logo/logo-320.png"):
+            for ref in ("media/logo/logo.svg", "media/logo/favicon.ico", "media/logo/logo-180.png"):
                 self.assertIn(f'"{ref}"', html)
                 self.assertTrue(os.path.exists(os.path.join(root, "flasher", ref)), ref)
             self.assertIn("fetch('channels.json')", html)

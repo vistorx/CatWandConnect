@@ -118,7 +118,7 @@ class Pages(unittest.TestCase):
         with tempfile.TemporaryDirectory() as out:
             stage(out)
             for page in ("index.md", "index.fr.md", "support.fr.md", "install.fr.md", "support.md", "glossary.md", "install.md", "adr/index.md",
-                         "agents/index.md", "media/logo/logo-64.png", "images/wiring.svg"):
+                         "agents/index.md", "media/logo/logo.svg", "images/wiring.svg"):
                 self.assertTrue(os.path.exists(os.path.join(out, page)), page)
             with open(os.path.join(out, "index.md")) as f:
                 self.assertIn("/CatWandConnect/flasher/", f.read())
