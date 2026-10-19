@@ -13,7 +13,7 @@ Ce guide installe le firmware sur la carte depuis ton navigateur et connecte le 
 Rien à acheter pour cette étape. **[Liste complète des pièces →](bom.fr.md)**
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Installer depuis le navigateur" width="340"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Installer depuis le navigateur" width="260"></a>
 </p>
 
 ## Étapes
