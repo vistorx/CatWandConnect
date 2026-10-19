@@ -64,7 +64,7 @@ Tout ce que fait le firmware CatWandConnect, regroupé par usage. Tout est dans 
 ## Matériel
 
 - **Cartes :** ESP32, ESP32-S3 et ESP32-C3. Les cartes ESP8266 ne sont pas compatibles ([ADR 0008](adr/0008-no-esp8266-support.md), en anglais).
-- **Mécanisme :** le Mk3, avec deux servos MG996R. Autonome : l'électronique tient à l'intérieur et un seul connecteur USB-C l'alimente. Le Mk2 précédent marche aussi.
+- **Mécanisme :** le Mk3, avec deux servos MG996R. Autonome : l'électronique tient à l'intérieur et un seul connecteur USB-C l'alimente.
 
 ## Prévu
 
