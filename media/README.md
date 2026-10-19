@@ -4,8 +4,9 @@ The project's visual assets: logo, banners, photos and screenshots. Drop the sou
 
 | Folder | What goes in it | Format |
 |--------|-----------------|--------|
-| `logo/` | The CatWandConnect logo and its variants (full, mark only, light and dark backgrounds) | SVG first; PNG export at 512 px or more |
-| `banner/` | Wide images for the top of the README, the flasher page and social previews | PNG or JPEG, 1280×640 (GitHub's social preview size) |
+| `logo/` | The CatWandConnect icon: `logo.svg` (source, used by the website and the flasher), `favicon.ico`, PNG exports at 16, 32, 180 (Apple touch icon) and 512 px | SVG first, PNG exports |
+| `banner/` | `banner.svg` (source) and `banner.png`: top of the README and social previews (link thumbnails) | 1200×630 (the size link previews use) |
+| `discord/` | Avatars of the Discord bots (Admin, Support), kept here as sources | SVG + PNG 512 px |
 | `photos/` | Photos of the robot, of the build steps and of cats playing with it | JPEG or WebP |
 | `screenshots/` | Screenshots of the Device interface, the flasher and Home Assistant | PNG |
 | `buttons/` | Call-to-action buttons used in the README: the install button and the sponsor button (`sponsor.svg`, same shape, rose) | SVG |

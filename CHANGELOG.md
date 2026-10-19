@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **A new look.** New banner and icon on the README, the website (tab icon, header) and the web flasher.
 - **Find the docs from anywhere.** A Documentation button next to Support the project at the top of the README, and the web flasher now has the website's menu (Home, Install, Build, Home Assistant, Use, Community) and a language switch.
 - **Clearer docs.** The README walks you through the build in five steps — print, electronics, software, assembly, Home Assistant — each guide starts with what you need, and a full parts list gathers everything. The Mk3 assembly guide is written step by step.
 - **Mk2 files removed.** The Mk3 is now the only Mechanism; the Mk2's printable files left the repository (they stay in the Git history).
