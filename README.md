@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="media/banner/banner.png" alt="CatWandConnect: a clamp-on robot that swings a wand so your cat never runs out of play" width="100%">
+  <img src="media/banner/banner-readme.png" alt="CatWandConnect: a clamp-on robot that swings a wand so your cat never runs out of play" width="100%">
 </h1>
 
 <p align="right"><b>English</b> · <a href="README.fr.md">Français</a></p>
