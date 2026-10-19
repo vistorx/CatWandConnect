@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="60" viewBox="0 0 340 60" role="img" aria-label="Support the project">
+  <title>Support the project</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ec5f97"/>
+      <stop offset="1" stop-color="#d6407c"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="338" height="58" rx="14" fill="url(#bg)" stroke="#a52a5c" stroke-width="2"/>
+  <!-- Heart icon -->
+  <g transform="translate(34 30)">
+    <path d="M0 12 C-4 8.5 -14 2 -14 -5 A7 7 0 0 1 0 -8.5 A7 7 0 0 1 14 -5 C14 2 4 8.5 0 12 Z" fill="#fff"/>
+  </g>
+  <text x="188" y="38" text-anchor="middle" fill="#fff"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="20" font-weight="700">Support the project</text>
+</svg>

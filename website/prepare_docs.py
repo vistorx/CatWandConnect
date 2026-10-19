@@ -142,9 +142,9 @@ def convert_videos(text, src_repo):
             return f"[{url}]({url})"
         up = "../" * src_repo.count("/")
         src, poster = VIDEOS[url]
-        # Half the page width, centred; never narrower than a phone screen.
+        # Full page width, like the README's video on GitHub.
         return (f'<video controls preload="metadata" playsinline '
-                f'style="display:block;margin:0 auto;width:50%;min-width:280px;max-width:100%" '
+                f'style="display:block;margin:0 auto;width:100%;max-width:100%" '
                 f'src="{up}{src}" poster="{up}{poster}"></video>')
     return ATTACHMENT.sub(video, text)
 

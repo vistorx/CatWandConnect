@@ -79,18 +79,22 @@ _Avoid_: Protocol version, firmware version (that is `version`)
 ## Hardware
 
 **Mechanism**:
-A printed mechanical design of the robot, identified by a Mark number (Mk1, Mk2…). Independent from firmware version numbers.
+A printed mechanical design of the robot, identified by a Mark number (Mk1, Mk2, Mk3). Independent from firmware version numbers.
 _Avoid_: Version, V1, V2 (reserved for firmware releases)
 
 **Mk1**:
 The first Mechanism, retired because its vertical servo overheated under load. Its files were removed from the repo; they remain in the Git history.
 
 **Mk2**:
-The previous Mechanism, reinforced with a 608 skateboard bearing and a 4 mm steel-ball track, with the electronics outside the robot. Its files stay in `stls/mk2/` for builds that keep the electronics outside.
+The second Mechanism, retired: reinforced with a 608 skateboard bearing and a 4 mm steel-ball track, with the electronics outside the robot. Its files were removed from the repo; they remain in the Git history.
 
 **Mk3**:
-The current reference Mechanism, standalone: the board and the power chain (USB-C PD trigger board, buck converter, wiring) sit inside the clamp's technical cavity, closed by a printed door, and a single USB-C connector powers the robot. The firmware works with both the Mk2 and the Mk3: only the Calibration differs from one build to another.
+The current and only Mechanism, standalone: the board and the power chain (USB-C PD trigger board, buck converter, wiring) sit inside the clamp's technical cavity, closed by a printed door, and a single USB-C connector powers the robot. Its two axes turn on servo horns: the rotor plate rides on 6 mm balls in the top plate's ball groove, and the arm carries a 608 bearing in its bearing holder.
 _Avoid_: Mk2.5, standalone version
+
+**Servo horn**:
+The small plastic or metal arm supplied with a servo that fits on its output axis; the rotor plate and the arm each hold one, screwed into the servo's axis.
+_Avoid_: Palonnier (in English text), servo arm (the arm is a printed part)
 
 ## Releases
 

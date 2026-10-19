@@ -127,10 +127,11 @@ nav:
   - Home: index.md
   - Install: https://vistorx.github.io/CatWandConnect/flasher/
   - Build:
+      - bom.md
       - print.md
-      - assembly.md
       - wiring.md
       - install.md
+      - assembly.md
   - Home Assistant:
       - home-assistant.md
   - Use:

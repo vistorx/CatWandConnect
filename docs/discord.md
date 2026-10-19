@@ -20,7 +20,7 @@ curl -s "https://discord.com/api/v10/invites/Rbqge3v9dk?with_expiration=true"
 | Information | `#announcements` | Text, read-only | Firmware releases, posted automatically by GitHub. |
 | Support | `#support` | Forum | One post per problem or question. Tags: `bug`, `installation`, `question`, `idea`, aligned with the GitHub labels. |
 | Community | One channel per language | Text | Chat in the members' own language, named `<flag>・<language>` with a topic written in that language. Only languages the maintainers can moderate. |
-| Community | `📸・showroom` | Forum, gallery | One post per build, with photos or a video. Tags: `Mk3`, `Mk2`, `custom build`, `ESP32`, `ESP32-S3`, `ESP32-C3`, `video`. |
+| Community | `📸・showroom` | Forum, gallery | One post per build, with photos or a video. Tags: `Mk3`, `custom build`, `ESP32`, `ESP32-S3`, `ESP32-C3`, `video`. |
 
 Read-only means `@everyone` is denied Send Messages, Send Messages in Threads and Create Public Threads.
 

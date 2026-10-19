@@ -18,9 +18,9 @@ class GithubOnlyContent(unittest.TestCase):
         self.assertIn('src="media/video/mk2-presentation.mp4"', page)
         self.assertIn('poster="media/video/mk2-presentation-poster.jpg"', page)
 
-    def test_video_player_is_half_the_page_width_and_centred(self):
+    def test_video_player_is_full_width_and_centred(self):
         page = rewrite_page(VIDEO_URL + "\n", "README.md", "index.md")
-        self.assertIn('style="display:block;margin:0 auto;width:50%;min-width:280px;max-width:100%"', page)
+        self.assertIn('style="display:block;margin:0 auto;width:100%;max-width:100%"', page)
         self.assertNotIn('width="100%"', page)
 
     def test_github_video_in_a_french_docs_page_points_at_the_built_media(self):
@@ -59,16 +59,16 @@ class RewriteTarget(unittest.TestCase):
         self.assertEqual(self.md("images/wiring.svg", "docs/wiring.md", "wiring.md"), "images/wiring.svg")
 
     def test_files_outside_the_site_go_to_github(self):
-        self.assertEqual(self.md("../stls/mk2/a.stl", "docs/print.md", "print.md"),
-                         "https://github.com/vistorx/CatWandConnect/blob/main/stls/mk2/a.stl")
+        self.assertEqual(self.md("../stls/mk3/a.stl", "docs/print.md", "print.md"),
+                         "https://github.com/vistorx/CatWandConnect/blob/main/stls/mk3/a.stl")
         self.assertEqual(self.md("AGENTS.md", "README.md", "index.md"),
                          "https://github.com/vistorx/CatWandConnect/blob/main/AGENTS.md")
         self.assertEqual(self.md("media/README.md", "README.md", "index.md"),
                          "https://github.com/vistorx/CatWandConnect/blob/main/media/README.md")
 
     def test_folders_go_to_github_unless_indexed(self):
-        self.assertEqual(self.md("stls/mk2/", "README.md", "index.md"),
-                         "https://github.com/vistorx/CatWandConnect/tree/main/stls/mk2")
+        self.assertEqual(self.md("stls/mk3/", "README.md", "index.md"),
+                         "https://github.com/vistorx/CatWandConnect/tree/main/stls/mk3")
         self.assertEqual(self.md("docs/adr/", "README.md", "index.md"), "adr/index.md")
         self.assertEqual(self.md("agents/", "docs/getting-started.md", "getting-started.md"), "agents/index.md")
 

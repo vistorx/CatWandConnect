@@ -20,7 +20,7 @@ curl -s "https://discord.com/api/v10/invites/Rbqge3v9dk?with_expiration=true"
 | Information | `#announcements` | Texte, lecture seule | Versions du firmware, publiées automatiquement par GitHub. |
 | Support | `#support` | Forum | Un post par problème ou question. Tags : `bug`, `installation`, `question`, `idea`, alignés sur les labels GitHub. |
 | Community | Un salon par langue | Texte | Discussion dans la langue des membres, nommé `<drapeau>・<langue>` avec un sujet écrit dans cette langue. Seulement les langues que les mainteneurs peuvent modérer. |
-| Community | `📸・showroom` | Forum, galerie | Un post par montage, avec photos ou vidéo. Tags : `Mk3`, `Mk2`, `custom build`, `ESP32`, `ESP32-S3`, `ESP32-C3`, `video`. |
+| Community | `📸・showroom` | Forum, galerie | Un post par montage, avec photos ou vidéo. Tags : `Mk3`, `custom build`, `ESP32`, `ESP32-S3`, `ESP32-C3`, `video`. |
 
 Lecture seule signifie que `@everyone` n'a pas les permissions Envoyer des messages, Envoyer des messages dans les fils et Créer des fils publics.
 

@@ -1,8 +1,10 @@
 # Câbler l'électronique
 
-Comment câbler les deux servos et la chaîne d'alimentation à la carte. Le firmware pilote les servos avec des impulsions PWM à 50 Hz ; la carte envoie seulement les signaux et n'alimente jamais les servos.
+Ce guide te permet de câbler la carte, les deux servos et la chaîne d'alimentation USB-C, et de les tester sur la table, prêts pour le logiciel.
 
-## Composants
+Le firmware pilote les servos avec des impulsions PWM à 50 Hz ; la carte envoie seulement les signaux et n'alimente jamais les servos.
+
+## Ce qu'il te faut
 
 | Qté | Pièce | Remarques |
 |-----|-------|-----------|
@@ -20,6 +22,8 @@ Outils : un fer à souder et un multimètre.
 
 Une simple alimentation 5 V de 3 A ou plus marche aussi, à la place du chargeur, de la carte de déclenchement et du convertisseur : branche-la directement sur les rails +5 V et GND.
 
+**[Liste complète des pièces →](bom.fr.md)**
+
 ### Exemples de composants
 
 Ce sont les composants du montage de référence. Les annonces changent avec le temps et n'importe quel composant équivalent convient. Les liens sont des exemples, ni sponsorisés ni affiliés.
@@ -33,7 +37,7 @@ Ce sont les composants du montage de référence. Les annonces changent avec le 
 
 ### Servos plus robustes : DS3218
 
-Le DS3218 coûte plus cher que le MG996R, mais il est bien plus solide et a beaucoup plus de couple (classe 20 kg·cm, pignons métalliques). Il a la même taille de servo standard, il devrait donc tenir dans les mêmes supports (pas encore vérifié sur le Mk3).
+Le DS3218 coûte plus cher que le MG996R, mais il est bien plus solide et a beaucoup plus de couple (classe 20 kg·cm, pignons métalliques). Il a la même taille de servo standard, il devrait donc tenir dans les mêmes supports du Mk3 (pas encore vérifié).
 
 - Prends la version **180°**. Le DS3218 existe aussi en 270°, ce qui fausserait les angles.
 - Sa plage d'impulsions est d'environ 500–2500 µs : règle-la dans **Réglages → Matériel → Câblage**, puis relance la calibration. Voir [Plage d'impulsions des servos](#plage-dimpulsions-des-servos).
@@ -105,28 +109,85 @@ Utilise un petit bornier, un connecteur type Wago ou une plaque à trous comme �
 
 ## Monter pas à pas
 
-> **Photos bientôt.** Elles montreront le câblage posé sur la table, pour un premier test.
+<!-- video: wiring the electronics on the table -->
+Photos et vidéo bientôt.
 
-Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo coupées. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; son installation dans le mécanisme sera décrite plus tard.
+Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo coupées. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; il entre dans le robot dans [Assembler le robot](assembly.fr.md).
 
 Laisse le chargeur débranché, sauf quand une étape dit le contraire.
 
-1. **Sortie de la carte de déclenchement.** Soude deux fils sur la sortie de la carte de déclenchement USB-C PD, + et −.
-2. **Entrée du convertisseur.** Soude ces deux fils sur les broches IN du convertisseur abaisseur : + sur +, − sur −.
-3. **Sortie du convertisseur.** Soude deux fils sur les broches OUT du convertisseur, + et −.
-4. **Règle et vérifie les tensions.** Règle la carte de déclenchement sur 20 V et la sortie du convertisseur sur 5 V, et vérifie les deux au multimètre avant de brancher quoi que ce soit d'autre, comme dans [Alimentation](#alimentation). Débranche ensuite le chargeur.
-5. **Coupe les rallonges.** Coupe deux rallonges de servo en deux. Garde les deux moitiés dont la prise reçoit un servo, et une des autres moitiés : sa prise est comme celle du servo et s'enfiche sur les broches de la carte.
-6. **Retire un fil de signal.** Sur cette moitié côté carte, retire ou coupe le fil de signal (orange). Cette moitié n'amène que le +5 V et la masse à la carte.
-7. **Regroupe les rails.** Dénude les trois fils rouges (des trois moitiés), torsade-les ensemble et mets-les dans une entrée d'un connecteur à levier ; le + de la sortie du convertisseur va dans son autre entrée. Fais pareil avec les trois fils marron et le − de la sortie du convertisseur dans le second connecteur. Pas le plus propre, mais ça tient.
-8. **Alimente la carte.** Enfiche la moitié côté carte sur les broches 5V/VIN et GND de la carte : le rouge sur 5V/VIN, le marron sur GND.
-   **Vérifie d'abord le brochage de ta carte.** Si 5V/VIN et GND ne sont pas côte à côte, utilise plutôt deux fils Dupont femelles séparés. Ne mets jamais le fil rouge sur la broche 3,3 V.
-9. **Servo horizontal.** Branche le servo horizontal sur une des moitiés côté servo.
-10. **Servo vertical.** Branche le servo vertical sur l'autre moitié côté servo.
-11. **Fils de signal.** Chaque moitié côté servo garde son fil de signal (orange) : il prolonge le fil orange du servo jusqu'à la carte. Mets un embout Dupont femelle sur chacun et enfiche-le sur sa broche GPIO :
-    - la moitié du servo horizontal sur le **GPIO 18** (S3/C3 : **GPIO 4**) ;
-    - la moitié du servo vertical sur le **GPIO 19** (S3/C3 : **GPIO 5**).
+### 1. Sortie de la carte de déclenchement
 
-    Si tu as utilisé d'autres broches, choisis-les dans **Réglages → Matériel → Câblage**.
+Soude deux fils sur la sortie de la carte de déclenchement USB-C PD, + et −.
+
+<!-- photo: step 1 -->
+
+### 2. Entrée du convertisseur
+
+Soude ces deux fils sur les broches IN du convertisseur abaisseur : + sur +, − sur −.
+
+<!-- photo: step 2 -->
+
+### 3. Sortie du convertisseur
+
+Soude deux fils sur les broches OUT du convertisseur, + et −.
+
+<!-- photo: step 3 -->
+
+### 4. Règle et vérifie les tensions
+
+Règle la carte de déclenchement sur 20 V et la sortie du convertisseur sur 5 V, et vérifie les deux au multimètre avant de brancher quoi que ce soit d'autre, comme dans [Alimentation](#alimentation). Débranche ensuite le chargeur.
+
+<!-- photo: step 4 -->
+
+### 5. Coupe les rallonges
+
+Coupe deux rallonges de servo en deux. Garde les deux moitiés dont la prise reçoit un servo, et une des autres moitiés : sa prise est comme celle du servo et s'enfiche sur les broches de la carte.
+
+<!-- photo: step 5 -->
+
+### 6. Retire un fil de signal
+
+Sur cette moitié côté carte, retire ou coupe le fil de signal (orange). Cette moitié n'amène que le +5 V et la masse à la carte.
+
+<!-- photo: step 6 -->
+
+### 7. Regroupe les rails
+
+Dénude les trois fils rouges (des trois moitiés), torsade-les ensemble et mets-les dans une entrée d'un connecteur à levier ; le + de la sortie du convertisseur va dans son autre entrée. Fais pareil avec les trois fils marron et le − de la sortie du convertisseur dans le second connecteur. Pas le plus propre, mais ça tient.
+
+<!-- photo: step 7 -->
+
+### 8. Alimente la carte
+
+Enfiche la moitié côté carte sur les broches 5V/VIN et GND de la carte : le rouge sur 5V/VIN, le marron sur GND.
+
+**Vérifie d'abord le brochage de ta carte.** Si 5V/VIN et GND ne sont pas côte à côte, utilise plutôt deux fils Dupont femelles séparés. Ne mets jamais le fil rouge sur la broche 3,3 V.
+
+<!-- photo: step 8 -->
+
+### 9. Servo horizontal
+
+Branche le servo horizontal sur une des moitiés côté servo.
+
+<!-- photo: step 9 -->
+
+### 10. Servo vertical
+
+Branche le servo vertical sur l'autre moitié côté servo.
+
+<!-- photo: step 10 -->
+
+### 11. Fils de signal
+
+Chaque moitié côté servo garde son fil de signal (orange) : il prolonge le fil orange du servo jusqu'à la carte. Mets un embout Dupont femelle sur chacun et enfiche-le sur sa broche GPIO :
+
+- la moitié du servo horizontal sur le **GPIO 18** (S3/C3 : **GPIO 4**) ;
+- la moitié du servo vertical sur le **GPIO 19** (S3/C3 : **GPIO 5**).
+
+Si tu as utilisé d'autres broches, choisis-les dans **Réglages → Matériel → Câblage**.
+
+<!-- photo: step 11 -->
 
 ## Plage d'impulsions des servos
 

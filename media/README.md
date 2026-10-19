@@ -8,12 +8,12 @@ The project's visual assets: logo, banners, photos and screenshots. Drop the sou
 | `banner/` | Wide images for the top of the README, the flasher page and social previews | PNG or JPEG, 1280×640 (GitHub's social preview size) |
 | `photos/` | Photos of the robot, of the build steps and of cats playing with it | JPEG or WebP |
 | `screenshots/` | Screenshots of the Device interface, the flasher and Home Assistant | PNG |
-| `buttons/` | Call-to-action buttons used in the README, such as the install button | SVG |
+| `buttons/` | Call-to-action buttons used in the README: the install button and the sponsor button (`sponsor.svg`, same shape, rose) | SVG |
 | `video/` | Short presentation and demo videos, each with a `-poster.jpg` still used as its clickable preview (GitHub does not play videos stored in the repository inline) | MP4 (H.264, `+faststart`), under about 5 MB |
 
 ## Naming
 
-Lowercase, words joined by hyphens, starting with what the image shows: `logo-full-dark.svg`, `banner-readme.png`, `mk2-assembled-front.jpg`, `assembly-step-03-bearing.jpg`, `ui-main-screen-phone.png`. Use the [glossary](../CONTEXT.md) words (Mk2, Stow, Calibration…), not their synonyms.
+Lowercase, words joined by hyphens, starting with what the image shows: `logo-full-dark.svg`, `banner-readme.png`, `mk3-assembled-front.jpg`, `assembly-step-03-bearing.jpg`, `ui-main-screen-phone.png`. Use the [glossary](../CONTEXT.md) words (Mk3, Stow, Calibration…), not their synonyms.
 
 ## Keep the repository light
 
