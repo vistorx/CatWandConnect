@@ -11,7 +11,10 @@ Ce guide réunit les pièces imprimées, les servos et l'électronique en un rob
 |-----|-------|-----------|
 | 1 | Roulement de skateboard 608 | |
 | 27–28 | Billes de 6 mm | Entre le plateau supérieur et le plateau rotor. Les billes d'airsoft font très bien l'affaire. |
-| 19 | Vis M3 | Longueurs bientôt. 8 vis identiques pour les deux servos (4 chacun) ; 1 pour l'axe du servo horizontal (à travers le plateau rotor et le palonnier) ; 1 pour l'axe du servo vertical (à travers le bras et le palonnier) ; 4 pour le plateau supérieur ; 2 pour le support de roulement ; 3 pour la porte. |
+| 11 | Vis M3×8 tête bombée | 8 pour les deux servos (4 chacun), souvent fournies avec eux ; 3 pour la porte. |
+| 5 | Vis M3×20 tête fraisée | 4 pour le plateau supérieur ; 1 pour l'axe du servo vertical. |
+| 1 | Vis M3×14 tête fraisée | Pour l'axe du servo horizontal. |
+| 2 | Vis M3×30 tête fraisée | Pour le support de roulement. |
 | 2 | Palonniers de servo | Fournis avec les servos. |
 | | Adhésif double face | Pour la carte de déclenchement USB-C. |
 | | Graisse | Pour la gouttière des billes, par exemple de la graisse au lithium ou au PTFE. |
@@ -35,7 +38,7 @@ Retire tous les supports d'impression.
 
 ### 2. Monte le servo horizontal
 
-Insère le servo horizontal dans la pince et pose ses 4 vis M3.
+Insère le servo horizontal dans la pince et pose ses 4 vis M3×8 tête bombée.
 
 <!-- photo: step 2 -->
 
@@ -47,7 +50,7 @@ Colle la carte de déclenchement USB-C (la carte qui amène le 20 V) dans le pla
 
 ### 4. Pose le plateau supérieur
 
-Positionne le plateau supérieur en faisant passer les deux fils d'alimentation par le trou, dans la cavité technique, avec le convertisseur abaisseur dans le logement prévu pour lui. Pose les 4 vis M3 du plateau supérieur.
+Positionne le plateau supérieur en faisant passer les deux fils d'alimentation par le trou, dans la cavité technique, avec le convertisseur abaisseur dans le logement prévu pour lui. Pose les 4 vis M3×20 tête fraisée du plateau supérieur.
 
 <!-- photo: step 4 -->
 
@@ -71,7 +74,7 @@ Graisse la gouttière à billes du plateau supérieur et dépose-y les 27 à 28 
 
 ### 8. Pose le plateau rotor
 
-Emboîte le plateau rotor, avec son palonnier, sur le servo horizontal, et visse la vis M3 à travers le plateau rotor et le palonnier dans l'axe du servo.
+Emboîte le plateau rotor, avec son palonnier, sur le servo horizontal, et visse la vis M3×14 tête fraisée à travers le plateau rotor et le palonnier dans l'axe du servo.
 
 <!-- photo: step 8 -->
 
@@ -89,25 +92,25 @@ Insère l'autre palonnier de servo dans le bras.
 
 ### 11. Monte le servo vertical
 
-Installe le servo vertical sur le plateau rotor et pose ses 4 vis M3.
+Installe le servo vertical sur le plateau rotor et pose ses 4 vis M3×8 tête bombée.
 
 <!-- photo: step 11 -->
 
 ### 12. Branche le servo vertical et pose le bras
 
-Branche le servo vertical pour qu'il se mette en position. Conseillé : sur la page du robot, amène l'axe vertical à sa position la plus basse, puis emboîte le bras, avec son palonnier, sur le servo vertical et visse-le dans l'axe du servo avec une vis M3.
+Branche le servo vertical pour qu'il se mette en position. Conseillé : sur la page du robot, amène l'axe vertical à sa position la plus basse, puis emboîte le bras, avec son palonnier, sur le servo vertical et visse-le dans l'axe du servo avec la vis M3×20 tête fraisée.
 
 <!-- photo: step 12 -->
 
 ### 13. Pose le support de roulement
 
-Place le roulement et son support sur le bras et pose les 2 vis M3 qui le tiennent.
+Place le roulement et son support sur le bras et pose les 2 vis M3×30 tête fraisée qui le tiennent.
 
 <!-- photo: step 13 -->
 
 ### 14. Ferme la porte
 
-Range l'électronique dans la cavité technique et ferme-la avec la porte et ses 3 vis M3.
+Range l'électronique dans la cavité technique et ferme-la avec la porte et ses 3 vis M3×8 tête bombée.
 
 <!-- photo: step 14 -->
 

@@ -11,7 +11,10 @@ This guide puts the printed parts, the servos and the electronics together into 
 |-----|------|-------|
 | 1 | 608 skateboard bearing | |
 | 27–28 | 6 mm balls | Between the top plate and the rotor plate. Airsoft BBs work very well. |
-| 19 | M3 screws | Lengths coming soon. 8 identical screws for the two servos (4 each); 1 for the Horizontal servo's axis (through the rotor plate and the servo horn); 1 for the Vertical servo's axis (through the arm and the servo horn); 4 for the top plate; 2 for the bearing holder; 3 for the door. |
+| 11 | M3×8 button head screws | 8 for the two servos (4 each), often supplied with them; 3 for the door. |
+| 5 | M3×20 countersunk screws | 4 for the top plate; 1 for the Vertical servo's axis. |
+| 1 | M3×14 countersunk screw | For the Horizontal servo's axis. |
+| 2 | M3×30 countersunk screws | For the bearing holder. |
 | 2 | Servo horns | Supplied with the servos. |
 | | Double-sided tape | For the USB-C trigger board. |
 | | Grease | For the ball groove, for example lithium or PTFE grease. |
@@ -35,7 +38,7 @@ Remove all the print supports.
 
 ### 2. Fit the Horizontal servo
 
-Insert the Horizontal servo into the clamp and fit its 4 M3 screws.
+Insert the Horizontal servo into the clamp and fit its 4 M3×8 button head screws.
 
 <!-- photo: step 2 -->
 
@@ -47,7 +50,7 @@ Stick the USB-C trigger board (the board that brings 20 V) into the top plate wi
 
 ### 4. Fit the top plate
 
-Position the top plate, passing the two power wires through the hole into the technical cavity, with the buck converter in the recess made for it. Fit the top plate's 4 M3 screws.
+Position the top plate, passing the two power wires through the hole into the technical cavity, with the buck converter in the recess made for it. Fit the top plate's 4 M3×20 countersunk screws.
 
 <!-- photo: step 4 -->
 
@@ -71,7 +74,7 @@ Grease the top plate's ball groove and lay the 27–28 balls in it.
 
 ### 8. Fit the rotor plate
 
-Fit the rotor plate, with its servo horn, onto the Horizontal servo, and screw the M3 screw through the rotor plate and the horn into the servo's axis.
+Fit the rotor plate, with its servo horn, onto the Horizontal servo, and screw the M3×14 countersunk screw through the rotor plate and the horn into the servo's axis.
 
 <!-- photo: step 8 -->
 
@@ -89,25 +92,25 @@ Fit the other servo horn into the arm.
 
 ### 11. Fit the Vertical servo
 
-Install the Vertical servo on the rotor plate and fit its 4 M3 screws.
+Install the Vertical servo on the rotor plate and fit its 4 M3×8 button head screws.
 
 <!-- photo: step 11 -->
 
 ### 12. Connect the Vertical servo and fit the arm
 
-Connect the Vertical servo so it goes to its position. Recommended: on the robot's page, move the Vertical axis to its lowest position, then fit the arm, with its servo horn, onto the Vertical servo and screw it into the servo's axis with an M3 screw.
+Connect the Vertical servo so it goes to its position. Recommended: on the robot's page, move the Vertical axis to its lowest position, then fit the arm, with its servo horn, onto the Vertical servo and screw it into the servo's axis with the M3×20 countersunk screw.
 
 <!-- photo: step 12 -->
 
 ### 13. Fit the bearing holder
 
-Place the bearing and its holder on the arm and fit the 2 M3 screws that hold it.
+Place the bearing and its holder on the arm and fit the 2 M3×30 countersunk screws that hold it.
 
 <!-- photo: step 13 -->
 
 ### 14. Close the door
 
-Tuck the electronics into the technical cavity and close it with the door and its 3 M3 screws.
+Tuck the electronics into the technical cavity and close it with the door and its 3 M3×8 button head screws.
 
 <!-- photo: step 14 -->
 

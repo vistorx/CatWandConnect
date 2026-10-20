@@ -42,7 +42,10 @@ Utilisée à l'[étape 4](assembly.fr.md).
 |-----|-------|-----------|
 | 1 | Roulement de skateboard 608 | |
 | 27–28 | Billes de 6 mm | Entre le plateau supérieur et le plateau rotor. Les billes d'airsoft font très bien l'affaire. |
-| 19 | Vis M3 | Longueurs bientôt. 8 pour les deux servos, 1 pour chaque axe de servo, 4 pour le plateau supérieur, 2 pour le support de roulement, 3 pour la porte. |
+| 11 | Vis M3×8 tête bombée | 8 pour les deux servos (4 chacun), souvent fournies avec eux ; 3 pour la porte. |
+| 5 | Vis M3×20 tête fraisée | 4 pour le plateau supérieur ; 1 pour l'axe du servo vertical. |
+| 1 | Vis M3×14 tête fraisée | Pour l'axe du servo horizontal. |
+| 2 | Vis M3×30 tête fraisée | Pour le support de roulement. |
 | 2 | Palonniers de servo | Fournis avec les servos. |
 | | Adhésif double face | Tient la carte de déclenchement USB-C dans le plateau supérieur. |
 | | Graisse | Pour la gouttière des billes, par exemple de la graisse au lithium ou au PTFE. |

@@ -42,7 +42,10 @@ Used in [step 4](assembly.md).
 |-----|------|-------|
 | 1 | 608 skateboard bearing | |
 | 27–28 | 6 mm balls | Between the top plate and the rotor plate. Airsoft BBs work very well. |
-| 19 | M3 screws | Lengths coming soon. 8 for the two servos, 1 for each servo axis, 4 for the top plate, 2 for the bearing holder, 3 for the door. |
+| 11 | M3×8 button head screws | 8 for the two servos (4 each), often supplied with them; 3 for the door. |
+| 5 | M3×20 countersunk screws | 4 for the top plate; 1 for the Vertical servo's axis. |
+| 1 | M3×14 countersunk screw | For the Horizontal servo's axis. |
+| 2 | M3×30 countersunk screws | For the bearing holder. |
 | 2 | Servo horns | Supplied with the servos. |
 | | Double-sided tape | Holds the USB-C trigger board in the top plate. |
 | | Grease | For the ball groove, for example lithium or PTFE grease. |
