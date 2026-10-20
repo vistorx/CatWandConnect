@@ -18,6 +18,8 @@ The **Mk3** is standalone: the board and the power boards fit inside the robot, 
 
 ![The seven Mk3 parts sliced on one plate in PrusaSlicer, in their print orientation, with the clamp's supports in green.](../media/screenshots/prusa-slicer-plate.jpg)
 
+Want to change a part? The CAD sources, exported from Onshape as STEP, are in [`cads/mk3/`](../cads/mk3/): one file per part, and [`catwandconnect-mk3.step`](../cads/mk3/catwandconnect-mk3.step) for the whole Mechanism. Any CAD tool (FreeCAD, Fusion, Onshape…) opens them.
+
 ## What you need
 
 | What | Notes |

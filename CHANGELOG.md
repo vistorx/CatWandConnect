@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Mk3 CAD sources.** The STEP files of every Mk3 part, and of the whole Mechanism, are in `cads/mk3/`: open them in any CAD tool to adapt a part.
 - **A new look.** New banner and icon on the README, the website (tab icon, header) and the web flasher.
 - **Find the docs from anywhere.** A Documentation button next to Support the project at the top of the README, and the web flasher now has the website's menu (Home, Install, Build, Home Assistant, Use, Community) and a language switch.
 - **Clearer docs.** The README walks you through the build in five steps — print, electronics, software, assembly, Home Assistant — each guide starts with what you need, and a full parts list gathers everything. The Mk3 assembly guide is written step by step.

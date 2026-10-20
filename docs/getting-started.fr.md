@@ -22,11 +22,12 @@ Dans le dépôt :
 - Logo, bannières, photos et captures d'écran dans `media/` (voir [`media/README.md`](../media/README.md)).
 - La doc du domaine, les ADR et la configuration des agents.
 - Les pièces à imprimer du Mk3, le mécanisme actuel, dans `stls/mk3/`.
+- Les sources CAO du Mk3 en STEP (une par pièce, plus le mécanisme complet) dans `cads/mk3/`.
 - Les réglages de projet Claude Code qui activent le plugin `mattpocock-skills` (`.claude/settings.json`).
 
 Pas dans le dépôt :
 
-- **Les sources CAO.** Seuls les exports STL/3MF sont versionnés, et `cads/` est vide. Pour modifier une pièce, il faut le projet CAO d'origine.
+- **Le projet CAO natif.** Les pièces sont conçues dans Onshape ; seul leur export STEP est versionné. Un fichier STEP contient la géométrie exacte, mais pas l'historique de construction.
 - **La preuve de concept ESPHome.** Elle a été supprimée dans `fa58005`. Récupère-la avec `git show 3cda6f7:sources/cat-playing-platform.yaml`. C'est la référence pour la logique de mouvement de la preuve de concept.
 - **Les secrets.** Aucun n'est versionné, et le nouveau firmware n'en a besoin d'aucun à la compilation. Les identifiants Wi-Fi se saisissent sur l'appareil.
 - **La configuration propre à chaque machine.** Ta clé SSH, ta connexion GitHub, ton identité git et `.claude/settings.local.json` sont à recréer sur chaque machine. Voir ci-dessous.
