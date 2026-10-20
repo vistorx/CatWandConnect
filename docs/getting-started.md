@@ -22,11 +22,12 @@ In the repo:
 - Logo, banners, photos and screenshots in `media/` (see [`media/README.md`](../media/README.md)).
 - Domain docs, ADRs and agent config.
 - Printable parts of the Mk3, the current Mechanism, in `stls/mk3/`.
+- CAD sources of the Mk3 as STEP files (one per part, plus the whole Mechanism) in `cads/mk3/`.
 - The Claude Code project settings that enable the `mattpocock-skills` plugin (`.claude/settings.json`).
 
 Not in the repo:
 
-- **CAD sources.** Only STL/3MF exports are committed, and `cads/` is empty. To change a part, you need the original CAD project.
+- **The native CAD project.** The parts are designed in Onshape; only their STEP export is committed. A STEP file holds the exact geometry but no feature history.
 - **The ESPHome PoC.** It was removed in `fa58005`. Recover it with `git show 3cda6f7:sources/cat-playing-platform.yaml`. It is the reference for the PoC motion logic.
 - **Secrets.** None are committed, and the new firmware does not need any at build time. Wi-Fi credentials are entered on the device.
 - **Per-machine setup.** Your SSH key, GitHub login, git identity and `.claude/settings.local.json` must be recreated on each machine. See below.

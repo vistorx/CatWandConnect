@@ -18,6 +18,8 @@ Le **Mk3** est autonome : la carte et les cartes d'alimentation tiennent dans le
 
 ![Les sept pièces du Mk3 tranchées sur un plateau dans PrusaSlicer, dans leur orientation d'impression, avec les supports de la pince en vert.](../media/screenshots/prusa-slicer-plate.jpg)
 
+Tu veux modifier une pièce ? Les sources CAO, exportées d'Onshape en STEP, sont dans [`cads/mk3/`](../cads/mk3/) : un fichier par pièce, et [`catwandconnect-mk3.step`](../cads/mk3/catwandconnect-mk3.step) pour le mécanisme complet. N'importe quel logiciel de CAO (FreeCAD, Fusion, Onshape…) les ouvre.
+
 ## Ce qu'il te faut
 
 | Quoi | Remarques |
