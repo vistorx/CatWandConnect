@@ -17,6 +17,7 @@ site_dir: build/site
 
 theme:
   name: material
+  custom_dir: overrides
   # Set per language by the i18n plugin (search and UI texts follow it).
   language: en
   logo: media/logo/logo.svg
