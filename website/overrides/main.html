@@ -1,0 +1,22 @@
+{#- Link previews (Open Graph, Twitter/X, Discord, messaging apps): every page
+    shares media/social/social-preview.png, with its own title and the site
+    description. Absolute URLs: crawlers don't resolve relative ones. -#}
+{% extends "base.html" %}
+{% block extrahead %}
+  {%- set title = (page.title ~ " - " ~ config.site_name) if page and page.title and not page.is_homepage else config.site_name %}
+  {%- set description = (page.meta.description if page and page.meta and page.meta.description else config.site_description) %}
+  {%- set image = config.site_url ~ "media/social/social-preview.png" %}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  {%- if page and page.canonical_url %}
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  {%- endif %}
+  <meta property="og:image" content="{{ image }}">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="CatWandConnect: a clamp-on robot that swings a wand so your cat never runs out of play.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ image }}">
+{% endblock %}

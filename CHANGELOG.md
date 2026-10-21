@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Nicer shared links.** Sharing the website, the web flasher or the repository in a chat or on social media now shows a CatWandConnect preview card.
 - **Screw lengths.** The parts list and the assembly guide now give the length and head of every M3 screw.
 - **Mk3 CAD sources.** The STEP files of every Mk3 part, and of the whole Mechanism, are in `cads/mk3/`: open them in any CAD tool to adapt a part.
 - **A new look.** New banner and icon on the README, the website (tab icon, header) and the web flasher.
