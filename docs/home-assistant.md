@@ -187,11 +187,12 @@ When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
 ## Ready-made dashboards
 
-A control panel for the robot: a big Play session button (tap to start, tap again to stop; hold for details) and its duration, Stow, the Activity, each axis's position and maximum speed. There is one for each connection. The Native integration's adds the joystick card that comes with the integration; the MQTT connection's uses only built-in cards.
+A control panel for the robot: a big Play session button (tap to start, tap again to stop) and its duration, Stow, the Activity, each axis's position and maximum speed, and a **Robot page** button that opens the robot's own page. A long press on any of its cards opens the robot's page too. There is one for each connection. The Native integration's adds the joystick card that comes with the integration; the MQTT connection's uses only built-in cards.
 
 1. Go to **Settings → Dashboards → Add dashboard → New dashboard from scratch**, name it, for example "Cat wand", and open it.
 2. Click the pencil (**Edit dashboard**), then the three dots → **Raw configuration editor**.
-3. Replace everything with the YAML for your connection below and **Save**.
+3. Replace everything with the YAML for your connection below.
+4. Replace every `http://catwandconnect.local/` with your robot's address (find and replace in the editor), then **Save**. The address is on the robot's page, in **Settings → Network → Wi-Fi**: for example `http://catwandconnect-3f9a.local/` with the default name. Robots set up before version 0.2.1 keep `http://catwandconnect.local/`: nothing to replace. This address is what the **Robot page** button and the long presses open; the device page in Home Assistant also has a **Visit** link to it.
 
 On a phone, the sections stack: Play session first, then the positions and speeds. To add the cards to an existing dashboard instead, copy only the three `- type: grid` sections into one of its sections views.
 
@@ -226,6 +227,12 @@ views:
                   - condition: state
                     entity: update.catwandconnect_firmware
                     state: "on"
+              - type: button
+                icon: mdi:open-in-new
+                text: Robot page
+                tap_action:
+                  action: url
+                  url_path: http://catwandconnect.local/
           - type: button
             entity: switch.catwandconnect_play_session
             name: Play session
@@ -235,7 +242,8 @@ views:
             tap_action:
               action: toggle
             hold_action:
-              action: more-info
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Session duration
@@ -243,6 +251,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: button.catwandconnect_stow
             name: Stow
@@ -252,6 +263,9 @@ views:
               perform_action: button.press
               target:
                 entity_id: button.catwandconnect_stow
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -265,12 +279,18 @@ views:
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_position
             name: Vertical
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -283,6 +303,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_maximum_speed
             name: Vertical
@@ -290,6 +313,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
 ```
 
 The joystick works like the one on the robot's page: hold and drag, the wand follows; let go, it stops. It comes with the integration (0.1.1 or later): nothing to add under *Resources*. If it shows "Custom element doesn't exist", reload the page (pull down in the app) after updating. The position sliders go from one Travel limit to the other.
@@ -325,6 +351,12 @@ views:
                   - condition: state
                     entity: update.catwandconnect_firmware
                     state: "on"
+              - type: button
+                icon: mdi:open-in-new
+                text: Robot page
+                tap_action:
+                  action: url
+                  url_path: http://catwandconnect.local/
           - type: button
             entity: switch.catwandconnect_play_session
             name: Play session
@@ -334,7 +366,8 @@ views:
             tap_action:
               action: toggle
             hold_action:
-              action: more-info
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Session duration
@@ -342,6 +375,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: button.catwandconnect_stow
             name: Stow
@@ -351,6 +387,9 @@ views:
               perform_action: button.press
               target:
                 entity_id: button.catwandconnect_stow
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -362,12 +401,18 @@ views:
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_position
             name: Vertical
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -380,6 +425,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_maximum_speed
             name: Vertical
@@ -387,6 +435,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
 ```
 
 The position sliders go from 0 to 180°; the robot stops at its Travel limits. A **Firmware** badge appears next to Activity when a new version is available; tap it for the release notes. The joystick card comes with the Native integration only; with the MQTT connection, move the wand with the sliders or from the robot's page.
