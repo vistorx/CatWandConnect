@@ -98,7 +98,10 @@ void Robot::tick() {
   lastTickMs_ = now;
   if (dt <= 0) return;
 
-  if (activity_ == Activity::Playing && static_cast<int32_t>(now - playEndMs_) >= 0) stow();
+  if (activity_ == Activity::Playing && static_cast<int32_t>(now - playEndMs_) >= 0) {
+    report(PlayEvent::Ended, PlayCause::None);
+    stowNow();
+  }
   if (activity_ == Activity::Manual && now - lastManualMs_ > kManualTimeoutMs) {
     for (Axis axis : kAxes) state(axis).command = 0;
   }
@@ -163,6 +166,7 @@ void Robot::tick() {
 
 void Robot::manualMove(float horizontal, float vertical) {
   if (activity_ == Activity::Stowing) return;
+  leavePlay(PlayCause::ManualControl);
   endCalibration();
   for (Axis axis : kAxes) state(axis).hasGoto = false;
   state(Axis::Horizontal).command = unit(horizontal);
@@ -173,6 +177,7 @@ void Robot::manualMove(float horizontal, float vertical) {
 
 void Robot::manualGoto(Axis axis, float degrees) {
   if (activity_ == Activity::Stowing || !kServoRange.contains(degrees)) return;
+  leavePlay(PlayCause::ManualControl);
   if (activity_ != Activity::Manual) {
     endCalibration();
     for (Axis a : kAxes) state(a).command = 0;
@@ -193,6 +198,11 @@ void Robot::manualStop() {
 }
 
 void Robot::stow() {
+  leavePlay(PlayCause::Stow);
+  stowNow();
+}
+
+void Robot::stowNow() {
   manualStop();
   endCalibration();
   activity_ = Activity::Stowing;
@@ -201,6 +211,7 @@ void Robot::stow() {
 
 void Robot::startCalibration() {
   if (activity_ == Activity::Stowing) return;
+  leavePlay(PlayCause::Calibration);
   manualStop();
   draft_ = settings_;
   for (Axis axis : kAxes) {
@@ -343,6 +354,7 @@ void Robot::stepCalibration(Axis axis, float dt) {
 
 bool Robot::startSpeedTuning(Axis axis, SpeedBound bound) {
   if (!settings_.calibrated || activity_ == Activity::Stowing || activity_ == Activity::Calibrating) return false;
+  leavePlay(PlayCause::SpeedTuning);
   manualStop();
   const AxisSettings& a = settings_.axis(axis);
   tuningAxis_ = axis;
@@ -422,8 +434,12 @@ void Robot::stepSpeedTuning(Axis axis, float dt) {
 
 bool Robot::startPlaySession(uint8_t minutes) {
   if (minutes < kMinSessionMinutes || minutes > kMaxSessionMinutes) return false;
-  if (!settings_.calibrated || activity_ == Activity::Stowing || activity_ == Activity::Calibrating ||
-      activity_ == Activity::TuningSpeed) {
+  if (!settings_.calibrated) {
+    report(PlayEvent::Refused, PlayCause::NotCalibrated);
+    return false;
+  }
+  if (activity_ == Activity::Stowing || activity_ == Activity::Calibrating || activity_ == Activity::TuningSpeed) {
+    report(PlayEvent::Refused, PlayCause::Busy);
     return false;
   }
   manualStop();
@@ -431,6 +447,7 @@ bool Robot::startPlaySession(uint8_t minutes) {
   for (Axis axis : kAxes) drawMove(axis);
   playEndMs_ = clock_.nowMs() + minutes * 60000u;
   activity_ = Activity::Playing;
+  report(PlayEvent::Started, PlayCause::None);
   return true;
 }
 
@@ -441,7 +458,17 @@ bool Robot::setSessionMinutes(uint8_t minutes) {
 }
 
 void Robot::stopPlaySession() {
-  if (activity_ == Activity::Playing) stow();
+  if (activity_ != Activity::Playing) return;
+  leavePlay(PlayCause::Stop);
+  stowNow();
+}
+
+void Robot::report(PlayEvent event, PlayCause cause) {
+  if (observer_ != nullptr) observer_->playSession(event, cause);
+}
+
+void Robot::leavePlay(PlayCause cause) {
+  if (activity_ == Activity::Playing) report(PlayEvent::Stopped, cause);
 }
 
 uint32_t Robot::playRemainingS() const {

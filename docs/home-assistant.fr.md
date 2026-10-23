@@ -2,7 +2,7 @@
 
 Ce guide facultatif ajoute le robot à Home Assistant, avec un tableau de bord tout prêt.
 
-CatWandConnect fonctionne sans Home Assistant. Si tu l'utilises, le robot peut y apparaître comme un appareil avec un interrupteur de session de jeu et sa durée, un bouton Ranger, son activité, et la position et la vitesse maximale de chaque axe, prêt pour tes tableaux de bord et tes automatisations.
+CatWandConnect fonctionne sans Home Assistant. Si tu l'utilises, le robot peut y apparaître comme un appareil avec un interrupteur de session de jeu, sa durée et l'heure à laquelle elle se termine, un bouton Ranger, son activité, et la position et la vitesse maximale de chaque axe, prêt pour tes tableaux de bord et tes automatisations.
 
 Il y a deux façons de le connecter. Choisis-en une, configure-la, puis copie le [tableau de bord tout prêt](#tableaux-de-bord-tout-prêts) qui va avec.
 
@@ -86,6 +86,9 @@ Va dans **Paramètres → Appareils et services → CatWandConnect**, puis sur l
 | Activité | Capteur | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` ou `playing` (affichés *Au repos*, *Pilotage manuel*… à l'écran). |
 | Session de jeu | Interrupteur | Allumé, il lance une session de jeu pour la durée de session ; éteint, il l'arrête et range la baguette. Il est allumé tant qu'une session tourne, qu'elle ait été lancée depuis Home Assistant ou depuis l'interface du robot, et s'éteint tout seul à la fin de la session. Refusé, avec un message qui dit pourquoi, tant que le robot n'est pas calibré, et pendant un rangement, une calibration ou un réglage de vitesse. |
 | Durée de session | Nombre (1–60 min) | La durée de la prochaine session de jeu, la même valeur que sur l'écran principal du robot. |
+| Fin de la session de jeu | Capteur (horodatage) | Le moment où la session de jeu en cours se termine, affiché « dans 7 minutes » : Home Assistant fait le décompte tout seul. Suit chaque session, lancée depuis Home Assistant ou depuis l'interface du robot. *Inconnu* quand aucune session ne tourne. Demande une intégration plus récente que la 0.2.0. |
+| Session de jeu | Événement | Se déclenche à chaque événement de session de jeu : `started` (démarrée), `ended` (la durée de session est écoulée), `stopped` (arrêtée avant la fin) ou `refused` (refusée), avec les attributs `source` (`device_interface`, `home_assistant_mqtt`, `home_assistant_native`) et `reason` (pour `stopped` : `stop`, `stow`, `manual_control`, `calibration`, `speed_tuning` ; pour `refused` : `busy`, `not_calibrated`). Infos → Journal, sur le robot, affiche les 50 derniers. Intégration 0.3.0 ou plus récente, avec un firmware qui a le journal ; avec un firmware plus ancien, elle n'est pas créée. |
+| Sessions aujourd'hui | Capteur | Combien de sessions de jeu ont démarré depuis minuit. Inconnu tant que le robot n'a pas l'heure : l'intégration lui donne celle de Home Assistant en se connectant. |
 | Firmware | Mise à jour | La version installée et, quand une plus récente sort sur le Canal de mise à jour du robot, la dernière version avec ses nouveautés. Home Assistant affiche alors sa notification de mise à jour habituelle ; **Installer** télécharge le bon fichier et met le robot à jour (intégration 0.2.0 ou plus récente). Refusé pendant une session de jeu ou une calibration. |
 
 Les entités se mettent à jour en moins d'une seconde quand quelqu'un utilise le joystick ou l'écran du robot. Quand le robot est éteint ou perd le Wi-Fi, elles apparaissent comme indisponibles, et reviennent toutes seules à son retour. La page de l'appareil montre aussi le modèle, la puce et la version du firmware du robot, et un lien **Visiter** vers son interface.
@@ -174,11 +177,13 @@ Le robot se reconnecte tout seul après une coupure de courant ou un redémarrag
 
 ### 6. Le retrouver dans Home Assistant
 
-Va dans **Paramètres → Appareils et services → MQTT**, puis **Appareils**. Le robot apparaît sous son nom, avec les mêmes entités qu'avec l'intégration native ([listées plus haut](#3-vérifier-ses-entités)), mais nommées en anglais : Stow, Horizontal position, Vertical position, Horizontal maximum speed, Vertical maximum speed, Activity, Play session, Session duration et Firmware. Les différences :
+Va dans **Paramètres → Appareils et services → MQTT**, puis **Appareils**. Le robot apparaît sous son nom, avec les mêmes entités qu'avec l'intégration native ([listées plus haut](#3-vérifier-ses-entités)), mais nommées en anglais : Stow, Horizontal position, Vertical position, Horizontal maximum speed, Vertical maximum speed, Activity, Play session (interrupteur et événement), Session duration, Sessions today, Firmware et Play session end. Les différences :
 
 - Horizontal position et Vertical position vont de 0 à 180° ; le robot garde l'axe dans ses limites de course.
-- Une session de jeu refusée par le robot (pas calibré, occupé) remet l'interrupteur sur éteint sans message ; le log du robot dit pourquoi.
+- Une session de jeu refusée par le robot (pas calibré, occupé) remet l'interrupteur sur éteint sans message ; l'événement Play session se déclenche avec `refused` et la raison, et Infos → Journal, sur le robot, l'affiche.
+- **Sessions today** reste inconnu après un redémarrage du robot tant que personne n'a ouvert sa page : en MQTT, le robot ne reçoit l'heure que du navigateur du téléphone.
 - Session duration est mémorisée dès que le robot est au repos.
+- Play session end (`sensor.catwandconnect_play_session_end`) est calculé par Home Assistant : le robot n'a pas d'horloge, il envoie donc le temps restant quand une session commence ou se termine, et Home Assistant l'ajoute à sa propre heure. Demande un firmware plus récent que la 0.2.1.
 - **Firmware** (`update.catwandconnect_firmware`) affiche la version installée et, dès que la page du robot en a trouvé une plus récente pour son Canal de mise à jour, la dernière version avec un lien vers ses nouveautés : Home Assistant affiche alors sa notification de mise à jour habituelle. Il n'y a pas de bouton **Installer** : le robot ne peut rien télécharger lui-même. Mets à jour depuis la page du robot (le bouton **Mettre à jour** de son écran principal, voir [Mettre à jour](install.fr.md#mettre-à-jour-compiler-depuis-les-sources)) ou avec l'intégration native. La dernière version est connue après que quelqu'un a ouvert la page du robot, et oubliée quand le robot redémarre.
 
 Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme indisponibles.
@@ -187,7 +192,7 @@ Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme ind
 
 ## Tableaux de bord tout prêts
 
-Un panneau de contrôle pour le robot : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter) et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe, et un bouton **Page du robot** qui ouvre la page du robot lui-même. Un appui long sur n'importe laquelle de ses cartes ouvre aussi la page du robot. Il y en a un pour chaque connexion. Celui de l'intégration native ajoute la carte joystick fournie par l'intégration ; celui de la connexion MQTT n'utilise que des cartes intégrées à Home Assistant.
+Un panneau de contrôle pour le robot : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter) et sa durée, Ranger, l'activité et, pendant une session, l'heure à laquelle elle se termine, la position et la vitesse maximale de chaque axe, et un bouton **Page du robot** qui ouvre la page du robot lui-même. Un appui long sur n'importe laquelle de ses cartes ouvre aussi la page du robot. Il y en a un pour chaque connexion. Celui de l'intégration native ajoute la carte joystick fournie par l'intégration ; celui de la connexion MQTT n'utilise que des cartes intégrées à Home Assistant.
 
 1. Va dans **Paramètres → Tableaux de bord → Ajouter un tableau de bord → Nouveau tableau de bord à partir de zéro**, nomme-le, par exemple « Canne à chat », et ouvre-le.
 2. Clique sur le crayon (**Modifier le tableau de bord**), puis sur les trois points → **Éditeur de configuration brute**.
@@ -220,6 +225,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: sensor.catwandconnect_play_session_end
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: sensor.catwandconnect_play_session_end
+                    state_not: [unknown, unavailable]
               - type: entity
                 entity: update.catwandconnect_firmware
                 show_state: true
@@ -344,6 +356,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: sensor.catwandconnect_play_session_end
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: sensor.catwandconnect_play_session_end
+                    state_not: [unknown, unavailable]
               - type: entity
                 entity: update.catwandconnect_firmware
                 show_state: true
@@ -480,7 +499,24 @@ actions:
       entity_id: switch.catwandconnect_play_session
 ```
 
-Les identifiants des entités suivent le nom du robot : `button.catwandconnect_stow` par défaut, `button.catwandconnect_salon_stow` pour un robot nommé « CatWandConnect salon ». Ils restent en anglais, et sont les mêmes avec les deux connexions ; des identifiants qui finissent par `_2` veulent dire que le robot est connecté deux fois (voir [Choisir ta connexion](#choisir-ta-connexion)). Les automatisations sur l'activité utilisent ses états `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` et `playing`, quelle que soit la langue dans laquelle Home Assistant les affiche.
+Recevoir une notification quand une session de jeu est refusée, avec la raison :
+
+```yaml
+alias: Prévenir quand la baguette refuse de jouer
+triggers:
+  - trigger: state
+    entity_id: event.catwandconnect_play_session
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.attributes.event_type == 'refused' }}"
+actions:
+  - action: notify.notify
+    data:
+      message: >-
+        La baguette a refusé de jouer ({{ trigger.to_state.attributes.reason }}).
+```
+
+Les identifiants des entités suivent le nom du robot : `button.catwandconnect_stow` par défaut, `button.catwandconnect_salon_stow` pour un robot nommé « CatWandConnect salon ». Ils restent en anglais, et sont les mêmes avec les deux connexions ; des identifiants qui finissent par `_2` veulent dire que le robot est connecté deux fois (voir [Choisir ta connexion](#choisir-ta-connexion)). Les automatisations sur l'activité utilisent ses états `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` et `playing`, quelle que soit la langue dans laquelle Home Assistant les affiche. L'état d'une entité événement est l'heure de son dernier événement : déclenche sur tout changement et teste `event_type`, pour que deux refus de suite comptent tous les deux.
 
 ## Dépannage
 

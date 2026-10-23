@@ -94,6 +94,14 @@ Utilise le bloc Session de jeu sous le curseur de vitesse de l'écran principal.
 - [x] Fermer la page n'arrête pas la session ; la rouvrir affiche Arrêter et le temps restant. Une coupure de courant pendant une session y met fin, et le robot se range doucement au démarrage au lieu de jouer.
 - [x] Après une mise à jour OTA depuis une version sans session de jeu, les réglages et la calibration sont conservés, et Réglages → Mouvement affiche les plages de pause par défaut (0–2 s sur les deux axes).
 
+### Journal des sessions de jeu
+
+- [ ] Infos → Journal liste, du plus récent au plus ancien, une session lancée et laissée jusqu'au bout (Démarrée, puis Terminée), une arrêtée avec Arrêter, avec Ranger et avec le joystick (Arrêtée, avec la raison), et un Démarrer pendant un rangement (Refusée, occupé), chacun avec l'heure et « Interface du robot ». Sessions aujourd'hui compte les démarrages.
+- [ ] Un deuxième téléphone avec Infos ouvert affiche un nouvel événement en moins d'une seconde.
+- [ ] Après une coupure de courant, les événements sont toujours là, ceux d'avant le redémarrage avec leur heure ; les nouveaux affichent « Il y a … min, avant la mise à l'heure » seulement jusqu'à l'ouverture d'une page, puis leur heure.
+- [ ] Le rapport de diagnostic a une section « Play session journal » avec l'état de l'horloge et les événements, sans nom de fuseau horaire.
+- [ ] Avec le téléphone en anglais, le Journal est en anglais.
+
 ## Rangement, priorité, maintien et relâchement
 
 - [ ] Le bouton Ranger reste visible en bas de l'écran principal, y compris sur un petit téléphone.
@@ -239,8 +247,11 @@ Utilise un Home Assistant avec le module Mosquitto et l'intégration MQTT ([conf
 - [ ] L'appareil montre aussi un interrupteur Play session et un nombre Session duration (1–60 min) égal à la durée affichée sur l'écran principal.
 - [ ] Sur un robot calibré, allumer Play session lance une session pour la durée de session ; Activity affiche `playing`. L'éteindre range la baguette et l'interrupteur reste éteint.
 - [ ] Une session lancée depuis l'écran principal allume l'interrupteur dans Home Assistant ; quand le temps est écoulé (essaie 1 min), l'interrupteur s'éteint tout seul. Toucher le joystick ou appuyer sur Ranger l'éteint aussi.
-- [ ] Avant la calibration, allumer Play session ne fait rien : l'interrupteur revient sur éteint et le log du robot affiche « Play session refused: not calibrated ».
+- [ ] Avant la calibration, allumer Play session ne fait rien : l'interrupteur revient sur éteint et le log du robot affiche « [play] Play session refused: not_calibrated, from home_assistant_mqtt ».
+- [ ] L'appareil affiche aussi un événement Play session et Sessions today. Démarrer, arrêter et faire refuser des sessions depuis l'écran principal et depuis Home Assistant déclenche chaque fois l'événement avec les bons `event_type`, `source` et `reason` (Outils de développement → États), et jamais un ancien événement quand Home Assistant ou le robot redémarre.
+- [ ] Après un redémarrage du robot, Sessions today est inconnu jusqu'à ce qu'on ouvre la page du robot sur un téléphone, puis affiche les sessions lancées aujourd'hui.
 - [ ] Changer Session duration dans Home Assistant met à jour la durée sur l'écran principal, et elle est toujours là après un redémarrage. Une valeur de 0 ou 61 est refusée.
+- [ ] Pendant une session de jeu, `sensor.catwandconnect_play_session_end` (Play session end) indique quand elle se termine (« dans 9 minutes » pour une session de 10 minutes, comme le décompte de l'écran principal à quelques secondes près) ; après Arrêter ou à la fin du temps, il affiche *Inconnu*. Redémarrer Home Assistant pendant une session fait revenir la même heure de fin.
 
 ## Intégration native (découverte et API)
 
@@ -263,6 +274,7 @@ Utilise un Home Assistant 2026.10 ou plus récent avec HACS, sur le réseau du r
 - [x] Déplacer la baguette avec le joystick met à jour les deux positions en moins d'une seconde. Régler une position dans Home Assistant y déplace l'axe en douceur ; le curseur ne couvre que les limites de course.
 - [x] Changer une vitesse maximale dans Home Assistant se voit dans Réglages → Mouvement sur le robot ; un changement dans les Réglages du robot se voit dans Home Assistant après avoir rechargé la page de l'appareil.
 - [x] Durée de session est égale à celle de l'écran principal ; la changer dans Home Assistant met à jour l'écran principal, et 0 ou 61 est refusé.
+- [ ] Avec une intégration plus récente que la 0.2.0, Fin de la session de jeu (`sensor.catwandconnect_play_session_end`) indique quand la session de jeu en cours se termine, comme le décompte de l'écran principal à quelques secondes près, et ne bouge pas pendant le décompte ; après Arrêter ou à la fin du temps, il affiche *Inconnu*.
 - [x] Sur un robot calibré, allumer Session de jeu lance une session pour la durée de session ; l'éteindre range la baguette et l'interrupteur reste éteint. Une session lancée depuis l'écran principal allume l'interrupteur, qui s'éteint tout seul à la fin de la session.
 - [x] Avant la calibration, allumer Session de jeu affiche une erreur qui dit que le robot n'est pas calibré, et l'interrupteur reste éteint.
 - [x] Ranger dans Home Assistant range le robot, même pendant que quelqu'un utilise le joystick.
@@ -273,6 +285,7 @@ Utilise un Home Assistant 2026.10 ou plus récent avec HACS, sur le réseau du r
 - [x] Télécharger les diagnostics sur la page de l'appareil : le fichier contient le firmware, les réglages et l'état, avec le nom du Wi-Fi, les adresses IP et MAC, l'adresse du broker et les identifiants MQTT masqués, et aucun code PIN.
 - [x] Avec la connexion MQTT activée en plus, un second appareil apparaît avec des identifiants qui finissent par `_2`, comme le guide l'annonce ; désactiver MQTT sur le robot et supprimer l'appareil MQTT en laisse un seul.
 - [x] Le tableau de bord tout prêt de l'intégration native, collé tel quel depuis le guide, affiche toutes les cartes sans « Entité non disponible ».
+- [ ] Avec l'intégration 0.3.0 ou plus récente et un firmware qui a le journal, l'appareil a un événement Session de jeu et Sessions aujourd'hui. Lancer une session depuis l'écran principal déclenche `started` avec `source` `device_interface` ; éteindre Session de jeu dans Home Assistant déclenche `stopped` avec `source` `home_assistant_native` et `reason` `stop`. Après un redémarrage du robot, Sessions aujourd'hui redevient connu dès que l'intégration se reconnecte, sans ouvrir la page du robot. Avec un firmware plus ancien, aucune des deux n'est créée et les autres marchent.
 - [x] La carte joystick (intégration 0.1.1 ou plus récente) est dans le sélecteur de cartes ; maintenir et faire glisser déplace la baguette, lâcher l'arrête ; elle est grisée quand le robot est hors ligne.
 
 ## Flasher web et versions publiées

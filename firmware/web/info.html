@@ -25,6 +25,12 @@
   <button id="copy" class="secondary" data-i18n="info.copy"></button>
   <p class="message" role="status" id="message"></p>
 
+  <h2 data-i18n="journal.title"></h2>
+  <p class="hint" data-i18n="journal.hint"></p>
+  <p class="journal-today" id="journal-today"></p>
+  <ol id="journal" class="journal"></ol>
+  <p class="hint" id="journal-empty" data-i18n="journal.empty" hidden></p>
+
   <h2 data-i18n="diag.title"></h2>
   <p class="hint" data-i18n="diag.hint"></p>
   <pre id="report" class="report" tabindex="0"></pre>
@@ -40,6 +46,7 @@
   </details>
 </main>
 
+<script src="clock.js"></script>
 <script src="i18n.js"></script>
 <script src="info.js"></script>
 </body>

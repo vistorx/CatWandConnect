@@ -115,6 +115,20 @@ const char* chipName(cwc::Chip chip) {
 // Lets the HTTP response reach the browser before the board restarts.
 constexpr uint32_t kRestartDelayMs = 800;
 
+// Home Assistant's Native integration names itself on every request; any
+// other caller counts as the Device interface.
+constexpr const char* kClientHeader = "X-CatWandConnect-Client";
+constexpr const char* kNativeClient = "home_assistant";
+
+play_journal::Source requestSource(AsyncWebServerRequest* request) {
+  return request->hasHeader(kClientHeader) && request->header(kClientHeader) == kNativeClient
+             ? play_journal::Source::HomeAssistantNative
+             : play_journal::Source::DeviceInterface;
+}
+
+// A clock that moved by more than this is worth a log line.
+constexpr int64_t kClockLogDriftMs = 60000;
+
 void sendJson(AsyncWebServerRequest* request, int code, const JsonDocument& doc) {
   String body;
   serializeJson(doc, body);
@@ -130,6 +144,16 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
   hostname_ = hostname;
   legacyHostname_ = legacyHostname;
   channel_ = update_channel::loadChannel(storage_, CWC_VERSION);
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    pushedJournalId_ = play_.journal.lastId();  // only new events go out on /ws
+  }
+
+  server.on("/api/journal", HTTP_GET, [this](AsyncWebServerRequest* request) { getJournal(request); });
+  auto* time = new AsyncCallbackJsonWebHandler(
+      "/api/time", [this](AsyncWebServerRequest* request, JsonVariant& body) { postTime(request, body); });
+  time->setMethod(HTTP_POST);
+  server.addHandler(time);
 
   server.on("/api/auth", HTTP_GET, [this](AsyncWebServerRequest* request) { getAuth(request); });
   auto* unlockHandler = new AsyncCallbackJsonWebHandler(
@@ -168,6 +192,7 @@ void DeviceApi::begin(AsyncWebServer& server, const cwc::HardwareConfig& hardwar
     {
       std::lock_guard<std::mutex> guard(inboxLock_);
       inbox_.stow = true;
+      inbox_.stowSource = requestSource(request);
       inbox_.move = false;
     }
     request->send(202, "application/json", "{}");
@@ -325,15 +350,15 @@ void DeviceApi::postPlay(AsyncWebServerRequest* request, JsonVariant& body) {
   JsonDocument doc;
   {
     std::lock_guard<std::mutex> guard(robotLock_);
+    play_.setSource(requestSource(request));
     if (strcmp(action, "start") == 0) {
       uint8_t minutes = robot_.settings().sessionMinutes;
       if (readSessionMinutes(body.as<JsonObjectConst>(), minutes) &&
           (minutes < cwc::kMinSessionMinutes || minutes > cwc::kMaxSessionMinutes)) {
         error = "session_duration_out_of_range";
-      } else if (!robot_.settings().calibrated) {
-        error = "not_calibrated";
       } else if (!robot_.startPlaySession(minutes)) {
-        error = "busy";
+        // The Robot core journals the refusal and its reason.
+        error = robot_.settings().calibrated ? "busy" : "not_calibrated";
       }
     } else if (strcmp(action, "stop") == 0) {
       robot_.stopPlaySession();
@@ -393,6 +418,7 @@ void DeviceApi::postSpeedTuning(AsyncWebServerRequest* request, JsonVariant& bod
   bool known = true;
   {
     std::lock_guard<std::mutex> guard(robotLock_);
+    play_.setSource(requestSource(request));  // starting one stops a Play session
     if (strcmp(action, "start") == 0) {
       cwc::Axis axis;
       const char* target = body["target"] | "speed";
@@ -448,6 +474,7 @@ void DeviceApi::postCalibration(AsyncWebServerRequest* request, JsonVariant& bod
   bool known = true;
   {
     std::lock_guard<std::mutex> guard(robotLock_);
+    play_.setSource(requestSource(request));  // starting it stops a Play session
     if (strcmp(action, "start") == 0) {
       robot_.startCalibration();
     } else if (strcmp(action, "nudge") == 0) {
@@ -580,10 +607,109 @@ void DeviceApi::postPosition(AsyncWebServerRequest* request, JsonVariant& body) 
   float degrees = cwc::kServoRange.clamp(body["degrees"].as<float>());
   {
     std::lock_guard<std::mutex> guard(robotLock_);
+    play_.setSource(requestSource(request));
     robot_.manualGoto(axis, degrees);
   }
   request->send(202, "application/json", "{}");
   newClient_ = true;  // push the new activity to every open interface
+}
+
+// --- Play session journal and Robot clock --------------------------------------
+
+void DeviceApi::getJournal(AsyncWebServerRequest* request) {
+  std::string body;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    body = play_.journal.json();
+  }
+  request->send(200, "application/json", body.c_str());
+}
+
+// No PIN: the Device interface sends the browser's time on every page load,
+// the Native integration Home Assistant's when it connects (docs/adr/0013).
+void DeviceApi::postTime(AsyncWebServerRequest* request, JsonVariant& body) {
+  JsonVariantConst epoch = body["epochMs"];
+  JsonVariantConst offset = body["offset"];
+  JsonVariantConst zone = body["zone"];
+  if (!epoch.is<double>() || !offset.is<int>() || (!zone.isNull() && !zone.is<const char*>())) {
+    request->send(400, "application/json", "{\"error\":\"invalid_request\"}");
+    return;
+  }
+  play_journal::Source source = requestSource(request);
+  bool ok;
+  bool wasSet;
+  int64_t driftMs = 0;
+  int today;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    wasSet = play_.clock.isSet();
+    int64_t before = play_.clock.nowMs();
+    ok = play_.clock.set(static_cast<int64_t>(epoch.as<double>()), offset.as<int>(),
+                         zone.is<const char*>() ? zone.as<const char*>() : "");
+    if (ok) {
+      driftMs = play_.clock.nowMs() - before;
+      play_.journal.clockSet();
+    }
+    today = play_.journal.sessionsToday();
+  }
+  if (!ok) {
+    request->send(400, "application/json", "{\"error\":\"invalid_time\"}");
+    return;
+  }
+  if (!wasSet || driftMs > kClockLogDriftMs || driftMs < -kClockLogDriftMs) {
+    logLine("[clock] %s by %s, UTC%+d min", wasSet ? "corrected" : "set", play_journal::sourceName(source),
+            offset.as<int>());
+  }
+  JsonDocument doc;
+  doc["set"] = true;
+  doc["sessionsToday"] = today;
+  sendJson(request, 200, doc);
+  newClient_ = true;  // Sessions today may have become known
+}
+
+uint32_t DeviceApi::journalLastId() {
+  std::lock_guard<std::mutex> guard(robotLock_);
+  return play_.journal.lastId();
+}
+
+std::vector<DeviceApi::JournalEvent> DeviceApi::journalSince(uint32_t id) {
+  std::vector<JournalEvent> events;
+  std::lock_guard<std::mutex> guard(robotLock_);
+  for (size_t i = play_.journal.size(); i-- > 0;) {  // oldest first
+    const play_journal::Event& e = play_.journal.newest(i);
+    if (e.id <= id) continue;
+    events.push_back({e.id, play_journal::whatName(e.what), play_journal::sourceName(e.source),
+                      play_journal::reasonName(e.reason)});
+  }
+  return events;
+}
+
+int DeviceApi::sessionsToday() {
+  std::lock_guard<std::mutex> guard(robotLock_);
+  return play_.journal.sessionsToday();
+}
+
+String DeviceApi::journalReport() {
+  std::lock_guard<std::mutex> guard(robotLock_);
+  return play_.journal.reportText().c_str();
+}
+
+// Sends the journal's new events to every /ws client, oldest first.
+void DeviceApi::pushJournal() {
+  std::vector<std::string> messages;
+  {
+    std::lock_guard<std::mutex> guard(robotLock_);
+    uint32_t last = play_.journal.lastId();
+    if (last == pushedJournalId_) return;
+    for (size_t i = play_.journal.size(); i-- > 0;) {
+      const play_journal::Event& e = play_.journal.newest(i);
+      if (e.id > pushedJournalId_) messages.push_back(play_.journal.eventJson(e));
+    }
+    pushedJournalId_ = last;
+  }
+  if (socket_.count() == 0) return;
+  for (const std::string& message : messages) socket_.textAll(message.c_str());
+  newClient_ = true;  // and the new Sessions today with the state
 }
 
 // --- Identity and info ------------------------------------------------------
@@ -743,7 +869,7 @@ void DeviceApi::putPin(AsyncWebServerRequest* request, JsonVariant& body) {
 
 // --- WebSocket --------------------------------------------------------------
 
-void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uint8_t* data, size_t len) {
+void DeviceApi::onEvent(AsyncWebSocketClient* client, AwsEventType type, void* arg, uint8_t* data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
       newClient_ = true;  // make loop() send the state to the newcomer
@@ -754,6 +880,12 @@ void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uin
       std::lock_guard<std::mutex> guard(inboxLock_);
       inbox_.stop = true;
       inbox_.move = false;
+      for (size_t i = 0; i < nativeClients_.size(); ++i) {
+        if (nativeClients_[i] == client->id()) {
+          nativeClients_.erase(nativeClients_.begin() + i);
+          break;
+        }
+      }
       break;
     }
 
@@ -761,7 +893,7 @@ void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uin
       auto* info = static_cast<AwsFrameInfo*>(arg);
       // Commands are small; only accept complete single-frame text messages.
       if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-        onMessage(reinterpret_cast<const char*>(data), len);
+        onMessage(client->id(), reinterpret_cast<const char*>(data), len);
       }
       break;
     }
@@ -771,14 +903,28 @@ void DeviceApi::onEvent(AsyncWebSocketClient*, AwsEventType type, void* arg, uin
   }
 }
 
-void DeviceApi::onMessage(const char* text, size_t len) {
+play_journal::Source DeviceApi::sourceOf(uint32_t client) {
+  for (uint32_t id : nativeClients_) {
+    if (id == client) return play_journal::Source::HomeAssistantNative;
+  }
+  return play_journal::Source::DeviceInterface;
+}
+
+void DeviceApi::onMessage(uint32_t client, const char* text, size_t len) {
   JsonDocument doc;
   if (deserializeJson(doc, text, len)) return;
   const char* type = doc["t"] | "";
 
   std::lock_guard<std::mutex> guard(inboxLock_);
-  if (strcmp(type, "move") == 0) {
+  if (strcmp(type, "hello") == 0) {
+    // The Native integration says who it is, for the Play session journal.
+    bool native = strcmp(doc["client"] | "", kNativeClient) == 0;
+    if (native && sourceOf(client) != play_journal::Source::HomeAssistantNative && nativeClients_.size() < 8) {
+      nativeClients_.push_back(client);
+    }
+  } else if (strcmp(type, "move") == 0) {
     inbox_.move = true;
+    inbox_.moveSource = sourceOf(client);
     inbox_.horizontal = doc["h"] | 0.0f;
     inbox_.vertical = doc["v"] | 0.0f;
   } else if (strcmp(type, "stop") == 0) {
@@ -786,6 +932,7 @@ void DeviceApi::onMessage(const char* text, size_t len) {
     inbox_.move = false;
   } else if (strcmp(type, "stow") == 0) {
     inbox_.stow = true;
+    inbox_.stowSource = sourceOf(client);
     inbox_.move = false;
   }
 }
@@ -806,11 +953,16 @@ void DeviceApi::loop() {
   {
     std::lock_guard<std::mutex> guard(robotLock_);
     if (inbox.stop) robot_.manualStop();
+    play_.setSource(play_journal::Source::DeviceInterface);  // a firmware upload
     if (inbox.stopPlay) robot_.stopPlaySession();
+    play_.setSource(inbox.stowSource);
     if (inbox.stow) robot_.stow();
+    play_.setSource(inbox.moveSource);
     if (inbox.move) robot_.manualMove(inbox.horizontal, inbox.vertical);
+    play_.clock.uptimeMs();  // keeps the Robot clock past the millis() wrap
     robot_.tick();
   }
+  pushJournal();
 
   uint32_t now = millis();
   if (now - lastCheckMs_ >= kBroadcastIntervalMs) {
@@ -840,6 +992,9 @@ void DeviceApi::broadcastState(bool force) {
     doc["sessionMinutes"] = robot_.settings().sessionMinutes;
     if (robot_.activity() == cwc::Activity::TuningSpeed) writeSpeedTuning(doc["tuning"].to<JsonObject>());
     if (robot_.activity() == cwc::Activity::Playing) doc["play"]["remaining"] = robot_.playRemainingS();
+    int today = play_.journal.sessionsToday();
+    if (today >= 0) doc["sessionsToday"] = today;
+    else doc["sessionsToday"] = nullptr;
   }
   doc["name"] = name_;
   String state;

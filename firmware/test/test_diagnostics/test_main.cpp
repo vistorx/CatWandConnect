@@ -200,6 +200,15 @@ void test_device_id_is_eight_hex_digits_from_a_random_number() {
   TEST_ASSERT_EQUAL_STRING("3f9a12c4", deviceIdFrom(0x3f9a12c4u).c_str());
   TEST_ASSERT_EQUAL_STRING("0000002a", deviceIdFrom(42u).c_str());
 }
+void test_report_carries_the_play_session_journal_even_when_redacted() {
+  ReportData d = sample();
+  d.journal = "Robot clock: not set\nSessions today: unknown\n12 min ago, before the clock was set: refused, home_assistant_mqtt, busy\n";
+  for (bool redacted : {true, false}) {
+    std::string report = reportText(d, redacted);
+    TEST_ASSERT_TRUE(contains(report, "\nPlay session journal:\nRobot clock: not set\n"));
+    TEST_ASSERT_TRUE(contains(report, "refused, home_assistant_mqtt, busy\n"));
+  }
+}
 
 int main() {
   UNITY_BEGIN();
@@ -221,5 +230,6 @@ int main() {
   RUN_TEST(test_values_are_only_replaced_as_whole_words);
   RUN_TEST(test_report_carries_the_random_device_id_even_when_redacted);
   RUN_TEST(test_device_id_is_eight_hex_digits_from_a_random_number);
+  RUN_TEST(test_report_carries_the_play_session_journal_even_when_redacted);
   return UNITY_END();
 }

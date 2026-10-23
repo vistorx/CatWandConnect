@@ -91,6 +91,7 @@ void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqt
     d.settings = api.settingsJson().c_str();
     d.hardware = api.hardwareJson().c_str();
     d.log = recentLog();
+    d.journal = api.journalReport().c_str();
     d.notedPersonal = notedPersonal();
     return diagnostics::reportText(d, redacted);
   };

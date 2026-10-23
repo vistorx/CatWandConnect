@@ -14,6 +14,7 @@
 #include "mqtt_bridge.h"
 #include "network/network.h"
 #include "ota.h"
+#include "play_log.h"
 #include "servo_driver.h"
 #include "web/web_ui.h"
 
@@ -60,11 +61,12 @@ NvsStorage storage;
 PwmServoDriver motors;
 HardwareRandom random;
 cwc::Robot robot(motors, clock, storage, random);
+PlayLog play(clock, storage);  // the Play session journal and the Robot clock
 
 auth::PinGuard pin([] { return esp_random(); });
 AsyncWebServer server(80);
 Network network;
-DeviceApi api(robot, storage, kChip, pin);
+DeviceApi api(robot, storage, kChip, pin, play);
 MqttBridge mqtt;
 
 // The owner's name for the robot, set from the Device interface.
@@ -107,6 +109,8 @@ void setup() {
   bool legacyHostname = identity::legacyHostname(storage, hasWifiCredentials(), name.c_str());
   String hostname = identity::hostnameFor(name.c_str(), deviceId().c_str(), legacyHostname).c_str();
   motors.begin(hardware);
+  play.journal.begin();
+  robot.setPlayObserver(&play);
   robot.begin();
 
   api.begin(server, hardware, name, hostname, legacyHostname);
