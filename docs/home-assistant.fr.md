@@ -187,11 +187,12 @@ Quand le robot est éteint ou perd le Wi-Fi, ses entités apparaissent comme ind
 
 ## Tableaux de bord tout prêts
 
-Un panneau de contrôle pour le robot : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter ; appui long pour les détails) et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe. Il y en a un pour chaque connexion. Celui de l'intégration native ajoute la carte joystick fournie par l'intégration ; celui de la connexion MQTT n'utilise que des cartes intégrées à Home Assistant.
+Un panneau de contrôle pour le robot : un grand bouton de session de jeu (appuie pour lancer, appuie encore pour arrêter) et sa durée, Ranger, l'activité, la position et la vitesse maximale de chaque axe, et un bouton **Page du robot** qui ouvre la page du robot lui-même. Un appui long sur n'importe laquelle de ses cartes ouvre aussi la page du robot. Il y en a un pour chaque connexion. Celui de l'intégration native ajoute la carte joystick fournie par l'intégration ; celui de la connexion MQTT n'utilise que des cartes intégrées à Home Assistant.
 
 1. Va dans **Paramètres → Tableaux de bord → Ajouter un tableau de bord → Nouveau tableau de bord à partir de zéro**, nomme-le, par exemple « Canne à chat », et ouvre-le.
 2. Clique sur le crayon (**Modifier le tableau de bord**), puis sur les trois points → **Éditeur de configuration brute**.
-3. Remplace tout par le YAML de ta connexion ci-dessous et **Enregistre**.
+3. Remplace tout par le YAML de ta connexion ci-dessous.
+4. Remplace chaque `http://catwandconnect.local/` par l'adresse de ton robot (rechercher et remplacer dans l'éditeur), puis **Enregistre**. L'adresse est sur la page du robot, dans **Réglages → Réseau → Wi-Fi** : par exemple `http://catwandconnect-3f9a.local/` avec le nom par défaut. Les robots installés avant la version 0.2.1 gardent `http://catwandconnect.local/` : rien à remplacer. C'est cette adresse qu'ouvrent le bouton **Page du robot** et les appuis longs ; la page de l'appareil dans Home Assistant a aussi un lien **Visiter** vers elle.
 
 Sur un téléphone, les sections s'empilent : la session de jeu d'abord, puis les positions et les vitesses. Pour ajouter les cartes à un tableau de bord existant, copie seulement les trois sections `- type: grid` dans une de ses vues en sections.
 
@@ -226,6 +227,12 @@ views:
                   - condition: state
                     entity: update.catwandconnect_firmware
                     state: "on"
+              - type: button
+                icon: mdi:open-in-new
+                text: Page du robot
+                tap_action:
+                  action: url
+                  url_path: http://catwandconnect.local/
           - type: button
             entity: switch.catwandconnect_play_session
             name: Session de jeu
@@ -235,7 +242,8 @@ views:
             tap_action:
               action: toggle
             hold_action:
-              action: more-info
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Durée de session
@@ -243,6 +251,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: button.catwandconnect_stow
             name: Ranger
@@ -252,6 +263,9 @@ views:
               perform_action: button.press
               target:
                 entity_id: button.catwandconnect_stow
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -265,12 +279,18 @@ views:
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_position
             name: Vertical
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -283,6 +303,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_maximum_speed
             name: Vertical
@@ -290,6 +313,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
 ```
 
 Le joystick marche comme celui de la page du robot : maintiens et fais glisser, la baguette suit ; lâche, elle s'arrête. Il est fourni par l'intégration (0.1.1 ou plus récente) : rien à ajouter dans *Ressources*. S'il affiche « Custom element doesn't exist », recharge la page (tire vers le bas dans l'appli) après la mise à jour. Les curseurs de position vont d'une limite de course à l'autre.
@@ -325,6 +351,12 @@ views:
                   - condition: state
                     entity: update.catwandconnect_firmware
                     state: "on"
+              - type: button
+                icon: mdi:open-in-new
+                text: Page du robot
+                tap_action:
+                  action: url
+                  url_path: http://catwandconnect.local/
           - type: button
             entity: switch.catwandconnect_play_session
             name: Session de jeu
@@ -334,7 +366,8 @@ views:
             tap_action:
               action: toggle
             hold_action:
-              action: more-info
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_session_duration
             name: Durée de session
@@ -342,6 +375,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: button.catwandconnect_stow
             name: Ranger
@@ -351,6 +387,9 @@ views:
               perform_action: button.press
               target:
                 entity_id: button.catwandconnect_stow
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -362,12 +401,18 @@ views:
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_position
             name: Vertical
             features:
               - type: numeric-input
                 style: slider
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
       - type: grid
         cards:
           - type: heading
@@ -380,6 +425,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
           - type: tile
             entity: number.catwandconnect_vertical_maximum_speed
             name: Vertical
@@ -387,6 +435,9 @@ views:
               - type: numeric-input
                 style: buttons
             features_position: inline
+            hold_action:
+              action: url
+              url_path: http://catwandconnect.local/
 ```
 
 Les curseurs de position vont de 0 à 180° ; le robot s'arrête à ses limites de course. Un badge **Firmware** apparaît à côté d'Activity quand une nouvelle version est disponible ; touche-le pour voir les nouveautés. La carte joystick n'existe qu'avec l'intégration native ; avec la connexion MQTT, déplace la baguette avec les curseurs ou depuis la page du robot.
