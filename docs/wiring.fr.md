@@ -16,7 +16,7 @@ Le firmware pilote les servos avec des impulsions PWM à 50 Hz ; la carte envoie
 | 1 | Condensateur, 470–1000 µF, 10 V ou plus | Facultatif, contre les redémarrages et les à-coups. |
 | 2 | Connecteurs à levier (type Wago 221), 2 entrées (par ex. 221-412) | Les rails +5 V et GND : une entrée pour la sortie du convertisseur, l'autre pour les fils des servos et de la carte torsadés ensemble. Des connecteurs plus grands, un bornier ou une plaque à trous conviennent aussi. |
 | 2 | Rallonges de servo, environ 30 cm (JR/Futaba 3 broches, le modèle standard) | Coupées en deux : deux moitiés reçoivent les servos, une alimente la carte. Voir [Monter pas à pas](#monter-pas-à-pas). |
-| | Fil d'environ 0,5 mm² (AWG 20) et connecteurs Dupont femelles | Le fil pour l'alimentation, les embouts Dupont pour les broches de la carte. |
+| 40 cm | Fil d'environ 0,5 mm² (AWG 20) et connecteurs Dupont femelles | Le fil pour l'alimentation : 2 × 5 cm (carte de déclenchement vers convertisseur) et 2 × 15 cm (convertisseur vers les connecteurs à levier dans la cavité technique), un + et un − à chaque fois. Les embouts Dupont pour les broches de la carte. |
 
 Outils : un fer à souder et un multimètre.
 
@@ -118,7 +118,7 @@ Laisse le chargeur débranché, sauf quand une étape dit le contraire.
 
 ### 1. Sortie de la carte de déclenchement
 
-Soude deux fils sur la sortie de la carte de déclenchement USB-C PD, + et −.
+Soude deux fils de 5 cm sur la sortie de la carte de déclenchement USB-C PD, + et −. Les deux cartes sont sur le plateau supérieur : des fils courts suffisent.
 
 <!-- photo: step 1 -->
 
@@ -130,7 +130,7 @@ Soude ces deux fils sur les broches IN du convertisseur abaisseur : + sur +, −
 
 ### 3. Sortie du convertisseur
 
-Soude deux fils sur les broches OUT du convertisseur, + et −.
+Soude deux fils de 15 cm sur les broches OUT du convertisseur, + et −. Ils passent par le trou du plateau supérieur jusque dans la cavité technique : ils doivent être assez longs pour atteindre les connecteurs à levier.
 
 <!-- photo: step 3 -->
 

@@ -30,7 +30,7 @@ Câblée à l'[étape 2](wiring.fr.md).
 | 1 | Condensateur, 470–1000 µF, 10 V ou plus | Facultatif, contre les redémarrages et les à-coups. |
 | 2 | Connecteurs à levier (type Wago 221), 2 entrées | Les rails +5 V et GND. |
 | 2 | Rallonges de servo, environ 30 cm | Coupées en deux pour les servos et la carte. |
-| | Fil d'environ 0,5 mm² (AWG 20) et connecteurs Dupont femelles | |
+| 40 cm | Fil d'environ 0,5 mm² (AWG 20) et connecteurs Dupont femelles | 2 × 5 cm et 2 × 15 cm de fil, voir le [guide de câblage](wiring.fr.md#monter-pas-à-pas). |
 
 Des exemples d'annonces pour les servos, la carte de déclenchement et le convertisseur sont dans les [Exemples de composants](wiring.fr.md#exemples-de-composants) du guide de câblage. Pour [installer le logiciel](install.fr.md) (étape 3), il ne faut rien de plus qu'un câble USB de données et un ordinateur avec Chrome ou Edge.
 
