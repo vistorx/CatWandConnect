@@ -36,6 +36,7 @@ struct Topics {
   std::string update() const { return base + "/update"; }        // JSON, see updatePayload()
   // The Play session time left in whole seconds, see playRemainingPayload().
   std::string playRemaining() const { return base + "/play_session/remaining"; }
+  std::string playEvent() const { return base + "/play_session/event"; }  // JSON, see eventPayload()
 };
 
 constexpr const char* kOnline = "online";
@@ -52,8 +53,9 @@ struct Message {
 
 // Retained discovery messages: a Stow button, a position and a maximum speed
 // number per Axis, an activity sensor, a Play session switch, a Session
-// duration number, a Firmware update entity and a Play session end sensor,
-// all grouped under one device.
+// duration number, a Firmware update entity, a Play session end sensor, a
+// Play session event entity and a Sessions today sensor, all grouped under
+// one device.
 std::vector<Message> discovery(const Device& device, const std::string& prefix = kDefaultPrefix);
 
 struct State {
@@ -61,6 +63,7 @@ struct State {
   float maxSpeed[cwc::kAxisCount];
   const char* activity;  // "idle", "manual", "stowing", "calibrating", "tuning_speed", "playing"
   int sessionMinutes;    // the Session duration
+  int sessionsToday = -1;  // Play sessions started today; -1 while the robot has no clock
 };
 // The Play session switch reads ON exactly while the activity is "playing",
 // whatever started the session.
@@ -99,6 +102,11 @@ class PlayRemainingReporter {
   bool playing_ = false;
   uint32_t endMs_ = 0;  // on the robot's clock
 };
+
+// One Play session journal event for the event entity, published not
+// retained: `what` "started" / "ended" / "stopped" / "refused" becomes the
+// event type; `source` and `reason` (nullptr: none) its attributes.
+std::string eventPayload(const char* what, const char* source, const char* reason);
 
 enum class CommandKind { None, Stow, Position, MaxSpeed, StartPlay, StopPlay, SessionDuration };
 

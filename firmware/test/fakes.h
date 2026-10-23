@@ -56,6 +56,19 @@ class FakeStorage : public Storage {
   int writes = 0;
 };
 
+// Records what the Robot core reports about Play sessions.
+class FakePlayObserver : public PlayObserver {
+ public:
+  struct Report {
+    PlayEvent event;
+    PlayCause cause;
+  };
+
+  void playSession(PlayEvent event, PlayCause cause) override { reports.push_back({event, cause}); }
+
+  std::vector<Report> reports;
+};
+
 // Plays back scripted draws, each a fraction of the drawn range (0 = its
 // low end, 1 = its high end), then a seeded pseudo-random sequence.
 class FakeRandom : public Random {

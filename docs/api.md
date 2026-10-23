@@ -14,7 +14,7 @@ The API version goes up only when a change would break an existing integration: 
 
 | API version | First firmware | What it has |
 |-------------|----------------|-------------|
-| 1 | 0.2.0-beta.2 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. Added since, without a new API version: `channel` and `chipFamily` in `/api/info`, `channel` in the settings and `POST /api/update/available` (0.2.0-beta.4). |
+| 1 | 0.2.0-beta.2 | Everything on this page, including `api` and `id` in `GET /api/info`, `POST /api/position` and the `_catwandconnect._tcp` service. A robot whose `/api/info` has no `api` predates it. Added since, without a new API version: `channel` and `chipFamily` in `/api/info`, `channel` in the settings and `POST /api/update/available` (0.2.0-beta.4); `GET /api/journal`, `POST /api/time`, the `journal` WebSocket message, `sessionsToday` in `state`, the `X-CatWandConnect-Client` header, the `hello` WebSocket message and the Play session event topic (Unreleased, #239). |
 
 ## Discovery (mDNS)
 
@@ -34,7 +34,7 @@ The records are set at boot; renaming the robot restarts it, so `name` follows.
 
 ## Settings PIN
 
-The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control (including `/api/position`), Stow, the speed slider (`playSpeed`), the Play session (`/api/play` and `sessionMinutes`) and every `GET` never need it.
+The owner can set an optional PIN (off by default). While it is on, the requests marked 🔒 below answer `401 {"error":"pin_required"}` unless they carry a session token in an `Authorization: Bearer <token>` header. Manual control (including `/api/position`), Stow, the speed slider (`playSpeed`), the Play session (`/api/play` and `sessionMinutes`), the Robot clock (`/api/time`) and every `GET` never need it.
 
 | Request | Response |
 |---------|----------|
@@ -55,6 +55,7 @@ JSON text messages, one per frame, each with a type in `t`.
 | `{"t":"move","h":0.5,"v":-1}` | Manual control. `h` and `v` are joystick deflections in [-1, 1] for the Horizontal and Vertical Axis, as a fraction of the maximum speed. Values outside the range are capped. |
 | `{"t":"stop"}` | Ends Manual control. The wand decelerates and stops. |
 | `{"t":"stow"}` | Stow: stops everything else, moves the wand to the Stow position and releases the servos there. `move` is ignored until Stow completes. |
+| `{"t":"hello","client":"home_assistant"}` | Sent once by the Native integration after connecting, so the Play session journal credits this connection's commands to Home Assistant. Any other client counts as the Device interface. |
 
 **Dead-man rule:** while moving, resend `move` at least every 500 ms; the interface sends it every 100 ms. If no `move` arrives for 500 ms, or if any client disconnects, the robot stops.
 
@@ -78,6 +79,13 @@ JSON text messages, one per frame, each with a type in `t`.
 | `sessionMinutes` | The Session duration, in minutes, so every open interface stays in sync. |
 | `play` | Only while `activity` is `playing`: `{"remaining": <seconds>}`, the time left in the Play session, rounded up. |
 | `name` | The robot's name. |
+| `sessionsToday` | Play sessions started since local midnight, `null` while the Robot clock is unset (see [Play session journal](#play-session-journal)). |
+
+`journal` is sent to every client when a Play session event is recorded, with the event as in [`GET /api/journal`](#play-session-journal):
+
+```json
+{"t":"journal","event":{"id":42,"what":"refused","source":"home_assistant_mqtt","reason":"busy","at":1792771200,"ago":0}}
+```
 
 ## HTTP
 
@@ -119,7 +127,52 @@ Errors: `409 {"error":"not_calibrated"}` before Calibration, `409 {"error":"busy
 
 A session ends with Stow when its time is up, on `stop` and on Stow from any source. Manual control (the joystick, or a position from Home Assistant) ends it at once, without Stow, leaving the wand to the person. Closing the page or losing the connection does not stop it. It never resumes, and it does not survive a restart.
 
+Every start, end, early stop and refusal is recorded in the [Play session journal](#play-session-journal).
+
 To change the Session duration without starting a session, send `PUT /api/settings` with only `{"sessionMinutes": 15}` (no PIN, like `playSpeed`). It is written to flash once the robot is idle, and only when it changed.
+
+### Play session journal
+
+The robot keeps its last 50 Play session events in flash, across restarts. No personal data: only what happened, when, from where and why.
+
+`GET /api/journal` (no PIN) returns them newest first:
+
+```json
+{
+  "clock": {"set": true, "offset": 120, "zone": "Europe/Paris"},
+  "sessionsToday": 2,
+  "events": [
+    {"id": 42, "what": "started", "source": "device_interface", "reason": null, "at": 1792771200, "ago": 30},
+    {"id": 41, "what": "refused", "source": "home_assistant_mqtt", "reason": "not_calibrated", "at": null, "ago": 80},
+    {"id": 40, "what": "ended", "source": "device_interface", "reason": null, "at": null, "ago": null}
+  ]
+}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `clock` | The Robot clock: `set`, and once set the UTC `offset` in minutes (east positive) and the IANA `zone` name it was given (may be empty). `offset` and `zone` are `null` while unset. |
+| `sessionsToday` | Play sessions started since local midnight (the clock's offset), `null` while the clock is unset. Counted from the journal, so it stays right across restarts once the clock is set again. |
+| `id` | One more for each event, kept across restarts. |
+| `what` | `started`; `ended` (the Session duration is over); `stopped` (ended early, see `reason`); `refused` (a start that did not happen, see `reason`). Starting while a session runs records another `started`. |
+| `source` | Where the command came from: `device_interface` (the Device interface or any other API client), `home_assistant_mqtt`, `home_assistant_native`. `ended` keeps the source of the start. Reserved for later: `paw_tap`, `schedule`. |
+| `reason` | `null`, or for `refused`: `busy` (stowing, calibrating or tuning a speed), `not_calibrated`; for `stopped`: `stop`, `stow`, `manual_control`, `calibration`, `speed_tuning`. Reserved for later refusals: `rest_time`, `daily_limit`, `quiet_hours`, `automatic_off`. |
+| `at` | When, in seconds since 1970 UTC, or `null` when not known. |
+| `ago` | Seconds since the event, or `null` when not known (an undated event from before a restart). |
+
+A start with a Session duration out of range (`400`) is not a refusal and is not recorded. Values may be added: show unknown ones as they come.
+
+### Robot clock
+
+The robot has no clock of its own and never asks the internet (docs/adr/0013). After every boot its clock is unset until it is given the time:
+
+`POST /api/time` (no PIN) with `{"epochMs":1792771200000,"offset":120,"zone":"Europe/Paris"}` sets it and returns `{"set":true,"sessionsToday":2}`. `epochMs` is milliseconds since 1970 UTC, `offset` the current UTC offset in minutes (UTC+02:00 is `120`, UTC-05:00 is `-300`), `zone` the IANA time zone name, optional, stored for later. The Device interface sends it on every page load, the Native integration when it connects. A time before 2024 or after 2099, an offset outside -720…840 or a zone with other characters than letters, digits, `/`, `_`, `+` and `-` (64 at most) returns `400 {"error":"invalid_time"}`; a missing or mistyped field `400 {"error":"invalid_request"}`.
+
+The clock lives in memory only. Events recorded before it is set keep their age (`ago`) and get their time (`at`) once it is; undated events from before a restart stay undated.
+
+### Which source
+
+The journal's `source` comes from who sent the command: an HTTP request with the header `X-CatWandConnect-Client: home_assistant`, or a `/ws` connection that sent `{"t":"hello","client":"home_assistant"}`, counts as `home_assistant_native`; MQTT commands as `home_assistant_mqtt`; anything else as `device_interface`.
 
 ### Calibration
 
@@ -328,14 +381,15 @@ When enabled in Settings, the robot connects to an MQTT broker and announces its
 | Topic | Direction | Payload |
 |-------|-----------|---------|
 | `<base>/status` | robot → | `online` / `offline` (retained; `offline` is the last will) |
-| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle","play":"OFF","sm":10}` (retained): positions in degrees, maximum speeds in °/s; `activity` as in `/ws` (`playing` during a Play session); `play` is `ON` while a Play session runs; `sm` is the Session duration in minutes |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle","play":"OFF","sm":10}` (retained): positions in degrees, maximum speeds in °/s; `activity` as in `/ws` (`playing` during a Play session); `play` is `ON` while a Play session runs; `sm` is the Session duration in minutes; `today` the Play sessions started today, `null` while the Robot clock is unset |
 | `<base>/stow/set` | → robot | `PRESS` |
 | `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | A number of degrees. The axis moves there at the Manual control speed, clamped into the Travel limits. |
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | A number of °/s. Validated like the Settings value. |
-| `<base>/play_session/set` | → robot | `ON` starts a Play session for the Session duration, `OFF` stops it (Stow). A refused start (not calibrated, busy) is logged and the state is republished with `play` still `OFF`. |
+| `<base>/play_session/set` | → robot | `ON` starts a Play session for the Session duration, `OFF` stops it (Stow). A refused start (not calibrated, busy) is recorded in the Play session journal and the state is republished with `play` still `OFF`. |
+| `<base>/play_session/event` | robot → | `{"event_type":"refused","source":"home_assistant_mqtt","reason":"busy"}` (not retained), one per new Play session journal event, for the Play session event entity. `event_type` and `reason` as `what` and `reason` in [`GET /api/journal`](#play-session-journal); `reason` is always there, `null` when none. |
 | `<base>/session_duration/set` | → robot | Whole minutes, 1–60. Saved once the robot is idle; other values are ignored. |
 | `<base>/play_session/remaining` | robot → | The Play session time left in whole seconds, `0` when no session runs (retained). Sent when a session starts or ends, when its end moves (a new session started during one), on connection and when Home Assistant comes back online (`online` on `homeassistant/status`, which the robot subscribes to); not every second. The Play session end sensor's template adds it to Home Assistant's clock: the robot has no clock of its own. |
 | `<base>/update` | robot → | `{"installed_version":"0.2.0-beta.3","latest_version":"0.2.0-beta.4","release_url":"https://…","title":"CatWandConnect firmware"}` (retained), for the Firmware update entity. `latest_version` is the one reported by `POST /api/update/available` when newer than the installed one, else the installed version (up to date, no `release_url`). There is no install command: the robot can't download. |
-| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the five numbers, the activity sensor, the Play session switch, the Firmware update entity and the Play session end sensor (`device_class: timestamp`). |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Discovery messages (retained) for the Stow button, the five numbers, the activity sensor, the Play session switch, the Firmware update entity, the Play session end sensor (`device_class: timestamp`), the Play session event entity and the Sessions today sensor. |
 
 Commands go through the Robot core like Manual control: Travel limits, speed limits and priorities apply, and Stow beats everything.

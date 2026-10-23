@@ -87,6 +87,8 @@ Go to **Settings → Devices & services → CatWandConnect**, then the robot's d
 | Play session | Switch | On starts a Play session for the Session duration; off stops it and Stows. It shows on while a session runs, whether it was started from Home Assistant or from the robot's interface, and turns off by itself when the session ends. Refused, with a message saying why, until the robot is calibrated, and while it is stowing, calibrating or tuning a speed. |
 | Session duration | Number (1–60 min) | How long the next Play session lasts, the same value as on the robot's main screen. |
 | Play session end | Sensor (timestamp) | When the running Play session ends, shown as *in 7 minutes*: Home Assistant counts down by itself. Follows every session, started from Home Assistant or from the robot's interface. *Unknown* when no session runs. Needs an integration newer than 0.2.0. |
+| Play session | Event | Fires on each Play session event: `started`, `ended` (the Session duration is over), `stopped` (ended early) or `refused`, with the attributes `source` (`device_interface`, `home_assistant_mqtt`, `home_assistant_native`) and `reason` (for `stopped`: `stop`, `stow`, `manual_control`, `calibration`, `speed_tuning`; for `refused`: `busy`, `not_calibrated`). The robot's Info → Journal shows the last 50. Integration 0.3.0 or later, with a firmware that has the journal; with an older firmware it isn't created. |
+| Sessions today | Sensor | How many Play sessions started since midnight. Unknown until the robot knows the time: the integration gives it Home Assistant's time when it connects. |
 | Firmware | Update | The installed version and, when a newer one is out on the robot's Update channel, the latest version with what's new. Home Assistant then shows its usual update notification; **Install** downloads the right file and updates the robot (integration 0.2.0 or later). Refused during a Play session or a Calibration. |
 
 Entities update within a second when someone uses the joystick or the robot's screen. When the robot is switched off or loses Wi-Fi, they show as unavailable, and come back by themselves when it returns. The device page also shows the robot's model, chip and firmware version, and a **Visit** link to its interface.
@@ -178,7 +180,8 @@ The robot reconnects by itself after a power cut or a Home Assistant restart.
 Go to **Settings → Devices & services → MQTT**, then **Devices**. The robot appears under its name, with the same entities as with the Native integration ([listed above](#3-check-its-entities)), named in English. The differences:
 
 - Horizontal position and Vertical position go from 0 to 180°; the robot keeps the axis within its Travel limits.
-- A Play session the robot refuses (not calibrated, busy) flips the switch back off with no message; the robot's log says why.
+- A Play session the robot refuses (not calibrated, busy) flips the switch back off with no message; the Play session event fires `refused` with the reason, and the robot's Info → Journal shows it.
+- **Sessions today** stays unknown after the robot restarts until someone opens its page: over MQTT, the robot gets the time only from the phone's browser.
 - Session duration is remembered once the robot is idle.
 - Play session end (`sensor.catwandconnect_play_session_end`) is worked out by Home Assistant: the robot has no clock, so it sends the time left when a session starts or ends, and Home Assistant adds it to its own time. Needs a firmware newer than 0.2.1.
 - **Firmware** (`update.catwandconnect_firmware`) shows the installed version and, once the robot's page has found a newer one for its Update channel, the latest version with a link to its release notes, so Home Assistant shows its usual update notification. It has no **Install** button: the robot can't download anything itself. Update from the robot's page (the **Update** button on its main screen, see [Updating](install.md#updating-building-from-source)) or with the Native integration. The latest version is known after someone opens the robot's page, and is forgotten when the robot restarts.
@@ -496,7 +499,24 @@ actions:
       entity_id: switch.catwandconnect_play_session
 ```
 
-Entity ids follow the robot's name: `button.catwandconnect_stow` by default, `button.catwandconnect_salon_stow` for a robot named "CatWandConnect salon". They are the same with both connections; ids ending in `_2` mean the robot is connected twice (see [Choose your connection](#choose-your-connection)). Automations on the Activity use its states `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` and `playing`, whatever language Home Assistant shows them in.
+Get a notification when a Play session is refused, with the reason:
+
+```yaml
+alias: Tell me when the cat wand refuses to play
+triggers:
+  - trigger: state
+    entity_id: event.catwandconnect_play_session
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.attributes.event_type == 'refused' }}"
+actions:
+  - action: notify.notify
+    data:
+      message: >-
+        The cat wand refused to play ({{ trigger.to_state.attributes.reason }}).
+```
+
+Entity ids follow the robot's name: `button.catwandconnect_stow` by default, `button.catwandconnect_salon_stow` for a robot named "CatWandConnect salon". They are the same with both connections; ids ending in `_2` mean the robot is connected twice (see [Choose your connection](#choose-your-connection)). Automations on the Activity use its states `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` and `playing`, whatever language Home Assistant shows them in. An event entity's state is the time of its last event: trigger on any change and test `event_type`, so two refusals in a row both count.
 
 ## Troubleshooting
 

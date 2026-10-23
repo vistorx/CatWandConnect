@@ -92,6 +92,14 @@ Use the Play session block under the speed slider on the main screen.
 - [x] Closing the page does not stop the session; reopening it shows Stop and the time left. A power cut during a session ends it, and the robot Stows gently at power-up instead of playing.
 - [x] After updating from a build without Play session by OTA, settings and Calibration are kept, and Settings → Motion shows the default Pause ranges (0–2 s on both axes).
 
+### Play session journal
+
+- [ ] Info → Journal lists, newest first, a session started and left to end (Started, then Ended), one stopped with Stop, with Stow and with the joystick (Stopped, with the reason), and a Start while stowing (Refused, busy), each with the time and "Device interface". Sessions today counts the starts.
+- [ ] A second phone with Info open shows a new event within a second.
+- [ ] After a power cut, the events are still listed, those from before the restart with their time; new events show "… min ago, before the clock was set" only until a page is opened, then their time.
+- [ ] The Diagnostic report has a "Play session journal" section with the clock state and the events, and no time zone name.
+- [ ] With the phone's language set to French, the Journal is in French.
+
 ## Stow, priority, hold and release
 
 - [ ] The Stow button stays visible at the bottom of the main screen, including on a small phone.
@@ -237,7 +245,9 @@ Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup]
 - [ ] The device also shows a Play session switch and a Session duration number (1–60 min) matching the main screen's duration.
 - [ ] On a calibrated robot, turning Play session on starts a session for the Session duration; Activity shows `playing`. Turning it off Stows and the switch stays off.
 - [ ] A session started from the main screen turns the switch on in Home Assistant; when its time is up (try 1 min), the switch turns off by itself. Touching the joystick or pressing Stow also turns it off.
-- [ ] Before Calibration, turning Play session on does nothing: the switch flips back off and the robot's log shows "Play session refused: not calibrated".
+- [ ] Before Calibration, turning Play session on does nothing: the switch flips back off and the robot's log shows "[play] Play session refused: not_calibrated, from home_assistant_mqtt".
+- [ ] The device also shows a Play session event and Sessions today. Starting, stopping and refusing sessions from the main screen and from Home Assistant each fire the event with the right `event_type`, `source` and `reason` (Developer tools → States), and never an old event again when Home Assistant or the robot restarts.
+- [ ] After a robot restart, Sessions today is unknown until the robot's page is opened on a phone, then shows the sessions started today.
 - [ ] Changing Session duration in Home Assistant updates the main screen's duration, and it is still there after a restart. A value of 0 or 61 is refused.
 - [ ] During a Play session, `sensor.catwandconnect_play_session_end` (Play session end) shows when it ends (*in 9 minutes* for a 10-minute session, matching the main screen's countdown to within a few seconds); after Stop or when the time is up it shows *Unknown*. Restarting Home Assistant during a session brings the same end time back.
 
@@ -273,6 +283,7 @@ Use a Home Assistant 2026.10 or later with HACS, on the robot's network, and a r
 - [x] Download diagnostics on the device page: the file has the firmware, settings and state, with the Wi-Fi name, IP and MAC addresses, broker address and MQTT credentials redacted, and no PIN.
 - [x] With the MQTT connection also on, a second device appears with ids ending in `_2`, as the guide warns; turning MQTT off in the robot and deleting the MQTT device leaves one.
 - [x] The ready-made Native integration dashboard from the guide, pasted as is, shows every card with no "Entity not available".
+- [ ] With integration 0.3.0+ and a firmware with the journal, the device has a Play session event and Sessions today. Starting a session from the main screen fires `started` with `source` `device_interface`; Play session off in Home Assistant fires `stopped` with `source` `home_assistant_native` and `reason` `stop`. Restarting the robot makes Sessions today known again once the integration reconnects, without opening the robot's page. With an older firmware, neither entity is created and the others work.
 - [x] The joystick card (integration 0.1.1+) is in the card picker; holding and dragging moves the wand, letting go stops it; it greys out while the robot is offline.
 
 ## Web flasher and releases
