@@ -47,6 +47,7 @@ class MqttBridge {
   bool connect();
   void publishState(bool force);
   void publishUpdate();
+  void publishJournal();
 
   void getConfig(AsyncWebServerRequest* request);
   void putConfig(AsyncWebServerRequest* request, JsonVariant& body);
@@ -64,6 +65,7 @@ class MqttBridge {
 
   uint32_t updateGeneration_ = 0;  // of the available update last published
   home_assistant::PlayRemainingReporter playRemaining_;  // touched by the mqtt task only
+  uint32_t journalId_ = 0;         // newest Play session journal event published
   String lastState_;
   uint32_t lastStateMs_ = 0;
 };

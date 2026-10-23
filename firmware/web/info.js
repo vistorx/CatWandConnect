@@ -53,6 +53,82 @@ $('copy').addEventListener('click', async () => {
   }
 });
 
+// --- Play session journal (GET /api/journal, new events on /ws) ---
+
+let journal = null;  // the last /api/journal answer
+let journalLoadedAt = 0;  // when it came, to age its events
+
+function when(event) {
+  const lang = document.documentElement.lang;
+  if (event.at !== null) {
+    const date = new Date(event.at * 1000);
+    const sameDay = date.toDateString() === new Date().toDateString();
+    return sameDay
+      ? date.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })
+      : date.toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+  if (event.ago === null) return I18n.t('journal.when.unknown');
+  const ago = event.ago + Math.floor((Date.now() - journalLoadedAt) / 1000);
+  const minutes = Math.floor(ago / 60);
+  const relative = minutes < 1 ? I18n.t('journal.ago.now')
+    : minutes < 60 ? I18n.t('journal.ago.minutes', { m: minutes })
+      : I18n.t('journal.ago.hours', { h: Math.floor(minutes / 60), m: minutes % 60 });
+  return I18n.t('journal.when.unset', { ago: relative });
+}
+
+function describe(event) {
+  const what = I18n.t(`journal.what.${event.what}`);
+  const source = I18n.t(`journal.source.${event.source}`);
+  const reason = event.reason ? ` (${I18n.t(`journal.reason.${event.reason}`)})` : '';
+  return `${what}${reason} · ${source}`;
+}
+
+function showJournal() {
+  if (!journal) return;
+  const today = journal.sessionsToday;
+  $('journal-today').textContent = today === null || today === undefined
+    ? I18n.t('journal.today.unknown') : I18n.t('journal.today', { n: today });
+  $('journal').innerHTML = '';
+  for (const event of journal.events) {
+    const item = document.createElement('li');
+    item.dataset.what = event.what;
+    const time = document.createElement('span');
+    time.className = 'journal-when';
+    time.textContent = when(event);
+    const text = document.createElement('span');
+    text.textContent = describe(event);
+    item.append(time, text);
+    $('journal').append(item);
+  }
+  $('journal-empty').hidden = journal.events.length > 0;
+}
+
+async function loadJournal() {
+  try {
+    const response = await fetch('/api/journal');
+    if (!response.ok) return;  // firmware without a journal
+    journal = await response.json();
+    journalLoadedAt = Date.now();
+    showJournal();
+  } catch {
+    // Offline: keep what is shown.
+  }
+}
+
+// New events arrive on /ws as {"t":"journal","event":{...}}: reloading keeps
+// the ages, dates and Sessions today consistent with the robot's.
+function listen() {
+  const socket = new WebSocket(`ws://${location.host}/ws`);
+  socket.addEventListener('message', message => {
+    try {
+      if (JSON.parse(message.data).t === 'journal') loadJournal();
+    } catch {
+      // Not ours.
+    }
+  });
+  socket.addEventListener('close', () => setTimeout(listen, 3000));
+}
+
 // --- Diagnostic report (GET /api/diagnostics), redacted unless asked ---
 
 async function report(full) {
@@ -122,5 +198,9 @@ $('report-full').addEventListener('click', async () => {
 I18n.load().then(() => {
   refresh();
   setInterval(refresh, 5000);
+  // After clock.js has set the Robot clock, so the events come dated.
+  setTimeout(loadJournal, 300);
+  setInterval(showJournal, 30000);
+  listen();
   showReport();
 });

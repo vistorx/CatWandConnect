@@ -1,0 +1,6 @@
+{
+  "name": "play_journal",
+  "version": "0.0.0",
+  "description": "The Play session journal (last 50 events, kept in flash) and the Robot clock set by the browser or Home Assistant. Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

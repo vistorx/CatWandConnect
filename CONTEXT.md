@@ -60,6 +60,14 @@ _Avoid_: Delay, wait time, idle time
 How long a Play session lasts, in minutes (1–60). Remembered for the next session.
 _Avoid_: Timer, play time
 
+**Play session journal**:
+The robot's record of its last 50 Play session events (started, ended, stopped early, refused), each with when, its source (Device interface, Home Assistant over the MQTT connection or the Native integration) and, for a stop or a refusal, its reason. Kept in flash across restarts, with no personal data. Shown under Info → Journal, sent to Home Assistant as the Play session event entity, and counted by Sessions today (Play sessions started since local midnight).
+_Avoid_: History, log (the log is the firmware's text lines), activity log
+
+**Robot clock**:
+The robot's idea of the current time and UTC offset, given by the Device interface (the browser's time, on every page load) or by the Native integration (Home Assistant's, when it connects). Never from NTP or anything else on the internet (ADR 0013). In memory only: unset after every boot until one of them sets it.
+_Avoid_: RTC, NTP time, system time
+
 **Calibration**:
 The guided process in which the user sets each axis's Travel limits and the Stow position, then confirms the robot can sweep that envelope without hitting anything.
 _Avoid_: Setup, homing

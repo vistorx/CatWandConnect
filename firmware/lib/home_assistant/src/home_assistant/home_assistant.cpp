@@ -208,6 +208,31 @@ std::vector<Message> discovery(const Device& device, const std::string& prefix) 
         "{{ (now() + timedelta(seconds=value|int(0))).isoformat() if value|int(0) > 0 else None }}";
     messages.push_back(config(prefix, "sensor", device, "play_session_end", doc));
   }
+
+  {
+    // Fed by the Play session journal. Its own unique id: the switch already
+    // has "_play_session". Same entity id as the Native integration's.
+    JsonDocument doc;
+    common(doc.to<JsonObject>(), device, topics, "play_session_event");
+    doc["object_id"] = objectPrefix(device) + "_play_session";
+    doc["name"] = "Play session";
+    doc["icon"] = "mdi:history";
+    doc["state_topic"] = topics.playEvent();
+    JsonArray types = doc["event_types"].to<JsonArray>();
+    for (const char* type : {"started", "ended", "stopped", "refused"}) types.add(type);
+    messages.push_back(config(prefix, "event", device, "play_session", doc));
+  }
+
+  {
+    JsonDocument doc;
+    common(doc.to<JsonObject>(), device, topics, "sessions_today");
+    doc["name"] = "Sessions today";
+    doc["icon"] = "mdi:counter";
+    doc["state_topic"] = topics.state();
+    doc["value_template"] = "{{ value_json.today if value_json.today is not none else 'None' }}";
+    doc["state_class"] = "total_increasing";
+    messages.push_back(config(prefix, "sensor", device, "sessions_today", doc));
+  }
   return messages;
 }
 
@@ -237,6 +262,19 @@ std::string statePayload(const State& state) {
   doc["activity"] = state.activity;
   doc["play"] = std::string(state.activity) == "playing" ? "ON" : "OFF";
   doc["sm"] = state.sessionMinutes;
+  if (state.sessionsToday >= 0) doc["today"] = state.sessionsToday;
+  else doc["today"] = nullptr;
+  std::string payload;
+  serializeJson(doc, payload);
+  return payload;
+}
+
+std::string eventPayload(const char* what, const char* source, const char* reason) {
+  JsonDocument doc;
+  doc["event_type"] = what;
+  doc["source"] = source;
+  if (reason) doc["reason"] = reason;
+  else doc["reason"] = nullptr;
   std::string payload;
   serializeJson(doc, payload);
   return payload;

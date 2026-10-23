@@ -85,6 +85,7 @@ std::string reportText(const ReportData& d, bool redacted) {
 
   line(out, "Settings", d.settings);
   line(out, "Hardware", d.hardware);
+  if (!d.journal.empty()) out += "\nPlay session journal:\n" + d.journal;
   out += "\nRecent log:\n";
   out += d.log.empty() ? std::string("(empty)\n") : d.log;
 

@@ -29,7 +29,7 @@ void test_topics_live_under_the_hostname() {
 void test_discovery_announces_the_required_entities() {
   auto messages = discovery(device());
 
-  TEST_ASSERT_EQUAL(10, messages.size());
+  TEST_ASSERT_EQUAL(12, messages.size());
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/button/catwandconnect_246f28abcdef/stow/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/horizontal_position/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/vertical_position/config"));
@@ -40,6 +40,8 @@ void test_discovery_announces_the_required_entities() {
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/session_duration/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/update/catwandconnect_246f28abcdef/firmware/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/play_session_end/config"));
+  TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/event/catwandconnect_246f28abcdef/play_session/config"));
+  TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/sessions_today/config"));
 }
 
 void test_every_entity_shares_device_and_availability() {
@@ -319,6 +321,60 @@ void test_recognises_home_assistant_coming_online() {
   TEST_ASSERT_FALSE(homeAssistantOnline("catwandconnect/catwandconnect-salon/status", "online"));
 }
 
+// The Play session journal: one event entity fed by non-retained messages on
+// its own topic, so Home Assistant never replays an old event.
+void test_play_session_event_entity() {
+  auto messages = discovery(device());
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/event/catwandconnect_246f28abcdef/play_session/config")->payload);
+
+  TEST_ASSERT_EQUAL_STRING("Play session", doc["name"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_play_session_event", doc["unique_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_salon_play_session", doc["object_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/play_session/event", doc["state_topic"]);
+  TEST_ASSERT_EQUAL(4, doc["event_types"].size());
+  TEST_ASSERT_EQUAL_STRING("started", doc["event_types"][0]);
+  TEST_ASSERT_EQUAL_STRING("ended", doc["event_types"][1]);
+  TEST_ASSERT_EQUAL_STRING("stopped", doc["event_types"][2]);
+  TEST_ASSERT_EQUAL_STRING("refused", doc["event_types"][3]);
+  TEST_ASSERT_TRUE(doc["command_topic"].isNull());
+  Topics topics(device());
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/play_session/event", topics.playEvent().c_str());
+}
+
+void test_play_session_event_payload_carries_source_and_reason() {
+  JsonDocument refused;
+  deserializeJson(refused, eventPayload("refused", "home_assistant_mqtt", "busy"));
+  TEST_ASSERT_EQUAL_STRING("refused", refused["event_type"]);
+  TEST_ASSERT_EQUAL_STRING("home_assistant_mqtt", refused["source"]);
+  TEST_ASSERT_EQUAL_STRING("busy", refused["reason"]);
+
+  JsonDocument started;
+  deserializeJson(started, eventPayload("started", "device_interface", nullptr));
+  TEST_ASSERT_EQUAL_STRING("started", started["event_type"]);
+  TEST_ASSERT_TRUE(started["reason"].is<std::nullptr_t>());  // always there, so automations can test it
+}
+
+void test_sessions_today_sensor_is_unknown_without_a_clock() {
+  auto messages = discovery(device());
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/sessions_today/config")->payload);
+  TEST_ASSERT_EQUAL_STRING("Sessions today", doc["name"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_sessions_today", doc["unique_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_salon_sessions_today", doc["object_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/state", doc["state_topic"]);
+  TEST_ASSERT_EQUAL_STRING("total_increasing", doc["state_class"]);
+  // Home Assistant's MQTT sensor reads the text "None" as unknown.
+  TEST_ASSERT_EQUAL_STRING("{{ value_json.today if value_json.today is not none else 'None' }}", doc["value_template"]);
+
+  JsonDocument known;
+  deserializeJson(known, statePayload(State{{90, 90}, {90, 90}, "idle", 10, 3}));
+  TEST_ASSERT_EQUAL(3, known["today"].as<int>());
+  JsonDocument unknown;
+  deserializeJson(unknown, statePayload(State{{90, 90}, {90, 90}, "idle", 10, -1}));
+  TEST_ASSERT_TRUE(unknown["today"].is<std::nullptr_t>());
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_topics_live_under_the_hostname);
@@ -347,5 +403,8 @@ int main() {
   RUN_TEST(test_play_remaining_is_published_when_the_end_moves);
   RUN_TEST(test_play_remaining_is_published_again_when_forced);
   RUN_TEST(test_recognises_home_assistant_coming_online);
+  RUN_TEST(test_play_session_event_entity);
+  RUN_TEST(test_play_session_event_payload_carries_source_and_reason);
+  RUN_TEST(test_sessions_today_sensor_is_unknown_without_a_clock);
   return UNITY_END();
 }

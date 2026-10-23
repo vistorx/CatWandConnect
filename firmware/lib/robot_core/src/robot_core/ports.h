@@ -45,6 +45,35 @@ class Storage {
   virtual bool write(const char* key, const void* data, size_t size) = 0;
 };
 
+// What happened to a Play session, as the Robot core reports it.
+enum class PlayEvent : uint8_t {
+  Started,
+  Ended,    // the Session duration is over
+  Stopped,  // ended early, see PlayCause
+  Refused,  // a start was refused, see PlayCause
+};
+
+// Why a Play session stopped or a start was refused; None for the others.
+enum class PlayCause : uint8_t {
+  None,
+  Stop,           // stopPlaySession()
+  Stow,
+  ManualControl,
+  Calibration,    // a Calibration started
+  SpeedTuning,    // a Speed or Acceleration tuning started
+  Busy,           // stowing, calibrating or tuning a speed
+  NotCalibrated,
+};
+
+// Told about each Play session event, e.g. to keep the Play session journal.
+// Called from inside the Robot core's calls, on the caller's task.
+class PlayObserver {
+ public:
+  virtual ~PlayObserver() = default;
+
+  virtual void playSession(PlayEvent event, PlayCause cause) = 0;
+};
+
 // Source of randomness for the Play session's draws.
 class Random {
  public:

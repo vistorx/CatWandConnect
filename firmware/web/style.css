@@ -306,6 +306,22 @@ p.banner { margin: 0; }
 .info dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .header-links { display: flex; gap: 1rem; }
 
+.journal-today { margin: 0 0 .5rem; font-weight: 600; }
+.journal {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0 1rem;
+  max-height: 22rem;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+}
+.journal li { display: grid; gap: .1rem; padding: .6rem 0; border-top: 1px solid var(--line); }
+.journal li:first-child { border-top: 0; }
+.journal-when { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.journal li[data-what="refused"] span:last-child { color: var(--muted); }
+
 .report {
   max-height: 16rem;
   overflow: auto;

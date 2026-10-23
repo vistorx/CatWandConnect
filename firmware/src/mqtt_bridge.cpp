@@ -132,6 +132,7 @@ void MqttBridge::run() {
     }
     if (client.connected()) {
       client.loop();
+      publishJournal();
       publishState(false);
       if (api_->availableUpdateGeneration() != updateGeneration_) publishUpdate();
     } else {
@@ -177,6 +178,7 @@ bool MqttBridge::connect() {
   client.subscribe(home_assistant::kHomeAssistantStatus);  // its restarts: resend the time left
   client.publish(topics.availability().c_str(), home_assistant::kOnline, true);
   playRemaining_.force();
+  journalId_ = api_->journalLastId();  // events are news, never replayed
   publishState(true);
   publishUpdate();
   {
@@ -211,6 +213,7 @@ void MqttBridge::publishState(bool force) {
     client.publish(topics.playRemaining().c_str(), home_assistant::playRemainingPayload(remainingS).c_str(), true);
   }
 
+  state.sessionsToday = api_->sessionsToday();
   String payload = home_assistant::statePayload(state).c_str();
   bool stale = now - lastStateMs_ >= kStateRefreshMs;
   if (!force && payload == lastState_ && !stale) return;
@@ -218,6 +221,18 @@ void MqttBridge::publishState(bool force) {
   client.publish(topics.state().c_str(), payload.c_str(), true);
   lastState_ = payload;
   lastStateMs_ = now;
+}
+
+// The Play session event entity: each new journal event, not retained, so
+// Home Assistant never fires an old one again.
+void MqttBridge::publishJournal() {
+  if (api_->journalLastId() == journalId_) return;
+  home_assistant::Topics topics(deviceInfo(name_, hostname_));
+  for (const DeviceApi::JournalEvent& e : api_->journalSince(journalId_)) {
+    client.publish(topics.playEvent().c_str(), home_assistant::eventPayload(e.what, e.source, e.reason).c_str(), false);
+    journalId_ = e.id;
+  }
+  publishState(true);  // Sessions today
 }
 
 // The Firmware entity: installed version, and the latest one the Device
@@ -241,7 +256,7 @@ void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsign
   }
   home_assistant::Command command = home_assistant::parseCommand(topics, topic, text);
 
-  api_->withRobot([&](cwc::Robot& robot) {
+  api_->withRobotFrom(play_journal::Source::HomeAssistantMqtt, [&](cwc::Robot& robot) {
     switch (command.kind) {
       case home_assistant::CommandKind::Stow:
         robot.stow();
@@ -259,13 +274,10 @@ void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsign
         if (!robot.applySettings(settings).ok()) logLine("[mqtt] rejected maximum speed %s", text.c_str());
         break;
       }
-      // Refusals republish the real state below, so the switch flips back.
+      // Refusals republish the real state below, so the switch flips back;
+      // the Play session journal records them with their reason.
       case home_assistant::CommandKind::StartPlay:
-        if (!robot.settings().calibrated) {
-          logLine("[mqtt] Play session refused: not calibrated");
-        } else if (!robot.startPlaySession(robot.settings().sessionMinutes)) {
-          logLine("[mqtt] Play session refused: busy");
-        }
+        robot.startPlaySession(robot.settings().sessionMinutes);
         break;
       case home_assistant::CommandKind::StopPlay:
         robot.stopPlaySession();
