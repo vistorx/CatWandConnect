@@ -241,6 +241,7 @@ Utilise un Home Assistant avec le module Mosquitto et l'intégration MQTT ([conf
 - [ ] Une session lancée depuis l'écran principal allume l'interrupteur dans Home Assistant ; quand le temps est écoulé (essaie 1 min), l'interrupteur s'éteint tout seul. Toucher le joystick ou appuyer sur Ranger l'éteint aussi.
 - [ ] Avant la calibration, allumer Play session ne fait rien : l'interrupteur revient sur éteint et le log du robot affiche « Play session refused: not calibrated ».
 - [ ] Changer Session duration dans Home Assistant met à jour la durée sur l'écran principal, et elle est toujours là après un redémarrage. Une valeur de 0 ou 61 est refusée.
+- [ ] Pendant une session de jeu, `sensor.catwandconnect_play_session_end` (Play session end) indique quand elle se termine (« dans 9 minutes » pour une session de 10 minutes, comme le décompte de l'écran principal à quelques secondes près) ; après Arrêter ou à la fin du temps, il affiche *Inconnu*. Redémarrer Home Assistant pendant une session fait revenir la même heure de fin.
 
 ## Intégration native (découverte et API)
 
@@ -263,6 +264,7 @@ Utilise un Home Assistant 2026.10 ou plus récent avec HACS, sur le réseau du r
 - [x] Déplacer la baguette avec le joystick met à jour les deux positions en moins d'une seconde. Régler une position dans Home Assistant y déplace l'axe en douceur ; le curseur ne couvre que les limites de course.
 - [x] Changer une vitesse maximale dans Home Assistant se voit dans Réglages → Mouvement sur le robot ; un changement dans les Réglages du robot se voit dans Home Assistant après avoir rechargé la page de l'appareil.
 - [x] Durée de session est égale à celle de l'écran principal ; la changer dans Home Assistant met à jour l'écran principal, et 0 ou 61 est refusé.
+- [ ] Avec une intégration plus récente que la 0.2.0, Fin de la session de jeu (`sensor.catwandconnect_play_session_end`) indique quand la session de jeu en cours se termine, comme le décompte de l'écran principal à quelques secondes près, et ne bouge pas pendant le décompte ; après Arrêter ou à la fin du temps, il affiche *Inconnu*.
 - [x] Sur un robot calibré, allumer Session de jeu lance une session pour la durée de session ; l'éteindre range la baguette et l'interrupteur reste éteint. Une session lancée depuis l'écran principal allume l'interrupteur, qui s'éteint tout seul à la fin de la session.
 - [x] Avant la calibration, allumer Session de jeu affiche une erreur qui dit que le robot n'est pas calibré, et l'interrupteur reste éteint.
 - [x] Ranger dans Home Assistant range le robot, même pendant que quelqu'un utilise le joystick.

@@ -6,6 +6,7 @@
 
 #include <robot_core/ports.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -33,11 +34,16 @@ struct Topics {
   std::string commands() const { return base + "/+/set"; }       // subscribe pattern
   std::string axisCommands() const { return base + "/+/+/set"; }
   std::string update() const { return base + "/update"; }        // JSON, see updatePayload()
+  // The Play session time left in whole seconds, see playRemainingPayload().
+  std::string playRemaining() const { return base + "/play_session/remaining"; }
 };
 
 constexpr const char* kOnline = "online";
 constexpr const char* kOffline = "offline";
 constexpr const char* kDefaultPrefix = "homeassistant";
+// Home Assistant's birth message: "online" on this topic once it (re)starts.
+constexpr const char* kHomeAssistantStatus = "homeassistant/status";
+bool homeAssistantOnline(const std::string& topic, const std::string& payload);
 
 struct Message {
   std::string topic;
@@ -46,7 +52,8 @@ struct Message {
 
 // Retained discovery messages: a Stow button, a position and a maximum speed
 // number per Axis, an activity sensor, a Play session switch, a Session
-// duration number and a Firmware update entity, all grouped under one device.
+// duration number, a Firmware update entity and a Play session end sensor,
+// all grouped under one device.
 std::vector<Message> discovery(const Device& device, const std::string& prefix = kDefaultPrefix);
 
 struct State {
@@ -70,6 +77,28 @@ struct UpdateInfo {
 };
 // A `latest` not newer than `installed` reads as up to date.
 std::string updatePayload(const UpdateInfo& info);
+
+// The Play session end sensor. The robot has no wall clock, so it sends the
+// time left in whole seconds ("0" when no session runs) and the sensor's
+// template adds it to Home Assistant's clock.
+std::string playRemainingPayload(uint32_t remainingS);
+
+// Decides when the time left is worth sending: when a session starts or ends,
+// when its end moves (a new session during one), and after force(). Counting
+// down is not news, so it is not sent every second.
+class PlayRemainingReporter {
+ public:
+  // `remainingS` is the Play session time left (0 when none runs), `nowMs`
+  // the robot's clock. True when it should be published now.
+  bool due(uint32_t remainingS, uint32_t nowMs);
+  // Publish at the next due(): after a reconnection or a Home Assistant restart.
+  void force() { known_ = false; }
+
+ private:
+  bool known_ = false;
+  bool playing_ = false;
+  uint32_t endMs_ = 0;  // on the robot's clock
+};
 
 enum class CommandKind { None, Stow, Position, MaxSpeed, StartPlay, StopPlay, SessionDuration };
 

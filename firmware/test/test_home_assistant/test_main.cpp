@@ -29,7 +29,7 @@ void test_topics_live_under_the_hostname() {
 void test_discovery_announces_the_required_entities() {
   auto messages = discovery(device());
 
-  TEST_ASSERT_EQUAL(9, messages.size());
+  TEST_ASSERT_EQUAL(10, messages.size());
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/button/catwandconnect_246f28abcdef/stow/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/horizontal_position/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/vertical_position/config"));
@@ -39,6 +39,7 @@ void test_discovery_announces_the_required_entities() {
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/switch/catwandconnect_246f28abcdef/play_session/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/number/catwandconnect_246f28abcdef/session_duration/config"));
   TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/update/catwandconnect_246f28abcdef/firmware/config"));
+  TEST_ASSERT_NOT_NULL(find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/play_session_end/config"));
 }
 
 void test_every_entity_shares_device_and_availability() {
@@ -241,6 +242,83 @@ void test_update_payload_defaults_the_release_url_to_the_github_release() {
   TEST_ASSERT_EQUAL_STRING("https://github.com/vistorx/CatWandConnect/releases/tag/v0.2.0", doc["release_url"]);
 }
 
+// The robot has no wall clock: it sends the time left, and Home Assistant
+// turns it into the end time with its own clock (#236).
+void test_play_session_end_sensor_turns_the_time_left_into_a_timestamp() {
+  Topics topics(device());
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/play_session/remaining", topics.playRemaining().c_str());
+
+  auto messages = discovery(device());
+  JsonDocument doc;
+  deserializeJson(doc, find(messages, "homeassistant/sensor/catwandconnect_246f28abcdef/play_session_end/config")->payload);
+  TEST_ASSERT_EQUAL_STRING("Play session end", doc["name"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_246f28abcdef_play_session_end", doc["unique_id"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect_salon_play_session_end", doc["object_id"]);
+  TEST_ASSERT_EQUAL_STRING("timestamp", doc["device_class"]);
+  TEST_ASSERT_EQUAL_STRING("catwandconnect/catwandconnect-salon/play_session/remaining", doc["state_topic"]);
+  // A rendered "None" is Home Assistant's MQTT sensor's way to say unknown.
+  TEST_ASSERT_EQUAL_STRING(
+      "{{ (now() + timedelta(seconds=value|int(0))).isoformat() if value|int(0) > 0 else None }}",
+      doc["value_template"]);
+}
+
+void test_play_remaining_payload_is_whole_seconds_and_0_without_a_session() {
+  TEST_ASSERT_EQUAL_STRING("587", playRemainingPayload(587).c_str());
+  TEST_ASSERT_EQUAL_STRING("0", playRemainingPayload(0).c_str());
+}
+
+void test_play_remaining_is_published_once_at_first() {
+  PlayRemainingReporter reporter;
+  TEST_ASSERT_TRUE(reporter.due(0, 1000));
+  TEST_ASSERT_FALSE(reporter.due(0, 1500));
+  TEST_ASSERT_FALSE(reporter.due(0, 120000));
+}
+
+void test_play_remaining_is_published_when_a_session_starts_and_ends() {
+  PlayRemainingReporter reporter;
+  reporter.due(0, 1000);
+  TEST_ASSERT_TRUE(reporter.due(600, 2000));
+  TEST_ASSERT_FALSE(reporter.due(600, 2000));
+  TEST_ASSERT_TRUE(reporter.due(0, 5000));  // stopped early
+  TEST_ASSERT_FALSE(reporter.due(0, 6000));
+}
+
+// Counting down is not news: the end time stays put, so nothing is sent
+// every second (Home Assistant shows "in 7 minutes" by itself).
+void test_play_remaining_is_not_published_while_it_just_counts_down() {
+  PlayRemainingReporter reporter;
+  reporter.due(600, 0);
+  for (uint32_t s = 1; s < 600; ++s) {
+    // Rounded up to whole seconds, read a little after each tick: jitter.
+    TEST_ASSERT_FALSE(reporter.due(600 - s, s * 1000 + 999));
+  }
+}
+
+// A new session started during one moves the end: publish it.
+void test_play_remaining_is_published_when_the_end_moves() {
+  PlayRemainingReporter reporter;
+  reporter.due(600, 0);
+  TEST_ASSERT_FALSE(reporter.due(598, 2000));
+  TEST_ASSERT_TRUE(reporter.due(900, 300000));
+  TEST_ASSERT_FALSE(reporter.due(899, 301000));
+}
+
+// After a reconnection or a Home Assistant restart, send it again.
+void test_play_remaining_is_published_again_when_forced() {
+  PlayRemainingReporter reporter;
+  reporter.due(600, 0);
+  reporter.force();
+  TEST_ASSERT_TRUE(reporter.due(590, 10000));
+  TEST_ASSERT_FALSE(reporter.due(589, 11000));
+}
+
+void test_recognises_home_assistant_coming_online() {
+  TEST_ASSERT_EQUAL_STRING("homeassistant/status", kHomeAssistantStatus);
+  TEST_ASSERT_TRUE(homeAssistantOnline("homeassistant/status", "online"));
+  TEST_ASSERT_FALSE(homeAssistantOnline("homeassistant/status", "offline"));
+  TEST_ASSERT_FALSE(homeAssistantOnline("catwandconnect/catwandconnect-salon/status", "online"));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_topics_live_under_the_hostname);
@@ -261,5 +339,13 @@ int main() {
   RUN_TEST(test_update_payload_offers_a_newer_version_with_its_notes);
   RUN_TEST(test_update_payload_without_a_newer_version_reads_up_to_date);
   RUN_TEST(test_update_payload_defaults_the_release_url_to_the_github_release);
+  RUN_TEST(test_play_session_end_sensor_turns_the_time_left_into_a_timestamp);
+  RUN_TEST(test_play_remaining_payload_is_whole_seconds_and_0_without_a_session);
+  RUN_TEST(test_play_remaining_is_published_once_at_first);
+  RUN_TEST(test_play_remaining_is_published_when_a_session_starts_and_ends);
+  RUN_TEST(test_play_remaining_is_not_published_while_it_just_counts_down);
+  RUN_TEST(test_play_remaining_is_published_when_the_end_moves);
+  RUN_TEST(test_play_remaining_is_published_again_when_forced);
+  RUN_TEST(test_recognises_home_assistant_coming_online);
   return UNITY_END();
 }

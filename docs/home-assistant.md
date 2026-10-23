@@ -2,7 +2,7 @@
 
 This optional guide adds the robot to Home Assistant, with a ready-made dashboard.
 
-CatWandConnect works without Home Assistant. If you have it, the robot can appear in it as a device with a Play session switch and its duration, a Stow button, its activity, and each axis's position and maximum speed, ready for dashboards and automations.
+CatWandConnect works without Home Assistant. If you have it, the robot can appear in it as a device with a Play session switch, its duration and when it ends, a Stow button, its activity, and each axis's position and maximum speed, ready for dashboards and automations.
 
 There are two ways to connect it. Pick one, set it up, then copy the [ready-made dashboard](#ready-made-dashboards) that goes with it.
 
@@ -86,6 +86,7 @@ Go to **Settings → Devices & services → CatWandConnect**, then the robot's d
 | Activity | Sensor | `idle`, `manual`, `stowing`, `calibrating`, `tuning_speed` or `playing` (shown as *Idle*, *Manual control*... on screen). |
 | Play session | Switch | On starts a Play session for the Session duration; off stops it and Stows. It shows on while a session runs, whether it was started from Home Assistant or from the robot's interface, and turns off by itself when the session ends. Refused, with a message saying why, until the robot is calibrated, and while it is stowing, calibrating or tuning a speed. |
 | Session duration | Number (1–60 min) | How long the next Play session lasts, the same value as on the robot's main screen. |
+| Play session end | Sensor (timestamp) | When the running Play session ends, shown as *in 7 minutes*: Home Assistant counts down by itself. Follows every session, started from Home Assistant or from the robot's interface. *Unknown* when no session runs. Needs an integration newer than 0.2.0. |
 | Firmware | Update | The installed version and, when a newer one is out on the robot's Update channel, the latest version with what's new. Home Assistant then shows its usual update notification; **Install** downloads the right file and updates the robot (integration 0.2.0 or later). Refused during a Play session or a Calibration. |
 
 Entities update within a second when someone uses the joystick or the robot's screen. When the robot is switched off or loses Wi-Fi, they show as unavailable, and come back by themselves when it returns. The device page also shows the robot's model, chip and firmware version, and a **Visit** link to its interface.
@@ -179,6 +180,7 @@ Go to **Settings → Devices & services → MQTT**, then **Devices**. The robot 
 - Horizontal position and Vertical position go from 0 to 180°; the robot keeps the axis within its Travel limits.
 - A Play session the robot refuses (not calibrated, busy) flips the switch back off with no message; the robot's log says why.
 - Session duration is remembered once the robot is idle.
+- Play session end (`sensor.catwandconnect_play_session_end`) is worked out by Home Assistant: the robot has no clock, so it sends the time left when a session starts or ends, and Home Assistant adds it to its own time. Needs a firmware newer than 0.2.1.
 - **Firmware** (`update.catwandconnect_firmware`) shows the installed version and, once the robot's page has found a newer one for its Update channel, the latest version with a link to its release notes, so Home Assistant shows its usual update notification. It has no **Install** button: the robot can't download anything itself. Update from the robot's page (the **Update** button on its main screen, see [Updating](install.md#updating-building-from-source)) or with the Native integration. The latest version is known after someone opens the robot's page, and is forgotten when the robot restarts.
 
 When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
@@ -187,7 +189,7 @@ When the robot is switched off or loses Wi-Fi, its entities show as unavailable.
 
 ## Ready-made dashboards
 
-A control panel for the robot: a big Play session button (tap to start, tap again to stop) and its duration, Stow, the Activity, each axis's position and maximum speed, and a **Robot page** button that opens the robot's own page. A long press on any of its cards opens the robot's page too. There is one for each connection. The Native integration's adds the joystick card that comes with the integration; the MQTT connection's uses only built-in cards.
+A control panel for the robot: a big Play session button (tap to start, tap again to stop) and its duration, Stow, the Activity and, during a session, when it ends, each axis's position and maximum speed, and a **Robot page** button that opens the robot's own page. A long press on any of its cards opens the robot's page too. There is one for each connection. The Native integration's adds the joystick card that comes with the integration; the MQTT connection's uses only built-in cards.
 
 1. Go to **Settings → Dashboards → Add dashboard → New dashboard from scratch**, name it, for example "Cat wand", and open it.
 2. Click the pencil (**Edit dashboard**), then the three dots → **Raw configuration editor**.
@@ -220,6 +222,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: sensor.catwandconnect_play_session_end
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: sensor.catwandconnect_play_session_end
+                    state_not: [unknown, unavailable]
               - type: entity
                 entity: update.catwandconnect_firmware
                 show_state: true
@@ -344,6 +353,13 @@ views:
               - type: entity
                 entity: sensor.catwandconnect_activity
                 show_state: true
+              - type: entity
+                entity: sensor.catwandconnect_play_session_end
+                show_state: true
+                visibility:
+                  - condition: state
+                    entity: sensor.catwandconnect_play_session_end
+                    state_not: [unknown, unavailable]
               - type: entity
                 entity: update.catwandconnect_firmware
                 show_state: true

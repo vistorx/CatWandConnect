@@ -174,7 +174,9 @@ bool MqttBridge::connect() {
   }
   client.subscribe(topics.commands().c_str());  // stow, play_session, session_duration
   client.subscribe(topics.axisCommands().c_str());
+  client.subscribe(home_assistant::kHomeAssistantStatus);  // its restarts: resend the time left
   client.publish(topics.availability().c_str(), home_assistant::kOnline, true);
+  playRemaining_.force();
   publishState(true);
   publishUpdate();
   {
@@ -189,7 +191,9 @@ void MqttBridge::publishState(bool force) {
   uint32_t now = millis();
   if (!force && now - lastStateMs_ < kStateIntervalMs) return;
 
-  home_assistant::State state = api_->withRobot([](cwc::Robot& robot) {
+  uint32_t remainingS = 0;
+  home_assistant::State state = api_->withRobot([&remainingS](cwc::Robot& robot) {
+    remainingS = robot.playRemainingS();
     home_assistant::State s{};
     for (cwc::Axis axis : cwc::kAxes) {
       size_t i = static_cast<size_t>(axis);
@@ -200,11 +204,17 @@ void MqttBridge::publishState(bool force) {
     s.sessionMinutes = robot.settings().sessionMinutes;
     return s;
   });
+  home_assistant::Topics topics(deviceInfo(name_, hostname_));
+  // Retained, so a Home Assistant that subscribes late still gets it; a stale
+  // copy replayed at its restart is replaced right after its birth message.
+  if (playRemaining_.due(remainingS, now)) {
+    client.publish(topics.playRemaining().c_str(), home_assistant::playRemainingPayload(remainingS).c_str(), true);
+  }
+
   String payload = home_assistant::statePayload(state).c_str();
   bool stale = now - lastStateMs_ >= kStateRefreshMs;
   if (!force && payload == lastState_ && !stale) return;
 
-  home_assistant::Topics topics(deviceInfo(name_, hostname_));
   client.publish(topics.state().c_str(), payload.c_str(), true);
   lastState_ = payload;
   lastStateMs_ = now;
@@ -224,6 +234,11 @@ void MqttBridge::publishUpdate() {
 void MqttBridge::handleMessage(const char* topic, const uint8_t* payload, unsigned int length) {
   home_assistant::Topics topics(deviceInfo(name_, hostname_));
   std::string text(reinterpret_cast<const char*>(payload), length);
+  if (home_assistant::homeAssistantOnline(topic, text)) {
+    playRemaining_.force();
+    publishState(true);
+    return;
+  }
   home_assistant::Command command = home_assistant::parseCommand(topics, topic, text);
 
   api_->withRobot([&](cwc::Robot& robot) {

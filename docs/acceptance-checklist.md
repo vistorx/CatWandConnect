@@ -239,6 +239,7 @@ Use a Home Assistant with the Mosquitto add-on and the MQTT integration ([setup]
 - [ ] A session started from the main screen turns the switch on in Home Assistant; when its time is up (try 1 min), the switch turns off by itself. Touching the joystick or pressing Stow also turns it off.
 - [ ] Before Calibration, turning Play session on does nothing: the switch flips back off and the robot's log shows "Play session refused: not calibrated".
 - [ ] Changing Session duration in Home Assistant updates the main screen's duration, and it is still there after a restart. A value of 0 or 61 is refused.
+- [ ] During a Play session, `sensor.catwandconnect_play_session_end` (Play session end) shows when it ends (*in 9 minutes* for a 10-minute session, matching the main screen's countdown to within a few seconds); after Stop or when the time is up it shows *Unknown*. Restarting Home Assistant during a session brings the same end time back.
 
 ## Native integration (discovery and API)
 
@@ -261,6 +262,7 @@ Use a Home Assistant 2026.10 or later with HACS, on the robot's network, and a r
 - [x] Moving the wand with the joystick updates both positions within a second. Setting a position in Home Assistant moves the axis there smoothly; the slider only spans the Travel limits.
 - [x] Changing a maximum speed in Home Assistant shows in the robot's Settings → Motion; a change in the robot's Settings shows in Home Assistant after a reload of the device page.
 - [x] Session duration matches the main screen; changing it in Home Assistant updates the main screen, and 0 or 61 is refused.
+- [ ] With an integration newer than 0.2.0, Play session end (`sensor.catwandconnect_play_session_end`) shows when the running Play session ends, matching the main screen's countdown to within a few seconds, and stays put while it counts down; after Stop or when the time is up it shows *Unknown*.
 - [x] On a calibrated robot, Play session on starts a session for the Session duration; off Stows and the switch stays off. A session started from the main screen turns the switch on, and it turns off by itself when the session ends.
 - [x] Before Calibration, Play session on shows an error saying the robot isn't calibrated, and the switch stays off.
 - [x] Stow in Home Assistant stows, even while someone is using the joystick.
