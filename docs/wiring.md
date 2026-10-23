@@ -4,6 +4,13 @@ This guide gets you the board, the two servos and the USB-C power chain wired an
 
 The firmware drives the servos with 50 Hz PWM pulses; the board only sends the signals and never powers the servos.
 
+<!-- github-only -->
+[![CatWandConnect tutorial - Wiring](https://i.ytimg.com/vi/qAPqGfsNPbk/hqdefault.jpg)](https://youtu.be/qAPqGfsNPbk)
+<!-- /github-only -->
+<iframe style="width:100%;aspect-ratio:16/9;border:0" src="https://www.youtube-nocookie.com/embed/qAPqGfsNPbk" title="CatWandConnect tutorial - Wiring" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+The video shows every step of [Build it step by step](#build-it-step-by-step) ([watch on YouTube](https://youtu.be/qAPqGfsNPbk)).
+
 ## What you need
 
 | Qty | Part | Notes |
@@ -113,9 +120,7 @@ The defaults come from the proof of concept: 400–2200 µs for the Horizontal s
 
 ## Build it step by step
 
-<!-- video: wiring the electronics on the table -->
-
-This is how the reference build is wired, with lever connectors (Wago 221 style) as the rails and servo extension cables. It needs a little soldering. Any other build can follow the [Wiring](#wiring) table and diagram above instead: they apply to every build. Wire it on the table and test it first; it goes into the robot in [Assemble the robot](assembly.md).
+The [video at the top of this guide](#wire-the-electronics) shows every step below. This is how the reference build is wired, with lever connectors (Wago 221 style) as the rails and servo extension cables. It needs a little soldering. Any other build can follow the [Wiring](#wiring) table and diagram above instead: they apply to every build. Wire it on the table and test it first; it goes into the robot in [Assemble the robot](assembly.md).
 
 Keep the charger unplugged unless a step says otherwise.
 

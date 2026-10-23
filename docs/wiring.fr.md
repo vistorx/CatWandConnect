@@ -4,6 +4,13 @@ Ce guide te permet de câbler la carte, les deux servos et la chaîne d'alimenta
 
 Le firmware pilote les servos avec des impulsions PWM à 50 Hz ; la carte envoie seulement les signaux et n'alimente jamais les servos.
 
+<!-- github-only -->
+[![CatWandConnect tutorial - Wiring](https://i.ytimg.com/vi/qAPqGfsNPbk/hqdefault.jpg)](https://youtu.be/qAPqGfsNPbk)
+<!-- /github-only -->
+<iframe style="width:100%;aspect-ratio:16/9;border:0" src="https://www.youtube-nocookie.com/embed/qAPqGfsNPbk" title="CatWandConnect tutorial - Wiring" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+La vidéo montre toutes les étapes de [Monter pas à pas](#monter-pas-à-pas) ([voir sur YouTube](https://youtu.be/qAPqGfsNPbk)).
+
 ## Ce qu'il te faut
 
 | Qté | Pièce | Remarques |
@@ -113,9 +120,7 @@ Les valeurs par défaut viennent de la preuve de concept : 400–2200 µs pour l
 
 ## Monter pas à pas
 
-<!-- video: wiring the electronics on the table -->
-
-Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; il entre dans le robot dans [Assembler le robot](assembly.fr.md).
+La [vidéo en haut de ce guide](#câbler-lélectronique) montre toutes les étapes ci-dessous. Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; il entre dans le robot dans [Assembler le robot](assembly.fr.md).
 
 Laisse le chargeur débranché, sauf quand une étape dit le contraire.
 
