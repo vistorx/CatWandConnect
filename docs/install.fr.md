@@ -10,8 +10,6 @@ Ce guide installe le firmware sur la carte depuis ton navigateur et connecte le 
 | Un câble USB qui transporte les données | Certains câbles ne font que charger : si la carte n'apparaît pas, essaies-en un autre. |
 | Un ordinateur avec Chrome ou Edge | Le flasher web a besoin de Web Serial, absent des autres navigateurs. |
 
-Rien à acheter pour cette étape. **[Liste complète des pièces →](bom.fr.md)**
-
 <p align="center">
   <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Installer depuis le navigateur" width="260"></a>
 </p>

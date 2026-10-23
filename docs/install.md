@@ -10,8 +10,6 @@ This guide puts the firmware on the board from your browser and gets the robot o
 | A USB cable that carries data | Some cables only charge: if the board doesn't show up, try another one. |
 | A computer with Chrome or Edge | The web flasher needs Web Serial, which other browsers lack. |
 
-Nothing to buy for this step. **[Full parts list →](bom.md)**
-
 <p align="center">
   <a href="https://vistorx.github.io/CatWandConnect/flasher/"><img src="../media/buttons/install.svg" alt="Install in your browser" width="260"></a>
 </p>
