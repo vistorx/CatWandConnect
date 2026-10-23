@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Wiring video.** The wiring guide opens with a video that shows every step.
 - **Wiring with photos.** The electronics guide now shows every step with a photo, from preparing the servo extension cables to the first power-up, and asks for three extension cables instead of two cut in half.
 - **Wire lengths.** The wiring guide and the parts list say how much power wire to cut: 2 × 5 cm and 2 × 15 cm of AWG 20.
 - **From Home Assistant to the robot's page in one tap.** The ready-made dashboards have a **Robot page** button, and a long press on any of their cards opens the robot's own page; paste your robot's address once when you copy the dashboard.
