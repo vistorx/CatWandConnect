@@ -15,7 +15,7 @@ Le firmware pilote les servos avec des impulsions PWM à 50 Hz ; la carte envoie
 | 1 | Convertisseur abaisseur (*buck*), sortie 5 V, 5 A ou plus | Transforme le 20 V en 5 V pour les servos et la carte. Un 8 A donne de la marge. |
 | 1 | Condensateur, 470–1000 µF, 10 V ou plus | Facultatif, contre les redémarrages et les à-coups. |
 | 2 | Connecteurs à levier (type Wago 221), 2 entrées (par ex. 221-412) | Les rails +5 V et GND : une entrée pour la sortie du convertisseur, l'autre pour les fils des servos et de la carte torsadés ensemble. Des connecteurs plus grands, un bornier ou une plaque à trous conviennent aussi. |
-| 2 | Rallonges de servo, environ 30 cm (JR/Futaba 3 broches, le modèle standard) | Coupées en deux : deux moitiés reçoivent les servos, une alimente la carte. Voir [Monter pas à pas](#monter-pas-à-pas). |
+| 3 | Rallonges de servo, environ 30 cm (JR/Futaba 3 broches, le modèle standard) | Deux reçoivent les servos, une alimente la carte. Voir [Monter pas à pas](#monter-pas-à-pas). |
 | 40 cm | Fil d'environ 0,5 mm² (AWG 20) et connecteurs Dupont femelles | Le fil pour l'alimentation : 2 × 5 cm (carte de déclenchement vers convertisseur) et 2 × 15 cm (convertisseur vers les connecteurs à levier dans la cavité technique), un + et un − à chaque fois. Les embouts Dupont pour les broches de la carte. |
 
 Outils : un fer à souder et un multimètre.
@@ -107,90 +107,109 @@ Utilise un petit bornier, un connecteur type Wago ou une plaque à trous comme �
 - **Fils d'alimentation épais.** Garde les fils 5 V et de masse vers les servos courts et assez épais.
 - **Condensateur.** Si la carte redémarre ou si les mouvements saccadent, ajoute un condensateur (470–1000 µF, 10 V ou plus) entre les rails +5 V et GND, près des servos.
 
-## Monter pas à pas
-
-<!-- video: wiring the electronics on the table -->
-Photos et vidéo bientôt.
-
-Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo coupées. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; il entre dans le robot dans [Assembler le robot](assembly.fr.md).
-
-Laisse le chargeur débranché, sauf quand une étape dit le contraire.
-
-### 1. Sortie de la carte de déclenchement
-
-Soude deux fils de 5 cm sur la sortie de la carte de déclenchement USB-C PD, + et −. Les deux cartes sont sur le plateau supérieur : des fils courts suffisent.
-
-<!-- photo: step 1 -->
-
-### 2. Entrée du convertisseur
-
-Soude ces deux fils sur les broches IN du convertisseur abaisseur : + sur +, − sur −.
-
-<!-- photo: step 2 -->
-
-### 3. Sortie du convertisseur
-
-Soude deux fils de 15 cm sur les broches OUT du convertisseur, + et −. Ils passent par le trou du plateau supérieur jusque dans la cavité technique : ils doivent être assez longs pour atteindre les connecteurs à levier.
-
-<!-- photo: step 3 -->
-
-### 4. Règle et vérifie les tensions
-
-Règle la carte de déclenchement sur 20 V et la sortie du convertisseur sur 5 V, et vérifie les deux au multimètre avant de brancher quoi que ce soit d'autre, comme dans [Alimentation](#alimentation). Débranche ensuite le chargeur.
-
-<!-- photo: step 4 -->
-
-### 5. Coupe les rallonges
-
-Coupe deux rallonges de servo en deux. Garde les deux moitiés dont la prise reçoit un servo, et une des autres moitiés : sa prise est comme celle du servo et s'enfiche sur les broches de la carte.
-
-<!-- photo: step 5 -->
-
-### 6. Retire un fil de signal
-
-Sur cette moitié côté carte, retire ou coupe le fil de signal (orange). Cette moitié n'amène que le +5 V et la masse à la carte.
-
-<!-- photo: step 6 -->
-
-### 7. Regroupe les rails
-
-Dénude les trois fils rouges (des trois moitiés), torsade-les ensemble et mets-les dans une entrée d'un connecteur à levier ; le + de la sortie du convertisseur va dans son autre entrée. Fais pareil avec les trois fils marron et le − de la sortie du convertisseur dans le second connecteur. Pas le plus propre, mais ça tient.
-
-<!-- photo: step 7 -->
-
-### 8. Alimente la carte
-
-Enfiche la moitié côté carte sur les broches 5V/VIN et GND de la carte : le rouge sur 5V/VIN, le marron sur GND.
-
-**Vérifie d'abord le brochage de ta carte.** Si 5V/VIN et GND ne sont pas côte à côte, utilise plutôt deux fils Dupont femelles séparés. Ne mets jamais le fil rouge sur la broche 3,3 V.
-
-<!-- photo: step 8 -->
-
-### 9. Servo horizontal
-
-Branche le servo horizontal sur une des moitiés côté servo.
-
-<!-- photo: step 9 -->
-
-### 10. Servo vertical
-
-Branche le servo vertical sur l'autre moitié côté servo.
-
-<!-- photo: step 10 -->
-
-### 11. Fils de signal
-
-Chaque moitié côté servo garde son fil de signal (orange) : il prolonge le fil orange du servo jusqu'à la carte. Mets un embout Dupont femelle sur chacun et enfiche-le sur sa broche GPIO :
-
-- la moitié du servo horizontal sur le **GPIO 18** (S3/C3 : **GPIO 4**) ;
-- la moitié du servo vertical sur le **GPIO 19** (S3/C3 : **GPIO 5**).
-
-Si tu as utilisé d'autres broches, choisis-les dans **Réglages → Matériel → Câblage**.
-
-<!-- photo: step 11 -->
-
 ## Plage d'impulsions des servos
 
 Les valeurs par défaut viennent de la preuve de concept : 400–2200 µs pour le servo horizontal et 600–2400 µs pour le vertical, pour 0° à 180°. Si tes servos ne vont pas au bout de leur course, ou grésillent en butée, ajuste la plage d'impulsions dans **Réglages → Matériel → Câblage**. La même section inverse un axe dont le sens est à l'envers. Les deux changements effacent la calibration : relance-la ensuite.
 
-Ensuite : [Installer le logiciel](install.fr.md).
+## Monter pas à pas
+
+<!-- video: wiring the electronics on the table -->
+
+Voici comment est câblé le montage de référence, avec des connecteurs à levier (type Wago 221) comme rails et des rallonges de servo. Il demande un peu de soudure. Tout autre montage peut suivre à la place le tableau et le schéma de [Câblage](#câblage) ci-dessus : ils valent pour tous les montages. Câble-le sur la table et teste-le d'abord ; il entre dans le robot dans [Assembler le robot](assembly.fr.md).
+
+Laisse le chargeur débranché, sauf quand une étape dit le contraire.
+
+### 0. Sors les composants
+
+Pose tout sur le plan de travail : les trois rallonges de servo, les deux connecteurs à levier, les fils de 5 cm et de 15 cm, la carte, la carte de déclenchement USB-C PD, le convertisseur abaisseur, l'étain et le fer à souder.
+
+![Tous les composants sur le plan de travail : trois rallonges de servo, deux connecteurs à levier, quatre fils noirs, la carte ESP32, le convertisseur abaisseur, la carte de déclenchement, une bobine d'étain et le fer à souder.](../media/photos/wiring-step-00-parts.jpg)
+
+### 1. Prépare les rallonges de servo
+
+Prends les trois rallonges de servo. Sur celles-ci, le fil de signal est blanc, le + rouge et le − noir (sur d'autres : orange, rouge et marron).
+
+Chaque rallonge a deux bouts : une petite prise qui s'enfiche sur les broches de la carte, et une prise où se branche un servo.
+
+<p align="center"><img src="../media/photos/wiring-step-01-extensions.jpg" alt="Trois rallonges de servo côte à côte, chacune avec une petite prise à un bout et la prise du servo à l'autre." width="60%"></p>
+
+### 2. Le câble d'alimentation de la carte
+
+La première rallonge alimente la carte. Coupe-la et garde la moitié avec la petite prise. Retire complètement son fil de signal, puis dénude le + et le − (à droite sur la photo). L'autre moitié part à la poubelle.
+
+![À gauche, la moitié avec la prise du servo, qui ne sert pas ; à droite, la moitié avec la petite prise, ses fils rouge et noir dénudés et son fil de signal blanc retiré.](../media/photos/wiring-step-02-board-extension.jpg)
+
+### 3. Les deux câbles des servos
+
+Sur les deux autres rallonges, garde le fil de signal entier, d'un bout à l'autre. Coupe le + et le − près de la petite prise et garde-les du côté de la prise du servo, puis dénude leurs bouts (à gauche sur la photo). Les petits bouts de + et de − restés sur la petite prise partent à la poubelle.
+
+![Deux rallonges de servo : le fil de signal blanc va de la prise du servo à la petite prise ; les fils rouge et noir partent de la prise du servo et s'arrêtent, dénudés ; les bouts rouges et noirs coupés sont posés à côté.](../media/photos/wiring-step-03-servo-extensions.jpg)
+
+### 4–5. Rassemble les + et les −
+
+Torsade ensemble les trois fils + (un par rallonge), puis les trois fils −. Chaque paquet devient un seul bout, prêt pour un connecteur à levier.
+
+<p>
+  <img src="../media/photos/wiring-step-04-gather.jpg" alt="Les trois rallonges préparées : celle de la carte avec seulement le rouge et le noir, et les deux des servos avec leur fil blanc entier et leurs fils rouge et noir dénudés." width="49%">
+  <img src="../media/photos/wiring-step-05-gathered.jpg" alt="Les trois rallonges tenues ensemble : les trois fils rouges torsadés en un paquet et les trois noirs en un autre, les deux fils de signal blancs à part." width="49%">
+</p>
+
+### 6. Sortie de la carte de déclenchement
+
+Soude les deux fils de 5 cm sur la sortie de la carte de déclenchement USB-C PD, + et −. Les deux cartes sont sur le plateau supérieur : des fils courts suffisent.
+
+![La carte de déclenchement avec un fil soudé sur chacune de ses pastilles OUT, + et −.](../media/photos/wiring-step-06-trigger-board-output.jpg)
+
+### 7. Entrée du convertisseur
+
+Soude l'autre bout de ces deux fils sur les broches IN du convertisseur abaisseur : + sur +, − sur −.
+
+![La sortie de la carte de déclenchement reliée aux broches IN+ et IN− du convertisseur.](../media/photos/wiring-step-07-buck-input.jpg)
+
+### 8. Sortie du convertisseur
+
+Soude les deux fils de 15 cm sur les broches OUT du convertisseur, + et −. Ils passent par le trou du plateau supérieur jusque dans la cavité technique : ils doivent être assez longs pour atteindre les connecteurs à levier.
+
+![Deux fils plus longs soudés sur les broches OUT+ et OUT− du convertisseur.](../media/photos/wiring-step-08-buck-output.jpg)
+
+**Règle et vérifie les tensions maintenant**, avant de brancher quoi que ce soit d'autre : la carte de déclenchement sur 20 V et la sortie du convertisseur sur 5 V, vérifiées toutes les deux au multimètre, comme dans [Alimentation](#alimentation). Débranche ensuite le chargeur.
+
+### 9. Connecteurs à levier
+
+Mets un connecteur à levier au bout de chaque fil de 15 cm : un sur le +, un sur le −.
+
+![Un connecteur à levier au bout de chacun des deux fils de sortie du convertisseur.](../media/photos/wiring-step-09-lever-connectors.jpg)
+
+### 10. Les rails
+
+Mets le paquet de fils + dans la seconde entrée du connecteur à levier du fil +, et le paquet de fils − dans la seconde entrée de celui du fil −. Ce sont les rails +5 V et GND. Pas le plus propre, mais ça tient.
+
+![Le paquet rouge dans le connecteur à levier du + et le paquet noir dans celui du − ; les deux prises des servos et les deux fils de signal blancs sortent des rails.](../media/photos/wiring-step-10-rails.jpg)
+
+### 11–12. Alimente la carte
+
+Enfiche le câble d'alimentation de la carte (sa petite prise, avec seulement le + et le −) sur les broches **VCC** (5V/VIN) et **GND** de la carte : le + sur VCC, le − sur GND. Sur la carte de référence (Mini D1 ESP32), VCC et GND sont côte à côte, encadrées en vert.
+
+**Vérifie d'abord le brochage de ta carte.** Si 5V/VIN et GND ne sont pas côte à côte, utilise plutôt deux fils Dupont femelles séparés. Ne mets jamais le + sur la broche 3,3 V.
+
+<p>
+  <img src="../media/photos/wiring-step-11-board-power.jpg" alt="La petite prise avec les fils rouge et noir enfichée sur deux broches de la carte ESP32." width="49%">
+  <img src="../media/photos/wiring-step-12-board-power-pins.jpg" alt="Le dos de la carte Mini D1 ESP32, avec les broches VCC et GND encadrées en vert." width="49%">
+</p>
+
+### 13–14. Fils de signal
+
+Enfiche la petite prise de chaque câble de servo sur les broches **GPIO 18** et **GPIO 19** de la carte (S3/C3 : **GPIO 4** et **GPIO 5**). Peu importe lequel va où : c'est le servo que tu branches sur chaque câble en [assemblant le robot](assembly.fr.md) qui décide de l'axe qu'il commande, et tu peux échanger les broches plus tard dans **Réglages → Matériel → Câblage**.
+
+<p>
+  <img src="../media/photos/wiring-step-13-signal-wires.jpg" alt="Les deux fils de signal blancs enfichés sur la carte, à côté de la prise d'alimentation." width="49%">
+  <img src="../media/photos/wiring-step-14-signal-pins.jpg" alt="Le dos de la carte, avec les broches IO18 et IO19 encadrées en vert." width="49%">
+</p>
+
+### 15. Teste l'alimentation
+
+Branche la carte de déclenchement sur le chargeur : la LED de la carte doit s'allumer. Sinon, débranche tout de suite et vérifie les tensions et le + et le − de chaque branchement.
+
+![Toute la chaîne sur la table : le câble USB-C dans la carte de déclenchement, le convertisseur, les connecteurs à levier avec les deux prises des servos, et la carte ESP32 avec sa LED allumée.](../media/photos/wiring-step-15-power-test.jpg)
+
+L'électronique est prête. Ensuite : [Installer le logiciel](install.fr.md), puis [Assembler le robot](assembly.fr.md).
