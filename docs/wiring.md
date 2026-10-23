@@ -16,7 +16,7 @@ The firmware drives the servos with 50 Hz PWM pulses; the board only sends the s
 | 1 | Capacitor, 470–1000 µF, 10 V or more | Optional, against resets and stutter. |
 | 2 | Lever connectors (Wago 221 style), 2 ports (e.g. 221-412) | The +5 V and GND rails: one port for the buck converter's output, the other for the servos' and board's wires twisted together. Bigger connectors, a terminal block or perfboard also work. |
 | 2 | Servo extension cables, about 30 cm (JR/Futaba 3-pin, the standard kind) | Cut in half: two halves take the servos, one feeds the board. See [Build it step by step](#build-it-step-by-step). |
-| | Wire, about 0.5 mm² (AWG 20), and female Dupont connectors | The wire for the power, the Dupont ends for the board's pins. |
+| 40 cm | Wire, about 0.5 mm² (AWG 20), and female Dupont connectors | The wire for the power: 2 × 5 cm (trigger board to buck converter) and 2 × 15 cm (buck converter to the lever connectors in the technical cavity), one + and one − each. The Dupont ends for the board's pins. |
 
 Tools: a soldering iron and a multimeter.
 
@@ -118,7 +118,7 @@ Keep the charger unplugged unless a step says otherwise.
 
 ### 1. Trigger board output
 
-Solder two wires to the USB-C PD trigger board's output, + and −.
+Solder two 5 cm wires to the USB-C PD trigger board's output, + and −. Both boards sit on the top plate, so short wires are enough.
 
 <!-- photo: step 1 -->
 
@@ -130,7 +130,7 @@ Solder those two wires to the buck converter's IN pins: + to +, − to −.
 
 ### 3. Buck converter output
 
-Solder two wires to the buck converter's OUT pins, + and −.
+Solder two 15 cm wires to the buck converter's OUT pins, + and −. They go through the top plate's hole into the technical cavity, so they must be long enough to reach the lever connectors there.
 
 <!-- photo: step 3 -->
 
