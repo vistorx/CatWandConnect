@@ -29,7 +29,7 @@ Wired in [step 2](wiring.md).
 | 1 | Buck (step-down) converter, 5 V output, 5 A or more | 8 A gives headroom. |
 | 1 | Capacitor, 470–1000 µF, 10 V or more | Optional, against resets and stutter. |
 | 2 | Lever connectors (Wago 221 style), 2 ports | The +5 V and GND rails. |
-| 2 | Servo extension cables, about 30 cm | Cut in half for the servos and the board. |
+| 3 | Servo extension cables, about 30 cm | Two for the servos, one for the board. |
 | 40 cm | Wire, about 0.5 mm² (AWG 20), and female Dupont connectors | 2 × 5 cm and 2 × 15 cm of wire, see the [wiring guide](wiring.md#build-it-step-by-step). |
 
 Example listings for the servos, the trigger board and the buck converter are in the wiring guide's [Example parts](wiring.md#example-parts). Nothing more is needed to [install the software](install.md) (step 3), except a USB data cable and a computer with Chrome or Edge.
