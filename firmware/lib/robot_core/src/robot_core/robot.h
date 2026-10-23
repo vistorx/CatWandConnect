@@ -169,6 +169,12 @@ class Robot {
   // Calibration and while stowing, calibrating or tuning a speed.
   bool startPlaySession(uint8_t minutes);
 
+  // Who to tell about Play session events (PlayEvent): starts, refusals
+  // (busy or not calibrated; a duration out of range is not one), the end of
+  // the Session duration and every early stop with its cause. Starting again
+  // while playing is one more start. nullptr: nobody.
+  void setPlayObserver(PlayObserver* observer) { observer_ = observer; }
+
   // Sets the Session duration (kMinSessionMinutes to kMaxSessionMinutes)
   // without starting a session. Like startPlaySession(), it is written to
   // flash only once the robot is idle, and only when it changed.
@@ -228,11 +234,15 @@ class Robot {
   void drawMove(Axis axis);
   float draw(float low, float high);
   void save();
+  void report(PlayEvent event, PlayCause cause);
+  void leavePlay(PlayCause cause);  // reports Stopped when a session runs
+  void stowNow();
 
   MotorDriver& motors_;
   Clock& clock_;
   Storage& storage_;
   Random& random_;
+  PlayObserver* observer_ = nullptr;
 
   RobotSettings settings_ = defaultSettings();
   AxisState axes_[kAxisCount];

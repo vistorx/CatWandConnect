@@ -42,6 +42,7 @@ struct ReportData {
   std::string settings;  // JSON, as GET /api/settings
   std::string hardware;  // JSON, as GET /api/hardware
   std::string log;       // recent log lines, LogBuffer::text()
+  std::string journal;   // the Play session journal, play_journal::Journal::reportText()
 
   // Other personal values that may appear in the log, with their label, such
   // as a Wi-Fi network typed in the setup page but never saved.

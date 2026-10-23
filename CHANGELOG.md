@@ -8,6 +8,9 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 - **Wire lengths.** The wiring guide and the parts list say how much power wire to cut: 2 × 5 cm and 2 × 15 cm of AWG 20.
 - **From Home Assistant to the robot's page in one tap.** The ready-made dashboards have a **Robot page** button, and a long press on any of their cards opens the robot's own page; paste your robot's address once when you copy the dashboard.
+- **When does the Play session end? Ask Home Assistant.** With the MQTT connection, the new *Play session end* sensor shows when the running session ends ("in 7 minutes"), for your dashboards and automations; it reads *Unknown* when no session runs. The Native integration gets the same sensor in its next version.
+- **Play session journal.** Settings → Robot → Info → Journal shows the last 50 Play sessions: when each started, ended or was stopped (and by what: Stop, Stow, the joystick…), the starts the robot refused and why, and whether it came from your phone or Home Assistant, plus how many sessions your cat had today. It survives restarts and goes in the Diagnostic report. The robot takes the time from your phone when you open its page, or from Home Assistant's integration; it still never connects to the internet.
+- **Play session events in Home Assistant.** A *Play session* event entity fires on each start, end, stop and refusal, with its source and reason, for your automations, and a *Sessions today* sensor counts today's sessions. Over MQTT now; with the Native integration from its next version.
 - **Nicer shared links.** Sharing the website, the web flasher or the repository in a chat or on social media now shows a CatWandConnect preview card.
 - **Screw lengths.** The parts list and the assembly guide now give the length and head of every M3 screw.
 - **Mk3 CAD sources.** The STEP files of every Mk3 part, and of the whole Mechanism, are in `cads/mk3/`: open them in any CAD tool to adapt a part.

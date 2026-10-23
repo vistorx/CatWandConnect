@@ -168,6 +168,7 @@ nav:
               - adr/0010-native-integration-in-its-own-repo-mqtt-kept.md
               - adr/0011-wifi-change-falls-back-to-the-previous-network.md
               - adr/0012-the-browser-fetches-updates-for-the-robot.md
+              - adr/0013-the-robot-clock-comes-from-the-browser-and-home-assistant.md
           - Agent conventions:
               - agents/index.md
               - agents/domain.md

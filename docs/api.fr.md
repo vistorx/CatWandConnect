@@ -14,7 +14,7 @@ La version de l'API n'augmente que quand un changement casserait une intégratio
 
 | Version de l'API | Premier firmware | Ce qu'elle contient |
 |------------------|------------------|---------------------|
-| 1 | 0.2.0-beta.2 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. Ajoutés depuis, sans nouvelle version de l'API : `channel` et `chipFamily` dans `/api/info`, `channel` dans les réglages et `POST /api/update/available` (0.2.0-beta.4). |
+| 1 | 0.2.0-beta.2 | Tout ce qui est sur cette page, dont `api` et `id` dans `GET /api/info`, `POST /api/position` et le service `_catwandconnect._tcp`. Un robot dont `/api/info` n'a pas de champ `api` est plus ancien. Ajoutés depuis, sans nouvelle version de l'API : `channel` et `chipFamily` dans `/api/info`, `channel` dans les réglages et `POST /api/update/available` (0.2.0-beta.4) ; `GET /api/journal`, `POST /api/time`, le message WebSocket `journal`, `sessionsToday` dans `state`, l'en-tête `X-CatWandConnect-Client`, le message WebSocket `hello` et le topic d'événement de session de jeu (non publié, #239). |
 
 ## Découverte (mDNS)
 
@@ -34,7 +34,7 @@ Les enregistrements sont fixés au démarrage ; renommer le robot le redémarre,
 
 ## Code PIN des réglages
 
-Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel (y compris `/api/position`), le rangement, le curseur de vitesse (`playSpeed`), la session de jeu (`/api/play` et `sessionMinutes`) et tous les `GET` n'en ont jamais besoin.
+Le propriétaire peut définir un code PIN facultatif (désactivé par défaut). Tant qu'il est actif, les requêtes marquées 🔒 ci-dessous répondent `401 {"error":"pin_required"}` sauf si elles portent un jeton de session dans un en-tête `Authorization: Bearer <token>`. Le pilotage manuel (y compris `/api/position`), le rangement, le curseur de vitesse (`playSpeed`), la session de jeu (`/api/play` et `sessionMinutes`), l'horloge du robot (`/api/time`) et tous les `GET` n'en ont jamais besoin.
 
 | Requête | Réponse |
 |---------|---------|
@@ -55,6 +55,7 @@ Messages texte JSON, un par trame, chacun avec un type dans `t`.
 | `{"t":"move","h":0.5,"v":-1}` | Pilotage manuel. `h` et `v` sont les déplacements du joystick dans [-1, 1] pour l'axe horizontal et l'axe vertical, en fraction de la vitesse maximale. Les valeurs hors plage sont plafonnées. |
 | `{"t":"stop"}` | Termine le pilotage manuel. La baguette ralentit et s'arrête. |
 | `{"t":"stow"}` | Ranger : arrête tout le reste, amène la baguette à la position de repos et y relâche les servos. `move` est ignoré jusqu'à la fin du rangement. |
+| `{"t":"hello","client":"home_assistant"}` | Envoyé une fois par l'intégration native après la connexion, pour que le journal des sessions de jeu attribue les commandes de cette connexion à Home Assistant. Tout autre client compte comme l'interface du robot. |
 
 **Règle de l'homme mort :** pendant un mouvement, renvoie `move` au moins toutes les 500 ms ; l'interface l'envoie toutes les 100 ms. Si aucun `move` n'arrive pendant 500 ms, ou si un client se déconnecte, le robot s'arrête.
 
@@ -78,6 +79,13 @@ Messages texte JSON, un par trame, chacun avec un type dans `t`.
 | `sessionMinutes` | La durée de session, en minutes, pour que toutes les interfaces ouvertes restent synchronisées. |
 | `play` | Seulement quand `activity` vaut `playing` : `{"remaining": <secondes>}`, le temps restant de la session de jeu, arrondi au-dessus. |
 | `name` | Le nom du robot. |
+| `sessionsToday` | Les sessions de jeu lancées depuis minuit (heure locale), `null` tant que l'horloge du robot n'est pas réglée (voir [Journal des sessions de jeu](#journal-des-sessions-de-jeu)). |
+
+`journal` est envoyé à tous les clients quand un événement de session de jeu est enregistré, avec l'événement comme dans [`GET /api/journal`](#journal-des-sessions-de-jeu) :
+
+```json
+{"t":"journal","event":{"id":42,"what":"refused","source":"home_assistant_mqtt","reason":"busy","at":1792771200,"ago":0}}
+```
 
 ## HTTP
 
@@ -119,7 +127,52 @@ Erreurs : `409 {"error":"not_calibrated"}` avant la calibration, `409 {"error":"
 
 Une session se termine par un rangement quand son temps est écoulé, sur `stop` et sur un rangement venu de n'importe quelle source. Le pilotage manuel (le joystick, ou une position envoyée par Home Assistant) y met fin aussitôt, sans rangement, et laisse la baguette à la personne. Fermer la page ou perdre la connexion ne l'arrête pas. Elle ne reprend jamais et ne survit pas à un redémarrage.
 
+Chaque démarrage, fin, arrêt anticipé et refus est enregistré dans le [journal des sessions de jeu](#journal-des-sessions-de-jeu).
+
 Pour changer la durée de session sans lancer de session, envoie `PUT /api/settings` avec seulement `{"sessionMinutes": 15}` (sans code PIN, comme `playSpeed`). Elle est écrite en flash une fois le robot au repos, et seulement si elle a changé.
+
+### Journal des sessions de jeu
+
+Le robot garde ses 50 derniers événements de session de jeu en flash, même après un redémarrage. Aucune donnée personnelle : seulement ce qui s'est passé, quand, d'où et pourquoi.
+
+`GET /api/journal` (sans code PIN) les renvoie du plus récent au plus ancien :
+
+```json
+{
+  "clock": {"set": true, "offset": 120, "zone": "Europe/Paris"},
+  "sessionsToday": 2,
+  "events": [
+    {"id": 42, "what": "started", "source": "device_interface", "reason": null, "at": 1792771200, "ago": 30},
+    {"id": 41, "what": "refused", "source": "home_assistant_mqtt", "reason": "not_calibrated", "at": null, "ago": 80},
+    {"id": 40, "what": "ended", "source": "device_interface", "reason": null, "at": null, "ago": null}
+  ]
+}
+```
+
+| Champ | Signification |
+|-------|---------------|
+| `clock` | L'horloge du robot : `set` et, une fois réglée, le décalage UTC `offset` en minutes (positif à l'est) et le nom de fuseau IANA `zone` reçu (peut être vide). `offset` et `zone` valent `null` tant qu'elle n'est pas réglée. |
+| `sessionsToday` | Les sessions de jeu lancées depuis minuit (selon le décalage de l'horloge), `null` tant que l'horloge n'est pas réglée. Compté à partir du journal, donc juste après un redémarrage dès que l'horloge est de nouveau réglée. |
+| `id` | Augmente de un à chaque événement, conservé au redémarrage. |
+| `what` | `started` (démarrée) ; `ended` (la durée de session est écoulée) ; `stopped` (arrêtée avant la fin, voir `reason`) ; `refused` (un démarrage qui n'a pas eu lieu, voir `reason`). Relancer pendant une session enregistre un nouveau `started`. |
+| `source` | D'où venait la commande : `device_interface` (l'interface du robot ou tout autre client de l'API), `home_assistant_mqtt`, `home_assistant_native`. `ended` garde la source du démarrage. Réservés pour plus tard : `paw_tap`, `schedule`. |
+| `reason` | `null`, ou pour `refused` : `busy` (rangement, calibration ou réglage de vitesse en cours), `not_calibrated` ; pour `stopped` : `stop`, `stow`, `manual_control`, `calibration`, `speed_tuning`. Réservés pour de futurs refus : `rest_time`, `daily_limit`, `quiet_hours`, `automatic_off`. |
+| `at` | Quand, en secondes depuis 1970 UTC, ou `null` si on ne le sait pas. |
+| `ago` | Les secondes écoulées depuis l'événement, ou `null` si on ne le sait pas (un événement sans heure d'avant un redémarrage). |
+
+Un démarrage avec une durée de session hors limites (`400`) n'est pas un refus et n'est pas enregistré. Des valeurs peuvent s'ajouter : affiche celles que tu ne connais pas telles quelles.
+
+### Horloge du robot
+
+Le robot n'a pas d'horloge à lui et ne va jamais sur Internet (docs/adr/0013). Après chaque démarrage, son horloge n'est pas réglée tant qu'on ne lui donne pas l'heure :
+
+`POST /api/time` (sans code PIN) avec `{"epochMs":1792771200000,"offset":120,"zone":"Europe/Paris"}` la règle et renvoie `{"set":true,"sessionsToday":2}`. `epochMs` est en millisecondes depuis 1970 UTC, `offset` le décalage UTC actuel en minutes (UTC+02:00 donne `120`, UTC-05:00 donne `-300`), `zone` le nom de fuseau horaire IANA, facultatif, gardé pour plus tard. L'interface du robot l'envoie à chaque chargement de page, l'intégration native en se connectant. Une heure avant 2024 ou après 2099, un décalage hors de -720…840 ou un fuseau avec d'autres caractères que des lettres, des chiffres, `/`, `_`, `+` et `-` (64 au plus) renvoie `400 {"error":"invalid_time"}` ; un champ manquant ou du mauvais type `400 {"error":"invalid_request"}`.
+
+L'horloge n'existe qu'en mémoire. Les événements enregistrés avant son réglage gardent leur âge (`ago`) et reçoivent leur heure (`at`) une fois qu'elle est réglée ; les événements sans heure d'avant un redémarrage restent sans heure.
+
+### Quelle source
+
+La `source` du journal vient de qui a envoyé la commande : une requête HTTP avec l'en-tête `X-CatWandConnect-Client: home_assistant`, ou une connexion `/ws` qui a envoyé `{"t":"hello","client":"home_assistant"}`, compte comme `home_assistant_native` ; les commandes MQTT comme `home_assistant_mqtt` ; tout le reste comme `device_interface`.
 
 ### Calibration
 
@@ -328,13 +381,15 @@ Quand c'est activé dans les Réglages, le robot se connecte à un broker MQTT e
 | Topic | Sens | Contenu |
 |-------|------|---------|
 | `<base>/status` | robot → | `online` / `offline` (retenu ; `offline` est le dernier message, « last will ») |
-| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle","play":"OFF","sm":10}` (retenu) : positions en degrés, vitesses maximales en °/s ; `activity` comme dans `/ws` (`playing` pendant une session de jeu) ; `play` vaut `ON` tant qu'une session de jeu tourne ; `sm` est la durée de session en minutes |
+| `<base>/state` | robot → | `{"h":92,"v":88,"hs":90,"vs":90,"activity":"idle","play":"OFF","sm":10}` (retenu) : positions en degrés, vitesses maximales en °/s ; `activity` comme dans `/ws` (`playing` pendant une session de jeu) ; `play` vaut `ON` tant qu'une session de jeu tourne ; `sm` est la durée de session en minutes ; `today` les sessions de jeu lancées aujourd'hui, `null` tant que l'horloge du robot n'est pas réglée |
 | `<base>/stow/set` | → robot | `PRESS` |
 | `<base>/horizontal/position/set`, `<base>/vertical/position/set` | → robot | Un nombre de degrés. L'axe s'y déplace à la vitesse du pilotage manuel, ramené dans les limites de course. |
 | `<base>/horizontal/max_speed/set`, `<base>/vertical/max_speed/set` | → robot | Un nombre de °/s. Validé comme la valeur des Réglages. |
-| `<base>/play_session/set` | → robot | `ON` lance une session de jeu pour la durée de session, `OFF` l'arrête (rangement). Un lancement refusé (pas calibré, occupé) est noté dans le log et l'état est republié avec `play` toujours à `OFF`. |
+| `<base>/play_session/set` | → robot | `ON` lance une session de jeu pour la durée de session, `OFF` l'arrête (rangement). Un lancement refusé (pas calibré, occupé) est enregistré dans le journal des sessions de jeu et l'état est republié avec `play` toujours à `OFF`. |
+| `<base>/play_session/event` | robot → | `{"event_type":"refused","source":"home_assistant_mqtt","reason":"busy"}` (non retenu), un par nouvel événement du journal des sessions de jeu, pour l'entité événement Play session. `event_type` et `reason` comme `what` et `reason` dans [`GET /api/journal`](#journal-des-sessions-de-jeu) ; `reason` est toujours là, `null` s'il n'y en a pas. |
 | `<base>/session_duration/set` | → robot | Des minutes entières, de 1 à 60. Enregistrée dès que le robot est au repos ; les autres valeurs sont ignorées. |
+| `<base>/play_session/remaining` | robot → | Le temps restant de la session de jeu en secondes entières, `0` quand aucune session ne tourne (retenu). Envoyé quand une session commence ou se termine, quand sa fin bouge (une nouvelle session lancée pendant une autre), à la connexion et quand Home Assistant revient en ligne (`online` sur `homeassistant/status`, auquel le robot s'abonne) ; pas toutes les secondes. Le modèle du capteur de fin de session de jeu l'ajoute à l'heure de Home Assistant : le robot n'a pas d'horloge à lui. |
 | `<base>/update` | robot → | `{"installed_version":"0.2.0-beta.3","latest_version":"0.2.0-beta.4","release_url":"https://…","title":"CatWandConnect firmware"}` (retenu), pour l'entité de mise à jour Firmware. `latest_version` est celle indiquée par `POST /api/update/available` si elle est plus récente que la version installée, sinon la version installée (à jour, sans `release_url`). Il n'y a pas de commande d'installation : le robot ne peut pas télécharger. |
-| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les cinq nombres, le capteur d'activité, l'interrupteur de session de jeu et l'entité de mise à jour Firmware. |
+| `homeassistant/<component>/catwandconnect_<mac>/<object>/config` | robot → | Messages de découverte (retenus) pour le bouton Ranger, les cinq nombres, le capteur d'activité, l'interrupteur de session de jeu, l'entité de mise à jour Firmware, le capteur de fin de session de jeu (`device_class: timestamp`), l'entité événement Play session et le capteur Sessions today. |
 
 Les commandes passent par le Robot core comme le pilotage manuel : les limites de course, les limites de vitesse et les priorités s'appliquent, et le rangement passe avant tout.

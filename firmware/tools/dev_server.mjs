@@ -14,6 +14,10 @@
 // without it, the robot's .local name (catwandconnect-3f9a.local with the
 // default name, #195) doesn't resolve, as on some Android phones.
 // LEGACY_HOST=1 simulates a robot set up before #195: plain catwandconnect.local.
+// CALIBRATED=1 starts calibrated, so a Play session starts straight away.
+//
+// The Play session journal (GET /api/journal) starts with a few made-up
+// events; POST /api/time sets the simulated Robot clock, as on the robot.
 //
 // The simulation is rough: it moves the axes at constant speed within the
 // limits and accepts settings with only basic checks. Safety behaviour is
@@ -39,7 +43,7 @@ const PAUSES = { horizontal: [0, 2], vertical: [0, 2] };  // default Pause range
 const robot = {
   settings: {
     playSpeed: 0.6,
-    calibrated: false,
+    calibrated: process.env.CALIBRATED === '1',
     axes: Object.fromEntries(['horizontal', 'vertical'].map(axis =>
       [axis, { min: 60, max: 120, stow: 90, maxSpeed: 90, minSpeed: 9, maxAccel: 360,
         pauseMin: PAUSES[axis][0], pauseMax: PAUSES[axis][1] }])),
@@ -191,6 +195,7 @@ function calibrate(body) {
     c.draft = calibrationView().draft;
     c.target = { ...pos };
     enterStep('horizontal_min');
+    leavePlay('calibration');
     robot.activity = 'calibrating';
   } else if (body.action === 'nudge' && c.step !== 'none') {
     c.target[body.axis] = Math.max(0, Math.min(180, c.target[body.axis] + Number(body.degrees)));
@@ -271,6 +276,7 @@ function speedTuning(body) {
     robot.command = { horizontal: 0, vertical: 0 };
     robot.tuning = { target, axis: body.axis, bound, speed: bound === 'max' ? a.maxSpeed : a.minSpeed,
       accel: a.maxAccel, towardMax: true, velocity: 0, holdUntil: 0 };
+    leavePlay('speed_tuning');
     robot.activity = 'tuning_speed';
   } else if (body.action === 'faster' || body.action === 'slower') {
     if (tuning && t.target === 'accel') {
@@ -305,6 +311,64 @@ function speedTuning(body) {
   return [200, tuningView()];
 }
 
+// --- Play session journal and Robot clock (lib/play_journal) -------------------
+
+// RAM only, like the robot's: unset until a page load sends the browser's time.
+let robotClock = null;  // { epochMs, at (Date.now() when set), offset, zone }
+const clockNowS = () => Math.floor((robotClock.epochMs + Date.now() - robotClock.at) / 1000);
+const bootS = () => Math.floor((Date.now() - startedAt) / 1000);
+// Seeded so the Info page shows each kind of line: one from before a restart
+// (time unknown), one dated, and one undated from this boot.
+const journal = [
+  { id: 1, what: 'started', source: 'device_interface', reason: null, at: null, uptime: null },
+  { id: 2, what: 'ended', source: 'device_interface', reason: null, at: Math.floor(Date.now() / 1000) - 26 * 3600, uptime: null },
+  { id: 3, what: 'refused', source: 'home_assistant_mqtt', reason: 'not_calibrated', at: null, uptime: 0 },
+];
+let journalId = 3;
+// Who the simulator thinks sends a command (the robot reads a header or the /ws hello).
+let commandSource = 'device_interface';
+
+function journalEvent(e) {
+  const age = e.uptime !== null ? bootS() - e.uptime : (e.at && robotClock ? clockNowS() - e.at : null);
+  return { id: e.id, what: e.what, source: e.source, reason: e.reason, at: e.at, ago: age };
+}
+
+function sessionsToday() {
+  if (!robotClock) return null;
+  const day = s => Math.floor((s + robotClock.offset * 60) / 86400);
+  const today = day(clockNowS());
+  return journal.filter(e => e.what === 'started' && e.at && day(e.at) === today).length;
+}
+
+function record(what, reason = null, source = commandSource) {
+  const e = { id: ++journalId, what, source, reason, at: robotClock ? clockNowS() : null, uptime: bootS() };
+  journal.push(e);
+  if (journal.length > 50) journal.shift();
+  console.log(`[play] Play session ${what}${reason ? `: ${reason}` : ''}, from ${source}`);
+  broadcast({ t: 'journal', event: journalEvent(e) });
+}
+
+function journalView() {
+  return [200, { clock: { set: !!robotClock, offset: robotClock?.offset ?? null, zone: robotClock?.zone ?? null },
+    sessionsToday: sessionsToday(), events: journal.slice().reverse().map(journalEvent) }];
+}
+
+function setTime(body) {
+  const { epochMs, offset, zone = '' } = body;
+  if (typeof epochMs !== 'number' || !Number.isInteger(offset)) return [400, { error: 'invalid_request' }];
+  if (epochMs < 1704067200000 || epochMs >= 4102444800000 || offset < -720 || offset > 840
+    || typeof zone !== 'string' || zone.length > 64 || !/^[A-Za-z0-9/_+-]*$/.test(zone)) return [400, { error: 'invalid_time' }];
+  robotClock = { epochMs, at: Date.now(), offset, zone };
+  const now = clockNowS();
+  for (const e of journal) if (e.uptime !== null && !e.at) e.at = now - (bootS() - e.uptime);
+  return [200, { set: true, sessionsToday: sessionsToday() }];
+}
+
+// Reports a Play session that stops early, like Robot::leavePlay.
+function leavePlay(reason) {
+  if (robot.activity === 'playing') record('stopped', reason);
+}
+
 // --- Play session (lib/robot_core Robot::startPlaySession and friends) ------------
 
 const uniform = (low, high) => low + (high - low) * Math.random();
@@ -329,15 +393,20 @@ function play(body) {
   if (body.action === 'start') {
     const minutes = body.sessionMinutes ?? robot.settings.sessionMinutes;
     if (!validMinutes(minutes)) return [400, { error: 'session_duration_out_of_range' }];
-    if (!robot.settings.calibrated) return [409, { error: 'not_calibrated' }];
-    if (['stowing', 'calibrating', 'tuning_speed'].includes(robot.activity)) return [409, { error: 'busy' }];
+    if (!robot.settings.calibrated) { record('refused', 'not_calibrated'); return [409, { error: 'not_calibrated' }]; }
+    if (['stowing', 'calibrating', 'tuning_speed'].includes(robot.activity)) {
+      record('refused', 'busy');
+      return [409, { error: 'busy' }];
+    }
+    record('started');
+    robot.playSource = commandSource;
     robot.command = { horizontal: 0, vertical: 0 };
     robot.settings.sessionMinutes = minutes;
     robot.play = { endsAt: Date.now() + minutes * 60000,
       axes: { horizontal: drawMove('horizontal'), vertical: drawMove('vertical') } };
     robot.activity = 'playing';
   } else if (body.action === 'stop') {
-    if (robot.activity === 'playing') stow();
+    if (robot.activity === 'playing') { leavePlay('stop'); stow(true); }
   } else {
     return [400, { error: 'invalid_request' }];
   }
@@ -392,7 +461,8 @@ setInterval(() => {
   }
   if (robot.activity === 'playing') {
     if (Date.now() >= robot.play.endsAt) {
-      stow();
+      record('ended', null, robot.playSource);
+      stow(true);
       return broadcast(state());
     }
     for (const axis of ['horizontal', 'vertical']) {
@@ -445,7 +515,7 @@ function state() {
   return { t: 'state', h: round(robot.position.horizontal), v: round(robot.position.vertical),
     activity: robot.activity, held: robot.activity !== 'idle', playSpeed: robot.settings.playSpeed,
     calibrated: robot.settings.calibrated, calibration: robot.calibration.step, name: deviceName,
-    sessionMinutes: robot.settings.sessionMinutes,
+    sessionMinutes: robot.settings.sessionMinutes, sessionsToday: sessionsToday(),
     ...(robot.activity === 'tuning_speed' ? { tuning: tuningView() } : {}),
     ...(robot.activity === 'playing' ? { play: { remaining: playView().remaining } } : {}) };
 }
@@ -455,6 +525,7 @@ const round = value => Math.round(value * 10) / 10;
 function onMessage(message) {
   if (message.t === 'move' && robot.activity !== 'stowing') {
     robot.calibration.step = 'none';
+    leavePlay('manual_control');
     robot.play = null;  // Manual control ends a Play session, without Stow
     robot.command = { horizontal: clampUnit(message.h), vertical: clampUnit(message.v) };
     robot.goto = {};
@@ -476,6 +547,7 @@ function position(body) {
     if (robot.activity !== 'manual') robot.command = { horizontal: 0, vertical: 0 };
     robot.calibration.step = 'none';
     robot.tuning = null;
+    leavePlay('manual_control');
     robot.play = null;
     robot.goto[body.axis] = Math.max(0, Math.min(180, body.degrees));
     robot.activity = 'manual';
@@ -483,7 +555,8 @@ function position(body) {
   return [202, {}];
 }
 
-function stow() {
+function stow(quiet = false) {
+  if (!quiet) leavePlay('stow');
   robot.goto = {};
   robot.play = null;
   robot.calibration.step = 'none';
@@ -584,6 +657,8 @@ const API = {
   'POST /api/stow': () => { stow(); return [202, {}]; },
   'POST /api/position': position,
   'GET /api/play': () => [200, playView()],
+  'GET /api/journal': journalView,
+  'POST /api/time': setTime,
   'POST /api/play': play,
   // HOTSPOT=1 simulates a robot on its setup hotspot, with no internet on the phone.
   'GET /api/wifi/status': () => [200, wifiStatus()],
@@ -663,6 +738,8 @@ const server = createServer(async (request, response) => {
     const settingsChange = key === 'PUT /api/settings'
       && (!Object.keys(parsed).length || Object.keys(parsed).some(k => k !== 'playSpeed' && k !== 'sessionMinutes'));
     if ((PROTECTED.has(key) || settingsChange) && !authorized(request)) return send(response, 401, { error: 'pin_required' });
+    commandSource = request.headers['x-catwandconnect-client'] === 'home_assistant'
+      ? 'home_assistant_native' : 'device_interface';
     const [code, result] = route(parsed, url, request);
     return send(response, code, result);
   }
