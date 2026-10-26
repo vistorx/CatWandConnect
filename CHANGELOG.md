@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Join the community.** A Join the Discord button next to Documentation and Support the project, and a line saying where to ask for help, show your robot and vote for the next features.
 - **Install video.** The install guide opens with a video and follows it in 9 steps with a screenshot or photo for each, up to checking that the servos move.
 - **A lighter wiring guide.** Three rules, then the steps; the details (example parts, power chain, pins) fold away until you need them.
 - **Wiring video.** The wiring guide opens with a video that shows every step.

@@ -12,9 +12,12 @@
 <!-- /github-only -->
 
 <p align="center">
-  <a href="https://vistorx.github.io/CatWandConnect/fr/"><img src="media/buttons/docs.svg" alt="Lire la documentation" width="260"></a>
-  <a href="https://github.com/sponsors/vistorx"><img src="media/buttons/sponsor.svg" alt="Soutenir le projet" width="260"></a>
+  <a href="https://vistorx.github.io/CatWandConnect/fr/"><img src="media/buttons/docs.svg" alt="Lire la documentation" width="240"></a>
+  <a href="https://github.com/sponsors/vistorx"><img src="media/buttons/sponsor.svg" alt="Soutenir le projet" width="240"></a>
+  <a href="https://discord.gg/Rbqge3v9dk"><img src="media/buttons/discord.svg" alt="Rejoindre le Discord" width="240"></a>
 </p>
+
+**CatWandConnect est un projet communautaire.** Les makers le font avancer ensemble sur [Discord](https://discord.gg/Rbqge3v9dk) : demande de l'aide pour ton montage, montre ton robot et ton chat, partage tes idées et [vote pour les prochaines fonctionnalités](https://github.com/vistorx/CatWandConnect/issues?q=is%3Aissue+is%3Aopen+label%3Avote). Le français, l'anglais et d'autres langues sont les bienvenus.
 
 <p align="center">
   <a href="https://github.com/vistorx/CatWandConnect/releases"><img src="https://img.shields.io/github/v/release/vistorx/CatWandConnect?include_prereleases&label=latest" alt="Dernière version"></a>
