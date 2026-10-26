@@ -28,7 +28,7 @@ The video shows every step below ([watch on YouTube](https://youtu.be/rjmGGUYjKD
 
 Plug each servo into the socket of a servo cable from the wiring guide: the servo's brown wire on the cable's − (black) side. Keep the charger unplugged.
 
-<!-- photo: step 1 -->
+![The two servos plugged into the servo cables of the wired electronics, the board's pins framed in green.](../media/photos/install-step-01-servos.jpg)
 
 ### 2. Connect the board
 
@@ -36,26 +36,52 @@ Plug the board into the computer over USB. Its LED lights up: the board is power
 
 The board doesn't show up later, or its LED stays off? Try another cable, then see [Installing with the web flasher](troubleshooting.md#installing-with-the-web-flasher) for the driver of its USB chip.
 
-<!-- photo: step 2 -->
+![The board's USB port, framed in green, ready for the cable to the computer.](../media/photos/install-step-02-board-usb.jpg)
 
 ### 3. Open the web flasher
 
-Open the [web flasher](https://vistorx.github.io/CatWandConnect/flasher/) in **Chrome or Edge** on the computer.
+In **Chrome or Edge** on the computer, open the website, go to **Build → Install the software**, then press **Install in your browser**. Or open the [web flasher](https://vistorx.github.io/CatWandConnect/flasher/) directly.
 
 > [!NOTE]
 > The web flasher installs the **Stable** version by default. The **Beta** channel gets new changes first and may still have bugs. See [release channels](releasing.md#channels).
 
-<!-- photo: step 3 -->
+<p>
+  <img src="../media/screenshots/install-step-03a-website.png" alt="The website's home page, with the Build tab framed." width="49%">
+  <img src="../media/screenshots/install-step-03b-build.png" alt="The Build tab, with Install the software framed in the menu." width="49%">
+  <img src="../media/screenshots/install-step-03c-install-page.png" alt="The Install the software page, with the Install in your browser button framed." width="49%">
+  <img src="../media/screenshots/install-step-03d-flasher.png" alt="The web flasher, with the Connect and install button framed." width="49%">
+</p>
 
-### 4. Install the firmware
+### 4. Pick the board
 
-Press **Connect and install**, pick the board's port, then follow the prompts. The right firmware for your chip is chosen for you. It takes about a minute.
+Press **Connect and install**. The browser lists the serial ports: pick the board's (often *USB Single Serial*, *CP210x* or *CH910x*), then **Connect**. In the small menu, choose **Install CatWandConnect**.
 
-<!-- photo: step 4 -->
+<p>
+  <img src="../media/screenshots/install-step-04a-port.png" alt="The browser's port list, with the board's USB serial port framed." width="49%">
+  <img src="../media/screenshots/install-step-04b-connect.png" alt="The port selected and the Connect button framed." width="49%">
+  <img src="../media/screenshots/install-step-04c-install-menu.png" alt="The flasher's menu, with Install CatWandConnect framed." width="49%">
+</p>
 
-### 5. Join your Wi-Fi
+### 5. Install the firmware
 
-When the web flasher asks, pick your Wi-Fi and enter its password.
+For a first install, keep **Erase device** ticked and press **Next**, then **Install**. Wait about two minutes and keep the page visible until it finishes.
+
+<p>
+  <img src="../media/screenshots/install-step-05a-erase.png" alt="The Erase device dialog, the box ticked and Next framed." width="49%">
+  <img src="../media/screenshots/install-step-05b-confirm.png" alt="The Confirm installation dialog, with Install framed." width="49%">
+  <img src="../media/screenshots/install-step-05c-installing.png" alt="The Installing dialog with its progress, which takes about two minutes." width="49%">
+</p>
+
+### 6. Join your Wi-Fi
+
+When the installation is complete, press **Next**. The flasher looks for networks: pick yours, enter its password and press **Connect**.
+
+<p>
+  <img src="../media/screenshots/install-step-06a-complete.png" alt="Installation complete, with Next framed." width="49%">
+  <img src="../media/screenshots/install-step-06b-scanning.png" alt="Configure Wi-Fi, scanning for networks." width="49%">
+  <img src="../media/screenshots/install-step-06c-network.png" alt="The list of Wi-Fi networks to choose from." width="49%">
+  <img src="../media/screenshots/install-step-06d-password.png" alt="The Wi-Fi password entered and Connect framed." width="49%">
+</p>
 
 <details markdown="1">
 <summary>Skipped it, or it didn't work?</summary>
@@ -64,11 +90,11 @@ Power the robot: with no Wi-Fi configured, it opens a **`CatWandConnect-XXXX`** 
 
 </details>
 
-<!-- photo: step 5 -->
+### 7. Open the robot's page
 
-### 6. Open the robot's page
+Press **Visit device**: the robot's page opens. From your phone, open the same address, for example **`http://catwandconnect-3f9a.local/`**.
 
-Choose **Visit device** in the web flasher, or open the address it shows from your phone, for example **`http://catwandconnect-3f9a.local/`**.
+![Device connected to the network, with Visit device framed.](../media/screenshots/install-step-07-visit-device.png)
 
 <details markdown="1">
 <summary>About the address, the name and the home screen</summary>
@@ -81,23 +107,23 @@ Choose **Visit device** in the web flasher, or open the address it shows from yo
 
 </details>
 
-<!-- photo: step 6 -->
+### 8. Put the servos in their neutral position
 
-### 7. Put the servos in their neutral position
+Unplug the USB cable, then plug the charger in. The robot starts and both servos turn to the middle of their travel, their neutral position: the robot's page shows **Horizontal 90°** and **Vertical 90°**. Don't turn the servos' axes by hand: [assembly](assembly.md) fits the parts in this position.
 
-Unplug the USB cable, then plug the charger in. The robot starts and both servos turn to the middle of their travel: their neutral position. Leave them there and don't turn their axes by hand: [assembly](assembly.md) fits the parts in this position.
+Push a servo horn onto each servo, in line with it and without screwing it: it shows the neutral position and makes the next test easy to see.
 
-The robot's page reconnects by itself after a few seconds.
+<p>
+  <img src="../media/screenshots/install-step-08a-neutral.png" alt="The robot's page, with Horizontal 90° and Vertical 90° framed." width="49%">  <img src="../media/photos/install-step-08b-servo-horn.jpg" alt="A servo horn pushed onto a servo, in line with it." width="49%">
+</p>
 
-<!-- photo: step 7 -->
-
-### 8. Test that the servos move
+### 9. Test that the servos move
 
 On the robot's page, drag the joystick gently: one servo turns left and right, the other up and down. Let go to stop. Until Calibration, each axis stays in a safe range around the middle (60°–120°).
 
-Then press **Stow**: both servos go back to the middle. The robot is ready to be assembled.
+Then press **Stow**: both servos go back to the middle. Take the servo horns off: the robot is ready to be assembled.
 
-<!-- photo: step 8 -->
+![The servo horns turning while the joystick is dragged on the robot's page.](../media/photos/install-step-09-test.jpg)
 
 ## Calibrate
 
