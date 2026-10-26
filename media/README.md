@@ -10,7 +10,7 @@ The project's visual assets: logo, banners, photos and screenshots. Drop the sou
 | `discord/` | Avatars of the Discord bots (Admin, Support), kept here as sources | SVG + PNG 512 px |
 | `photos/` | Photos of the robot, of the build steps and of cats playing with it | JPEG or WebP |
 | `screenshots/` | Screenshots of the Device interface, the flasher and Home Assistant | PNG |
-| `buttons/` | Call-to-action buttons used in the README: the install button and the sponsor button (`sponsor.svg`, same shape, rose) | SVG |
+| `buttons/` | Call-to-action buttons used in the README: the install button, the documentation button (`docs.svg`, indigo), the sponsor button (`sponsor.svg`, rose) and the Discord button (`discord.svg`, Discord blurple, logo from Simple Icons, CC0), all the same shape | SVG |
 | `video/` | Short presentation and demo videos, each with a `-poster.jpg` still used as its clickable preview (GitHub does not play videos stored in the repository inline) | MP4 (H.264, `+faststart`), under about 5 MB |
 
 ## Naming

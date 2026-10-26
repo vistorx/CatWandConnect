@@ -174,3 +174,12 @@ nav:
               - agents/domain.md
               - agents/issue-tracker.md
               - agents/triage-labels.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/Rbqge3v9dk
+      name: CatWandConnect on Discord
+    - icon: fontawesome/brands/github
+      link: https://github.com/vistorx/CatWandConnect
+      name: CatWandConnect on GitHub
