@@ -6,6 +6,8 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Install video.** The install guide opens with a video and follows it in 9 steps with a screenshot or photo for each, up to checking that the servos move.
+- **A lighter wiring guide.** Three rules, then the steps; the details (example parts, power chain, pins) fold away until you need them.
 - **Wiring video.** The wiring guide opens with a video that shows every step.
 - **Wiring with photos.** The electronics guide now shows every step with a photo, from preparing the servo extension cables to the first power-up, and asks for three extension cables instead of two cut in half.
 - **Wire lengths.** The wiring guide and the parts list say how much power wire to cut: 2 × 5 cm and 2 × 15 cm of AWG 20.
