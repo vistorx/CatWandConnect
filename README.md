@@ -42,6 +42,23 @@ https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
   </tr>
 </table>
 
+<!-- github-only -->
+<table>
+  <tr>
+    <td width="33%" align="center" valign="top"><a href="https://youtube.com/shorts/waABDz4WLjY"><img src="https://i.ytimg.com/vi/waABDz4WLjY/hqdefault.jpg" alt="The robot in action" width="100%"></a><br><em>The robot in action</em></td>
+    <td width="33%" align="center" valign="middle"><em>More videos soon</em></td>
+    <td width="33%" align="center" valign="middle"><em>More videos soon</em></td>
+  </tr>
+</table>
+<!-- /github-only -->
+<!-- website-only
+<div style="display:flex;gap:12px;max-width:720px;margin:1em auto">
+  <div style="flex:0 0 calc((100% - 24px) / 3)"><iframe style="width:100%;aspect-ratio:9/16;border:0;border-radius:12px" src="https://www.youtube-nocookie.com/embed/waABDz4WLjY" title="The robot in action" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><p style="text-align:center;margin:.3em 0 0"><em>The robot in action</em></p></div>
+  <div style="flex:0 0 calc((100% - 24px) / 3);box-sizing:border-box;aspect-ratio:9/16;border:2px dashed #b0b0b0;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;color:#888;font-style:italic">More videos soon</div>
+  <div style="flex:0 0 calc((100% - 24px) / 3);box-sizing:border-box;aspect-ratio:9/16;border:2px dashed #b0b0b0;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;color:#888;font-style:italic">More videos soon</div>
+</div>
+/website-only -->
+
 <!-- gallery: photo of the assembled robot -->
 <!-- gallery: a cat playing with the robot -->
 <!-- gallery: the electronics inside the technical cavity -->

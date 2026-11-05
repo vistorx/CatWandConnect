@@ -14,7 +14,9 @@ website/build/docs, the `docs_dir` of website/mkdocs.yml):
 GitHub-only content is adapted: a bare user-attachments video URL (GitHub
 renders it as a player) becomes a <video> of the local copy in media/video/,
 and blocks between `<!-- github-only -->` and `<!-- /github-only -->` (such
-as the README's "read this on the website" link) are dropped.
+as the README's "read this on the website" link) are dropped. Blocks wrapped
+in `<!-- website-only` ... `/website-only -->` (hidden on GitHub, which
+strips iframes anyway) are unwrapped and shown on the site.
 
 Links are rewritten so they work on the site the way they work on GitHub:
 links to staged pages point at the staged copy, links to anything else in the
@@ -60,6 +62,7 @@ VIDEOS = {
 }
 ATTACHMENT = re.compile(r"^(https://github\.com/user-attachments/assets/[0-9a-f-]+)\s*$", re.M)
 GITHUB_ONLY = re.compile(r"<!-- github-only -->.*?<!-- /github-only -->\n?", re.S)
+WEBSITE_ONLY = re.compile(r"<!-- website-only\n(.*?)/website-only -->\n?", re.S)
 ADMONITION = {"NOTE": "note", "TIP": "tip", "IMPORTANT": "info", "WARNING": "warning", "CAUTION": "danger"}
 
 
@@ -152,6 +155,7 @@ def convert_videos(text, src_repo):
 
 def rewrite_page(text, src_repo, dst_staged):
     text = GITHUB_ONLY.sub("", text)
+    text = WEBSITE_ONLY.sub(lambda m: m.group(1), text)
     text = convert_videos(text, src_repo)
     text = MD_LINK.sub(lambda m: m.group(1) + rewrite_target(m.group(2), src_repo, dst_staged, False) + m.group(3), text)
     text = HTML_LINK.sub(lambda m: m.group(1) + rewrite_target(m.group(2), src_repo, dst_staged, True) + m.group(3), text)
