@@ -42,6 +42,13 @@ class GithubOnlyContent(unittest.TestCase):
         self.assertIn("A", page)
         self.assertIn("B", page)
 
+    def test_website_only_blocks_are_shown_on_the_site(self):
+        # Hidden on GitHub inside an HTML comment, unwrapped by the staging.
+        text = 'A\n<!-- website-only\n<iframe src="https://x"></iframe>\n/website-only -->\nB'
+        page = rewrite_page(text, "README.md", "index.md")
+        self.assertIn('A\n<iframe src="https://x"></iframe>\nB', page)
+        self.assertNotIn("website-only", page)
+
 
 class RewriteTarget(unittest.TestCase):
     def md(self, target, src, dst):
