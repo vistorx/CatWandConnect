@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Print timelapse.** The print guide shows a timelapse of the whole plate next to the sliced plate.
 - **The robot in action.** A short video of the robot on the home page, with room for more.
 - **Join the community.** A Join the Discord button next to Documentation and Support the project, and a line saying where to ask for help, show your robot and vote for the next features.
 - **Install video.** The install guide opens with a video and follows it in 9 steps with a screenshot or photo for each, up to checking that the servos move.
