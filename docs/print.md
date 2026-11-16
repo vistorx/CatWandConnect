@@ -16,7 +16,20 @@ The **Mk3** is standalone: the board and the power boards fit inside the robot, 
 | Screw | [`catwandconnect-mk3-screw.stl`](../stls/mk3/catwandconnect-mk3-screw.stl) |
 | Top plate | [`catwandconnect-mk3-top_plate.stl`](../stls/mk3/catwandconnect-mk3-top_plate.stl) |
 
-![The seven Mk3 parts sliced on one plate in PrusaSlicer, in their print orientation, with the clamp's supports in green.](../media/screenshots/prusa-slicer-plate.jpg)
+<!-- github-only -->
+<table>
+  <tr>
+    <td width="30%" align="center" valign="middle"><a href="https://youtube.com/shorts/buaKtKv1Au4"><img src="https://i.ytimg.com/vi/buaKtKv1Au4/hqdefault.jpg" alt="Timelapse of the Mk3 print" width="100%"></a><br><em>Timelapse of the print</em></td>
+    <td width="70%" align="center" valign="middle"><img src="../media/screenshots/prusa-slicer-plate.jpg" alt="The seven Mk3 parts sliced on one plate in PrusaSlicer, in their print orientation, with the clamp's supports in green." width="100%"></td>
+  </tr>
+</table>
+<!-- /github-only -->
+<!-- website-only
+<div style="display:flex;gap:12px;align-items:center;margin:1em 0">
+  <div style="flex:0 0 30%"><iframe style="width:100%;aspect-ratio:9/16;border:0;border-radius:12px" src="https://www.youtube-nocookie.com/embed/buaKtKv1Au4" title="Timelapse of the Mk3 print" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <div style="flex:1 1 0;min-width:0"><img src="../media/screenshots/prusa-slicer-plate.jpg" alt="The seven Mk3 parts sliced on one plate in PrusaSlicer, in their print orientation, with the clamp's supports in green." style="width:100%"></div>
+</div>
+/website-only -->
 
 Want to change a part? The CAD sources, exported from Onshape as STEP, are in [`cads/mk3/`](../cads/mk3/): one file per part, and [`catwandconnect-mk3.step`](../cads/mk3/catwandconnect-mk3.step) for the whole Mechanism. Any CAD tool (FreeCAD, Fusion, Onshape…) opens them.
 

@@ -16,7 +16,20 @@ Le **Mk3** est autonome : la carte et les cartes d'alimentation tiennent dans le
 | Vis | [`catwandconnect-mk3-screw.stl`](../stls/mk3/catwandconnect-mk3-screw.stl) |
 | Plateau supérieur | [`catwandconnect-mk3-top_plate.stl`](../stls/mk3/catwandconnect-mk3-top_plate.stl) |
 
-![Les sept pièces du Mk3 tranchées sur un plateau dans PrusaSlicer, dans leur orientation d'impression, avec les supports de la pince en vert.](../media/screenshots/prusa-slicer-plate.jpg)
+<!-- github-only -->
+<table>
+  <tr>
+    <td width="30%" align="center" valign="middle"><a href="https://youtube.com/shorts/buaKtKv1Au4"><img src="https://i.ytimg.com/vi/buaKtKv1Au4/hqdefault.jpg" alt="Timelapse de l'impression du Mk3" width="100%"></a><br><em>Timelapse de l'impression</em></td>
+    <td width="70%" align="center" valign="middle"><img src="../media/screenshots/prusa-slicer-plate.jpg" alt="Les sept pièces du Mk3 tranchées sur un plateau dans PrusaSlicer, dans leur orientation d'impression, avec les supports de la pince en vert." width="100%"></td>
+  </tr>
+</table>
+<!-- /github-only -->
+<!-- website-only
+<div style="display:flex;gap:12px;align-items:center;margin:1em 0">
+  <div style="flex:0 0 30%"><iframe style="width:100%;aspect-ratio:9/16;border:0;border-radius:12px" src="https://www.youtube-nocookie.com/embed/buaKtKv1Au4" title="Timelapse de l'impression du Mk3" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <div style="flex:1 1 0;min-width:0"><img src="../media/screenshots/prusa-slicer-plate.jpg" alt="Les sept pièces du Mk3 tranchées sur un plateau dans PrusaSlicer, dans leur orientation d'impression, avec les supports de la pince en vert." style="width:100%"></div>
+</div>
+/website-only -->
 
 Tu veux modifier une pièce ? Les sources CAO, exportées d'Onshape en STEP, sont dans [`cads/mk3/`](../cads/mk3/) : un fichier par pièce, et [`catwandconnect-mk3.step`](../cads/mk3/catwandconnect-mk3.step) pour le mécanisme complet. N'importe quel logiciel de CAO (FreeCAD, Fusion, Onshape…) les ouvre.
 
