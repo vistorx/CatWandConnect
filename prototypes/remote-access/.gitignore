@@ -1,0 +1,4 @@
+.pio/
+sdkconfig.esp32
+sdkconfig.old
+managed_components/
