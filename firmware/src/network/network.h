@@ -18,7 +18,7 @@
 #include <improv/improv.h>
 #include <wifi_fallback/wifi_fallback.h>
 
-class Network {
+class RobotNetwork {
  public:
   // Registers the Wi-Fi API and captive-portal routes on `server`.
   // `deviceName` names the hotspot and is shown to Improv clients;

@@ -65,7 +65,7 @@ PlayLog play(clock, storage);  // the Play session journal and the Robot clock
 
 auth::PinGuard pin([] { return esp_random(); });
 AsyncWebServer server(80);
-Network network;
+RobotNetwork network;
 DeviceApi api(robot, storage, kChip, pin, play);
 MqttBridge mqtt;
 

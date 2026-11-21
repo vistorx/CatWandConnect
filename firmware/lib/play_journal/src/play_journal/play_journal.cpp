@@ -58,7 +58,7 @@ std::string utcText(uint32_t epochS) {
   unsigned month, day;
   civilFromDays(epochS / 86400, year, month, day);
   unsigned rest = epochS % 86400;
-  char text[32];
+  char text[48];  // room for the widest values GCC 14 can't rule out (-Wformat-truncation)
   std::snprintf(text, sizeof text, "%04d-%02u-%02u %02u:%02u:%02u UTC", year, month, day, rest / 3600, rest % 3600 / 60,
                 rest % 60);
   return text;

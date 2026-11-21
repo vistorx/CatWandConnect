@@ -295,3 +295,19 @@ Utilise un Home Assistant 2026.10 ou plus récent avec HACS, sur le réseau du r
 - [ ] Avec une carte ESP32, une ESP32-S3 et une ESP32-C3 tour à tour : « Connect and install » détecte la puce et installe. L'effacement lors d'une première installation fonctionne.
 - [ ] Après l'installation, « Connect to Wi-Fi » configure le Wi-Fi du robot et « Visit device » ouvre son interface.
 - [ ] Installer par-dessus un robot existant sans effacer garde ses réglages.
+
+## Passage à Arduino-ESP32 3.x
+
+Une seule fois, sur un ESP32 classique qui tourne avec la version stable actuelle, pour le premier firmware compilé avec Arduino-ESP32 3.x (ADR 0014). Garde le moniteur série ouvert : un redémarrage en boucle ou un plantage s'y voit en premier.
+
+- [ ] Réglages → Robot → Mise à jour du firmware avec le `-ota.bin` de cette version : la progression, puis « Installed » ; le robot redémarre sur la nouvelle version (page Infos) et ne revient pas à l'ancienne après un second redémarrage.
+- [ ] Après cette mise à jour : Wi-Fi, nom, code PIN, Calibration, vitesse, Plage de pause, durée de session, câblage, canal de mise à jour et journal des sessions de jeu sont inchangés.
+- [ ] Le robot retrouve son Wi-Fi enregistré après une coupure de courant ; Réglages → Réseau → Wi-Fi affiche son réseau, son IP et son adresse `.local`.
+- [ ] `http://<nom d'hôte>.local/` ouvre l'interface du robot depuis un ordinateur et un téléphone, et toujours quelques minutes après le dernier chargement de page (la radio ne s'endort pas et ne rate pas le mDNS).
+- [ ] Avec le réseau enregistré hors de portée (box éteinte) pendant 30 s : le hotspot s'ouvre avec le même nom qu'avant la mise à jour (`<nom>-XXXX`, les 4 derniers chiffres hexadécimaux de l'adresse MAC, jamais `-0000` ni au hasard), la page de configuration liste les réseaux et en rejoindre un marche.
+- [ ] Les deux servos restent immobiles à la mise sous tension jusqu'à une commande ; le pilotage manuel déplace chaque axe en douceur sur toute sa course, sans tremblement au repos ; Ranger et relâcher marchent.
+- [ ] Une nouvelle Calibration (min, max, position de rangement, réglages de vitesse et d'accélération) va jusqu'au bout ; Inverser cet axe l'inverse toujours sur place.
+- [ ] Une Session de jeu démarre, bouge les deux axes avec des pauses, s'arrête à la fin de sa durée et range la baguette.
+- [ ] Home Assistant, connexion MQTT : l'appareil et toutes ses entités reviennent après la mise à jour ; Session de jeu marche/arrêt, durée de session et Ranger marchent depuis Home Assistant.
+- [ ] Home Assistant, intégration native : le robot reste connecté après la mise à jour (ou est découvert à nouveau), la carte joystick déplace la baguette, Session de jeu marche/arrêt marche.
+- [ ] Flasher web, avec cette version publiée sur le canal Beta : une installation USB par-dessus le robot sans effacer garde ses réglages ; une installation avec effacement sur une carte vierge, puis la configuration du Wi-Fi par Improv, marche.
