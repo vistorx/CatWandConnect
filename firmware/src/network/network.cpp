@@ -9,6 +9,7 @@
 
 #include <ESPmDNS.h>
 #include <WiFi.h>
+#include <esp_mac.h>
 
 
 namespace {
@@ -51,13 +52,15 @@ String jsonString(const String& value) {
 
 }  // namespace
 
-void Network::begin(AsyncWebServer& server, const String& deviceName, const String& hostname,
-                    auth::PinGuard& pin) {
+void RobotNetwork::begin(AsyncWebServer& server, const String& deviceName, const String& hostname,
+                         auth::PinGuard& pin) {
   pin_ = &pin;
   deviceName_ = deviceName;
   hostname_ = hostname;
-  uint8_t mac[6];
-  WiFi.macAddress(mac);
+  // Read from eFuse: on Arduino-ESP32 3.x WiFi.macAddress() returns nothing
+  // until the Wi-Fi driver has started, which happens later.
+  uint8_t mac[6] = {};
+  esp_read_mac(mac, ESP_MAC_WIFI_STA);
   char suffix[5];
   snprintf(suffix, sizeof(suffix), "%02X%02X", mac[4], mac[5]);
   hotspotSsid_ = identity::hotspotName(deviceName_.c_str(), suffix).c_str();
@@ -80,7 +83,7 @@ void Network::begin(AsyncWebServer& server, const String& deviceName, const Stri
   }
 }
 
-void Network::loop() {
+void RobotNetwork::loop() {
   handleImprov();
 
   if (setupRequested_ && static_cast<int32_t>(millis() - setupAt_) >= 0) {
@@ -130,7 +133,7 @@ void Network::loop() {
   }
 }
 
-void Network::startAttempt(const String& ssid, const String& password, Source source) {
+void RobotNetwork::startAttempt(const String& ssid, const String& password, Source source) {
   notePersonal(ssid, "wifi-network");
   logLine("[wifi] connecting to \"%s\"", ssid.c_str());
   attemptSsid_ = ssid;
@@ -147,7 +150,7 @@ void Network::startAttempt(const String& ssid, const String& password, Source so
   modeSince_ = millis();
 }
 
-void Network::onConnected() {
+void RobotNetwork::onConnected() {
   logLine("[wifi] connected, open %s or http://%s.local/", deviceUrl().c_str(), hostname_.c_str());
   mode_ = Mode::Connected;
   lostSince_ = 0;
@@ -175,7 +178,7 @@ void Network::onConnected() {
   startMdns();
 }
 
-void Network::onAttemptFailed() {
+void RobotNetwork::onAttemptFailed() {
   logLine("[wifi] could not connect to \"%s\"", attemptSsid_.c_str());
   WiFi.disconnect();
   if (attemptSource_ == Source::Improv) {
@@ -196,7 +199,7 @@ void Network::onAttemptFailed() {
   openHotspot();
 }
 
-void Network::openHotspot() {
+void RobotNetwork::openHotspot() {
   mode_ = Mode::Hotspot;
   modeSince_ = millis();
   nextRetryAt_ = millis() + kRetryIntervalMs;
@@ -212,7 +215,7 @@ void Network::openHotspot() {
   startMdns();
 }
 
-void Network::closeHotspot() {
+void RobotNetwork::closeHotspot() {
   dns_.stop();
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
@@ -221,7 +224,7 @@ void Network::closeHotspot() {
   logLine("[wifi] hotspot closed");
 }
 
-void Network::startMdns() {
+void RobotNetwork::startMdns() {
   if (mdnsStarted_) return;
   if (MDNS.begin(hostname_.c_str())) {
     MDNS.addService("http", "tcp", 80);
@@ -235,11 +238,11 @@ void Network::startMdns() {
   }
 }
 
-String Network::deviceUrl() const { return "http://" + WiFi.localIP().toString() + "/"; }
+String RobotNetwork::deviceUrl() const { return "http://" + WiFi.localIP().toString() + "/"; }
 
 // --- Improv over serial ---------------------------------------------------
 
-void Network::handleImprov() {
+void RobotNetwork::handleImprov() {
   while (Serial.available() > 0) {
     switch (improv_.feed(static_cast<uint8_t>(Serial.read()))) {
       case improv::Parser::Status::Request:
@@ -254,7 +257,7 @@ void Network::handleImprov() {
   }
 }
 
-void Network::answerImprov(const improv::Request& request) {
+void RobotNetwork::answerImprov(const improv::Request& request) {
   using improv::Command;
   switch (request.command) {
     case Command::WifiSettings:
@@ -292,18 +295,18 @@ void Network::answerImprov(const improv::Request& request) {
   }
 }
 
-void Network::sendImprov(const std::vector<uint8_t>& packet) {
+void RobotNetwork::sendImprov(const std::vector<uint8_t>& packet) {
   Serial.write(packet.data(), packet.size());
 }
 
-void Network::sendImprovConnected() {
+void RobotNetwork::sendImprovConnected() {
   sendImprov(improv::statePacket(improv::State::Provisioned));
   sendImprov(improv::rpcResultPacket(improv::Command::WifiSettings, {deviceUrl().c_str()}));
 }
 
 // --- Web server -------------------------------------------------------------
 
-void Network::setupRoutes(AsyncWebServer& server) {
+void RobotNetwork::setupRoutes(AsyncWebServer& server) {
   server.on("/api/wifi/status", HTTP_GET, [this](AsyncWebServerRequest* request) {
     request->send(200, "application/json", statusJson());
   });
@@ -336,7 +339,7 @@ void Network::setupRoutes(AsyncWebServer& server) {
   });
 }
 
-String Network::statusJson() const {
+String RobotNetwork::statusJson() const {
   const char* mode = mode_ == Mode::Connected ? "connected" : mode_ == Mode::Connecting ? "connecting" : "hotspot";
   String json = "{\"mode\":\"";
   json += mode;
@@ -352,7 +355,7 @@ String Network::statusJson() const {
 }
 
 // Scans in the background: the first calls answer {"scanning":true}.
-String Network::networksJson() {
+String RobotNetwork::networksJson() {
   int count = WiFi.scanComplete();
   if (count == WIFI_SCAN_FAILED) {
     WiFi.scanNetworks(true);

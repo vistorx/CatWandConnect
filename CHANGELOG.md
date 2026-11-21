@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **A newer ESP32 core under the hood.** The firmware now runs on Arduino-ESP32 3.x (ESP-IDF 5), the base remote access needs. Nothing changes for you: update over Wi-Fi as usual, your settings and Calibration are kept.
 - **Star the project.** A Star on GitHub button on the home page and a small bar on every page of the website, to help other makers find CatWandConnect.
 - **Print timelapse.** The print guide shows a timelapse of the whole plate next to the sliced plate.
 - **The robot in action.** A short video of the robot on the home page, with room for more.

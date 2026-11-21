@@ -132,6 +132,8 @@ Code layout:
 
 The firmware uses the `min_spiffs` partition table: two 1.9 MB app slots for OTA updates, and a 4 MB layout on every chip so 8 MB boards work too. Boards flashed before this layout was adopted need one USB flash to switch; later updates can go over Wi-Fi.
 
+The ESP32 builds use the community [pioarduino](https://github.com/pioarduino/platform-espressif32) platform (Arduino-ESP32 3.x on ESP-IDF 5), pinned to one release in `platformio.ini` ([ADR 0014](adr/0014-firmware-runs-on-arduino-esp32-3.md)). The first `pio run` downloads it and its toolchains, which takes a few minutes.
+
 Each build also writes `factory.bin`, the full flash image (it wipes the settings; the web flasher writes it in two parts that skip them). Publishing a version is described in [Releasing](releasing.md); the flasher page is `flasher/index.html`, and the project website is built from the README and `docs/` (see [The website and the web flasher](releasing.md#the-website-and-the-web-flasher)). The website is in English and French: each user page `page.md` has its translation `page.fr.md` next to it, and `python website/check_translations.py` (run by CI) checks that none is missing.
 
 If your clone sits in a synced folder, set `PLATFORMIO_BUILD_DIR` to a folder outside it. Builds write hundreds of megabytes to `firmware/.pio/`.

@@ -13,8 +13,8 @@ def merge(source, target, env):
     parts = [(offset, image) for offset, image in env.get("FLASH_EXTRA_IMAGES", [])]
     parts.append((env.subst("$ESP32_APP_OFFSET"), f"{build}/firmware.bin"))
     args = " ".join(f"{env.subst(offset)} {env.subst(image)}" for offset, image in parts)
-    command = (f'"$PYTHONEXE" "$OBJCOPY" --chip {env.BoardConfig().get("build.mcu")} merge_bin '
-               f'--flash_mode keep --flash_freq keep --flash_size keep -o "{build}/factory.bin" {args}')
+    command = (f'"$PYTHONEXE" "$OBJCOPY" --chip {env.BoardConfig().get("build.mcu")} merge-bin '
+               f'--flash-mode keep --flash-freq keep --flash-size keep -o "{build}/factory.bin" {args}')
     return env.Execute(command)
 
 
