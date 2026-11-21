@@ -15,6 +15,7 @@
   <a href="https://vistorx.github.io/CatWandConnect/"><img src="media/buttons/docs.svg" alt="Read the documentation" width="240"></a>
   <a href="https://github.com/sponsors/vistorx"><img src="media/buttons/sponsor.svg" alt="Support the project" width="240"></a>
   <a href="https://discord.gg/Rbqge3v9dk"><img src="media/buttons/discord.svg" alt="Join the Discord" width="240"></a>
+  <a href="https://github.com/vistorx/CatWandConnect"><img src="media/buttons/star.svg" alt="Star CatWandConnect on GitHub" width="240"></a>
 </p>
 
 **CatWandConnect is a community project.** Makers build it together on [Discord](https://discord.gg/Rbqge3v9dk): ask for help with your build, show your robot and your cat, share ideas, and [vote for the next features](https://github.com/vistorx/CatWandConnect/issues?q=is%3Aissue+is%3Aopen+label%3Avote). English, French and other languages welcome.

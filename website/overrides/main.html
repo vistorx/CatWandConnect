@@ -2,6 +2,16 @@
     shares media/social/social-preview.png, with its own title and the site
     description. Absolute URLs: crawlers don't resolve relative ones. -#}
 {% extends "base.html" %}
+{#- Bar above the header on every page: invites readers to star the repo.
+    Dismissible (announce.dismiss); config.theme.language is set per
+    language by the i18n plugin. -#}
+{% block announce %}
+  {%- if config.theme.language == "fr" %}
+  <svg viewBox="0 0 16 16" width="16" height="16" fill="#e3b341" style="vertical-align:-2px" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg> CatWandConnect te plaît ? <a href="https://github.com/vistorx/CatWandConnect" style="color:#e3b341;text-decoration:underline"><strong>Mets-lui une étoile sur GitHub</strong></a> : ça aide d'autres makers à le trouver.
+  {%- else %}
+  <svg viewBox="0 0 16 16" width="16" height="16" fill="#e3b341" style="vertical-align:-2px" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg> Like CatWandConnect? <a href="https://github.com/vistorx/CatWandConnect" style="color:#e3b341;text-decoration:underline"><strong>Star it on GitHub</strong></a>: it helps other makers find it.
+  {%- endif %}
+{% endblock %}
 {% block extrahead %}
   {%- set title = (page.title ~ " - " ~ config.site_name) if page and page.title and not page.is_homepage else config.site_name %}
   {%- set description = (page.meta.description if page and page.meta and page.meta.description else config.site_description) %}

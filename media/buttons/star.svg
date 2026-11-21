@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="60" viewBox="0 0 340 60" role="img" aria-label="Star on GitHub">
+  <title>Star on GitHub</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a4048"/>
+      <stop offset="1" stop-color="#24292f"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="338" height="58" rx="14" fill="url(#bg)" stroke="#14171a" stroke-width="2"/>
+  <!-- Star icon (GitHub Octicons, MIT) -->
+  <g transform="translate(22 14) scale(2)" fill="#e3b341">
+    <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+  </g>
+  <text x="190" y="38" text-anchor="middle" fill="#fff"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="20" font-weight="700">Star on GitHub</text>
+</svg>
