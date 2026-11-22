@@ -31,6 +31,13 @@ async function refresh() {
     ['info.memory', `${Math.round(info.freeHeap / 1024)} KB`],
     ['info.mac', info.mac],
   ];
+  try {
+    const remote = await (await fetch('/api/remote-access')).json();
+    const state = I18n.t(`remote.state.${remote.state}`);
+    rows.push(['info.remote', remote.address ? `${state}, http://${remote.address}/` : state]);
+  } catch {
+    // Firmware without remote access.
+  }
   $('info').innerHTML = '';
   for (const [key, value] of rows) {
     const term = document.createElement('dt');

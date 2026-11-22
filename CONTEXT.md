@@ -84,6 +84,14 @@ _Avoid_: HACS integration, custom component, add-on, app (an add-on/app is somet
 The version number of the documented Device API contract (`docs/api.md`), starting at 1, returned by `GET /api/info` and announced in the robot's `_catwandconnect._tcp` mDNS service. Goes up only on a change that would break an existing integration; additive changes keep it. Distinct from the firmware version.
 _Avoid_: Protocol version, firmware version (that is `version`)
 
+**Remote access**:
+Opening the robot's page away from home: the robot joins the owner's private network at his Remote access provider (a tailnet, for Tailscale) as its own device, and his phone, with the provider's app, reaches it there. Off by default; the owner turns it on in Settings → Network with a key from his account, and turning it off disconnects the robot and forgets the key. The only outbound connection the robot makes (ADR 0015).
+_Avoid_: VPN (the mechanism, not the feature), cloud access, port forwarding, remote control
+
+**Remote access provider**:
+The service that runs the owner's private network and that the robot's client connects to: Tailscale first (Headscale and NetBird may follow). The owner's account, not the project's.
+_Avoid_: VPN server, relay (a relay is the provider's fallback path when no direct one works), backend
+
 ## Hardware
 
 **Mechanism**:
@@ -121,7 +129,7 @@ _Avoid_: Update server, manifest (the manifest is the web flasher's per-channel 
 ## Support
 
 **Diagnostic report**:
-The text the robot generates about itself to diagnose a problem: firmware version, chip, last reset reason, settings, Calibration, Wi-Fi and MQTT state, and recent log lines. Redacted (Wi-Fi name, IP and MAC addresses, broker address and credentials) whenever it is sent to support.
+The text the robot generates about itself to diagnose a problem: firmware version, chip, last reset reason, settings, Calibration, Wi-Fi, MQTT and Remote access state, and recent log lines. Redacted (Wi-Fi name, IP and MAC addresses, broker address and credentials, tailnet address and names) whenever it is sent to support.
 _Avoid_: Crash report, dump, telemetry (the robot never sends anything by itself)
 
 **Pending report**:

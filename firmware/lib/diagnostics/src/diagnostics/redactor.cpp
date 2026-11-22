@@ -45,6 +45,20 @@ size_t macAt(const std::string& s, size_t i) {
   return 17;
 }
 
+bool isHostChar(char c) { return isWordChar(c) || c == '-' || c == '.'; }
+
+// Length of a Tailscale MagicDNS name ("minou.tail1a2b3c.ts.net") at `i`,
+// or 0: it carries the owner's tailnet name.
+size_t tailnetNameAt(const std::string& s, size_t i) {
+  static const std::string suffix = ".ts.net";
+  if (!isWordChar(s[i]) || (i > 0 && isHostChar(s[i - 1]))) return 0;
+  size_t end = i;
+  while (end < s.size() && isHostChar(s[end])) ++end;
+  while (end > i && s[end - 1] == '.') --end;  // the end of a sentence
+  if (end - i <= suffix.size() || s.compare(end - suffix.size(), suffix.size(), suffix) != 0) return 0;
+  return end - i;
+}
+
 }  // namespace
 
 void Redactor::add(const std::string& value, const std::string& label) {
@@ -60,6 +74,13 @@ std::string Redactor::apply(const std::string& text) const {
   out.reserve(text.size());
   size_t i = 0;
   while (i < text.size()) {
+    // Before the known values, so a hostname never leaves the rest of the
+    // name behind.
+    if (size_t n = tailnetNameAt(text, i)) {
+      out += "<tailnet-name>";
+      i += n;
+      continue;
+    }
     bool replaced = false;
     for (const auto& [value, label] : secrets_) {
       // Whole words only, so a short name like "C" never eats "Chip". The

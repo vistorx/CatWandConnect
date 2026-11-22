@@ -268,6 +268,7 @@ Recent log:
 🔒 `POST /api/update` with a `multipart/form-data` body holding the app image (`firmware.bin`, the `-ota.bin` file of a release).
 
 - **Before writing**, the robot checks that the file is an ESP image built for its chip. It refuses `not_firmware` and `wrong_chip` with `400`.
+- **Over remote access** (the request comes from `100.64.0.0/10`, a tailnet address), the upload also needs the header `X-Remote-Confirm: 1`, which the Device interface sends after a second confirmation. Without it: `428 {"error":"remote_confirm_required"}`, nothing written.
 - **While writing**, it stops Manual control and writes the image to the inactive OTA slot. Only a complete, verified image is marked bootable.
 - **Success:** `200 {"ok":true,"restart":true}`, and the robot restarts on the new firmware about a second later.
 - **Failure:** `400 {"error":"update_failed","detail":"…"}`. If the upload is interrupted, the robot keeps running its current firmware.
@@ -276,7 +277,7 @@ Settings, Calibration, Wi-Fi, name, PIN and Update channel live in NVS and are k
 
 #### Update feed
 
-The robot never connects to the Internet ([ADR 0012](adr/0012-the-browser-fetches-updates-for-the-robot.md)). The Device interface and the Native integration read the **Update feed**, `https://vistorx.github.io/CatWandConnect/flasher/channels.json` (served with `Access-Control-Allow-Origin: *`), pick the entry of the robot's `channel`, and offer it when its `version` is strictly newer than the robot's (SemVer with pre-releases, a leading `v` ignored: `0.2.0-beta.3` < `0.2.0-beta.10` < `0.2.0`). They download `ota[chipFamily]`, relative to the feed's URL, and send it to `POST /api/update`:
+The robot never fetches updates itself ([ADR 0012](adr/0012-the-browser-fetches-updates-for-the-robot.md)). The Device interface and the Native integration read the **Update feed**, `https://vistorx.github.io/CatWandConnect/flasher/channels.json` (served with `Access-Control-Allow-Origin: *`), pick the entry of the robot's `channel`, and offer it when its `version` is strictly newer than the robot's (SemVer with pre-releases, a leading `v` ignored: `0.2.0-beta.3` < `0.2.0-beta.10` < `0.2.0`). They download `ota[chipFamily]`, relative to the feed's URL, and send it to `POST /api/update`:
 
 ```json
 {
@@ -302,6 +303,35 @@ A channel with no release is missing. The images are the releases' `-ota.bin` fi
 
 - **Invalid:** `400` with `mqtt_host_required` (when enabling without a host) or `mqtt_port_invalid`.
 - **`error`** reports the last connection failure: `unreachable`, `bad_credentials` or `refused`.
+
+### Remote access
+
+Off by default ([ADR 0015](adr/0015-the-robot-connects-to-the-owners-remote-access-provider.md)). `GET /api/remote-access` returns:
+
+```json
+{"enabled": true, "state": "connected_relay", "provider": "tailscale", "address": "100.101.102.103",
+ "deviceName": "catwandconnect-3f9a", "keyExpiry": 1798761600, "routes": true, "viaRemoteAccess": false}
+```
+
+| Field | Meaning |
+|---|---|
+| `enabled` | The owner turned it on. |
+| `state` | `off`, `connecting`, `connected_direct` (at least one device reaches the robot without the provider's relay), `connected_relay`, `key_expired` (the provider refused the key: paste a new one), `error` (the client could not start; retried every 30 s) or `unsupported` (no client for this chip in this firmware). |
+| `provider` | `tailscale`. |
+| `address` | The robot's IPv4 address on the tailnet, `""` until known. Open `http://<address>/` from a device on the same tailnet. |
+| `deviceName` | The robot's name on the tailnet: its hostname. |
+| `keyExpiry` | When the robot's key expires (Unix time), `null` for never or not known yet. |
+| `routes` | The provider can offer routes to other devices of the home network (for the camera, later). |
+| `viaRemoteAccess` | This request came over remote access (from `100.64.0.0/10`). |
+
+The auth key is never returned, logged or put in the Diagnostic report.
+
+🔒 `PUT /api/remote-access`:
+
+- `{"enabled":true,"key":"tskey-auth-…"}` saves the key and joins the tailnet (a new key while on replaces the device: the robot leaves, then joins again with it). `{"enabled":true}` without a key keeps the current one.
+- `{"enabled":false}` disconnects, erases the robot's device keys and forgets the auth key.
+- Returns the same object as `GET`, with `state` `connecting` or `off` right away; joining takes a few seconds.
+- **Invalid:** `400` with `invalid_request` (no boolean `enabled`), `key_required` (turning on without a key), `invalid_key` (not `tskey-` then letters, digits and dashes, 120 characters at most) or `unsupported`.
 
 ### Hardware
 
