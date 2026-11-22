@@ -142,6 +142,7 @@ nav:
       - Full parts list: bom.md
   - Use:
       - features.md
+      - remote-access.md
       - troubleshooting.md
       - changelog.md
   - Community:
@@ -171,6 +172,7 @@ nav:
               - adr/0012-the-browser-fetches-updates-for-the-robot.md
               - adr/0013-the-robot-clock-comes-from-the-browser-and-home-assistant.md
               - adr/0014-firmware-runs-on-arduino-esp32-3.md
+              - adr/0015-the-robot-connects-to-the-owners-remote-access-provider.md
           - Agent conventions:
               - agents/index.md
               - agents/domain.md

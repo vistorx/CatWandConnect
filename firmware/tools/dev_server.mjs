@@ -63,6 +63,38 @@ let deviceName = 'CatWandConnect';
 let mqtt = { enabled: false, host: '', port: 1883, user: '', passwordSet: false, connected: false, error: '',
   baseTopic: 'catwandconnect/catwandconnect-3f9a' };
 let pin = '';
+// Remote access (GET/PUT /api/remote-access): a valid key connects through the
+// relay after 3 s; a key containing "expired" ends in key_expired instead.
+// REMOTE=<state> starts in that state (connected_direct, key_expired,
+// unsupported…); REMOTE_VIA=1 treats every request as coming over remote
+// access, so a firmware update asks for its second confirmation.
+const REMOTE_ADDRESS = '100.101.102.103';
+let remote = { enabled: false, state: 'off', key: '', since: 0 };
+if (process.env.REMOTE) {
+  remote = { enabled: process.env.REMOTE !== 'off' && process.env.REMOTE !== 'unsupported', state: process.env.REMOTE,
+    key: 'tskey-auth-simulated', since: 0 };
+}
+const viaRemote = () => process.env.REMOTE_VIA === '1';
+function remoteView() {
+  if (remote.state === 'connecting' && remote.since && Date.now() - remote.since > 3000) {
+    remote.state = remote.key.includes('expired') ? 'key_expired' : 'connected_relay';
+  }
+  const connected = remote.state.startsWith('connected');
+  return { enabled: remote.enabled, state: remote.state, provider: 'tailscale',
+    address: connected ? REMOTE_ADDRESS : '', deviceName: info().hostname.replace(/\.local$/, ''),
+    keyExpiry: connected ? Math.floor(Date.now() / 1000) + 180 * 86400 : null, routes: true,
+    viaRemoteAccess: viaRemote() };
+}
+function putRemote(body) {
+  if (typeof body.enabled !== 'boolean') return [400, { error: 'invalid_request' }];
+  const key = typeof body.key === 'string' ? body.key : '';
+  if (body.enabled && remote.state === 'unsupported') return [400, { error: 'unsupported' }];
+  if (body.enabled && !key && !remote.enabled) return [400, { error: 'key_required' }];
+  if (body.enabled && key && !/^tskey-[A-Za-z0-9-]{1,114}$/.test(key)) return [400, { error: 'invalid_key' }];
+  if (!body.enabled) remote = { enabled: false, state: 'off', key: '', since: 0 };
+  else if (key) remote = { enabled: true, state: 'connecting', key, since: Date.now() };
+  return [200, remoteView()];
+}
 let wrongPins = 0;
 let lockedUntil = 0;  // simulated lockout: 30 s after 5 wrong PINs
 let scanToggle = false;
@@ -107,7 +139,7 @@ function authorized(request) {
 }
 
 const PROTECTED = new Set(['POST /api/calibration', 'POST /api/speed-tuning', 'PUT /api/hardware', 'PUT /api/device', 'PUT /api/auth/pin',
-  'POST /api/wifi', 'PUT /api/mqtt']);
+  'POST /api/wifi', 'PUT /api/mqtt', 'PUT /api/remote-access']);
 let startedAt = Date.now();
 let firmwareVersion = process.env.VERSION || '0.0.0-dev (simulator)';
 let channel = null;  // the Update channel; null = never set, follows the firmware
@@ -638,6 +670,8 @@ const API = {
     return [200, { name, hostname: info().hostname, restart: true }];
   },
   'GET /api/mqtt': () => [200, mqtt],
+  'GET /api/remote-access': () => [200, remoteView()],
+  'PUT /api/remote-access': putRemote,
   'PUT /api/mqtt': body => {
     const next = { ...mqtt, ...body };
     if (next.enabled && !next.host) return [400, { error: 'mqtt_host_required' }];
@@ -686,6 +720,9 @@ const server = createServer(async (request, response) => {
     let size = 0;
     for await (const chunk of request) size += chunk.length;  // pretend to flash it
     if (!authorized(request)) return send(response, 401, { error: 'pin_required' });
+    if (viaRemote() && request.headers['x-remote-confirm'] !== '1') {
+      return send(response, 428, { error: 'remote_confirm_required', detail: '' });
+    }
     console.log(`[update] received ${size} bytes`);
     // "Restart" on the offered version: unreachable for a few seconds.
     restartingUntil = Date.now() + 5000;
@@ -757,6 +794,18 @@ const server = createServer(async (request, response) => {
 });
 
 // A Diagnostic report shaped like the robot's (lib/diagnostics), for UI work.
+function remoteReport(full) {
+  const r = remoteView();
+  const words = { off: 'off', connecting: 'connecting', connected_direct: 'connected directly',
+    connected_relay: 'connected through the relay', key_expired: 'key expired, a new key is needed',
+    error: 'error, retrying', unsupported: 'not available on this chip' };
+  if (r.state === 'off' || r.state === 'unsupported') return `Remote access: ${words[r.state]}\n`;
+  let text = `Remote access: ${words[r.state]} (tailscale)\n`;
+  if (r.address) text += `Remote access address: ${full ? r.address : '<tailnet-ip>'} (${r.deviceName})\n`;
+  if (r.keyExpiry) text += `Remote access key expires: ${new Date(r.keyExpiry * 1000).toISOString().slice(0, 10)}\n`;
+  return text;
+}
+
 function diagnostics(full) {
   const i = info();
   const hide = (value, label) => (full ? value : `<${label}>`);
@@ -780,7 +829,7 @@ Wi-Fi network: ${hide(i.ssid, 'wifi-network')}
 IP address: ${hide(i.ip, 'ip')}
 MAC address: ${hide(i.mac, 'mac')}
 Home Assistant (MQTT): ${mqtt.enabled ? 'enabled, not connected' : 'disabled'}
-
+${remoteReport(full)}
 Settings: ${JSON.stringify(robot.settings)}
 Hardware: ${JSON.stringify(hardware)}
 

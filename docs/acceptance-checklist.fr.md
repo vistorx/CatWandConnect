@@ -311,3 +311,20 @@ Une seule fois, sur un ESP32 classique qui tourne avec la version stable actuell
 - [ ] Home Assistant, connexion MQTT : l'appareil et toutes ses entités reviennent après la mise à jour ; Session de jeu marche/arrêt, durée de session et Ranger marchent depuis Home Assistant.
 - [ ] Home Assistant, intégration native : le robot reste connecté après la mise à jour (ou est découvert à nouveau), la carte joystick déplace la baguette, Session de jeu marche/arrêt marche.
 - [ ] Flasher web, avec cette version publiée sur le canal Beta : une installation USB par-dessus le robot sans effacer garde ses réglages ; une installation avec effacement sur une carte vierge, puis la configuration du Wi-Fi par Improv, marche.
+
+## Accès à distance (Tailscale)
+
+Sur un ESP32 classique sans PSRAM, avec un compte Tailscale gratuit et l'application Tailscale sur un téléphone. Garde le moniteur série ouvert.
+
+- [ ] Un robot fraîchement flashé : Réglages → Réseau → Accès à distance affiche l'état « Désactivé » ; le log série ne montre aucune tentative de connexion à Tailscale.
+- [ ] Sans le code PIN (s'il y en a un), enregistrer le bloc Accès à distance le demande.
+- [ ] Colle une clé d'authentification à usage unique, coche Activé, Enregistrer : l'état passe de « Connexion… » à « Connecté » en moins d'une minute ; Adresse à distance affiche une adresse `100.x` ; Nom sur Tailscale est le nom d'hôte du robot ; le robot apparaît sous ce nom dans la console d'administration Tailscale.
+- [ ] Depuis le téléphone en données mobiles (Wi-Fi coupé), avec l'application Tailscale connectée, `http://<adresse à distance>/` ouvre l'interface du robot ; le joystick déplace la baguette et Ranger marche.
+- [ ] L'état indique « Connecté (direct) » ou « Connecté (via un relais) », en accord avec `tailscale ping <adresse>` depuis un ordinateur du tailnet (direct, ou via DERP).
+- [ ] Le robot garde la connexion pendant une heure page fermée, et revient tout seul après une coupure de courant et après un redémarrage de la box (Wi-Fi perdu puis retrouvé).
+- [ ] La page Infos affiche l'accès à distance avec son état et son adresse ; le rapport de diagnostic affiche « Remote access: connected … (tailscale) » ; le rapport masqué affiche `<tailnet-ip>` et aucune adresse `100.x` ni nom `.ts.net` ; ni les rapports ni le log série ne contiennent la clé (`tskey-`).
+- [ ] Réglages → Robot → Mise à jour du firmware depuis la page ouverte à l'adresse à distance demande une deuxième confirmation (« Tu as ouvert cette page par l'accès à distance… ») ; Annuler laisse le firmware tel quel ; OK l'installe, et le robot revient sur le tailnet après le redémarrage. Depuis l'adresse `.local`, pas de deuxième question.
+- [ ] Avec l'expiration de clé laissée active dans la console, La clé expire le affiche une date ; après Disable key expiry, elle disparaît en quelques minutes ou après un redémarrage.
+- [ ] Une clé révoquée ou déjà utilisée : état « Clé expirée : colle une nouvelle clé » ; coller une nouvelle clé reconnecte le robot.
+- [ ] Décoche Activé, Enregistrer : « L'accès à distance est désactivé. Le robot a oublié la clé. » ; le robot passe hors ligne dans la console en moins d'une minute ; après un redémarrage, l'état reste « Désactivé » et le champ de clé est vide.
+- [ ] Connecté : la mémoire libre sur la page Infos reste au-dessus de 40 Ko pendant une session de jeu avec la page ouverte par l'accès à distance, et le mouvement est aussi fluide que par le Wi-Fi de la maison.

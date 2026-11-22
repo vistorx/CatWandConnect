@@ -15,6 +15,7 @@
 #include "network/network.h"
 #include "ota.h"
 #include "play_log.h"
+#include "remote_access/service.h"
 #include "servo_driver.h"
 #include "web/web_ui.h"
 
@@ -68,6 +69,7 @@ AsyncWebServer server(80);
 RobotNetwork network;
 DeviceApi api(robot, storage, kChip, pin, play);
 MqttBridge mqtt;
+RemoteAccessService remote;
 
 // The owner's name for the robot, set from the Device interface.
 String loadDeviceName() {
@@ -118,7 +120,8 @@ void setup() {
   registerWebUi(server, [] { return network.inSetup(); });
   network.begin(server, name, hostname, pin);
   mqtt.begin(server, pin, api, name, hostname);
-  registerDiagnostics(server, api, mqtt, network, pin, name, hostname);
+  registerDiagnostics(server, api, mqtt, network, remote, pin, name, hostname);
+  remote.begin(server, pin, hostname);
   server.begin();
 }
 
