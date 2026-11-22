@@ -309,3 +309,20 @@ Once, on a classic ESP32 running the current stable, for the first firmware buil
 - [ ] Home Assistant, MQTT connection: the device and all its entities come back after the update; Play session on/off, Session duration and Stow work from Home Assistant.
 - [ ] Home Assistant, Native integration: the robot stays connected after the update (or is discovered again), the joystick card moves the wand, Play session on/off works.
 - [ ] Web flasher, with this build published on the Beta channel: a USB install over the robot without erasing keeps its settings; an install with erase on a blank board, then Improv Wi-Fi setup, works.
+
+## Remote access (Tailscale)
+
+On a classic ESP32 without PSRAM, with a free Tailscale account and the Tailscale app on a phone. Keep the serial monitor open.
+
+- [ ] A freshly flashed robot: Settings → Network → Remote access shows Status "Off"; the serial log shows no connection attempt to Tailscale.
+- [ ] Without the PIN (one set), saving the Remote access block asks for it.
+- [ ] Paste a one-use auth key, tick Enabled, Save: Status goes from "Connecting…" to "Connected" within a minute; Remote address shows a `100.x` address; Name on Tailscale is the robot's hostname; the robot appears in the Tailscale admin console under that name.
+- [ ] From the phone on mobile data (Wi-Fi off) with the Tailscale app connected, `http://<remote address>/` opens the Device interface; the joystick moves the wand and Stow works.
+- [ ] Status says "Connected (direct)" or "Connected (through a relay)", matching `tailscale ping <address>` from a computer on the tailnet (direct, or via DERP).
+- [ ] The robot keeps the connection for an hour with the page closed, and comes back by itself after a power cycle and after the router restarts (Wi-Fi lost and back).
+- [ ] Info page shows Remote access with its state and address; the Diagnostic report shows "Remote access: connected … (tailscale)"; the redacted report shows `<tailnet-ip>` and no `100.x` address, no `.ts.net` name; neither report nor the serial log contains the key (`tskey-`).
+- [ ] Settings → Robot → Firmware update from the page opened at the remote address asks a second time ("You opened this page through remote access…"); Cancel leaves the firmware as it is; OK installs it, and the robot comes back on the tailnet after the restart. From the `.local` address there is no second question.
+- [ ] With Key expiry left on in the admin console, Key expires shows a date; after Disable key expiry, it disappears within a few minutes or after a restart.
+- [ ] A revoked or already used key: Status "Key expired: paste a new key"; pasting a new key joins again.
+- [ ] Untick Enabled, Save: "Remote access is off. The robot forgot the key."; the robot goes offline in the admin console within a minute; after a restart Status stays "Off" and the key field is empty.
+- [ ] While connected: free heap on the Info page stays above 40 KB during a Play session with the page open over remote access, and motion is as smooth as over the home Wi-Fi.

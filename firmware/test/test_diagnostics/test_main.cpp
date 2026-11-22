@@ -210,6 +210,54 @@ void test_report_carries_the_play_session_journal_even_when_redacted() {
   }
 }
 
+void test_tailnet_names_are_replaced_without_being_told() {
+  Redactor redactor;
+  std::string text = "[remote] open http://minou.tail1a2b3c.ts.net/ or https://login.tailscale.com/";
+  TEST_ASSERT_EQUAL_STRING("[remote] open http://<tailnet-name>/ or https://login.tailscale.com/",
+                           redactor.apply(text).c_str());
+}
+
+ReportData withRemoteAccess() {
+  ReportData d = sample();
+  d.remoteState = "connected_relay";
+  d.remoteProvider = "tailscale";
+  d.remoteAddress = "100.101.2.3";
+  d.remoteDeviceName = "robot-dupont";
+  d.remoteKeyExpiry = 1798761600;  // 2027-01-01
+  d.log += "[   20.000] [remote] connected as 100.101.2.3\n";
+  return d;
+}
+
+void test_report_shows_remote_access_and_redacts_its_address_and_name() {
+  std::string full = reportText(withRemoteAccess(), false);
+  TEST_ASSERT_TRUE(contains(full, "Remote access: connected through the relay (tailscale)\n"));
+  TEST_ASSERT_TRUE(contains(full, "Remote access address: 100.101.2.3 (robot-dupont)\n"));
+  TEST_ASSERT_TRUE(contains(full, "Remote access key expires: 2027-01-01\n"));
+
+  std::string redacted = reportText(withRemoteAccess(), true);
+  TEST_ASSERT_FALSE(contains(redacted, "100.101.2.3"));
+  TEST_ASSERT_FALSE(contains(redacted, "robot-dupont"));
+  TEST_ASSERT_TRUE(contains(redacted, "Remote access: connected through the relay (tailscale)\n"));
+  TEST_ASSERT_TRUE(contains(redacted, "Remote access address: <tailnet-ip> (<hostname>)\n"));
+  TEST_ASSERT_TRUE(contains(redacted, "[remote] connected as <tailnet-ip>\n"));
+  TEST_ASSERT_TRUE(contains(redacted, "Remote access key expires: 2027-01-01\n"));
+}
+
+void test_report_says_when_remote_access_is_off() {
+  std::string report = reportText(sample(), true);
+  TEST_ASSERT_TRUE(contains(report, "Remote access: off\n"));
+  TEST_ASSERT_FALSE(contains(report, "Remote access address"));
+
+  ReportData d = withRemoteAccess();
+  d.remoteState = "key_expired";
+  d.remoteAddress = "";
+  d.remoteKeyExpiry = 0;
+  report = reportText(d, true);
+  TEST_ASSERT_TRUE(contains(report, "Remote access: key expired, a new key is needed (tailscale)\n"));
+  TEST_ASSERT_FALSE(contains(report, "Remote access address"));
+  TEST_ASSERT_FALSE(contains(report, "key expires"));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_log_lines_are_kept_in_order_with_their_uptime);
@@ -231,5 +279,8 @@ int main() {
   RUN_TEST(test_report_carries_the_random_device_id_even_when_redacted);
   RUN_TEST(test_device_id_is_eight_hex_digits_from_a_random_number);
   RUN_TEST(test_report_carries_the_play_session_journal_even_when_redacted);
+  RUN_TEST(test_tailnet_names_are_replaced_without_being_told);
+  RUN_TEST(test_report_shows_remote_access_and_redacts_its_address_and_name);
+  RUN_TEST(test_report_says_when_remote_access_is_off);
   return UNITY_END();
 }

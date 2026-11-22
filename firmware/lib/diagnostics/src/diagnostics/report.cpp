@@ -41,8 +41,44 @@ Redactor redactorFor(const ReportData& d) {
   r.add(d.mqttUser, "mqtt-user");
   r.add(d.ip, "ip");
   r.add(d.mac, "mac");
+  r.add(d.remoteAddress, "tailnet-ip");
+  if (d.remoteDeviceName != d.hostname) r.add(d.remoteDeviceName, "tailnet-device");
   for (const auto& [value, label] : d.notedPersonal) r.add(value, label);
   return r;
+}
+
+// "2027-01-01" for a Unix time (UTC).
+std::string dateText(int64_t unixTime) {
+  int64_t z = unixTime / 86400 + 719468;  // days since 0000-03-01
+  int64_t era = (z >= 0 ? z : z - 146096) / 146097;
+  int64_t doe = z - era * 146097;
+  int64_t yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+  int64_t doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+  int64_t mp = (5 * doy + 2) / 153;
+  int64_t day = doy - (153 * mp + 2) / 5 + 1;
+  int64_t month = mp < 10 ? mp + 3 : mp - 9;
+  int64_t year = yoe + era * 400 + (month <= 2 ? 1 : 0);
+  return format("%04d-%02d-%02d", int(year), int(month), int(day));
+}
+
+std::string remoteStateText(const std::string& state) {
+  if (state == "connecting") return "connecting";
+  if (state == "connected_direct") return "connected directly";
+  if (state == "connected_relay") return "connected through the relay";
+  if (state == "key_expired") return "key expired, a new key is needed";
+  if (state == "error") return "error, retrying";
+  if (state == "unsupported") return "not available on this chip";
+  return "off";
+}
+
+void remoteAccessLines(std::string& out, const ReportData& d) {
+  if (d.remoteState.empty() || d.remoteState == "off" || d.remoteState == "unsupported") {
+    line(out, "Remote access", remoteStateText(d.remoteState));
+    return;
+  }
+  line(out, "Remote access", remoteStateText(d.remoteState) + " (" + d.remoteProvider + ")");
+  if (!d.remoteAddress.empty()) line(out, "Remote access address", d.remoteAddress + " (" + d.remoteDeviceName + ")");
+  if (d.remoteKeyExpiry > 0) line(out, "Remote access key expires", dateText(d.remoteKeyExpiry));
 }
 
 }  // namespace
@@ -81,6 +117,7 @@ std::string reportText(const ReportData& d, bool redacted) {
     if (!d.mqttUser.empty()) broker += ", user " + d.mqttUser;
     line(out, "MQTT broker", broker);
   }
+  remoteAccessLines(out, d);
   out += '\n';
 
   line(out, "Settings", d.settings);

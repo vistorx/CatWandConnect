@@ -72,6 +72,7 @@ https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
 - **Facile à installer.** Installe-le depuis le navigateur, saisis ton Wi-Fi (ou passe cette étape et utilise le hotspot du robot), puis laisse l'assistant de calibration adapter le robot à ton montage.
 - **À toi de l'adapter.** Tes broches et tes servos, le nom de ton robot, l'anglais ou le français, un code PIN facultatif et des mises à jour par Wi-Fi.
 - **Home Assistant si tu veux**, avec son intégration native ou via MQTT, et une API ouverte pour tout le reste.
+- **Joignable de partout, si tu veux.** Un accès à distance facultatif avec ton propre compte Tailscale gratuit, désactivé tant que tu ne l'actives pas.
 
 **[Toutes les fonctionnalités →](docs/features.fr.md)**
 

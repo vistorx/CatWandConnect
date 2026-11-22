@@ -44,6 +44,13 @@ struct ReportData {
   std::string log;       // recent log lines, LogBuffer::text()
   std::string journal;   // the Play session journal, play_journal::Journal::reportText()
 
+  // Remote access (remote_access::Status). Never the key.
+  std::string remoteState;       // remote_access::stateName(), empty = "off"
+  std::string remoteProvider;    // "tailscale"
+  std::string remoteAddress;     // the robot's address on the private network
+  std::string remoteDeviceName;  // its name there
+  int64_t remoteKeyExpiry = 0;   // Unix time, 0 = never or not known
+
   // Other personal values that may appear in the log, with their label, such
   // as a Wi-Fi network typed in the setup page but never saved.
   std::vector<std::pair<std::string, std::string>> notedPersonal;

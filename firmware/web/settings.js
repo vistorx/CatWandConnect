@@ -221,6 +221,50 @@ async function mqttSection() {
   });
 }
 
+// --- Remote access (/api/remote-access) -------------------------------------------
+
+function remoteState(data) {
+  return I18n.t(`remote.state.${data.state}`);
+}
+
+function showRemote(data) {
+  const unsupported = data.state === 'unsupported';
+  $('remote-unsupported').hidden = !unsupported;
+  $('remote-enabled').disabled = unsupported;
+  $('remote-enabled').checked = data.enabled;
+  $('remote-status').textContent = remoteState(data);
+  $('remote-address').textContent = data.address ? `http://${data.address}/` : '';
+  $('remote-address-row').hidden = !data.address;
+  $('remote-name').textContent = data.deviceName || '';
+  $('remote-name-row').hidden = !data.enabled || !data.deviceName;
+  const expiry = data.keyExpiry ? new Date(data.keyExpiry * 1000) : null;
+  $('remote-expiry').textContent = expiry ? expiry.toLocaleDateString(document.documentElement.lang) : '';
+  $('remote-expiry-row').hidden = !data.enabled || !expiry;
+  // Already on: a new key is only needed to replace an expired one.
+  $('remote-key').placeholder = data.enabled ? I18n.t('remote.key.keep') : 'tskey-auth-…';
+}
+
+async function remoteSection() {
+  showRemote((await Api.call('GET', '/api/remote-access')).data);
+  setInterval(async () => {
+    if (document.activeElement?.closest('#remote')) return;  // don't overwrite what is being typed
+    showRemote((await Api.call('GET', '/api/remote-access')).data);
+  }, 3000);
+
+  $('remote').addEventListener('submit', async event => {
+    event.preventDefault();
+    const body = { enabled: $('remote-enabled').checked };
+    const key = $('remote-key').value.trim();
+    if (body.enabled && key) body.key = key;
+    const { ok, data } = await Api.call('PUT', '/api/remote-access', body);
+    if (data.error === 'pin_required') return;
+    if (!ok) return report($('remote'), 'error', I18n.t(`error.${data.error}`));
+    $('remote-key').value = '';
+    showRemote(data);
+    report($('remote'), 'ok', I18n.t(body.enabled ? 'settings.saved' : 'remote.turned_off'));
+  });
+}
+
 // --- Settings PIN ---------------------------------------------------------------
 
 async function securitySection() {
@@ -360,11 +404,12 @@ async function updateSection(info) {
 }
 
 // XHR rather than fetch, for upload progress.
-function uploadFirmware(file) {
+function uploadFirmware(file, remoteConfirmed) {
   return new Promise(resolve => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/update');
     if (Api.token()) xhr.setRequestHeader('Authorization', `Bearer ${Api.token()}`);
+    if (remoteConfirmed) xhr.setRequestHeader('X-Remote-Confirm', '1');
     xhr.upload.onprogress = event => {
       if (event.lengthComputable) $('firmware-progress').value = Math.round((event.loaded / event.total) * 100);
     };
@@ -384,14 +429,16 @@ async function updateFirmware() {
   const form = $('firmware');
   const file = $('firmware-file').files[0];
   if (!file) return;
+  const remote = await Updates.confirmRemote();
+  if (!remote.ok) return;
   const button = form.querySelector('button');
   button.disabled = true;
   $('firmware-progress').hidden = false;
   $('firmware-progress').value = 0;
   report(form, '', I18n.t('firmware.uploading'));
 
-  let result = await uploadFirmware(file);
-  if (result.status === 401 && (await Api.askPin())) result = await uploadFirmware(file);
+  let result = await uploadFirmware(file, remote.header);
+  if (result.status === 401 && (await Api.askPin())) result = await uploadFirmware(file, remote.header);
 
   button.disabled = false;
   if (result.status === 200) {
@@ -521,6 +568,7 @@ async function start() {
   fill(settings, MOTION);
 
   await mqttSection();
+  await remoteSection();
   await securitySection();
   $('security').addEventListener('submit', event => {
     event.preventDefault();
