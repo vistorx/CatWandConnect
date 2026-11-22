@@ -1,0 +1,27 @@
+dependencies:
+  camm2325/microlink:
+    component_hash: 628b65dd004a129ff374814341acd936c0ae5df9322a7433e8ae4d5c437029da
+    dependencies:
+    - name: espressif/cjson
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: idf_version >=6.0
+      version: ^1.7.19
+    - name: idf
+      require: private
+      version: '>=5.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 2.3.0
+  idf:
+    source:
+      type: idf
+    version: 5.5.0
+direct_dependencies:
+- camm2325/microlink
+- idf
+manifest_hash: f85c07058630071fb87dbc8a6dc0d1d2ba1af9f489887cb4dcd91e6a59e42a86
+target: esp32
+version: 2.0.0

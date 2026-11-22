@@ -1,0 +1,5 @@
+dependencies:
+  idf: ">=5.3"
+  # Tailscale-compatible client, MIT (WireGuard part BSD-3-Clause).
+  # https://github.com/CamM2325/microlink
+  camm2325/microlink: "==2.3.0"
