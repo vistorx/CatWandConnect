@@ -294,3 +294,18 @@ Use a Home Assistant 2026.10 or later with HACS, on the robot's network, and a r
 - [ ] After installing, "Connect to Wi-Fi" provisions the robot and "Visit device" opens its interface.
 - [ ] Installing over an existing robot without erasing keeps its settings.
 
+## Arduino-ESP32 3.x migration
+
+Once, on a classic ESP32 running the current stable, for the first firmware built on Arduino-ESP32 3.x (ADR 0014). Keep the serial monitor open: a boot loop or a panic shows there first.
+
+- [ ] Settings → Robot → Firmware update with this build's `-ota.bin`: progress, then "Installed"; the robot restarts on the new version (Info page) and does not go back to the old one after a second restart.
+- [ ] After that update: Wi-Fi, name, PIN, Calibration, speed, Pause range, Session duration, wiring, Update channel and the Play session journal are unchanged.
+- [ ] The robot rejoins its saved Wi-Fi after a power cycle; Settings → Network → Wi-Fi shows its network, IP and `.local` address.
+- [ ] `http://<hostname>.local/` opens the Device interface from a computer and a phone, and still does a few minutes after the last page load (the radio does not fall asleep and miss mDNS).
+- [ ] With the saved network out of reach (router off) for 30 s: the hotspot opens with the same name as before the update (`<name>-XXXX`, the last 4 hex digits of the MAC, never `-0000` or random), the setup page lists networks and joining one works.
+- [ ] Both servos hold still at power-up until a command; manual control moves each axis smoothly over its whole range, with no jitter at rest; Stow and release work.
+- [ ] A new Calibration (min, max, Stow position, Speed and Acceleration tuning) runs to the end; Reverse this axis still flips it in place.
+- [ ] A Play session starts, moves both axes with pauses, ends at its duration and stows.
+- [ ] Home Assistant, MQTT connection: the device and all its entities come back after the update; Play session on/off, Session duration and Stow work from Home Assistant.
+- [ ] Home Assistant, Native integration: the robot stays connected after the update (or is discovered again), the joystick card moves the wand, Play session on/off works.
+- [ ] Web flasher, with this build published on the Beta channel: a USB install over the robot without erasing keeps its settings; an install with erase on a blank board, then Improv Wi-Fi setup, works.

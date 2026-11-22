@@ -53,7 +53,7 @@ const String& deviceId() {
   return id;
 }
 
-void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, Network& network,
+void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, RobotNetwork& network,
                          auth::PinGuard& pin, const String& name, const String& hostname) {
   auto build = [&api, &mqtt, &network, &pin, name, hostname](bool redacted) {
     diagnostics::ReportData d;

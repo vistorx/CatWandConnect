@@ -132,6 +132,8 @@ Organisation du code :
 
 Le firmware utilise la table de partitions `min_spiffs` : deux emplacements d'application de 1,9 Mo pour les mises à jour OTA, et une organisation sur 4 Mo pour toutes les puces, pour que les cartes de 8 Mo marchent aussi. Les cartes flashées avant l'adoption de cette organisation ont besoin d'un flash en USB pour en changer ; ensuite, les mises à jour peuvent passer par le Wi-Fi.
 
+Les compilations ESP32 utilisent la plateforme communautaire [pioarduino](https://github.com/pioarduino/platform-espressif32) (Arduino-ESP32 3.x sur ESP-IDF 5), figée sur une version dans `platformio.ini` ([ADR 0014](adr/0014-firmware-runs-on-arduino-esp32-3.md), en anglais). Le premier `pio run` la télécharge avec ses chaînes de compilation, ce qui prend quelques minutes.
+
 Chaque compilation produit aussi `factory.bin`, l'image complète de la flash (elle efface les réglages ; le flasher web l'écrit en deux parties qui les épargnent). La publication d'une version est décrite dans [Publier une version](releasing.md) (en anglais) ; la page du flasher est `flasher/index.html`, et le site du projet est construit à partir du README et de `docs/` (voir [The website and the web flasher](releasing.md#the-website-and-the-web-flasher)). Le site est en anglais et en français : chaque page utilisateur `page.md` a sa traduction `page.fr.md` à côté, et `python website/check_translations.py` (lancé par la CI) vérifie qu'aucune ne manque.
 
 Si ton clone est dans un dossier synchronisé, fais pointer `PLATFORMIO_BUILD_DIR` vers un dossier en dehors. Les compilations écrivent des centaines de mégaoctets dans `firmware/.pio/`.
