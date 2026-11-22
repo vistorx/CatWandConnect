@@ -116,6 +116,41 @@
       <button class="primary" data-i18n="settings.save"></button>
       <p class="message" role="status"></p>
     </form>
+    <form id="remote">
+      <h2 data-i18n="remote.title"></h2>
+      <p class="hint" data-i18n="remote.hint"></p>
+      <p class="hint"><a href="https://vistorx.github.io/CatWandConnect/remote-access/" target="_blank" rel="noopener" data-i18n="remote.guide"></a></p>
+      <p class="hint" id="remote-unsupported" data-i18n="remote.unsupported" hidden></p>
+      <fieldset>
+        <div class="field wide">
+          <label for="remote-enabled" data-i18n="remote.enabled"></label>
+          <input id="remote-enabled" type="checkbox">
+        </div>
+        <div class="field wide">
+          <label for="remote-key" data-i18n="remote.key"></label>
+          <input id="remote-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="tskey-auth-…">
+        </div>
+        <p class="hint" id="remote-key-hint"><span data-i18n="remote.key.hint"></span> <a href="https://login.tailscale.com/admin/settings/keys" target="_blank" rel="noopener" data-i18n="remote.key.link"></a></p>
+        <div class="field wide">
+          <span data-i18n="remote.status"></span>
+          <output id="remote-status"></output>
+        </div>
+        <div class="field wide" id="remote-address-row" hidden>
+          <span data-i18n="remote.address"></span>
+          <output id="remote-address" class="unit"></output>
+        </div>
+        <div class="field wide" id="remote-name-row" hidden>
+          <span data-i18n="remote.device_name"></span>
+          <output id="remote-name"></output>
+        </div>
+        <div class="field wide" id="remote-expiry-row" hidden>
+          <span data-i18n="remote.expiry"></span>
+          <output id="remote-expiry"></output>
+        </div>
+      </fieldset>
+      <button class="primary" data-i18n="settings.save"></button>
+      <p class="message" role="status"></p>
+    </form>
   </div>
 
   <div id="tab-robot" class="tab-panel" role="tabpanel" hidden>

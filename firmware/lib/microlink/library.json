@@ -1,0 +1,33 @@
+{
+  "name": "microlink",
+  "version": "2.3.0",
+  "description": "microlink 2.3.0 (CamM2325/microlink, MIT AND BSD-3-Clause), the Tailscale client behind Remote access, built against Arduino-ESP32's precompiled ESP-IDF. upstream/ holds the ESP Component Registry's camm2325/microlink 2.3.0 files unchanged (CHECKSUMS.json lists them); config/ replaces its Kconfig, extra/ adds what its public header lacks.",
+  "license": "MIT AND BSD-3-Clause",
+  "platforms": ["espressif32"],
+  "frameworks": ["arduino"],
+  "build": {
+    "srcDir": ".",
+    "includeDir": "upstream/include",
+    "srcFilter": [
+      "-<*>",
+      "+<upstream/src/*.c>",
+      "+<upstream/components/wireguard_lwip/src/wireguard.c>",
+      "+<upstream/components/wireguard_lwip/src/wireguardif.c>",
+      "+<upstream/components/wireguard_lwip/src/wireguard-filter.c>",
+      "+<upstream/components/wireguard_lwip/src/crypto.c>",
+      "+<upstream/components/wireguard_lwip/src/wireguard-platform-esp32.c>",
+      "+<upstream/components/wireguard_lwip/src/crypto/refc/*.c>",
+      "+<extra/*.c>"
+    ],
+    "flags": [
+      "-include microlink_kconfig.h",
+      "-Iconfig",
+      "-Iextra",
+      "-Iupstream/src",
+      "-Iupstream/components/wireguard_lwip/src",
+      "-Iupstream/components/wireguard_lwip/src/crypto/refc",
+      "-DWIREGUARD_CRYPTO_REFC=1",
+      "-Wno-stringop-overread"
+    ]
+  }
+}

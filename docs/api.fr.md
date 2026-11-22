@@ -268,6 +268,7 @@ Recent log:
 🔒 `POST /api/update` avec un corps `multipart/form-data` contenant l'image de l'application (`firmware.bin`, le fichier `-ota.bin` d'une version publiée).
 
 - **Avant d'écrire**, le robot vérifie que le fichier est une image ESP compilée pour sa puce. Il refuse `not_firmware` et `wrong_chip` avec `400`.
+- **Par l'accès à distance** (la requête vient de `100.64.0.0/10`, une adresse de tailnet), l'envoi demande aussi l'en-tête `X-Remote-Confirm: 1`, que l'interface du robot envoie après une deuxième confirmation. Sans lui : `428 {"error":"remote_confirm_required"}`, rien n'est écrit.
 - **Pendant l'écriture**, il arrête le pilotage manuel et écrit l'image dans l'emplacement OTA inactif. Seule une image complète et vérifiée est marquée comme démarrable.
 - **Succès :** `200 {"ok":true,"restart":true}`, et le robot redémarre sur le nouveau firmware environ une seconde plus tard.
 - **Échec :** `400 {"error":"update_failed","detail":"…"}`. Si l'envoi est interrompu, le robot continue avec son firmware actuel.
@@ -276,7 +277,7 @@ Les réglages, la calibration, le Wi-Fi, le nom, le code PIN et le Canal de mise
 
 #### Flux de mises à jour
 
-Le robot ne se connecte jamais à Internet ([ADR 0012](adr/0012-the-browser-fetches-updates-for-the-robot.md)). L'interface du robot et l'intégration native lisent le **flux de mises à jour**, `https://vistorx.github.io/CatWandConnect/flasher/channels.json` (servi avec `Access-Control-Allow-Origin: *`), prennent l'entrée du `channel` du robot, et la proposent quand sa `version` est strictement plus récente que celle du robot (SemVer avec pré-versions, un `v` initial ignoré : `0.2.0-beta.3` < `0.2.0-beta.10` < `0.2.0`). Elles téléchargent `ota[chipFamily]`, relatif à l'URL du flux, et l'envoient à `POST /api/update` :
+Le robot ne télécharge jamais lui-même ses mises à jour ([ADR 0012](adr/0012-the-browser-fetches-updates-for-the-robot.md)). L'interface du robot et l'intégration native lisent le **flux de mises à jour**, `https://vistorx.github.io/CatWandConnect/flasher/channels.json` (servi avec `Access-Control-Allow-Origin: *`), prennent l'entrée du `channel` du robot, et la proposent quand sa `version` est strictement plus récente que celle du robot (SemVer avec pré-versions, un `v` initial ignoré : `0.2.0-beta.3` < `0.2.0-beta.10` < `0.2.0`). Elles téléchargent `ota[chipFamily]`, relatif à l'URL du flux, et l'envoient à `POST /api/update` :
 
 ```json
 {
@@ -302,6 +303,35 @@ Un canal sans version publiée est absent. Les images sont les fichiers `-ota.bi
 
 - **Invalide :** `400` avec `mqtt_host_required` (activation sans broker) ou `mqtt_port_invalid`.
 - **`error`** indique le dernier échec de connexion : `unreachable`, `bad_credentials` ou `refused`.
+
+### Accès à distance
+
+Désactivé par défaut ([ADR 0015](adr/0015-the-robot-connects-to-the-owners-remote-access-provider.md)). `GET /api/remote-access` renvoie :
+
+```json
+{"enabled": true, "state": "connected_relay", "provider": "tailscale", "address": "100.101.102.103",
+ "deviceName": "catwandconnect-3f9a", "keyExpiry": 1798761600, "routes": true, "viaRemoteAccess": false}
+```
+
+| Champ | Signification |
+|---|---|
+| `enabled` | Le propriétaire l'a activé. |
+| `state` | `off`, `connecting`, `connected_direct` (au moins un appareil joint le robot sans le relais du fournisseur), `connected_relay`, `key_expired` (le fournisseur a refusé la clé : en coller une nouvelle), `error` (le client n'a pas pu démarrer ; nouvel essai toutes les 30 s) ou `unsupported` (pas de client pour cette puce dans ce firmware). |
+| `provider` | `tailscale`. |
+| `address` | L'adresse IPv4 du robot sur le tailnet, `""` tant qu'elle n'est pas connue. Ouvre `http://<address>/` depuis un appareil du même tailnet. |
+| `deviceName` | Le nom du robot sur le tailnet : son nom d'hôte. |
+| `keyExpiry` | Quand la clé du robot expire (temps Unix), `null` si jamais ou pas encore connu. |
+| `routes` | Le fournisseur peut proposer des routes vers d'autres appareils du réseau de la maison (pour la caméra, plus tard). |
+| `viaRemoteAccess` | Cette requête est arrivée par l'accès à distance (depuis `100.64.0.0/10`). |
+
+La clé d'authentification n'est jamais renvoyée, ni écrite dans le journal, ni mise dans le rapport de diagnostic.
+
+🔒 `PUT /api/remote-access` :
+
+- `{"enabled":true,"key":"tskey-auth-…"}` enregistre la clé et rejoint le tailnet (une nouvelle clé alors qu'il est activé remplace l'appareil : le robot quitte le tailnet puis le rejoint avec elle). `{"enabled":true}` sans clé garde la clé actuelle.
+- `{"enabled":false}` déconnecte, efface les clés d'appareil du robot et oublie la clé d'authentification.
+- Renvoie le même objet que `GET`, avec `state` à `connecting` ou `off` tout de suite ; la connexion prend quelques secondes.
+- **Invalide :** `400` avec `invalid_request` (pas de booléen `enabled`), `key_required` (activation sans clé), `invalid_key` (pas `tskey-` suivi de lettres, chiffres et tirets, 120 caractères au plus) ou `unsupported`.
 
 ### Matériel
 

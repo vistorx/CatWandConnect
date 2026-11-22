@@ -1,0 +1,6 @@
+{
+  "name": "remote_access",
+  "version": "0.0.0",
+  "description": "Remote access for CatWandConnect: the setting, the provider port and the state the owner sees. Pure C++17.",
+  "license": "GPL-3.0-or-later"
+}

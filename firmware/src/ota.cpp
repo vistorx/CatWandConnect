@@ -4,6 +4,7 @@
 
 #include "pin_http.h"
 #include "log.h"
+#include "remote_access/service.h"
 
 namespace {
 
@@ -33,6 +34,11 @@ std::string bearer(AsyncWebServerRequest* request) {
   return value.startsWith("Bearer ") ? value.substring(7).c_str() : "";
 }
 
+// The page's second confirmation for an update over remote access.
+bool remoteConfirmed(AsyncWebServerRequest* request) {
+  return request->hasHeader("X-Remote-Confirm") && request->header("X-Remote-Confirm") == "1";
+}
+
 }  // namespace
 
 void registerOta(AsyncWebServer& server, auth::PinGuard& pin, cwc::Chip chip, std::function<void()> onStart,
@@ -49,7 +55,9 @@ void registerOta(AsyncWebServer& server, auth::PinGuard& pin, cwc::Chip chip, st
           onDone();
           return;
         }
-        int code = error != nullptr && strcmp(error, "pin_required") == 0 ? 401 : 400;
+        int code = 400;
+        if (error != nullptr && strcmp(error, "pin_required") == 0) code = 401;
+        if (error != nullptr && strcmp(error, "remote_confirm_required") == 0) code = 428;
         String body = String("{\"error\":\"") + (error ? error : "update_failed") + "\",\"detail\":\"" +
                       Update.errorString() + "\"}";
         request->send(code, "application/json", body);
@@ -61,6 +69,10 @@ void registerOta(AsyncWebServer& server, auth::PinGuard& pin, cwc::Chip chip, st
           upload = Upload{};
           if (!pin.authorized(bearer(request), millis())) {
             upload.error = "pin_required";
+          } else if (RemoteAccessService::viaRemoteAccess(request) && !remoteConfirmed(request)) {
+            // Far from the robot, nobody may be there to power it back if the
+            // update goes wrong: the page asks a second time (docs/api.md).
+            upload.error = "remote_confirm_required";
           } else if (len <= kChipIdOffset + 1 || data[0] != kImageMagic) {
             upload.error = "not_firmware";
           } else if ((data[kChipIdOffset] | data[kChipIdOffset + 1] << 8) != chipId(chip)) {

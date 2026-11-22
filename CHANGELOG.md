@@ -6,6 +6,7 @@ Beta versions get new features first, to be tested on real robots; stable versio
 
 ## Unreleased
 
+- **Remote access with Tailscale.** Open your robot's page away from home: turn on Remote access in Settings → Network, paste an auth key from your free Tailscale account, and reach the robot from your phone with the Tailscale app. Settings shows whether it is connected and its address. Off unless you turn it on; turning it off makes the robot forget the key.
 - **A newer ESP32 core under the hood.** The firmware now runs on Arduino-ESP32 3.x (ESP-IDF 5), the base remote access needs. Nothing changes for you: update over Wi-Fi as usual, your settings and Calibration are kept.
 - **Star the project.** A Star on GitHub button on the home page and a small bar on every page of the website, to help other makers find CatWandConnect.
 - **Print timelapse.** The print guide shows a timelapse of the whole plate next to the sliced plate.

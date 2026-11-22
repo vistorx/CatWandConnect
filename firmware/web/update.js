@@ -124,13 +124,30 @@ const Updates = (() => {
     return new Blob(chunks, { type: 'application/octet-stream' });
   }
 
+  // Over remote access nobody may be near the robot to power it back if an
+  // update goes wrong: ask a second time (the robot refuses without it).
+  // Resolves { ok, header }: whether to go on, and with the confirmation.
+  async function confirmRemote() {
+    let via = false;
+    try {
+      via = (await (await fetch('/api/remote-access', { cache: 'no-store' })).json()).viaRemoteAccess === true;
+    } catch {
+      // Firmware without remote access: nothing to confirm.
+    }
+    if (!via) return { ok: true, header: false };
+    return { ok: window.confirm(I18n.t('remote.update_confirm')), header: true };
+  }
+
   // POST /api/update; XHR rather than fetch, for upload progress. Asks for the
   // PIN and retries once when the robot wants it. Resolves { status, data }.
   async function upload(file, name, progress) {
+    const remote = await confirmRemote();
+    if (!remote.ok) return { status: 0, data: { error: 'remote_cancelled' } };
     const send = () => new Promise(resolve => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', '/api/update');
       if (Api.token()) xhr.setRequestHeader('Authorization', `Bearer ${Api.token()}`);
+      if (remote.header) xhr.setRequestHeader('X-Remote-Confirm', '1');
       xhr.upload.onprogress = event => {
         if (event.lengthComputable) progress(Math.round((event.loaded / event.total) * 100));
       };
@@ -168,5 +185,5 @@ const Updates = (() => {
     return null;
   }
 
-  return { FEED_URL, isNewer, channelOf, familyOf, check, watch, blocker, download, upload, waitForRestart, BUSY };
+  return { FEED_URL, isNewer, channelOf, familyOf, check, watch, blocker, download, confirmRemote, upload, waitForRestart, BUSY };
 })();

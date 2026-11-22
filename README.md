@@ -72,6 +72,7 @@ https://github.com/user-attachments/assets/914092e7-1f09-4832-85f9-01eeb9a11499
 - **Easy to set up.** Install from the browser, enter your Wi-Fi (or skip it and use the robot's hotspot), and let the Calibration wizard fit the robot to your build.
 - **Yours to adapt.** Your pins and servos, your robot's name, English or French, an optional PIN, and updates over Wi-Fi.
 - **Home Assistant if you want it**, through its Native integration or MQTT, and an open API for everything else.
+- **Reach it from anywhere, if you want.** Optional remote access through your own free Tailscale account, off until you turn it on.
 
 **[All features →](docs/features.md)**
 

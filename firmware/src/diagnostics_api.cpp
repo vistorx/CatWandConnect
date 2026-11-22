@@ -12,6 +12,7 @@
 #include "log.h"
 #include "mqtt_bridge.h"
 #include "network/network.h"
+#include "remote_access/service.h"
 
 namespace {
 
@@ -54,8 +55,9 @@ const String& deviceId() {
 }
 
 void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqtt, RobotNetwork& network,
+                         RemoteAccessService& remote,
                          auth::PinGuard& pin, const String& name, const String& hostname) {
-  auto build = [&api, &mqtt, &network, &pin, name, hostname](bool redacted) {
+  auto build = [&api, &mqtt, &network, &remote, &pin, name, hostname](bool redacted) {
     diagnostics::ReportData d;
     d.name = name.c_str();
     d.hostname = hostname.c_str();
@@ -87,6 +89,13 @@ void registerDiagnostics(AsyncWebServer& server, DeviceApi& api, MqttBridge& mqt
     d.mqttPort = link.port;
     d.mqttUser = link.user.c_str();
     d.mqttError = link.error.c_str();
+
+    remote_access::Status access = remote.status();
+    d.remoteState = remote_access::stateName(access.state);
+    d.remoteProvider = access.provider;
+    d.remoteAddress = access.address;
+    d.remoteDeviceName = access.deviceName;
+    d.remoteKeyExpiry = access.keyExpiry;
 
     d.settings = api.settingsJson().c_str();
     d.hardware = api.hardwareJson().c_str();
