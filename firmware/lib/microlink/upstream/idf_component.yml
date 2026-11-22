@@ -1,0 +1,27 @@
+dependencies:
+  espressif/cjson:
+    rules:
+    - if: idf_version >=6.0
+    version: ^1.7.19
+  idf: '>=5.3'
+description: 'Tailscale-compatible WireGuard VPN client for ESP32: Noise control protocol,
+  DISCO/STUN NAT traversal, DERP relay, ACL enforcement, subnet routes, over WiFi,
+  Ethernet or 4G (SIMCom PPP / AT socket bridge).'
+documentation: https://github.com/CamM2325/microlink#readme
+files:
+  exclude:
+  - '**/build/**'
+  - '**/.*'
+issues: https://github.com/CamM2325/microlink/issues
+license: MIT AND BSD-3-Clause
+repository: https://github.com/CamM2325/microlink.git
+repository_info:
+  path: components/microlink
+tags:
+- tailscale
+- wireguard
+- vpn
+- headscale
+- networking
+url: https://github.com/CamM2325/microlink
+version: 2.3.0

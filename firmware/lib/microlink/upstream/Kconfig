@@ -1,0 +1,691 @@
+menu "MicroLink V2 Configuration"
+
+    config ML_ZERO_COPY_WG
+        bool "Enable zero-copy WireGuard receive (high-throughput mode)"
+        default n
+        help
+            Use raw lwIP UDP PCB instead of BSD sockets for WireGuard packet
+            reception on the DISCO UDP socket. This eliminates memory copies
+            and reduces latency by injecting WG packets directly into the
+            WireGuard stack from the lwIP tcpip_thread.
+
+            When enabled:
+            - WireGuard packets: zero-copy direct injection (no malloc, no memcpy)
+            - DISCO packets: lock-free SPSC ring buffer to wg_mgr task
+            - STUN packets: still handled via BSD socket + queue
+
+            Enable this for high-throughput applications like video streaming
+            (30fps+). For typical IoT/sensor applications (heartbeats, commands),
+            the default BSD socket mode is simpler and sufficient.
+
+            Zero-copy mode contributed by dj-oyu (https://github.com/dj-oyu/microlink)
+
+    config ML_MAX_PEERS
+        int "Maximum simultaneous WireGuard peers"
+        default 16
+        range 1 64
+        help
+            Maximum number of peers with active WireGuard tunnels. Each peer
+            uses approximately 200 bytes plus endpoint storage.
+
+            Most deployments need 1-4 peers (only the peers you actively
+            communicate with). For large tailnets, set this to the actual
+            peer count needed, not the total tailnet size.
+
+    config ML_DERP_VERIFY_CERT
+        bool "Verify DERP relay TLS certificates"
+        depends on MBEDTLS_CERTIFICATE_BUNDLE
+        default y
+        help
+            Check each DERP relay's TLS certificate against ESP-IDF's CA
+            bundle and the relay's host name. Tailscale's relays use Let's
+            Encrypt certificates, which the bundle covers. WireGuard already
+            encrypts relayed traffic; this stops a network in the middle from
+            posing as the relay and silently dropping or delaying it.
+            Turn off only for a self-hosted DERP server with a private
+            certificate.
+
+            This option needs CONFIG_MBEDTLS_CERTIFICATE_BUNDLE. Without the
+            bundle it is hidden and relay certificates are NOT checked; the
+            build and the first DERP connection both print a warning.
+
+    config ML_DERP_REGION
+        int "Preferred DERP region ID"
+        default 9
+        help
+            Tailscale DERP region ID to advertise as this node's home region
+            (sent as Hostinfo.NetInfo.PreferredDERP) and to prefer for STUN
+            probing/relay fallback before any live latency measurement has
+            happened. Defaults to 9 (Dallas, Texas) - fine for North America,
+            but every deployment relying on DERP-relayed traffic (e.g. a peer
+            behind CGNAT with no direct path) from elsewhere in the world pays
+            needless latency relaying through Dallas instead of a nearby
+            region. Real Tailscale clients pick this by STUN-probing several
+            regions at startup and using whichever has the lowest measured
+            latency; this project doesn't do that yet, so pick the closest
+            region to this device's usual network by hand instead. Region IDs
+            are visible in this device's own boot log (`ml_coord: DERP region
+            N (code): ...`, printed once the initial MapResponse is parsed) -
+            e.g. 4 = Frankfurt, 14 = Amsterdam, 18 = Paris.
+
+    config ML_PRIORITY_PEER_IP
+        string "Priority peer VPN IP"
+        default ""
+        help
+            Tailscale VPN IP of the priority peer (e.g., "100.81.222.123").
+            This peer is guaranteed a WireGuard slot even when the peer table
+            is full — the least-recently-used non-priority peer is evicted to
+            make room.
+
+            On large tailnets where the NVS cache fills the peer table at boot
+            before the priority peer arrives from MapResponse, this ensures
+            the peer you care about always gets a slot.
+
+            Can also be set at runtime via the HTTP config server web UI.
+            Leave empty to disable (all peers treated equally).
+
+    config ML_NVS_MAX_PEERS
+        int "Maximum cached peers in NVS"
+        default 64
+        range 16 1024
+        help
+            Maximum number of peers stored in the NVS flash cache. Peers are
+            persisted across reboots so DISCO probing can start immediately
+            before control plane registration completes.
+
+            Storage is a single packed blob: each peer uses 92 bytes.
+            When the cache is full, the least-recently-used peer is evicted.
+
+            Examples:
+            - 16:   ~1.5KB NVS blob (small IoT deployments)
+            - 64:   ~5.9KB NVS blob (default, most tailnets)
+            - 256:  ~23.6KB NVS blob (large tailnets)
+            - 1024: ~94.2KB NVS blob (enterprise, requires large NVS partition)
+
+            The blob is PSRAM-backed in memory. Ensure your NVS partition is
+            large enough for the configured value.
+
+    config ML_H2_BUFFER_SIZE_KB
+        int "HTTP/2 receive buffer size (KB)"
+        default 512
+        range 64 2048
+        help
+            Size of the PSRAM-allocated buffer for receiving HTTP/2 frames
+            from the Tailscale control plane (MapResponse).
+
+            The initial MapResponse contains all peers in your tailnet.
+            Each peer is roughly 1-2KB of JSON. After the initial response,
+            delta updates (PeersChanged/PeersRemoved) are much smaller.
+
+            - 64:   ~30 peers (small tailnets)
+            - 512:  ~300 peers (default, most deployments)
+            - 1024: ~600 peers (large enterprise tailnets)
+            - 2048: ~1200 peers (very large tailnets, requires 8MB PSRAM)
+
+    config ML_JSON_BUFFER_SIZE_KB
+        int "JSON parse buffer size (KB)"
+        default 512
+        range 64 2048
+        help
+            Size of the PSRAM-allocated buffer for parsing JSON MapResponse
+            data. cJSON builds an in-memory DOM tree that uses 2-3x the
+            raw JSON size, so this should be at least as large as the
+            HTTP/2 buffer.
+
+            Match this to ML_H2_BUFFER_SIZE_KB unless you have a reason
+            to set them differently.
+
+    choice ML_PACKET_FILTER
+        prompt "Tailnet packet filter (ACLs)"
+        default ML_PACKET_FILTER_ENFORCE
+        help
+            Enforce the tailnet access policy on inbound traffic, like
+            Tailscale clients do (MapResponse PacketFilter/PacketFilters).
+            New TCP connections and UDP/ICMP packets from peers are delivered
+            only if a rule allows them; replies to traffic this device
+            started are always allowed.
+
+        config ML_PACKET_FILTER_ENFORCE
+            bool "Enforce (drop what the policy doesn't allow)"
+        config ML_PACKET_FILTER_LOG
+            bool "Log only (count would-be drops, deliver everything)"
+        config ML_PACKET_FILTER_OFF
+            bool "Off (accept all inbound traffic)"
+    endchoice
+
+    config ML_FILTER_MAX_ENTRIES
+        int "Maximum packet-filter entries per rule set"
+        default 4096
+        range 64 65536
+        help
+            Upper bound on source + destination entries in one rule set.
+            A larger policy is rejected and the previous one kept.
+
+    config ML_SUBNET_ROUTER
+        bool "Subnet router / exit node"
+        default n
+        select LWIP_IP_FORWARD
+        select LWIP_IPV4_NAPT
+        help
+            Let the device advertise subnet routes (or 0.0.0.0/0, as an
+            exit node) and forward tailnet traffic for them out of its other
+            interface (Wi-Fi station or Ethernet). Forwarded traffic leaves
+            with the device's own address as source (SNAT/NAPT), so hosts on
+            the LAN need no route back to the tailnet. Enables lwIP IP
+            forwarding and NAPT.
+
+            The routes come from microlink_config_t.advertise_routes or,
+            when that is NULL, ML_ADVERTISE_ROUTES below. They must be
+            approved in the admin console (or by autoApprovers) before
+            peers use them.
+
+    config ML_ADVERTISE_ROUTES
+        string "Advertised routes"
+        depends on ML_SUBNET_ROUTER
+        default ""
+        help
+            Prefixes separated by commas, e.g. "192.168.1.0/24" or
+            "fd12:3456::/64" (IPv6 needs ML_ROUTER_IPV6). Add "0.0.0.0/0" to
+            offer the device as an exit node. Up to 8 of each family.
+
+    config ML_ROUTER_IPV6
+        bool "Forward IPv6: exit node and IPv6 subnet routes (NAT66)"
+        depends on ML_SUBNET_ROUTER && LWIP_IPV6 && (LWIP_HOOK_IP6_INPUT_DEFAULT || LWIP_HOOK_IP6_INPUT_CUSTOM)
+        default y
+        select LWIP_IPV6_FORWARD
+        select LWIP_IPV6_AUTOCONFIG
+        help
+            Forward peers' IPv6 for an exit node (which advertises ::/0 next
+            to 0.0.0.0/0, as Tailscale needs both) and for IPv6 prefixes in
+            ML_ADVERTISE_ROUTES. The device takes its tailnet IPv6 address,
+            gets an address on the LAN by SLAAC and masquerades peers'
+            traffic behind it (NAT66), as Linux exit nodes and subnet routers
+            do. When the LAN has no address that can reach a destination
+            (e.g. no IPv6 there at all), the peer gets ICMPv6 "no route" and
+            falls back to IPv4 at once.
+
+            Needs lwIP's IPv6 input hook (LWIP_HOOK_IP6_INPUT) set to
+            "Default (weak)" or "Custom": MicroLink provides
+            lwip_hook_ip6_input(). An application that needs the hook too
+            defines microlink_ip6_input_hook() instead (see microlink.h).
+
+    config ML_OTA_ROLLBACK
+        bool "Keep an OTA-updated firmware only once it connects"
+        depends on BOOTLOADER_APP_ROLLBACK_ENABLE
+        default y
+        help
+            With the bootloader's app rollback enabled, a firmware written by
+            OTA is marked valid when MicroLink first reaches CONNECTED. If it
+            does not within ML_OTA_CONFIRM_TIMEOUT_S, the device restarts and
+            the bootloader returns to the previous firmware, so an update that
+            cannot reach the tailnet does not leave the device unreachable.
+            Turn off to confirm updates in your own code
+            (esp_ota_mark_app_valid_cancel_rollback()).
+
+    config ML_OTA_CONFIRM_TIMEOUT_S
+        int "Seconds an updated firmware has to connect"
+        depends on ML_OTA_ROLLBACK
+        default 300
+        range 30 3600
+
+    config ML_UDP_RX_TASK_PRIO
+        int "UDP socket receive task priority"
+        default 7
+        range 1 22
+        help
+            FreeRTOS priority of the per-socket task that runs the callback
+            registered with microlink_udp_set_rx_callback().
+
+            The default (7) matches MicroLink's WireGuard manager and network
+            I/O tasks. If your receive callback does heavy or blocking work,
+            set this below 5 so it cannot delay the control-plane and DERP
+            tasks.
+
+    config ML_STOP_TIMEOUT_MS
+        int "Max time microlink_stop() waits for the internal tasks (ms)"
+        default 30000
+        range 3000 300000
+        help
+            microlink_stop() asks the internal tasks to exit, shuts down the
+            control-plane and DERP sockets so blocking reads return, and then
+            waits up to this long for every task to exit. A DNS lookup or a
+            TCP connect cannot be interrupted and may take longer; in that
+            case microlink_stop() returns ESP_ERR_TIMEOUT without freeing
+            anything and can be called again, and microlink_destroy() defers
+            the free until the task has exited.
+
+    choice ML_LOG_LEVEL_CHOICE
+        prompt "MicroLink log verbosity (compile time)"
+        default ML_LOG_LEVEL_DEFAULT
+        help
+            Highest level of MicroLink's own log messages (the microlink and
+            wireguard_lwip components) that is compiled into the firmware.
+            Messages above it are removed by the compiler together with their
+            strings. ESP-IDF's own log levels are not changed.
+
+            - Same as ESP-IDF: follow CONFIG_LOG_MAXIMUM_LEVEL (normally the
+              default log level, INFO in the examples).
+            - Warning: drop all INFO messages; saves roughly 17-23 KB of flash
+              in the examples.
+            - Info: state changes (connected, peers added/removed, DERP up/down,
+              path switched) even if ESP-IDF itself is built quieter.
+            - Debug / Verbose: also compile in per-packet and periodic messages
+              (Verbose adds the per-packet WireGuard trace, tag "wg"). They are
+              still filtered at run time by each tag's level, which starts at
+              CONFIG_LOG_DEFAULT_LEVEL, so also call for example
+              esp_log_level_set("ml_wg_mgr", ESP_LOG_DEBUG).
+
+        config ML_LOG_LEVEL_DEFAULT
+            bool "Same as ESP-IDF"
+        config ML_LOG_LEVEL_WARN
+            bool "Warning"
+        config ML_LOG_LEVEL_INFO
+            bool "Info"
+        config ML_LOG_LEVEL_DEBUG
+            bool "Debug"
+        config ML_LOG_LEVEL_VERBOSE
+            bool "Verbose"
+    endchoice
+
+    config ML_LOG_LEVEL
+        int
+        default 2 if ML_LOG_LEVEL_WARN
+        default 3 if ML_LOG_LEVEL_INFO
+        default 4 if ML_LOG_LEVEL_DEBUG
+        default 5 if ML_LOG_LEVEL_VERBOSE
+        default 3
+        help
+            esp_log_level_t value used as LOG_LOCAL_LEVEL for MicroLink's
+            sources. Not used with ML_LOG_LEVEL_DEFAULT.
+
+    menu "Cellular Modem"
+
+        config ML_ENABLE_CELLULAR
+            bool "Enable cellular modem support"
+            default n
+            help
+                Enable 4G cellular modem driver for MicroLink.
+                Supports SIMCOM SIM7600 and SIM7670 series modems via UART
+                AT socket bridge (AT+NETOPEN/CIPOPEN/CIPSEND).
+
+                When enabled, MicroLink can operate over cellular data instead
+                of (or in addition to) WiFi. All Tailscale protocol operations
+                work unchanged — traffic is routed through DERP relay.
+
+        choice ML_CELLULAR_BOARD
+            prompt "Cellular board type"
+            depends on ML_ENABLE_CELLULAR
+            default ML_BOARD_WAVESHARE_SIM7600
+
+            config ML_BOARD_WAVESHARE_SIM7600
+                bool "Waveshare SIM7600X + XIAO ESP32S3"
+                help
+                    Waveshare SIM7600X 4G Module connected to Seeed XIAO ESP32S3.
+                    Modem UART: TX=GPIO43, RX=GPIO44.
+                    No power control pin needed (always on via USB-C).
+
+            config ML_BOARD_LILYGO_T_SIM7670G
+                bool "LILYGO T-SIM7670G-S3"
+                help
+                    LILYGO T-SIM7670G-S3 all-in-one board with integrated SIM7670G modem.
+                    Modem UART: TX=GPIO11, RX=GPIO10.
+                    Power control: PWRKEY=GPIO18, DTR=GPIO9, RESET=GPIO17.
+
+            config ML_BOARD_CUSTOM
+                bool "Custom pin configuration"
+                help
+                    Manually configure UART and power control GPIO pins.
+        endchoice
+
+        config ML_CELLULAR_TX_PIN
+            int "Cellular UART TX GPIO pin"
+            depends on ML_ENABLE_CELLULAR
+            default 11 if ML_BOARD_LILYGO_T_SIM7670G
+            default 43
+            help
+                GPIO pin for ESP32 TX -> modem RXD.
+                Waveshare SIM7600X: GPIO43 (XIAO D6).
+                LILYGO T-SIM7670G-S3: GPIO11.
+
+        config ML_CELLULAR_REG_TIMEOUT_S
+            int "Network registration timeout (seconds)"
+            depends on ML_ENABLE_CELLULAR
+            default 180
+            range 30 900
+            help
+                How long to wait for the modem to register on the network.
+                A cold LTE attach (new SIM, new location, after a power cycle)
+                often takes 1-2 minutes. While waiting, signal and
+                registration status are logged every ~10 s.
+
+        config ML_CELLULAR_FAST_BAUD
+            int "Switch modem UART to this baud after init (0 = keep initial baud)"
+            depends on ML_ENABLE_CELLULAR && !ML_BOARD_LILYGO_T_SIM7670G
+            default 0
+            help
+                After the modem answers at the initial baud rate, switch both
+                sides to this rate with AT+IPR (e.g. 460800 or 921600) for
+                faster PPP. Only reliable with short wiring and/or hardware
+                flow control; on failure the driver reverts. The modem stores
+                AT+IPR, and the driver normalises it back on the next boot.
+
+        config ML_CELLULAR_RX_PIN
+            int "Cellular UART RX GPIO pin"
+            depends on ML_ENABLE_CELLULAR
+            default 10 if ML_BOARD_LILYGO_T_SIM7670G
+            default 44
+            help
+                GPIO pin for ESP32 RX <- modem TXD.
+                Waveshare SIM7600X: GPIO44 (XIAO D7).
+                LILYGO T-SIM7670G-S3: GPIO10.
+
+        config ML_CELLULAR_PWRKEY_PIN
+            int "Modem PWRKEY GPIO pin"
+            depends on ML_ENABLE_CELLULAR
+            default 18 if ML_BOARD_LILYGO_T_SIM7670G
+            default -1
+            help
+                GPIO pin for modem power key control.
+                Set to -1 if not connected (Waveshare: always-on via USB).
+                LILYGO T-SIM7670G-S3: GPIO18.
+
+        config ML_CELLULAR_DTR_PIN
+            int "Modem DTR GPIO pin"
+            depends on ML_ENABLE_CELLULAR
+            default 9 if ML_BOARD_LILYGO_T_SIM7670G
+            default -1
+            help
+                GPIO pin for modem Data Terminal Ready signal.
+                Set to -1 if not connected.
+                LILYGO T-SIM7670G-S3: GPIO9.
+
+        config ML_CELLULAR_APN
+            string "Cellular APN"
+            depends on ML_ENABLE_CELLULAR
+            default ""
+            help
+                Access Point Name for cellular data connection.
+                Leave empty for auto-detection.
+                Letters, digits, '-' and '.' only (3GPP TS 23.003); other
+                values are rejected at startup.
+
+        config ML_CELLULAR_SIM_PIN
+            string "SIM Card PIN"
+            depends on ML_ENABLE_CELLULAR
+            default ""
+            help
+                PIN code for the SIM card. Leave empty if no PIN required.
+                Must be 4-8 digits.
+
+                The PIN is only sent when AT+SPIC reports at least 2 attempts
+                left (or, if the modem cannot report them, once per boot),
+                and never again after a rejection until reboot, so a wrong
+                PIN cannot PUK-lock the SIM through retries.
+
+        config ML_CELLULAR_PPP_USER
+            string "PPP CHAP username"
+            depends on ML_ENABLE_CELLULAR
+            default ""
+            help
+                Username for PPP CHAP authentication.
+                Leave empty for SIMs that use IMSI-based auth (no credentials).
+                Soracom SIMs use "sora".
+                Printable ASCII without '"' or '\', max 64 characters.
+
+        config ML_CELLULAR_PPP_PASS
+            string "PPP CHAP password"
+            depends on ML_ENABLE_CELLULAR
+            default ""
+            help
+                Password for PPP CHAP authentication.
+                Leave empty for SIMs that use IMSI-based auth (no credentials).
+                Soracom SIMs use "sora".
+                Printable ASCII without '"' or '\', max 64 characters.
+
+        choice ML_CELLULAR_DATA_MODE
+            prompt "Cellular data mode"
+            depends on ML_ENABLE_CELLULAR
+            default ML_CELLULAR_DATA_AUTO
+            help
+                Select how the modem provides data connectivity.
+
+                Auto: Try PPP first, fall back to AT socket bridge if PPP fails.
+                PPP only: Use PPP exclusively. Fails if PPP auth is rejected.
+                AT socket only: Skip PPP, use AT socket bridge. The UART stays
+                in AT command mode, so the application can send its own AT
+                commands (e.g. GPS queries) alongside the data connection with
+                ml_cellular_send_at_cmd(). While the bridge is active only
+                allowlisted query/information and GNSS commands are accepted
+                (AT+CSQ, AT+CPSI?, AT+CREG?, AT+CCLK?, AT+CBC, AT+CGPS=1,
+                AT+CGPSINFO, AT+CGNSSINFO, ...; see ml_at_validate.c).
+                The bridge is much slower than PPP (seconds of latency); with
+                PPP, use the modem's second UART/USB port for GNSS instead.
+
+            config ML_CELLULAR_DATA_AUTO
+                bool "Auto (PPP primary, AT socket fallback)"
+            config ML_CELLULAR_DATA_PPP_ONLY
+                bool "PPP only"
+            config ML_CELLULAR_DATA_AT_ONLY
+                bool "AT socket only"
+        endchoice
+
+    endmenu
+
+    menu "Network Switching"
+
+        config ML_ENABLE_NET_SWITCH
+            bool "Enable WiFi/Cellular network switching"
+            depends on ML_ENABLE_CELLULAR
+            default n
+            help
+                Automatic WiFi-primary with cellular fallback.
+                When WiFi connection fails or health check detects loss,
+                switches to cellular. Periodically checks if WiFi has
+                recovered and fails back.
+
+        config ML_NET_SWITCH_WIFI_TIMEOUT_MS
+            int "WiFi connect timeout (ms)"
+            depends on ML_ENABLE_NET_SWITCH
+            default 30000
+            range 1000 600000
+            help
+                How long to wait for WiFi connection before falling back
+                to cellular. Used when ml_net_switch_config_t.wifi_timeout_ms
+                is 0.
+
+        config ML_NET_SWITCH_HEALTH_INTERVAL_MS
+            int "Health check interval (ms)"
+            depends on ML_ENABLE_NET_SWITCH
+            default 30000
+            range 1000 3600000
+            help
+                Interval between health checks when connected.
+                After 3 consecutive failures, triggers network switch.
+                Used when ml_net_switch_config_t.health_check_interval_ms is 0.
+
+        config ML_NET_SWITCH_FAILBACK_MS
+            int "WiFi failback check interval (ms)"
+            depends on ML_ENABLE_NET_SWITCH
+            default 120000
+            range 0 3600000
+            help
+                When on cellular, how often to check if WiFi has recovered.
+                Set to 0 to disable automatic failback. Used when
+                ml_net_switch_config_t.failback_check_ms is 0.
+
+    endmenu
+
+    menu "Credentials"
+        comment "Configure via: idf.py menuconfig → MicroLink V2 → Credentials"
+        comment "These values are stored in sdkconfig (git-ignored)."
+
+        config ML_WIFI_SSID
+            string "WiFi SSID"
+            default ""
+            help
+                SSID of the WiFi network to connect to.
+                This is stored in sdkconfig which should be git-ignored.
+
+        config ML_WIFI_PASSWORD
+            string "WiFi Password"
+            default ""
+            help
+                Password for the WiFi network.
+                This is stored in sdkconfig which should be git-ignored.
+
+        config ML_TAILSCALE_AUTH_KEY
+            string "Tailscale Auth Key"
+            default ""
+            help
+                Tailscale authentication key from https://login.tailscale.com/admin/settings/keys
+                Generate a reusable + ephemeral key for development.
+                This is stored in sdkconfig which should be git-ignored.
+                Leave empty to join by interactive login instead: the device
+                gets a login URL from the control plane (ML_STATE_NEEDS_LOGIN,
+                microlink_get_auth_url(); basic_connect prints it as a QR code).
+
+        config ML_DEVICE_NAME
+            string "Device Name"
+            default ""
+            help
+                Hostname for this device on the Tailscale network.
+                Leave empty for auto-generated name (esp32-XXYYZZ from MAC,
+                or prefix-IMEI from cellular modem).
+
+    endmenu
+
+    menu "Control Plane"
+
+        config ML_CTRL_HOST
+            string "Control plane hostname"
+            default "controlplane.tailscale.com"
+            help
+                Coordination server hostname. Set to a Headscale-compatible
+                host (e.g. Lolipop Zero Trust Link controller) to use a
+                custom control plane. NVS runtime override still wins.
+
+        config ML_CTRL_TLS
+            bool "Connect to control plane over TLS (port 443)"
+            default n
+            help
+                Wrap the ts2021 Noise handshake in TLS on port 443 instead
+                of plain TCP on port 80. Required for control planes that
+                only expose an HTTPS listener (e.g. Headscale behind an LB).
+                The control plane itself is authenticated by the pinned Noise
+                public key; see ML_CTRL_TLS_VERIFY_CERT for the TLS layer.
+
+        config ML_CTRL_TLS_VERIFY_CERT
+            bool "Verify the control plane's TLS certificate"
+            depends on ML_CTRL_TLS && MBEDTLS_CERTIFICATE_BUNDLE
+            default y
+            help
+                Check the control plane's TLS certificate against ESP-IDF's
+                CA bundle and its host name. Noise already authenticates the
+                server; this additionally stops a network in the middle from
+                posing as the HTTPS endpoint. Turn off only for a self-hosted
+                server with a private/self-signed certificate.
+
+                This option needs CONFIG_MBEDTLS_CERTIFICATE_BUNDLE. Without
+                the bundle it is hidden and the certificate is NOT checked;
+                the build and each TLS handshake print a warning.
+
+        config ML_CTRL_STREAMING_MAP_FETCH
+            bool "Fetch the initial netmap over the streaming map request"
+            default n
+            help
+                Use a single Stream=true map request for the initial netmap
+                (like the official client) instead of a Stream=false request
+                followed by a long-poll. Needed for Headscale, which does not
+                answer Stream=false; MicroLink also switches automatically if
+                the server sends an empty response. Leave off for Tailscale
+                and Ionscale.
+
+        config ML_CTRL_NOISE_PUBKEY_HEX
+            string "Control plane Noise public key (hex)"
+            default ""
+            help
+                64-char hex of the control plane's Noise (machine) public key,
+                from https://<control-host>/key?v=131 → "publicKey":"mkey:<hex>".
+                Empty = use the built-in Tailscale key.
+
+    endmenu
+
+    menu "HTTP Config Server"
+
+        config ML_ENABLE_CONFIG_HTTPD
+            bool "Enable HTTP configuration server"
+            default n
+            help
+                Enable an HTTP server accessible via the Tailscale VPN IP
+                (e.g., http://100.x.x.x/) for runtime configuration of
+                WiFi credentials, Tailscale auth key, peer allowlist, etc.
+
+                Every request requires HTTP Basic auth (user "admin") and is
+                only served on the device's tailnet (VPN) address unless
+                ML_CONFIG_HTTPD_ALLOW_LAN is set. Anyone with the password
+                can change the auth key and network settings.
+
+                Settings persist in NVS across reboots. The peer allowlist
+                controls which peers receive outbound DISCO probes — on large
+                tailnets this prevents wg_mgr flooding and reduces latency.
+
+        config ML_CONFIG_HTTPD_OTA
+            bool "Firmware upload (POST /api/ota)"
+            depends on ML_ENABLE_CONFIG_HTTPD
+            default n
+            help
+                Accept a new app image (the .bin from the build) with
+                POST /api/ota, under the same access rules as the rest of the
+                config server, write it to the next OTA slot and restart into
+                it. The image is checked before it is used (chip, SHA-256
+                digest, and its signature with secure boot). Needs a partition
+                table with two OTA slots. tools/ml_ota.py updates a list of
+                devices this way. Enable BOOTLOADER_APP_ROLLBACK_ENABLE too, so
+                that an update that cannot reconnect is rolled back
+                (ML_OTA_ROLLBACK).
+
+        config ML_CONFIG_HTTPD_PASSWORD
+            string "Admin password (empty = generate on first boot)"
+            depends on ML_ENABLE_CONFIG_HTTPD
+            default ""
+            help
+                Password for the config UI (HTTP Basic auth, user "admin").
+                Leave empty to generate a random password on first start; it
+                is stored in NVS and printed once on the serial console.
+                Note: a password set here is compiled into the firmware.
+
+        config ML_CONFIG_HTTPD_ALLOW_LAN
+            bool "Also serve the config UI on the local (WiFi/Ethernet) network"
+            depends on ML_ENABLE_CONFIG_HTTPD
+            default n
+            help
+                By default the config UI only answers on the device's own
+                tailnet (VPN) address, where traffic is WireGuard-encrypted.
+                Enable to also answer on the WiFi station / Ethernet
+                interface's own address; Basic auth is then sent in cleartext
+                on that LAN. Never served on the cellular (PPP) carrier
+                address.
+
+        config ML_CONFIG_MAX_ALLOWED_PEERS
+            int "Maximum peers in allowlist"
+            depends on ML_ENABLE_CONFIG_HTTPD
+            default 16
+            range 1 1024
+            help
+                Maximum number of peers in the DISCO probe allowlist.
+                Each entry uses 28 bytes in NVS (IP + 24-char label).
+                ESP-IDF NVS supports multi-page blobs up to 508KB,
+                so large allowlists are not a problem.
+
+                - 16:    448 bytes (default, small deployments)
+                - 128:   3.6KB
+                - 300:   8.4KB (recommended for large fleets)
+                - 1024:  28.7KB
+
+                When the allowlist is empty, all peers are probed (backwards
+                compatible). When populated, only listed peers receive
+                outbound DISCO probes and WG peer table slots.
+
+    endmenu
+
+endmenu
